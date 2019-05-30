@@ -20,7 +20,7 @@ def data_gen():
 
     KS_M = np.zeros((3,9))
 
-    for k in range(0, 2+1)
+    for k in range(0, 2+1):
         for j in range(0, 8+1):
 
 
@@ -46,7 +46,7 @@ def plot_hist() :
         xbin[b] = min(I_0)+ (b+0.5)*dI
         b += 1
 
-    hist, binedges = np.histogram('''Some kind of data'''):
+    hist, binedges = np.histogram(d '''Some kind of data'''):
                     # Default uses 10 equally sized bins and returns
                     # a tuple, includes one more bin edge than there are bins
                     #def histogram(a, bins=10, range=None, normed=False, weights=None,density=None):
@@ -57,11 +57,25 @@ def plot_hist() :
 
     n, bins, patches = plt.hist(x=d, bins='auto', color='#0504aa',
                                 alpha=0.7, rwidth=0.85)
-    plt.grid(axis='y', alpha=0.75)
-    plt.xlabel('Value')
-    plt.ylabel('Frequency')
-    plt.title('My Very Own Histogram')
-    plt.text(23, 45, r'$\mu=15, b=3$')
+    #plt.grid(axis='y', alpha=0.75)
+    plt.xlabel('I!D0!N (mJy/sr)')
+            #may need to fix notation for this text
+    plt.ylabel('Probability')
+    plt.title(string('I!D0!N for' + clusname)')
+                    #should make the title based on the cluster name
     maxfreq = n.max()
+
+    #Below is from the article but not clear what it is doing
     # Set a clean upper y-axis limit.
     plt.ylim(ymax=np.ceil(maxfreq / 10) * 10 if maxfreq % 10 else maxfreq + 10)
+
+
+
+    # A clearer version from the matplotlib documentation
+    n_bins = 20
+
+    fig, axs = plt.subplots(1, 2)
+
+    # We can set the number of bins with the `bins` kwarg
+    axs[0].hist(x, bins=n_bins)
+    axs[1].hist(y, bins=n_bins)

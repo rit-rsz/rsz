@@ -6,7 +6,7 @@
 # PURPOSE : Create a python couterpart to the script sz_KS_nick_3.pro.
 #           This script will be used to test the creation of Nick's Histograms
 # EXPLANATION :
-# CALLING SEQUENCE
+# CALLING SEQUENCE :
 # INPUTS :
 # OUTPUTS :
 # REVISION HISTORY :
@@ -41,12 +41,12 @@ def data_gen():
 
 def plot_hist() :
     b = 0
-    dI = abs((max(I_0)-min(I_0))/l)
+    dI = abs((max(I_0)-min(I_0))/l) # this is the binsize
     for b in range(len(l)-1) :
         xbin[b] = min(I_0)+ (b+0.5)*dI
         b += 1
 
-    hist, binedges = np.histogram(d '''Some kind of data'''):
+    hist, binedges = np.histogram(d '''Some kind of data''')
                     # Default uses 10 equally sized bins and returns
                     # a tuple, includes one more bin edge than there are bins
                     #def histogram(a, bins=10, range=None, normed=False, weights=None,density=None):
@@ -55,18 +55,20 @@ def plot_hist() :
     data = scipy.io.readsav(CLUSDATA + data_file,python_dict = True)
 
 
-    n, bins, patches = plt.hist(x=d, bins='auto', color='#0504aa',
+
+    n, bins, patches = plt.hist(x=d, bins='auto',
                                 alpha=0.7, rwidth=0.85)
-    #plt.grid(axis='y', alpha=0.75)
-    plt.xlabel('I!D0!N (mJy/sr)')
+
+
+    plt.xlabel('I_0 (mJy/sr)')
             #may need to fix notation for this text
     plt.ylabel('Probability')
-    plt.title(string('I!D0!N for' + clusname)')
+    plt.title(string('I_0 for' + clusname)')
                     #should make the title based on the cluster name
-    maxfreq = n.max()
 
     #Below is from the article but not clear what it is doing
     # Set a clean upper y-axis limit.
+    maxfreq = n.max()
     plt.ylim(ymax=np.ceil(maxfreq / 10) * 10 if maxfreq % 10 else maxfreq + 10)
 
 

@@ -8,6 +8,8 @@
 # EXPLANATION :
 # CALLING SEQUENCE :
 # INPUTS :
+#           nsims (number of simulations/files to read in)
+#
 # OUTPUTS :
 # REVISION HISTORY :
 ################################################################################
@@ -17,23 +19,23 @@ from config import * #(this line will give me access to all directory variables)
 import matplotlib.pyplot as plt
 import math
 
-def data_gen(nsims,len):
+def data_gen(nsims,l):
 
     KS_M = np.zeros((3,9))
-    cluster = ['a0370','a1689','a1835','a2219','cl0024', 'ms0451','ms1054','rxj0152','rxj1347']
+    clusters = ['a0370','a1689','a1835','a2219','cl0024', 'ms0451','ms1054','rxj0152','rxj1347']
     bands = ['PSW', 'PMW', 'PLW']
 
     for k in range(len(bands)-1):
         I_0_sim = np.zeros((nsims+1))
-        xbin = np.zeros((len+1))
+        xbin = np.zeros((l+1))
         band = bands[k]
 
         for j in range(len(clusters)-1):
-            clusname = cluster[j]
+            clusname = clusters[j]
 
             n = 0
             for i in range(200,200+nsims-1) :
-                data_file = 'sz/szout_0' i + '_' + clusname + '.sav'
+                data_file = 'sz/sim/szout_0' + str(i) + '_' + clusname + '.sav'
                 data = scipy.io.readsav(CLUSDATA + data_file,python_dict = True)
                 arr_data = data.values()[0][k][0] # only works on python 2, returns increment
                 ''' for python 3 use arr_data = list(data.values())[0][k][0] '''
@@ -41,41 +43,39 @@ def data_gen(nsims,len):
                 # final_data = [value for value in arr_data if not math.isnan(value)]
                 I_0_sim[n] = arr_data
                 n += 1
-                plot_hist(j,k,len)
+            plot_hist(j,k,l,I_0_sim,xbin,clusname,band)
 
 
 
-def plot_hist(j,k,l) :
-'''It does make len(len) confusing though'''
-''' I wondered about that, probably we should yeah'''
+def plot_hist(j,k,l,I_0,xbin,clusname,band) :
     b = 0
     dI = abs((max(I_0)-min(I_0))/l) # this is the binsize
-    for b in range(len(l)-1) :
+    for b in range(l-1) :
         xbin[b] = min(I_0)+ (b+0.5)*dI
         b += 1
-
-    data_file = 'sz/szout_' + clusname + '.sav'
-    data = scipy.io.readsav(CLUSDATA + data_file,python_dict = True)
-    ########################## Data Array Structure ###########################
-    # [increment,offset,band,radbin,midbin,fluxbin,errbin,rc,beta,clusname]
-    ###########################################################################
-    inc = data.values()[0][k][0] # only works on python 2, returns increment
-    ''' for python 3 use arr_data = list(data.values())[0][k][0] '''
-    I_0 = inc
-#     We need to determine where this then needs to go
-
-    xmin = min([I_0,min(xbin)])
-    xmax = max([I_0,max(xbin)])
-    n, bins, patches = plt.hist(x=arr_data, bins='auto', rwidth=0.85)
+    n, bins, patches = plt.hist(x=I_0, bins=xbin)#,density = True)
                                 # rwidth is the width of the bars as a fraction of the bin width
-    Gmax = float(abs(max(n)))
-    N = len(xbin)
-    Area = np.sum(G)
-    Area_av = Area/max(G)
+
+#     data_file = 'sz/sim/szout_' + clusname + '.sav'
+#     data = scipy.io.readsav(CLUSDATA + data_file,python_dict = True)
+#     ########################## Data Array Structure ###########################
+#     # [increment,offset,band,radbin,midbin,fluxbin,errbin,rc,beta,clusname]
+#     ###########################################################################
+#     inc = data.values()[0][k][0] # only works on python 2, returns increment
+#     ''' for python 3 use arr_data = list(data.values())[0][k][0] '''
+#     I_0 = inc
+# #     We need to determine where this then needs to go
+#
+#     xmin = min([I_0,min(xbin)])
+#     xmax = max([I_0,max(xbin)])
+#     Gmax = float(abs(max(n)))
+#     N = len(xbin)
+#     Area = np.sum(n)
+#     Area_av = Area/max(n)
 
     plt.xlabel('I_0 (mJy/sr)')
     plt.ylabel('Probability')
-    plt.title(string('I_0 for' + clusname)')
+    plt.title('I_0 for ' + clusname + ' Band: ' + band)
     plt.show()
 
 

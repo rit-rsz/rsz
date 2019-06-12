@@ -29,37 +29,50 @@ from config import * #(this line will give me access to all directory variables)
 import matplotlib.pyplot as plt
 import math
 
+import sys
+sys.path.append('utilities')
+
+import get_clusparams
 
 # def catsrc(clusname,saveplots,cattype, savecat,savemap,maketf,simmap,nsim,s2n,yin,tin,verbose,success,errmsg):
-def catsrc(clusname,\
-    saveplots=1,\
-    cattype=0,\
-    savecat=0,\
-    savemap=0,\
-    maketf=0,\
-    simmap=0,\
-    nsim=0,\
-    s2n=3,\
-    yin=0,\
-    tin=0,\
-    verbose=1):
+class catsrc:
+    # From when carsrc was a def
+    # (clusname,\
+    # saveplots=1,\
+    # cattype=0,\
+    # savecat=0,\
+    # savemap=0,\
+    # maketf=0,\
+    # simmap=0,\
+    # nsim=0,\
+    # s2n=3,\
+    # yin=0,\
+    # tin=0,\
+    # verbose=1):
     # ,SUCCESS=success,ERRMSG=errmsg):
 
     if not clusname:
         print('Require a string array of cluster names as input, aborting!')
 
+    def _init_():
+        self.maps[]
+        # possibly how we would get around defining these terms, not positive
+        self.verbose = 1 if not verbose else verbose
+        self.cattype = '24 um' if not cattype else cattype
+        self.savecat = 0 if not savecat else SAVECAT
+        self.savemap = 0 if not savemap else SAVEMAP
+        self.saveplot = 1 if not saveplot else saveplot
+        self.maketf = 0 if not maketf else MAKETF
+        self.sinmap = 0 if not SIMMAP else SIMMAP
+        self.s2n = 3 if not s2n else S2N
+        self.yin = 0  if not yin else YIN
+        self.tin = 0 if not tin else tin
+
+
 #   Below assign values for these variables if they are not defined
 #   I think I may have consolidated this into the def of catsrc
-    # verbose = 1 if not verbose else verbose
-    # cattype = '24 um' if not cattype else cattype
-    # savecat = 0 if not savecat else SAVECAT
-    # savemap = 0 if not savemap else SAVEMAP
-    # saveplot = 1 if not saveplot else saveplot
-    # maketf = 0 if not maketf else MAKETF
-    # sinmap = 0 if not SIMMAP else SIMMAP
-    # s2n = 3 if not s2n else S2N
-    # yin = 0  if not yin else YIN
-    # tin = 0 if not tin else tin
+#   If not we can change back to these
+
 
     if simmap > 0 and not nsim:
         print('simmap set but nsim not supplied!   Aborting')
@@ -79,7 +92,7 @@ def catsrc(clusname,\
     #This needs more work to be finished
     if verbose:
         print('Fetching cluster parameters')
-    params = get_clusparams()
+    params = get_clusparams(clusname)
 
     if not cgp_success:
         # Need to make this a single string
@@ -95,7 +108,7 @@ def catsrc(clusname,\
             errmsg = ('get_data exited with error' + cgd_errmsg)
             if verbose:
                 print(errmsg)
-    
+
 
 
 

@@ -11,4 +11,4 @@
 # REVISION HISTORY :
 ################################################################################
 
-CLUSDATA = '/data/butler/SPIRE/'
+CLUSDATA = '/data/mercado/SPIRE/'

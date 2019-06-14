@@ -1,6 +1,6 @@
 
 ################################################################################
-# NAME : catsrc.py
+# NAME : get_data.py
 # DATE STARTED : June 11, 2019
 # AUTHORS : Victoria Butler & Dale Mercado
 # PURPOSE : This is where the data is retevied and can be

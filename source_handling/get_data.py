@@ -21,11 +21,14 @@ from astropy.io import fits
 import os
 
 def get_data(clusname, verbose = 1):
+    # place holders for the if statements to work until I add them to the input for get data
+    # This will happen when the script is fully functional
     verbose = []
     resolution = []
     version = []
     bolocam = []
     manpath = 0
+    CLUSDATA = '/data/mercado/SPIRE/'
 
     if not verbose:
         verbose = 1
@@ -49,23 +52,35 @@ def get_data(clusname, verbose = 1):
         cols = ['PSW','PMW','PLW','BOLOCAM']
         bolocam = 1
 
+
+
     if manpath == 0:
-
-        hermfile = [x for x in x.startswith('/data/mercado/SPIRE/' + 'hermes_cluster/' + clusname)\
-                    + x.endswith('_' + resolution + '_' + version + '.fits')]
+        dir = []
+        # hermfile = [self.dir + x for x in x.startswith('/data/mercado/SPIRE/' + 'hermes_cluster/' + clusname)\
+        #             + x.endswith('_' + resolution + '_' + version + '.fits')]
+        # files = [self.dir + x for x in os.listdir(self.dir) if x.startswith("omnilog")]
         # This is still broken and I am usure how to move forward on this
-        print(hermfile)
-        # hermfile = str('/data/mercado/SPIRE/' + 'hermes_cluster/' + clusname + '*_' +\
-                    # resolution + '_' + version + '.fits')
+        # print(hermfile)
+        # hermfile = str('/data/mercado/SPIRE/' + 'hermes_clusters/' + clusname + '*_' +\
+        #             resolution + '_' + version + '.fits')
+        # This is an example of the file name that we are trying to call
+        # rxj1347_PLW_fr_1.fits
+        # hermfiles = []
+        for i in range(len(cols)):
+            # Note Need to change all the hard coded
+            hermfile = (CLUSDATA + 'hermes_clusters/' + clusname + '_' +\
+                        cols[i] + '_' + resolution + '_' + version + '.fits')
+            hermfiles = (fits.open(hermfile))
+            # In the idl file it uses a * to grab all the bands here I had to use a for loop in order
+            # to acheive the same results
+            # This method provides difficulty for the hls and snapfiles below as they use other numbers in their names
 
-        hermfiles = fits.open(hermfile)
-        print(hermfiles[0])
+            hlsfile = (CLUSDATA + 'hls_clusters/' + clusname + '*')
+            hlsfiles = fits.open(hlsfile)
+            print(hlsfiles.info())
 
-        hlsfile = (CLUSDATA + 'hls_cluster/' + clusname +'.fits')
-        hlsfiles = fits.open()
-
-        snapfile = (CLUSDATA + 'snapshot_cluster/' + clusname +'*.fits')
-        snapfiles = fits.open()
+            snapfile = (CLUSDATA + 'snapshot_clusters/' + clusname +'*.fits')
+            snapfiles = fits.open(snapfile)
 
         if snapcount ^ hermcount ^ hlscount != 3 :
             errmsg = ('Problem finding exclusive files, file dump is:', \
@@ -103,10 +118,13 @@ def get_data(clusname, verbose = 1):
 
 
 
-# def read_file():
+def read_file():
 #
-#     calfac = some Number
-#     # This will ultimatly be in the list of constants
+#
+    calfac = (np.pi/180) * (1/3600)**2 * (np.pi / (4 * np.log(2))) * (1e6)
+
+#
+# This will ultimatly be in the list of constants
 #
 #
 #     # The rest of the scrpit involves idl_libs stuff that

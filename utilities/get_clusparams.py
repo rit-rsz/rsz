@@ -25,14 +25,19 @@ import csv
 from collections import defaultdict
 
 
-def get_clus_params(clusname,VERBOSE=verbose,SUCCESS=cgp_success,\
-                           ERRMSG=cgp_errmsg):
-    # verbose = 1 if not verbose else verbose
+def get_clus_params(clusname_in,verbose = 1):
+# clusname,VERBOSE=verbose,SUCCESS=cgp_success,\
+                           # ERRMSG=cgp_errmsg):
+    verbose = 1
+    CLUSDATA = '/data/mercado/SPIRE/'
 
-    clusname_in = str('rxj1347')
-    tab = read('/data/mercado/SPIRE/' + 'lookup/cluster_master_list_150327.csv')
+    tab = read(CLUSDATA + 'lookup/cluster_master_list_150327.csv')
     # ,header_start = 0)
     # print(tab[';Cluster Name'][1])
+    # can I read this in as a dictionary???
+
+    # This is what the idl code is cycleing through so I set it to a variable
+    # for now for better access. Later on change this to something better
     x = tab[';Cluster Name']
 
     # Header information
@@ -75,26 +80,28 @@ def get_clus_params(clusname,VERBOSE=verbose,SUCCESS=cgp_success,\
         #     print(errmsg)
         #     return(0)
 
-
-    clusparams = np.array([fielddesc, tab[';Cluster Name'][n] ,\
-    tab['Full Name'][n] ,\
-    tab['Program'][n] ,\
-    tab['z'][n] ,\
-    tab['Nom. RA'][n] ,\
-    tab['ND RA'][n] ,\
-    tab['Fid. RA'][n] ,\
-    tab['FD RA'][n] ,\
-    tab['Nom Dec.'][n] ,\
-    tab['ND Dec.'][n] ,\
-    tab['Fid Dec.'][n] ,\
-    tab['FD Dec.'][n] ,\
-    tab['Te'][n] ,\
-    tab['r_c'][n] ,\
-    tab['beta'][n] ,\
-    tab['y_0'][n] ,\
-    tab['yup'][n] ,\
-    tab['ydn'][n] ,\
-    tab['cirrus'][n]])
+    # Populate the clusparams array. (Future try dictionary)
+    clusparams = {'fielddesc':fielddesc,\
+    'clusname':tab[';Cluster Name'][n] ,\
+    'longname':tab['Full Name'][n] ,\
+    'program':tab['Program'][n] ,\
+    'z':tab['z'][n] ,\
+    'nomrah':tab['Nom. RA'][n] ,\
+    'nomrad':tab['ND RA'][n] ,\
+    'fidrah':tab['Fid. RA'][n] ,\
+    'fidrad':tab['FD RA'][n] ,\
+    'nomdeh':tab['Nom Dec.'][n] ,\
+    'nomded':tab['ND Dec.'][n] ,\
+    'fiddeh':tab['Fid Dec.'][n] ,\
+    'fidded':tab['FD Dec.'][n] ,\
+    'Te':tab['Te'][n] ,\
+    'rc':tab['r_c'][n] ,\
+    'beta':tab['beta'][n] ,\
+    'yzero':tab['y_0'][n] ,\
+    'yup':tab['yup'][n] ,\
+    'ydin':tab['ydn'][n] ,\
+    'cirrus':tab['cirrus'][n]}
+    print(clusparams['longname'])
     # dtype below is trying to recreate clusparams.clusname style
     # dtype=[('clusname'),('longname'),('program'),('z'),('nomrah'),\
     #         ('nomrad'),('fidrah'),('fidrad'),('nomdeh'),('nomded'),\
@@ -104,8 +111,10 @@ def get_clus_params(clusname,VERBOSE=verbose,SUCCESS=cgp_success,\
 #   One thing that this is missing is any header information.
 #   In later scrpts the pipeline calls for instance params.fidrad and that is not a
 #   feature that this current setup has which is important
+#   If I use a dictionary for this it will be able to pass the header information along
+#   as well as be callable by its name
 
-    print(clusparams[2])
+    # print(clusparams[2])
 
     #now need to set clusparams to be handed back to the script
     #Need to figure out what kind of variable to do this as
@@ -114,4 +123,4 @@ def get_clus_params(clusname,VERBOSE=verbose,SUCCESS=cgp_success,\
 
 
 if __name__ == '__main__':
-    get_clus_params()
+    get_clus_params('rxj1347')

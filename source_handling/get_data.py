@@ -19,31 +19,14 @@ import matplotlib.pyplot as plt
 import math
 from astropy.io import fits
 import os
+import pyfits
 
-def get_data(clusname, verbose = 1):
+def get_data(clusname, verbose = 1, resolution = 'nr', version = '1'):
     # place holders for the if statements to work until I add them to the input for get data
     # This will happen when the script is fully functional
-    verbose = []
-    resolution = []
-    version = []
     bolocam = []
     manpath = 0
     CLUSDATA = '/data/mercado/SPIRE/'
-
-    if not verbose:
-        verbose = 1
-    else:
-        verbose = verbose
-
-    if not resolution:
-        resolution = 'nr'
-    else:
-        resolution = resolution
-
-    if not version:
-        version = '1'
-    else:
-        version = version
 
     if not bolocam:
         cols = ['PSW','PMW','PLW']
@@ -52,8 +35,7 @@ def get_data(clusname, verbose = 1):
         cols = ['PSW','PMW','PLW','BOLOCAM']
         bolocam = 1
 
-
-
+#   If there is no manual path set
     if manpath == 0:
         dir = []
         # hermfile = [self.dir + x for x in x.startswith('/data/mercado/SPIRE/' + 'hermes_cluster/' + clusname)\
@@ -66,27 +48,56 @@ def get_data(clusname, verbose = 1):
         # This is an example of the file name that we are trying to call
         # rxj1347_PLW_fr_1.fits
         # hermfiles = []
+        hermcount = 0
+        hlscount = 0
+        snapcount = 0
         for i in range(len(cols)):
-            # Note Need to change all the hard coded
+            # Still need to figureout how to append these fits files to an array of some sort
             hermfile = (CLUSDATA + 'hermes_clusters/' + clusname + '_' +\
                         cols[i] + '_' + resolution + '_' + version + '.fits')
             hermfiles = (fits.open(hermfile))
+
+#           Count the number of hermfiles that are looked at
+            if len(hermfiles):
+                hermcount += 1
+            print(hermcount)
+
             # In the idl file it uses a * to grab all the bands here I had to use a for loop in order
             # to acheive the same results
             # This method provides difficulty for the hls and snapfiles below as they use other numbers in their names
 
-            hlsfile = (CLUSDATA + 'hls_clusters/' + clusname + '*')
-            hlsfiles = fits.open(hlsfile)
-            print(hlsfiles.info())
 
-            snapfile = (CLUSDATA + 'snapshot_clusters/' + clusname +'*.fits')
-            snapfiles = fits.open(snapfile)
+#           Currently these two are broken:
+#           I need to figureout how to use the * to call them all.
+#           There are other variables not that are being called and I cant work around it like the otehr
+#
+#           This is example of all the hls files that are being called
+#           a0068_BL_HP16_1.0_8.1.fits
+#           a0068_PLW_12_8.2.fits
+#           a0068_PMW_9_8.2.fits
+#           a0068_PSW_6_8.2.fits
+#           a0068_R_HP25_2.0_8.1.fits
+
+            # hlsfile = (CLUSDATA + 'hls_clusters/' + clusname + '*')
+            # hlsfiles = fits.open(hlsfile)
+            # print(hlsfiles.info())
+
+#           This is an example of all of the snapshot files that are getting called,
+#           only 3 in the dicrectory
+#           cl1226_PLW_12_8.2.fits
+#           cl1226_PMW_9_8.2.fits
+#           cl1226_PSW_6_8.2.fits
+            # snapfile = (CLUSDATA + 'snapshot_clusters/' + clusname +'*.fits')
+            # snapfiles = fits.open(snapfile)
+
+#       For now I will just create and empty array for these ones and come back when I havea better idea of how to proceed
+
 
         if snapcount ^ hermcount ^ hlscount != 3 :
             errmsg = ('Problem finding exclusive files, file dump is:', \
                         snapfiles, hermfiles, hlsfiles)
             if verbose:
-                print errmsg
+                print(errmsg)
             return success
         if hermcount == 3:
             files = hermfiles
@@ -99,38 +110,102 @@ def get_data(clusname, verbose = 1):
         if snapcount == 3:
             files = snapfiles
             nfiles = snapcount
+        print('help')
+
+#   Manual Path option
     else:
-        files # Need to apply the file search again
+        mancount = 0
+        files = fits.open(manpath)
+        if len(files):
+            mancount += 1
         if mancount == 3:
             errmsg = 'Cannot find 3 files fitting that path description!'
-            #message ERRMSG
+            #message errmsg
+            print(errmsg)
             return success
         nfiles = mancount
+
 
     if bolocam:
         nfiles = nfiles +1
 
-#     for i in range(nfiles, nfiles-1)
-# #       Need to get this to look more like the idl code
-# #       There it runs through ifile= 0 to nfiles -1
-#         if i < 3:
-#             errmsg
+
+#   This is maps as the ptr array<NullPointer><NullPointer><NullPointer>
+#   nfiles = 3 I assume that accounts for the three null pointers being populated
+    maps = nfiles
+
+#   Need to tweek the syntax of this for loop
+    for ifile in range(nfiles):
+        count = []
+        if ifile < 3:
+            place = str(nfiles)
+            if count != 1:
+                errmsg = str('Problem finding ' + cols[ifile] + 'file.')
+                if verbose:
+                    print(errmsg)
+                    return success
 
 
 
-def read_file():
+#               From get_clus params it's very close to the same
+# param_len = len(param_data)
+# count = 0
+# for i in range(param_len):
+#     place = str(param_name[i])
 #
-#
+#     if place == clusname_in :
+#         whpl = i
+#         count += 1
+
+#           makes maps a pointer again, we're gona try using a dictionary
+#           This is also where readfile is used for the first time
+        #     maps[ifile] = read_file(files[whpl],cols[ifile],\
+        #                                   clusname,VERBOSE=verbose)
+        # else:
+        #     maps[ifile] = read_file(files[whpl],cols[ifile],\
+        #                                   clusname,VERBOSE=verbose)
+
+    success = '1b'
+    return maps
+
+
+
+
+def read_file(file,col,clusname,VERBOSE=verbose):
+#   The way this works in IDL is a pointer is populated with this kind of information in this case
+#   we should be using a dictionary as this is one of the important ones called maps
+#   This should ulitmatly be defined in as a self.calfac for this calibration
     calfac = (np.pi/180) * (1/3600)**2 * (np.pi / (4 * np.log(2))) * (1e6)
+#   This will ultimatly be in the list of constants
 
-#
-# This will ultimatly be in the list of constants
-#
-#
-#     # The rest of the scrpit involves idl_libs stuff that
-#     # will get grabbed from astropy
+    # The rest of the scrpit involves idl_libs stuff that
+    # will get grabbed from astropy
+    map = fits.open(file[0])
+    err = fits.open(file[1])
+    exp = fits.open(file[2])
+    flag = fits.open(file[3])
 
+    if map[0].header['CDELT1'] != 0:
+        pixsize = 3600 * \
+                  mean([abs(map[0].header['CDELT1'],abs(map[0].header['CDELT2']))])
+        map[0].header['cd_1'] = map[0].header['CDELT1']
+        map[0].header['cd_2'] = 0
+        map[0].header['cd_1'] = 0
+        map[0].header['cd_2'] = map[0].header['CDELT2']
+        err[0].header['cd_1'] = err[0].header['CDELT1']
+        err[0].header['cd_2'] = 0
+        err[0].header['cd_1'] = 0
+        err[0].header['cd_2'] = err[0].header['CDELT2']
 
+    else:
+        pixsize = 3600 * \
+                  mean([abs(map[0].header['CD1_1']+map[0].header['CD2_1']), \
+                        abs(map[0].header['CD2_1'] + map[0].header['CD2_2'])])
+
+    psf = get_spire_beam(col,pixsize)
+    width
+   SXPAR()  data[0].header['KEY'] 	Obtain value of header keyword
+SXADDPAR()  data[0].header['KEY']='value' OR data[0].header.update('KEY','value', 'comment')
 
 
 

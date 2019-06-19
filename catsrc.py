@@ -54,7 +54,7 @@ class catsrc:
     if not clusname:
         print('Require a string array of cluster names as input, aborting!')
 
-    def _init_():
+    def __init__():
         self.maps[]
         # possibly how we would get around defining these terms, not positive
         self.verbose = 1 if not verbose else verbose
@@ -69,13 +69,14 @@ class catsrc:
         self.tin = 0 if not tin else tin
 
 
+
+    def
 #   Below assign values for these variables if they are not defined
 #   I think I may have consolidated this into the def of catsrc
 #   If not we can change back to these
+        if simmap > 0 and not nsim:
+            print('simmap set but nsim not supplied!   Aborting')
 
-
-    if simmap > 0 and not nsim:
-        print('simmap set but nsim not supplied!   Aborting')
     #
     # if simmap == 0:
     #     nsim = #fill with nans??

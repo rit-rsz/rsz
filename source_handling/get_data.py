@@ -26,7 +26,7 @@ def get_data(clusname, verbose = 1, resolution = 'nr', version = '1', manpath=0,
              bolocam=None):
     # place holders for the if statements to work until I add them to the input for get data
     # This will happen when the script is fully functional
-
+    errmsg = False
     if not bolocam:
         cols = ['PSW','PMW','PLW']
         bolocam = 0
@@ -121,7 +121,8 @@ def get_data(clusname, verbose = 1, resolution = 'nr', version = '1', manpath=0,
                         snapfiles, hermfiles, hlsfiles)
             if verbose:
                 print(errmsg)
-            return success
+            print('hola')
+            return None, errmsg
         if hermcount == 3:
             files = hermfiles
             nfiles = hermcount
@@ -146,8 +147,9 @@ def get_data(clusname, verbose = 1, resolution = 'nr', version = '1', manpath=0,
         if mancount == 3:
             errmsg = 'Cannot find 3 files fitting that path description!'
             #message errmsg
-            print(errmsg)
-            return success
+            if verbose:
+                print(errmsg)
+            return None, errmsg
         nfiles = mancount
 
 
@@ -164,17 +166,20 @@ def get_data(clusname, verbose = 1, resolution = 'nr', version = '1', manpath=0,
         count = []
         counter = 0
         if ifile < 3:
-            for i in range(len(nfiles)):
+            for i in range(nfiles):
                 counter += 1
                 if cols[ifile] in files:
                     count.append(counter)
             if len(count) != 1:
-                print('Problem finding', cols[ifile], 'file.')
+                errmsg = 'Problem finding ' + cols[ifile] + ' file.'
+                if verbose:
+                    print(errmsg)
+                return None, errmsg
             else:
                 maps[ifile] = clus_read_file(args) #args need to be filled in
         else:
             maps[ifile] = clus_read_file(args) #args need to be filled in bolocam one
-    return maps
+    return maps, errmsg
 
 #               From get_clus params it's very close to the same
 # param_len = len(param_data)
@@ -196,7 +201,7 @@ def get_data(clusname, verbose = 1, resolution = 'nr', version = '1', manpath=0,
 
 
 
-def read_file(file,col,clusname,VERBOSE=verbose):
+def read_file(file,col,clusname,verbose=0):
 #   The way this works in IDL is a pointer is populated with this kind of information in this case
 #   we should be using a dictionary as this is one of the important ones called maps
 #   This should ulitmatly be defined in as a self.calfac for this calibration
@@ -229,7 +234,7 @@ def read_file(file,col,clusname,VERBOSE=verbose):
 
     psf = get_spire_beam(col,pixsize)
     widtha = get_spire_beam_fwhm(col)
-    width = widtha / sqrt(8 * log(2)) * pixsize)
+    width = (widtha / sqrt(8 * log(2)) * pixsize)
 #   We wouldnt be able to put this one in calfac since it is determined by the source called
     calfac = 1 / (calfac * (get_spire_beam_fwhm(col))**2)
 #   This should be defined in the catsrsc file
@@ -237,7 +242,7 @@ def read_file(file,col,clusname,VERBOSE=verbose):
 
 #   Something called EXTAST?????
 #   Gets header information from a fits image. Astropy should be able to do this
-    astr = map.header[]
+    astr = map.header
 
 #   Not sure if this is the correct syntax for astr naxis
     srcrm = np.zeros(astr.naxis)

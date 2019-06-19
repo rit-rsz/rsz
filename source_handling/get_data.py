@@ -20,13 +20,12 @@ import math
 from astropy.io import fits
 import os
 import pyfits
+import config
 
-def get_data(clusname, verbose = 1, resolution = 'nr', version = '1'):
+def get_data(clusname, verbose = 1, resolution = 'nr', version = '1', manpath=0,
+             bolocam=None):
     # place holders for the if statements to work until I add them to the input for get data
     # This will happen when the script is fully functional
-    bolocam = []
-    manpath = 0
-    CLUSDATA = '/data/mercado/SPIRE/'
 
     if not bolocam:
         cols = ['PSW','PMW','PLW']
@@ -37,7 +36,31 @@ def get_data(clusname, verbose = 1, resolution = 'nr', version = '1'):
 
 #   If there is no manual path set
     if manpath == 0:
-        dir = []
+        hermfiles = []
+        hermdir = config.CLUSDATA + 'hermes_clusters/'
+        hermcount = 0
+        for x in os.listdir(hermdir):
+            if x.startswith(clusname):
+                if resolution in x and version in x:
+                    hermfiles.append(hermdir + x) #this SHOULD work
+                    hermcount += 1
+        hlsdir = config.CLUSDATA + 'hls_clusters/'
+        hlsfiles = []
+        hlscount = 0
+        for x in os.listdir(hlsdir):
+            if x.startswith(clusname):
+                if x.startswith(clusname):
+                    hlsfiles.append(hlsdir + x)
+                    hlscount += 1
+        snapdir = config.CLUSDATA + 'snapshot_clusters'
+        snapfiles = []
+        snapcount = 0
+        for x in os.listdir(snapdir):
+            if x.startswith(clusname):
+                snapfiles.append(snapdir + x)
+                snapcount += 1
+
+
         # hermfile = [self.dir + x for x in x.startswith('/data/mercado/SPIRE/' + 'hermes_cluster/' + clusname)\
         #             + x.endswith('_' + resolution + '_' + version + '.fits')]
         # files = [self.dir + x for x in os.listdir(self.dir) if x.startswith("omnilog")]
@@ -48,19 +71,19 @@ def get_data(clusname, verbose = 1, resolution = 'nr', version = '1'):
         # This is an example of the file name that we are trying to call
         # rxj1347_PLW_fr_1.fits
         # hermfiles = []
-        hermcount = 0
-        hlscount = 0
-        snapcount = 0
-        for i in range(len(cols)):
+#        hermcount = 0
+#        hlscount = 0
+#        snapcount = 0
+#        for i in range(len(cols)):
             # Still need to figureout how to append these fits files to an array of some sort
-            hermfile = (CLUSDATA + 'hermes_clusters/' + clusname + '_' +\
-                        cols[i] + '_' + resolution + '_' + version + '.fits')
-            hermfiles = (fits.open(hermfile))
+#            hermfile = (CLUSDATA + 'hermes_clusters/' + clusname + '_' +\
+#                        cols[i] + '_' + resolution + '_' + version + '.fits')
+#            hermfiles = (fits.open(hermfile))
 
 #           Count the number of hermfiles that are looked at
-            if len(hermfiles):
-                hermcount += 1
-            print(hermcount)
+#            if len(hermfiles):
+#                hermcount += 1
+#            print(hermcount)
 
             # In the idl file it uses a * to grab all the bands here I had to use a for loop in order
             # to acheive the same results
@@ -110,12 +133,14 @@ def get_data(clusname, verbose = 1, resolution = 'nr', version = '1'):
         if snapcount == 3:
             files = snapfiles
             nfiles = snapcount
-        print('help')
+        print('help') #please help me
 
 #   Manual Path option
     else:
         mancount = 0
-        files = fits.open(manpath)
+        manfiles = []
+        for x in os.listdir(manpath):
+            pass # don't know what to put here because i don't know what the specifications for manpath are
         if len(files):
             mancount += 1
         if mancount == 3:
@@ -137,15 +162,19 @@ def get_data(clusname, verbose = 1, resolution = 'nr', version = '1'):
 #   Need to tweek the syntax of this for loop
     for ifile in range(nfiles):
         count = []
+        counter = 0
         if ifile < 3:
-            place = str(nfiles)
-            if count != 1:
-                errmsg = str('Problem finding ' + cols[ifile] + 'file.')
-                if verbose:
-                    print(errmsg)
-                    return success
-
-
+            for i in range(len(nfiles)):
+                counter += 1
+                if cols[ifile] in files:
+                    count.append(counter)
+            if len(count) != 1:
+                print('Problem finding', cols[ifile], 'file.')
+            else:
+                maps[ifile] = clus_read_file(args) #args need to be filled in
+        else:
+            maps[ifile] = clus_read_file(args) #args need to be filled in bolocam one
+    return maps
 
 #               From get_clus params it's very close to the same
 # param_len = len(param_data)
@@ -164,10 +193,6 @@ def get_data(clusname, verbose = 1, resolution = 'nr', version = '1'):
         # else:
         #     maps[ifile] = read_file(files[whpl],cols[ifile],\
         #                                   clusname,VERBOSE=verbose)
-
-    success = '1b'
-    return maps
-
 
 
 

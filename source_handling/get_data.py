@@ -121,7 +121,6 @@ def get_data(clusname, verbose = 1, resolution = 'nr', version = '1', manpath=0,
                         snapfiles, hermfiles, hlsfiles)
             if verbose:
                 print(errmsg)
-            print('hola')
             return None, errmsg
         if hermcount == 3:
             files = hermfiles
@@ -159,23 +158,20 @@ def get_data(clusname, verbose = 1, resolution = 'nr', version = '1', manpath=0,
 
 #   This is maps as the ptr array<NullPointer><NullPointer><NullPointer>
 #   nfiles = 3 I assume that accounts for the three null pointers being populated
-    maps = nfiles
+    maps = np.empty(nfiles)
 
 #   Need to tweek the syntax of this for loop
     for ifile in range(nfiles):
         count = []
         counter = 0
         if ifile < 3:
-            for i in range(nfiles):
-                counter += 1
-                if cols[ifile] in files:
-                    count.append(counter)
-            if len(count) != 1:
+            if cols[ifile] in files[ifile]:
+                pass
+            else:
                 errmsg = 'Problem finding ' + cols[ifile] + ' file.'
                 if verbose:
                     print(errmsg)
                 return None, errmsg
-            else:
                 maps[ifile] = clus_read_file(args) #args need to be filled in
         else:
             maps[ifile] = clus_read_file(args) #args need to be filled in bolocam one

@@ -108,7 +108,6 @@ class Catsrc():
                 if self.verbose:
                     print('clus_add_sziso exited with error: '+ err)
                 exit()
-
         ncols = len(maps)
 
         if self.verbose:

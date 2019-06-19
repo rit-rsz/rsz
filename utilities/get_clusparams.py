@@ -2,7 +2,7 @@
 ################################################################################
 # NAME : get_clusparams.py
 # DATE STARTED : June 11, 2019
-# AUTHORS : Victoria Butler & Dale Mercado
+# AUTHORS : Dale Mercado
 # PURPOSE : Fetches the cluster lookup param_datale
 #           This should just be some of the header material
 # EXPLANATION :

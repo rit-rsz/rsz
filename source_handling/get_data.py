@@ -2,7 +2,7 @@
 ################################################################################
 # NAME : get_data.py
 # DATE STARTED : June 11, 2019
-# AUTHORS : Victoria Butler & Dale Mercado
+# AUTHORS : Dale Mercado
 # PURPOSE : This is where the data is retevied and can be
 # EXPLANATION :
 # CALLING SEQUENCE :
@@ -203,12 +203,57 @@ def read_file(file,col,clusname,VERBOSE=verbose):
                         abs(map[0].header['CD2_1'] + map[0].header['CD2_2'])])
 
     psf = get_spire_beam(col,pixsize)
-    width
-   SXPAR()  data[0].header['KEY'] 	Obtain value of header keyword
-SXADDPAR()  data[0].header['KEY']='value' OR data[0].header.update('KEY','value', 'comment')
+    widtha = get_spire_beam_fwhm(col)
+    width = widtha / sqrt(8 * log(2)) * pixsize)
+#   We wouldnt be able to put this one in calfac since it is determined by the source called
+    calfac = 1 / (calfac * (get_spire_beam_fwhm(col))**2)
+#   This should be defined in the catsrsc file
+    JY2MJy = 1e6
 
+#   Something called EXTAST?????
+#   Gets header information from a fits image. Astropy should be able to do this
+    astr = map.header[]
 
+#   Not sure if this is the correct syntax for astr naxis
+    srcrm = np.zeros(astr.naxis)
+    xclean = np.zeros(astr.naxis)
+    mask = np.zeros(astr.naxis)
 
+#   generate default mask map
+#   searches though the data and if the log = 0 the value is filled with NaN
+#   it marks the place where if map is finite and = 0 with countnan
+    whnan = np.where(np.isfinite(map) == False)
+    if len(whnan) > 0:
+        mask[whnan] = 1
+
+#    This is how the idl to python site shows how to do these conditional indexing
+	# (i,j) = a.nonzero()
+    # (i,j) = where(a!=0)
+
+    # SXPAR()  data[0].header['KEY'] 	Obtain value of header keyword
+    # SXADDPAR()  data[0].header['KEY']='value' OR data[0].header.update('KEY','value', 'comment')
+
+    maps = {'name':clusname,\
+          'file':file,\
+          'band':col,\
+          'signal':map,\
+          'srcrm':srcrm,\
+          'xclean':xclean,\
+          'error':err,\
+          'mask':mask,\
+          'flag':flag,\
+          'exp':exp,\
+          'shead':head,\
+          'ehead':herr,\
+          'astr':astr,\
+          'pixsize':pixsize,\
+          'psf':psf,\
+          'width':width,\
+          'widtha':widtha,\
+          'calfac':calfac,\
+          'JY2MJy':JY2MJy}
+
+    return maps
 
 if __name__ == '__main__':
     get_data('rxj1347',1)

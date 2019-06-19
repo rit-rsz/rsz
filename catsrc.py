@@ -36,23 +36,7 @@ import get_clusparams
 
 # def catsrc(clusname,saveplots,cattype, savecat,savemap,maketf,simmap,nsim,s2n,yin,tin,verbose,success,errmsg):
 class catsrc:
-    # From when carsrc was a def
-    # (clusname,\
-    # saveplots=1,\
-    # cattype=0,\
-    # savecat=0,\
-    # savemap=0,\
-    # maketf=0,\
-    # simmap=0,\
-    # nsim=0,\
-    # s2n=3,\
-    # yin=0,\
-    # tin=0,\
-    # verbose=1):
-    # ,SUCCESS=success,ERRMSG=errmsg):
-
-    if not clusname():
-        print('Require a string array of cluster names as input, aborting!')
+)
 
     def __init__(clusname,nsim, verbose=1, cattype='24 um', savecat=0, savemap=0, saveplot=1,
                  maketf=0, simmap=0, s2n=3,yin=0,tin=0):
@@ -70,6 +54,7 @@ class catsrc:
         self.tin = tin
         self.clusname = clusname
         self.nsim = nsim
+        self.setup()
 
         def setup(self):
             if self.simmap > 0 and len(self.nsim) == 0:
@@ -193,7 +178,23 @@ class catsrc:
 
             if self.verbose:
                 print('Generating residual source mask')
+    # From when carsrc was a def
+    # (clusname,\
+    # saveplots=1,\
+    # cattype=0,\
+    # savecat=0,\
+    # savemap=0,\
+    # maketf=0,\
+    # simmap=0,\
+    # nsim=0,\
+    # s2n=3,\
+    # yin=0,\
+    # tin=0,\
+    # verbose=1):
+    # ,SUCCESS=success,ERRMSG=errmsg):
 
+    if not clusname():
+        print('Require a string array of cluster names as input, aborting!'
             residual_mask, err = clus_residual_mask(maps,verbose=self.verbose)
             if err:
                 if self.verbose:

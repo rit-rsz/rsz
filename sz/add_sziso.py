@@ -26,12 +26,12 @@ def add_sziso(maps,YIN=yin,TIN=tin,\
 
 #   Now the bolocam data is in the SPIRE format
 #   we can do a loop over the map adding in the false sz signal
-    mapsize = len(maps)
+    mapsize = maps.size
 
     if verbose:
         print('Fetching Bolocam maps')
 #   Need to check how its calling the maps name
-    data_file = CLUSDATA + 'bolocam/data/' + maps[0].name + '.sav'
+    data_file = str('bolocam/data/' + maps[0].name + '.sav')
     data = scipy.io.readsav(CLUSDATA + data_file,python_dict = True)
     arr_data = data.values()[0][k][0] # only works on python 2, returns increment
     ''' for python 3 use arr_data = list(data.values())[0][k][0] '''
@@ -97,5 +97,3 @@ def add_sziso(maps,YIN=yin,TIN=tin,\
 
     szin = replicate(dI*((1.13*(*maps[imap]).widtha/3600.)^2 * $
                     (!DTOR)^2),naxis[1],naxis[2])* szmap)
-
-    

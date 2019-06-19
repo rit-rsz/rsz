@@ -2,7 +2,7 @@ import numpy as np
 import config
 
 def get_tfs(clusname):
-    tf_file = config.clus_path + clusname + '_itermap_tf.fits' #missing !CLUSSBOX don't know
+    tf_file = config.CLUSDATA + clusname + '_itermap_tf.fits' #missing !CLUSSBOX don't know
     tf_maps, err = clus_get_data(clusname,manpath=tf_file)
     if err:
         print('error when running clus_get_data: ', err)

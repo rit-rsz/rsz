@@ -22,7 +22,6 @@ from astropy.io.ascii import read
 def get_clus_params(clusname_in,\
                     verbose = 1):#, success = success, errmsg = errmsg):
 
-
     CLUSDATA = '/data/mercado/SPIRE/'
 #   Read in the csv file to work with
 #   Can I read this in as a dictionary???

@@ -28,12 +28,14 @@ import numpy as np
 from config import * #(this line will give me access to all directory variables)
 import matplotlib.pyplot as plt
 import math as m
-import config
 import sys
+from clus_sz_template import *
 sys.path.append('utilities')
+from clus_get_tfs import *
 from get_clusparams import *
 sys.path.append('source_handling')
 from get_data import *
+import config
 
 # def catsrc(clusname,saveplots,cattype, savecat,savemap,maketf,simmap,nsim,s2n,yin,tin,verbose,success,errmsg):
 class Catsrc():
@@ -93,6 +95,7 @@ class Catsrc():
 
         if not self.simmap:
             maps, err = get_data(self.clusname,verbose=self.verbose)
+            print(maps)
             if err:
                 if self.verbose:
                     print('clus_get_data exited with error: ' + err)
@@ -113,12 +116,11 @@ class Catsrc():
         if self.verbose:
             print('Fetching transfer functions')
         if not self.maketf and not self.simmap:
-            tf_maps, err = clus_get_tfs(self.clusname)
+            tf_maps, err = get_tfs(self.clusname)
             if err:
                 maketf = 1
-                tf_maps = clus_get_data(self.clusname)
+                tf_maps = get_data(self.clusname)
                 ncols = len(tf_maps)
-
                 for i in range(ncols):
                     sztm = clus_sz_template(maps[i], params, verbose=self.verbose)
                     tf_maps[i].xclean = sztm #maybe need to change this

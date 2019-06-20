@@ -2,7 +2,7 @@
 ################################################################################
 # NAME : get_data.py
 # DATE STARTED : June 11, 2019
-# AUTHORS : Dale Mercado
+# AUTHORS : Dale Mercado & Benjamin Vaughan
 # PURPOSE : This is where the data is retevied and can be
 # EXPLANATION :
 # CALLING SEQUENCE :
@@ -19,11 +19,14 @@ import matplotlib.pyplot as plt
 import math
 from astropy.io import fits
 import os
+import sys
 import pyfits
 import config
+sys.path.append('utilities')
+from get_spire_beam import *
 
 def get_data(clusname, verbose = 1, resolution = 'nr', version = '1', manpath=0,
-             bolocam=None):
+             bolocam=None, manidentifier=None):
     # place holders for the if statements to work until I add them to the input for get data
     # This will happen when the script is fully functional
     errmsg = False
@@ -120,7 +123,7 @@ def get_data(clusname, verbose = 1, resolution = 'nr', version = '1', manpath=0,
             errmsg = ('Problem finding exclusive files, file dump is:', \
                         snapfiles, hermfiles, hlsfiles)
             if verbose:
-                print(errmsg)
+                pxcentrint(errmsg)
             return None, errmsg
         if hermcount == 3:
             files = hermfiles
@@ -140,8 +143,13 @@ def get_data(clusname, verbose = 1, resolution = 'nr', version = '1', manpath=0,
         mancount = 0
         manfiles = []
         for x in os.listdir(manpath):
-            pass # don't know what to put here because i don't know what the specifications for manpath are
-        if len(files):
+            for item in manidentifier:
+                if item in x:
+                    pass
+                else:
+                    errmsg = 'Cannot find identifier of file'
+                    return None, errmsg
+        for i in len(manfiles):
             mancount += 1
         if mancount == 3:
             errmsg = 'Cannot find 3 files fitting that path description!'
@@ -158,7 +166,7 @@ def get_data(clusname, verbose = 1, resolution = 'nr', version = '1', manpath=0,
 
 #   This is maps as the ptr array<NullPointer><NullPointer><NullPointer>
 #   nfiles = 3 I assume that accounts for the three null pointers being populated
-    maps = np.empty(nfiles)
+    maps = []
 
 #   Need to tweek the syntax of this for loop
     for ifile in range(nfiles):
@@ -166,15 +174,14 @@ def get_data(clusname, verbose = 1, resolution = 'nr', version = '1', manpath=0,
         counter = 0
         if ifile < 3:
             if cols[ifile] in files[ifile]:
-                pass
+                counter += 1
             else:
                 errmsg = 'Problem finding ' + cols[ifile] + ' file.'
                 if verbose:
                     print(errmsg)
-                return None, errmsg
-                maps[ifile] = clus_read_file(args) #args need to be filled in
+            maps.append(read_file(files[counter], cols[ifile], clusname, verbose=verbose))
         else:
-            maps[ifile] = clus_read_file(args) #args need to be filled in bolocam one
+                maps[ifile] = np.empty(clus_read_bolocam(clusname,verbose=verbose)) #args need to be filled in bolocam one
     return maps, errmsg
 
 #               From get_clus params it's very close to the same
@@ -193,7 +200,7 @@ def get_data(clusname, verbose = 1, resolution = 'nr', version = '1', manpath=0,
         #                                   clusname,VERBOSE=verbose)
         # else:
         #     maps[ifile] = read_file(files[whpl],cols[ifile],\
-        #                                   clusname,VERBOSE=verbose)
+        #                                   clusname,VERBOSE=vercolbose)
 
 
 
@@ -203,17 +210,16 @@ def read_file(file,col,clusname,verbose=0):
 #   This should ulitmatly be defined in as a self.calfac for this calibration
     calfac = (np.pi/180) * (1/3600)**2 * (np.pi / (4 * np.log(2))) * (1e6)
 #   This will ultimatly be in the list of constants
-
     # The rest of the scrpit involves idl_libs stuff that
     # will get grabbed from astropy
-    map = fits.open(file[0])
-    err = fits.open(file[1])
-    exp = fits.open(file[2])
-    flag = fits.open(file[3])
+    hdul = fits.open(file)
+    map = hdul[1]
+    err = hdul[2]
+    exp = hdul[3]
+    flag = hdul[4]
 
-    if map[0].header['CDELT1'] != 0:
-        pixsize = 3600 * \
-                  mean([abs(map[0].header['CDELT1'],abs(map[0].header['CDELT2']))])
+    if 'CDELT1' in map.header.keys():
+        pixsize = 3600 * mean([abs(map[0].header['CDELT1'],abs(map[0].header['CDELT2']))])
         map[0].header['cd_1'] = map[0].header['CDELT1']
         map[0].header['cd_2'] = 0
         map[0].header['cd_1'] = 0
@@ -225,32 +231,73 @@ def read_file(file,col,clusname,verbose=0):
 
     else:
         pixsize = 3600 * \
-                  mean([abs(map[0].header['CD1_1']+map[0].header['CD2_1']), \
-                        abs(map[0].header['CD2_1'] + map[0].header['CD2_2'])])
+                  mean([abs(map.header['CD1_1']+map.header['CD2_1']), \
+                        abs(map.header['CD2_1'] + map.header['CD2_2'])])
 
-    psf = get_spire_beam(col,pixsize)
+    psf = get_spire_beam(pixsize, band=col, factor=1)
     widtha = get_spire_beam_fwhm(col)
-    width = (widtha / sqrt(8 * log(2)) * pixsize)
+    width = (widtha / math.sqrt(8 * math.log(2)) * pixsize)
 #   We wouldnt be able to put this one in calfac since it is determined by the source called
     calfac = 1 / (calfac * (get_spire_beam_fwhm(col))**2)
 #   This should be defined in the catsrsc file
     JY2MJy = 1e6
 
-#   Something called EXTAST?????
+#   Something called EXTAST?????    astr = map.header
+
 #   Gets header information from a fits image. Astropy should be able to do this
-    astr = map.header
+    astr = {}
+    cd11 = map.header['CD1_1']
+    cd12 = map.header['CD1_2']
+    cd21 = map.header['CD2_1']
+    cd22 = map.header['CD2_2']
+    pv1_1 = map.header['PV1_0']
+    pv1_2 = map.header['PV1_1']
+    pv1_3 = map.header['PV1_2']
+    pv1_4 = map.header['PV1_3']
+    pv1_5 = map.header['PV1_4'] # i don't like the way this is coded probably have to change it later
+
+    for keys in map.header.keys():
+        if 'NAXIS' in keys:
+            astr.update({keys : map.header[keys]})
+        if 'CD1_1' in keys:
+            x =  np.array([[cd11, cd12], [cd21, cd22]])
+            astr.update({'CD' : x})
+        if 'CDELT' in keys:
+            astr.update({keys : map.header[keys]})
+        if 'CRPIX1' in keys:
+            x = np.array([map.header['CRPIX1'], map.header['CRPIX2']])
+            astr.update({'CRPIX' : x})
+        if 'CTYPE1' in keys:
+            x = np.array([map.header['CTYPE1'], map.header['CTYPE2']])
+            astr.update({'CTYPE' : x})
+        if 'CRVAL1' in keys:
+            x = np.array([map.header['CRVAL1'], map.header['CRVAL2']])
+            astr.update({'CRVAL' : x})
+        if 'LONGPOLE' in keys:
+            astr.update({keys : map.header[keys]})
+        if 'LATPOLE' in keys:
+            astr.update({keys : map.header[keys]})
+        if 'PV1_0' in keys:
+            x = np.array([pv1_1, pv1_2, pv1_3, pv1_4, pv1_5])
+            astr.update({keys : x})
+        if True:
+            pass
+
+    head = map.header
+    herr = err.header
 
 #   Not sure if this is the correct syntax for astr naxis
-    srcrm = np.zeros(astr.naxis)
-    xclean = np.zeros(astr.naxis)
-    mask = np.zeros(astr.naxis)
+    srcrm = np.empty(astr['NAXIS'])
+    xclean = np.empty(astr['NAXIS'])
+    mask = np.empty(astr['NAXIS'])
 
 #   generate default mask map
 #   searches though the data and if the log = 0 the value is filled with NaN
 #   it marks the place where if map is finite and = 0 with countnan
-    whnan = np.where(np.isfinite(map) == False)
+    whnan = np.where(np.isfinite(map.data) == False)
     if len(whnan) > 0:
-        mask[whnan] = 1
+        pass #i really have no idea what to put here i think i don't fundamentally understand what is happening in the idl script
+
 
 #    This is how the idl to python site shows how to do these conditional indexing
 	# (i,j) = a.nonzero()
@@ -259,27 +306,35 @@ def read_file(file,col,clusname,verbose=0):
     # SXPAR()  data[0].header['KEY'] 	Obtain value of header keyword
     # SXADDPAR()  data[0].header['KEY']='value' OR data[0].header.update('KEY','value', 'comment')
 
-    maps = {'name':clusname,\
-          'file':file,\
-          'band':col,\
-          'signal':map,\
-          'srcrm':srcrm,\
-          'xclean':xclean,\
-          'error':err,\
-          'mask':mask,\
-          'flag':flag,\
-          'exp':exp,\
-          'shead':head,\
-          'ehead':herr,\
-          'astr':astr,\
-          'pixsize':pixsize,\
-          'psf':psf,\
-          'width':width,\
-          'widtha':widtha,\
-          'calfac':calfac,\
-          'JY2MJy':JY2MJy}
+    maps = {'name':clusname, #check
+          'file':file, #check
+          'band':col, #check
+          'signal':map, #check
+          'srcrm':srcrm, #check
+          'xclean':xclean, #check
+          'error':err, #check
+          'mask':mask, #check
+          'flag':flag, #check
+          'exp':exp, #check
+          'shead':head, #nope
+          'ehead':herr, #nope
+          'astr':astr, #check
+          'pixsize':pixsize, #check
+          'psf':psf, #check
+          'width':width, #check
+          'widtha':widtha, #check
+          'calfac':calfac, #check
+          'JY2MJy':JY2MJy} #check
 
     return maps
+
+def mean(data):
+    length = len(data)
+    sum = 0
+    for i in range(length):
+        sum += data[i]
+    average = sum / length
+    return average
 
 if __name__ == '__main__':
     get_data('rxj1347',1)

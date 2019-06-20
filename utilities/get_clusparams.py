@@ -17,16 +17,15 @@ import scipy.io
 import numpy as np
 # from config import * #(this line will give me access to all directory variables)
 from astropy.io.ascii import read
-import config
 
 
-def get_clus_params(clusname_in,
-                    verbose = 1):#, su    return errmsg
-
-    config.CLUSDATA = '/data/mercado/SPIRE/'
+def get_clus_params(clusname_in,\
+                    verbose = 1):#, success = success, errmsg = errmsg):
+    
+    CLUSDATA = '/data/mercado/SPIRE/'
 #   Read in the csv file to work with
 #   Can I read this in as a dictionary???
-    param_data = read(config.CLUSDATA + 'lookup/cluster_master_list_150327.csv')
+    param_data = read(CLUSDATA + 'lookup/cluster_master_list_150327.csv')
 #   Since cluster name is an easy search we choose to set it early
 #   Needs to be set like this because calling param_data[1] doesn't seem to work as intended
     param_name = param_data[';Cluster Name']
@@ -101,8 +100,7 @@ def get_clus_params(clusname_in,
 #   Hand off clusparams back to catsrc
     success = '1b'
     print(clusparams)
-    errmsg = False
-    return clusparams, errmsg
+    return(clusparams)
 
 #For debugging, used to call this file directly
 if __name__ == '__main__':

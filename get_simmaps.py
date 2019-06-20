@@ -8,16 +8,16 @@ import config
 
 
 def get_simmaps(clusname, nsim, simflag=1, sb=0, xc=0):
-    """
-    Purpose: I honestly have no idea what the purpose ofthis function is, i guess to get simmaps?
-    Inputs: clusname - name of the cluster
-            nsim - name of the sim number
-            simflag - 1 = do something
-                      0 = do something else
-            sb      - 1 = do something
-                    - 0 = do something else
-            xc      - 1 = do something
-                    - 0 = do something else
+    # """
+    # Purpose: I honestly have no idea what the purpose ofthis function is, i guess to get simmaps?
+    # Inputs: clusname - name of the cluster
+    #         nsim - name of the sim number
+    #         simflag - 1 = do something
+    #                   0 = do something else
+    #         sb      - 1 = do something
+    #                 - 0 = do something else
+    #         xc      - 1 = do something
+    #                 - 0 = do something else
     if simflag > 0 and nsim == 0:
         print('simmap set but nsim not supplied! Aborting.')
         exit()

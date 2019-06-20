@@ -1,0 +1,189 @@
+
+################################################################################
+# NAME : clus_get_relsz.py
+# DATE STARTED : June 18, 2019
+# AUTHORS : Dale Mercado
+# PURPOSE : Given some nominal SZ inputs, this returns the expected SZ
+#      effect signal.  Output is in W m^-2 Hz^-1 sr^-1.
+# EXPLANATION :
+# CALLING SEQUENCE :
+# INPUTS :
+#
+#
+# OUTPUTS :
+# REVISION HISTORY :
+################################################################################
+import scipy.io
+import numpy as np
+# from config import * #(this line will give me access to all directory variables)
+import math
+from astropy.io import fits
+import os
+import pyfits
+from scipy.interpolate import interp1d
+
+
+def get_ai():
+
+    aij = [[ 4.212483e-3, -4.444816e-1, 1.073238e+1, -1.096539e+2, 5.964685e+2, -1.925063e+3, 3.876921e+3, -4.927770e+3, 3.843121e+3, -1.677474e+3, 3.131417e+2],\
+    [ -6.65860e-2, 3.141377e+0, -5.060928e+1, 2.931651e+2, -4.799553e+2, -1.656944e+3, 9.022748e+3, -1.777832e+4, 1.807900e+4, -9.401495e+3, 1.968976e+3],\
+    [ 1.064073e+0, -1.495849e+1, 1.862757e+2, -1.026793+3, 2.276656e+3, -1.759309e+3, 1.512946e+3, -8.627984e+3, 1.693099e+4, -1.283544e+4, 3.354941e+3],\
+    [ -1.110801e+1, 5.585558e+1, -3.339812e+2, 1.705455e+3, -2.884721e+3, -8.599791e+2, 7.487214e+3, -7.967433e+3, -3.628501e+2, 7.331197e+3, -4.181022e+3],\
+    [ 6.567949e+1, -2.018768e+2, 1.693840e+2, -1.350618e+3, 2.741178e+3, -1.865475e+3, 7.054196e+3, -1.223620e+4, -4.349851e+3, 2.464867e+4, -1.444005e+4],\
+    [ -2.285280e+2, 5.817376e+2, 6.539315e+2, -9.223397e+2, 3.300752e+2, -3.782007e+3, 5.413227e+3, -8.423819e+3, -4.543510e+3, 2.241957e+4, -1.262084e+4],\
+    [ 4.882355e+2, -1.136911e+3, -1.737435e+3, 2.902696e+3, -3.374909e+2, 1.583587e+3, 4.285821e+3, -2.088839e+3, -8.443411e+3, 1.643675e+4, -7.819763e+3],\
+    [ -6.493386e+2, 1.434664e+3, 1.998541e+3, -2.732035e+3, 2.384819e+1, -5.098857e+3, 2.130640e+3, 1.173659e+3, -6.531589e+3, 2.654111e+3, -1.648207e+3],\
+    [ 5.247520e+2, -1.134319e+3, -1.008644e+3, 1.167943e+2, 3.264981e+3, -2.006417e+3, 3.974758e+3, 4.929594+3, -7.369537+3, 1.842694e+3, 3.854699e+3],\
+    [ -2.360646e+2, 5.147089e+2, 1.003613e+2, 6.701438e+2, -1.143976e+3, 1.427423e+3, -8.377902e+3, 7.569877e+3, -2.057870e+2, -5.147649e+3, 1.635543e+3],\
+    [ 4.537578e+1, -1.024535e+2, 4.040647e+1, 1.039578e+2, -2.327177e+2, 7.547122e+3, -1.097034e+4, 9.269639e+3, -3.302366e+3, 4.663621e+2, -2.266015e+2]]
+
+    return aij
+
+
+def get_Y(x):
+
+    xp = x * coth(x/2)
+    sp = x / sinh(x/2)
+
+    y0 = -4 + xp
+
+    y1 = -10.d0 + (47.d0/2.d0) * xp - \
+        (42.d0/5.d0) * xp^2 + (7.d0/10.d0) * xp^3 + \
+        sp^2 * ((-21.d0/5.d0) + (7.d0/5.d0)*xp)
+
+    y2 = (-15.d0/2.d0) + (1023.d0/8.d0) * xp - (868.d0/5.d0) * xp^2 + (329.d0/5.d0) * xp^3 - \
+        (44.d0/5.d0) * xp^4 + (11.d0/30.d0) * xp^5 + \
+        sp^2 * (-434.d0/5.d0 + (658.d0/5.d0) * xp - \
+        (242.d0/5.d0) * xp^2 + (143.d0/30.d0) * xp^3) + \
+        sp^4*(-44.d0/5.d0 + (187.d0/60.d0) * xp)
+
+    y3 = (15.d0/2.d0) + (2505.d0/8.d0) * xp - (7098.d0/5.d0) * xp^2 + (14253.d0/10.d0) * xp^3 - \
+        (18594.d0/35.d0) * xp^4 + (12059.d0/140.d0) * xp^5 - (128.d0/21.d0) * xp^6 + \
+        (16.0d0/105.d0) * xp^7 + \
+        sp^2 * ((-7098.d0/10.d0) + (14253.d0/5.d0) * xp - (102267.d0/35.d0) * xp^2 + \
+        (156767.d0/140.d0) * xp^3 - (1216.d0/7.d0) * xp^4 + (64.d0/7.d0) * xp^5) + \
+        sp^4*((-18594.d0/35.d0) + (205003.d0/280.d0) * xp - (1920.d0/7.d0) * xp^2 + \
+        (1024.d0/35.d0) * xp^3) + sp^6 * ((-544.d0/21.d0) + (992.d0/105.d0) * xp)
+
+    y4 = (-135.d0/32.d0) + (30375.d0/128.d0) * xp - (62391.d0/10.d0) * xp^2 + \
+        (614727.d0/40.d0) * xp^3 - (124389.d0/10.d0) * xp^4 + (355703.d0/80.d0) * xp^5 - \
+        (16568.d0/21.d0) * xp^6 + (7516.d0/105.d0) * xp^7 - (22.d0/7.d0) * xp^8 + \
+        (11.d0/210.d0) * xp^9 + \
+    sp^2 * ((-62391.d0/20.d0) + (614727.d0/20.d0) * xp - (1368279.d0/20.d0) * xp^2 + \
+    (4624139.d0/80.d0) * xp^3 - (157396.d0/7.d0) * xp^4 + \
+    (30064.d0/7.d0) * xp^5 - (2717.d0/7.d0) * xp^6 + (2761.d0/210.d0) * xp^7) + \
+    sp^4 * ((-124389.d0/10.d0) + (6046951.d0/160.d0) * xp - (248520.d0/7.d0) * xp^2 + \
+    (481024.d0/35.d0) * xp^3 - (15972.d0/7.d0) * xp^4 + (18689.d0/140.d0) * xp^5) + \
+    sp^6 * ((-70414.d0/21.d0) + (465992.d0/105.d0) * xp - (11792.d0/7.d0) * xp^2 + \
+    (19778.d0/105.d0) * xp^3) + sp^8*((-682.d0/7.d0) + (7601.d0/210.d0) * xp)
+
+    bigY = {y0:y0,y1:y1,y2:y2,y3:y3,y4:y4}
+
+    return bigY
+
+
+
+
+def clus_get_relsz(nu,y,T_e,\
+                        CANONICAL=canonical,X=x,NOR=nor,\
+                        szpack=1,recomplookup=0,\
+                        lookup=1,dIfidp=0,HEAD=header,\
+                        SUCCESS=success,ERRMSG=errmsg)
+                        # Need to correct dIfidp to be 1 if anything input
+    T_0     = 2.725                 #CMB temperature, K
+    k_B     = 1.3806503e-23           #Boltzmann constant, J/K
+    h       = 6.626068e-34            #Planck constant, J s
+    m_e     = 5.11e2                  #electron mass keV
+    c       = 2.99792458e8            #m/s
+    HztoGHz = 1e9                     #Hz -> GHz
+    mks_to_MJysr = 1e20               #get me to MJy/sr!
+
+    I0 = 2 * (k_B * T_0)**3 / (h * c)**2
+
+#   There is a line for a file test not sure if this is needed for python
+#  I guess this is important in that later on the files is then called as printf,1,stuff where 1 means the opened file?
+    # ft = open('lookup/clus_szdi_lookup.fits')
+
+    # if recomplookup:
+    #     # this does some sxaddpar header stuff but doesnt return anythin and has a stop?
+    #     clus_szdi_lookup()
+    errmsg = False
+    if ft and lookup:
+
+        deltaI = np.zeros(nu.size)
+
+        if dIfidp = 0:
+            dIfid = fits.open('lookup/clus_szdi_lookup.fits')
+
+        npts = dIfit[0].header['npts']
+        dy = dIfit[0].header['dy']
+        dT  =dIfit[0].header['dT']
+
+        # Is this still necessary??
+        # this unnecessary replicate is to fool interpolate, which is dumb
+        thisy = npts * (y / (1e-3))
+        thisx = npts * (T_e / 25)
+
+        if thisy > npts:
+            errmsg = 'Input y is larger than test grid.'
+            # Talk with Ben about returning this ERRMSG
+
+        for i in range(nu):
+
+            if abs(nu[i] - 140.187) < 0.1:
+                knu = 0
+            if abs(nu[i]) - 600) < 0.1:
+                knu = 1
+            if abs(nu[i]) - 857.143) < 0.1:
+                knu = 2
+
+            if knu.size = 0:
+                errmsg = 'Confused about nu mapping'
+                return None , errmsg
+                # Again talk with Ben about the ERRMSG
+            # This gets reformed and then interpolated??? use interpld or use Rbf in scipy
+            # Need to better understand reform
+            deltaI[i] =interp1d(reshape(dIfid[:,:,knu]),thisy,thist)
+
+        # This 1 is apparently
+        print('1')
+        # Need to fix something with the syntax of this retun. the else only activates if there is a : afer the return???
+        return deltaI:
+
+    else:
+
+#       szpack doesnt work at 0 electron temperature
+        if abs(T_e) < 1:
+                                # T_e = 0
+                                # canonical = 1
+        szpack = 0
+
+        if szpack:
+
+            tau = y * 420 / T_e**0.9
+            te = T_e
+
+            if not len(te):
+                te = 10.0
+            else:
+                te = te
+
+            if not len(vpec):
+                vpec = 0
+            else:
+                vpec = vpec
+
+            if not len(ngrid):
+                ngrid = 100
+            else:
+                ngrid = ngrid
+
+            # it now opens and writes to lookup/szparams.txt
+
+            # Lines 237-277 are stange I need to make sure that I know exactly what they are doing as well as that I am doing them right
+
+        else:
+
+#           check that the nu input isn't crazy
+            if min(nu) < 1e-4 or max(nu) > 1e4:
+                errmsg = 'Frequency input out of bounds, please check : ' + errmsg

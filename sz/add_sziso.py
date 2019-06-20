@@ -41,7 +41,7 @@ def add_sziso(maps,YIN=yin,TIN=tin,\
     if not ccb_sucess:
         errmsg = str('clus_convert_bolocam exited with error: ' + ccb_errmsg)
         if verbose:
-            print(errmsg)
+            return None, errmsg
             # Has a go to the err handerler right here in idl
 
 #   Set this to the size of bolocam.deconvolved image
@@ -89,11 +89,19 @@ def add_sziso(maps,YIN=yin,TIN=tin,\
     for imap in range(mapsize):
 # Below are the changes to units of Jy to beam
 # calculate the surface brightness to put in each pixel at this sim step
-     nu = 3e5 / CLUS_GET_LAMBDAS((*maps[imap]).band)
-     dI = 1e26*clus_get_relSZ(nu,yin,tin)
-#    print,CLUS_GET_LAMBDAS((*maps[imap]).band),dI
-#     this accounts for a conversion to surface brightness in a later step
-#     dI = dI / (1.13d0 * (60./3600.)^2 * (!DTOR)^2 * 1e9)
+# Need to fix maps right now it is written as a pointer
+        nu = 3e5 / CLUS_GET_LAMBDAS((*maps[imap]).band)
+        dI = 1e26*clus_get_relSZ(nu,yin,tin)
+#       print,CLUS_GET_LAMBDAS((*maps[imap]).band),dI
+#       this accounts for a conversion to surface brightness in a later step
+#       dI = dI / (1.13d0 * (60./3600.)^2 * (!DTOR)^2 * 1e9)
 
-    szin = replicate(dI*((1.13*(*maps[imap]).widtha/3600.)^2 * $
-                    (!DTOR)^2),naxis[1],naxis[2])* szmap)
+        szin = repeat(dI*((1.13*(*maps[imap]).widtha/3600.)^2 * \
+                    (!DTOR)^2),naxis[1],naxis[2]) * szmap
+
+#       Have to interpolate to SPIRE map size
+        HASTROM
+
+#       Need to then set something for maps thats back to the dictonary format
+
+    return maps

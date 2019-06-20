@@ -8,9 +8,18 @@
 # EXPLANATION :
 # CALLING SEQUENCE :
 # INPUTS :
+#        nu  - the range of frequncies requested [fltarr, GHz]
+#        y   - the Compton y parameter, usually O(10^-4) [float, unitless]
+#        T_e - the electron temperature of the gas [float, keV
 #
 #
 # OUTPUTS :
+# NOTES :
+#       Code is based on calculations in these papers:
+#       http://adsabs.harvard.edu/abs/1998ApJ...499....1C
+#       http://adsabs.harvard.edu/abs/1998ApJ...502....7I
+#       http://adsabs.harvard.edu/abs/2000ApJ...536...31N
+#       http://adsabs.harvard.edu/abs/2002ARA%26A..40..643C
 # REVISION HISTORY :
 ################################################################################
 import scipy.io
@@ -18,8 +27,6 @@ import numpy as np
 # from config import * #(this line will give me access to all directory variables)
 import math
 from astropy.io import fits
-import os
-import pyfits
 from scipy.interpolate import interp1d
 
 
@@ -47,36 +54,37 @@ def get_Y(x):
 
     y0 = -4 + xp
 
-    y1 = -10.d0 + (47.d0/2.d0) * xp - \
-        (42.d0/5.d0) * xp^2 + (7.d0/10.d0) * xp^3 + \
-        sp^2 * ((-21.d0/5.d0) + (7.d0/5.d0)*xp)
+    y1 = -10 + (47/2) * xp - \
+        (42/5) * xp^2 + (7/10) * xp^3 + \
+        sp^2 * ((-21/5) + (7/5)*xp)
 
-    y2 = (-15.d0/2.d0) + (1023.d0/8.d0) * xp - (868.d0/5.d0) * xp^2 + (329.d0/5.d0) * xp^3 - \
-        (44.d0/5.d0) * xp^4 + (11.d0/30.d0) * xp^5 + \
-        sp^2 * (-434.d0/5.d0 + (658.d0/5.d0) * xp - \
-        (242.d0/5.d0) * xp^2 + (143.d0/30.d0) * xp^3) + \
-        sp^4*(-44.d0/5.d0 + (187.d0/60.d0) * xp)
+    y2 = (-15/2) + (1023/8) * xp - (868/5) * xp^2 + (329/5) * xp^3 - \
+        (44/5) * xp^4 + (11/30) * xp^5 + \
+        sp^2 * (-434/5 + (658/5) * xp - \
+        (242/5) * xp^2 + (143/30) * xp^3) + \
+        sp^4*(-44/5 + (187/60) * xp)
 
-    y3 = (15.d0/2.d0) + (2505.d0/8.d0) * xp - (7098.d0/5.d0) * xp^2 + (14253.d0/10.d0) * xp^3 - \
-        (18594.d0/35.d0) * xp^4 + (12059.d0/140.d0) * xp^5 - (128.d0/21.d0) * xp^6 + \
-        (16.0d0/105.d0) * xp^7 + \
-        sp^2 * ((-7098.d0/10.d0) + (14253.d0/5.d0) * xp - (102267.d0/35.d0) * xp^2 + \
-        (156767.d0/140.d0) * xp^3 - (1216.d0/7.d0) * xp^4 + (64.d0/7.d0) * xp^5) + \
-        sp^4*((-18594.d0/35.d0) + (205003.d0/280.d0) * xp - (1920.d0/7.d0) * xp^2 + \
-        (1024.d0/35.d0) * xp^3) + sp^6 * ((-544.d0/21.d0) + (992.d0/105.d0) * xp)
+    y3 = (15/2) + (2505/8) * xp - (7098/5) * xp^2 + (14253/10) * xp^3 - \
+        (18594/35) * xp^4 + (12059/140) * xp^5 - (128/21) * xp^6 + \
+        (16.0d0/105) * xp^7 + \
+        sp^2 * ((-7098/10) + (14253/5) * xp - (102267/35) * xp^2 + \
+        (156767/140) * xp^3 - (1216/7) * xp^4 + (64/7) * xp^5) + \
+        sp^4*((-18594/35) + (205003/280) * xp - (1920/7) * xp^2 + \
+        (1024/35) * xp^3) + sp^6 * ((-544/21) + (992/105) * xp)
 
-    y4 = (-135.d0/32.d0) + (30375.d0/128.d0) * xp - (62391.d0/10.d0) * xp^2 + \
-        (614727.d0/40.d0) * xp^3 - (124389.d0/10.d0) * xp^4 + (355703.d0/80.d0) * xp^5 - \
-        (16568.d0/21.d0) * xp^6 + (7516.d0/105.d0) * xp^7 - (22.d0/7.d0) * xp^8 + \
-        (11.d0/210.d0) * xp^9 + \
-    sp^2 * ((-62391.d0/20.d0) + (614727.d0/20.d0) * xp - (1368279.d0/20.d0) * xp^2 + \
-    (4624139.d0/80.d0) * xp^3 - (157396.d0/7.d0) * xp^4 + \
-    (30064.d0/7.d0) * xp^5 - (2717.d0/7.d0) * xp^6 + (2761.d0/210.d0) * xp^7) + \
-    sp^4 * ((-124389.d0/10.d0) + (6046951.d0/160.d0) * xp - (248520.d0/7.d0) * xp^2 + \
-    (481024.d0/35.d0) * xp^3 - (15972.d0/7.d0) * xp^4 + (18689.d0/140.d0) * xp^5) + \
-    sp^6 * ((-70414.d0/21.d0) + (465992.d0/105.d0) * xp - (11792.d0/7.d0) * xp^2 + \
-    (19778.d0/105.d0) * xp^3) + sp^8*((-682.d0/7.d0) + (7601.d0/210.d0) * xp)
+    y4 = (-135/32) + (30375/128) * xp - (62391/10) * xp^2 + \
+        (614727/40) * xp^3 - (124389/10) * xp^4 + (355703/80) * xp^5 - \
+        (16568/21) * xp^6 + (7516/105) * xp^7 - (22/7) * xp^8 + \
+        (11/210) * xp^9 + \
+    sp^2 * ((-62391/20) + (614727/20) * xp - (1368279/20) * xp^2 + \
+    (4624139/80) * xp^3 - (157396/7) * xp^4 + \
+    (30064/7) * xp^5 - (2717/7) * xp^6 + (2761/210) * xp^7) + \
+    sp^4 * ((-124389/10) + (6046951/160) * xp - (248520/7) * xp^2 + \
+    (481024/35) * xp^3 - (15972/7) * xp^4 + (18689/140) * xp^5) + \
+    sp^6 * ((-70414/21) + (465992/105) * xp - (11792/7) * xp^2 + \
+    (19778/105) * xp^3) + sp^8*((-682/7) + (7601/210) * xp)
 
+    # This should be a dictionary
     bigY = {y0:y0,y1:y1,y2:y2,y3:y3,y4:y4}
 
     return bigY
@@ -87,8 +95,7 @@ def get_Y(x):
 def clus_get_relsz(nu,y,T_e,\
                         CANONICAL=canonical,X=x,NOR=nor,\
                         szpack=1,recomplookup=0,\
-                        lookup=1,dIfidp=0,HEAD=header,\
-                        SUCCESS=success,ERRMSG=errmsg)
+                        lookup=1,dIfidp=0,HEAD=header)
                         # Need to correct dIfidp to be 1 if anything input
     T_0     = 2.725                 #CMB temperature, K
     k_B     = 1.3806503e-23           #Boltzmann constant, J/K
@@ -148,7 +155,7 @@ def clus_get_relsz(nu,y,T_e,\
         # This 1 is apparently
         print('1')
         # Need to fix something with the syntax of this retun. the else only activates if there is a : afer the return???
-        return deltaI:
+        return deltaI,errmsg:
 
     else:
 
@@ -163,17 +170,17 @@ def clus_get_relsz(nu,y,T_e,\
             tau = y * 420 / T_e**0.9
             te = T_e
 
-            if not len(te):
+            if not te:
                 te = 10.0
             else:
                 te = te
 
-            if not len(vpec):
+            if not vpec:
                 vpec = 0
             else:
                 vpec = vpec
 
-            if not len(ngrid):
+            if not ngrid:
                 ngrid = 100
             else:
                 ngrid = ngrid
@@ -187,3 +194,101 @@ def clus_get_relsz(nu,y,T_e,\
 #           check that the nu input isn't crazy
             if min(nu) < 1e-4 or max(nu) > 1e4:
                 errmsg = 'Frequency input out of bounds, please check : ' + errmsg
+                return None, errmsg
+
+            y = np.double(y)
+#           Check to make sure the y value isn't crazy
+            if y < 1e-7 ^ y > 1e-2:
+                errmsg = 'T_e input out bounds, please check : ' + errmsg
+                return None, ermmsg
+
+            T_e = np.double(T_e)
+#           Check that the T_e input isn't beyond the equation
+            if T_e < 0 ^ T_e > 200:
+                errmsg = 'T_e input out of bounds, please check : ' + errmsg
+                return None, errmsg
+
+            if T_e = 0:
+                canonical = 1
+
+#           override T_e if canonical is set
+            if canonical:
+                T_e = 0
+                if not nor:
+                    nor = 0
+
+#           calibrate nu up to something easier to use
+            nup = nu * HztoGHz
+
+#           make some of the fundamental frequency arrays
+            nx = len(nu)
+#           note here that X can be an output!
+            X = (h * nup) / (k_b * T_0)
+            Z = (1 / 17.6) * (X - 1 * 2.4)
+
+#           make the scaled electron temperatures
+            theta_e = T_e / m_e
+
+#           here we're sticking hard to Nozawa's upper paramter limits;
+#           there will be an error if they're out of bounds
+            if theta_e > 2e-2 and not nor:
+                if theta_e < 5.1e-1:
+                    Theta = 25 * (theta_e - 0.01)
+#                   get the a_ij we need for the corrections
+                    aij = get_aij()
+#                   and make an ancillary stuff we need for the matric operation
+                    nterms = aij.size
+                    power = np.zeros(0,nx)
+#                   loop through all frequencies
+#                   IDL marks subtracted from 1L but I need to check if this is they way to do it in python
+                    for ix in range(nx-1L):
+                        if X[ix] > 2.5:
+                            Z_vec = Z[ix]**(np.transpose(power))
+                            R[ix] = total(aij * Theta_vec * Z_vec)
+#                   if the T_e is too high (should have caught that already)
+#                   bail with an error
+                else:
+                    errmsg = \
+                        'T_e caused calculation to go out of bounds, please check : ' + \
+                        errmsg
+                    return None, errmsg
+
+            else:
+                R = 0
+
+            if T_e = 0:
+                theta_e = 0
+
+#           get the big Y terms
+            bigYs = get_Y(X)
+#           compute there sum; note this goes to the canonical SZ spectrum in
+#           the limit T_e = 0
+#           Need to check the syntax on bigYs.y0
+#           Need to look up this math to check order of oporations
+            Yterm = bigYs.y0 + theta_e * bigYs.y1 + theta_e**2 * bigYs.y2 + \
+                    theta_e**3 * bigYs.y3 + theta_e**4 * bigYs.y4
+#           Make Nozawa's F(theta_e,X)
+            FoftX = Yterm * (X * exp(X) / (exp(X)-1)) + R * theta_e
+            FoftY = bigYs.y0 * (X * exp(X) / (exp(X)-1))
+
+            npts = X.shape
+
+#           make dn / n_0 term
+            dnn = FoftX * repeat(y,npts)
+
+#           make the term involving X alone
+            xterm = X**3 / (exp(X) - 1)
+
+#           make I_0, the term that calibrates this all to W m^-2 Hz^-1
+            I0 = repeat(2 * (k_B * T_0)**3 / (h*c)**2), npts)
+
+#           and multiply them all together to get something useful
+            deltaI = xterm * dnn * I0
+
+#           if we got this far we propbably have a correct SZ effect shape in
+#           our band and can get out of here
+            return deltaI
+
+#   Error handler has been replaced by the returns
+
+    return deltaI

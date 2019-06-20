@@ -30,6 +30,7 @@ import matplotlib.pyplot as plt
 import math as m
 import config
 import sys
+from clus_get_tfs import *
 sys.path.append('utilities')
 from get_clusparams import *
 sys.path.append('source_handling')
@@ -113,7 +114,7 @@ class Catsrc():
         if self.verbose:
             print('Fetching transfer functions')
         if not self.maketf and not self.simmap:
-            tf_maps, err = clus_get_tfs(self.clusname)
+            tf_maps, err = get_tfs(self.clusname)
             if err:
                 maketf = 1
                 tf_maps = clus_get_data(self.clusname)

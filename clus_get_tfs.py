@@ -1,9 +1,12 @@
 import numpy as np
 import config
+import sys
+sys.path.append('source_handling')
+from get_data import *
 
 def get_tfs(clusname):
     tf_file = config.CLUSDATA + clusname + '_itermap_tf.fits' #missing !CLUSSBOX don't know
-    tf_maps, err = clus_get_data(clusname,manpath=tf_file)
+    tf_maps, err = get_data(clusname,manpath=tf_file)
     if err:
         print('error when running clus_get_data: ', err)
     else:

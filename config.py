@@ -12,4 +12,4 @@
 ################################################################################
 
 CLUSDATA = '/data/mercado/SPIRE/'
-CLUSBOS = 'data/mercado/SPIRE/sandbox/'
+CLUSBOX = 'data/mercado/SPIRE/sandbox/'

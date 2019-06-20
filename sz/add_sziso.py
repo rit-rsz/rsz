@@ -19,24 +19,24 @@ import matplotlib.pyplot as plt
 import math
 from astropy.io import fits
 import os
-import pyfits
 
 def add_sziso(maps,YIN=yin,TIN=tin,\
-                          verbose = 0,ERRMSG=errmsg,success = 0b):
+                          verbose = 0,ERRMSG=errmsg,success = '0b'):
 
 #   Now the bolocam data is in the SPIRE format
 #   we can do a loop over the map adding in the false sz signal
+
     mapsize = maps.size
 
     if verbose:
-        print('Fetching Bolocam maps')
+        print('Fetching BOLOCAM maps')
 #   Need to check how its calling the maps name
-    data_file = str('bolocam/data/' + maps[0].name + '.sav')
+    data_file = str(CLUSDATA + 'bolocam/data/' + maps[0].name + '.sav')
     data = scipy.io.readsav(CLUSDATA + data_file,python_dict = True)
     arr_data = data.values()[0][k][0] # only works on python 2, returns increment
     ''' for python 3 use arr_data = list(data.values())[0][k][0] '''
 
-    bolocam = convert bolocam(cluster_struct,VERBOSE=verbose,\
+    bolocam = clus_convert_bolocam(cluster_struct,VERBOSE=verbose,\
                                  ERRMSG=ccb_errmsg,SUCCESS=ccb_success)
     if not ccb_sucess:
         errmsg = str('clus_convert_bolocam exited with error: ' + ccb_errmsg)

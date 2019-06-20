@@ -1,3 +1,16 @@
+"""
+Name: clus_get_tfs
+Date Started: June 20, 2019
+Authors: Benjamin Vaughan
+Purpose: create a python counterpart to clus_get_tfs.pro
+Explanation:
+Calling Sequence:
+Inputs: clusname - name of the cluster
+Outputs: tf_maps -
+Revision History:
+"""
+
+
 import numpy as np
 import config
 import sys

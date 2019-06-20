@@ -1,3 +1,18 @@
+'''
+Name: clus_sz_template
+Date Started June 18, 2019
+Authors: Benjamin Vaughan
+Purpose: to get the sz templates
+Explanation:
+Calling Sequence:
+Inputs: maps - maps typically created from get_data
+        params - parameters
+        verbose - 1 if you want error messages
+                  0 if you don't want any messages
+Outputs: szmap -
+Revision History:
+'''
+
 import math as m
 
 

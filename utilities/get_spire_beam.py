@@ -2,7 +2,7 @@
 ################################################################################
 # NAME : get_spire_beam.py
 # DATE STARTED : June 18, 2019
-# AUTHORS : Dale Mercado
+# AUTHORS : Dale Mercado & Benjamin Vaugahn
 # PURPOSE :  This function computes the spire beam given a band, pixel size and
 #            output map kernel.
 # EXPLANATION :
@@ -49,20 +49,21 @@ import numpy as np
 import matplotlib.pyplot as plt
 import math
 from astropy.io import fits
+import scipy.signal
 import os
 import pyfits
 from astropy.modeling import models, fitting
+from get_spire_beam_fwhm import *
 
 # !!! This file is currently in an unworking state
 # !!! The Gaussian Model needs to be fixed before this code can work
 
 
-def get_spire_beam(band = '', pixsize = 0, npixx, npixy, xcent, ycent,\
-                        bolometer = 0, FWHM=fwhm,\
-                        norm = 0b, OVERSAMP=oversamp, verbose = 1, \
-                        FACTOR=factor):
-
-    if len(bolometer) != 0:
+def get_spire_beam(pixsize, xcent=0, ycent=0,
+                   bolometer=0, fwhm='',
+                   norm=0, oversamp=0, verbose=1,
+                   factor=0, band='', npixx=0, npixy=0):
+    if bolometer == 0:
         if verbose:
             print('PSFs for specific bolometer not yet supported -- ignoring')
 
@@ -73,19 +74,18 @@ def get_spire_beam(band = '', pixsize = 0, npixx, npixy, xcent, ycent,\
             print('Band parameter not supplied, assuming PSW')
         band = 'PSW'
 #   Check if we have been givin a pixel size
-    if len(pixsize) == 0:
+    if pixsize == 0:
         band = upper(band)
         if band == 'PSW':
             pixsize = 6
         if band == 'PMW':
-            pixsize = 8 + (1/3)
+            pixsize = 8 + (1/3) * npixx
         if band == 'PLW':
             pixsize = 12
         else:
             print('Unknown band'+band)
         if verbose:
-            print(pixsize, FORMAT = '("pixsize parameter not '+\
-                   'supplied, assuming ",F0.4," arcsec")')
+            print('pixsize paramter not supplied assuming %s arcsec' % (pixsize))
 
     if len(fwhm) == 0:
         beamFWHM = get_spire_beam_fwhm(band)
@@ -98,20 +98,20 @@ def get_spire_beam(band = '', pixsize = 0, npixx, npixy, xcent, ycent,\
 #   check if we've been given the map size, if not assume something
 #   npixx/npixy will be the final number of pixels
 
-    if len(npix) == 0:
+    if npixx == 0:
         npixx = round(beamFWHM * (5 / pixsize))
         if npixx % 2 != 1:
             npixx +=1
             if verbose:
                 print('npixx not supplied, using ",I0"')
 #   if no y size then assume same as x
-    if len(npixy) == 0:
+    if npixy == 0:
         npixy = npixx
 
 # Not sure if this needs to be done in python
   # ;; make sure that these have been cast from a float properly or we get errors
-    npixx = ceil(npixx)
-    npixy = ceil(npixy)
+    npixx = math.ceil(npixx)
+    npixy = math.ceil(npixy)
 
     if npixx % 2 != 1 and verbose:
         print('WARNING: npixx not odd, so PSF will not be centered')
@@ -119,11 +119,11 @@ def get_spire_beam(band = '', pixsize = 0, npixx, npixy, xcent, ycent,\
         print('WARNING: npixy not odd, so psf will not be centered')
 
 #   Now to deal with oversampling
-    if len(oversamp) == 0:
+    if oversamp == 0:
         ioversamp = 7
     else:
         ioversamp = round(oversamp) #in case user provides float
-        if ioversamp % 2 !=:
+        if ioversamp % 2 != 1:
             print('Oversamp must be an odd interger!')
 
     x_gen = npixx * ioversamp
@@ -131,7 +131,7 @@ def get_spire_beam(band = '', pixsize = 0, npixx, npixy, xcent, ycent,\
     gen_pixsize = np.float64(pixsize) / ioversamp
 
 #   Check if we have been givin the center, if not assume middle
-    if len(xcent) == 0:
+    if xcent == 0:
         ixcent = x_gen / 2
         if verbose:
             print('xcent parameter not supplied, assuming array center')
@@ -140,8 +140,8 @@ def get_spire_beam(band = '', pixsize = 0, npixx, npixy, xcent, ycent,\
             if ioversamp > 1:
                 ixcent += ioversamp / 2
 
-    if len(ycent) == 0:
-        iycent = ygen / 2
+    if ycent == 0:
+        iycent = y_gen / 2
         if verbose:
             print('ycent parameter not supplied, assuming array center')
         else:
@@ -152,32 +152,18 @@ def get_spire_beam(band = '', pixsize = 0, npixx, npixy, xcent, ycent,\
     beamFWHM /= gen_pixsize
 
 #   if we want this normalized than call with
-    if len(factor) > 0 :
+    if factor == 1:
 #       1D BEAM, this also now uses a scrpit called PSF_GAUSSIAN from astrolib
-        beamkern = gausian
-
-
-   # This is the idl args
-   # psf = psf_Gaussian( NPIXEL=, FWHM= , CENTROID =
-   #                  [ /DOUBLE, /NORMALIZE, ST_DEV=, NDIMEN= ] )
-
-
-# Fit the data using a Gaussian
-# It appears that the current Gaussian fitting paramters do not match up nicely with one that
-# are used within the idl script
-# g_init = models.Gaussian2D(amplitude=1, x_mean=0,\
-#                            y_mean=0, x_stddev=None, y_stddev=None,\
-#                            theta=None, cov_matrix=None, **kwargs)[source]¶
-# fit_g = fitting.LevMarLSQFitter()
-# g = fit_g(g_init, x, y)
-#   Remove floating point errors???
-#   If this necessary for python
+        #convert FWHM to stdev\
+        stdev = beamFWHM / (2*math.sqrt(2*math.log(2)))
+        beamkern = scipy.signal.gaussian(x_gen, stdev) #this may work, but i have a feeling it won't work we might have to write our own function.
     else:
-        beamkerm = gaussian
+        pass #need to find a way to make a 2d gaussian
 
         if ioversamp > 1:
             # There doesnt seem to be a python equivalent
-            beamkern = rebin()
+            pass
+            #beamkern = rebin()
 
 
     return beamkern

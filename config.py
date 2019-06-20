@@ -1,7 +1,7 @@
 ################################################################################
 # NAME : config.py
 # DATE STARTED : May 30, 2019
-# AUTHORS : Victoria Butler & Dale Mercado
+# AUTHORS : Victoria Butler & Dale Mercado & Benjamin Vaughan
 # PURPOSE : This file holds the directories and variables common to all scripts
 #           run in this series
 # EXPLANATION :
@@ -12,4 +12,4 @@
 ################################################################################
 
 CLUSDATA = '/data/mercado/SPIRE/'
-CLUSBOX = 'data/mercado/SPIRE/sandbox/'
+CLUSBOS = '/data/mercado/SPIRE/sandbox/'

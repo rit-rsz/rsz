@@ -95,7 +95,6 @@ class Catsrc():
 
         if not self.simmap:
             maps, err = get_data(self.clusname,verbose=self.verbose)
-            print(maps)
             if err:
                 if self.verbose:
                     print('clus_get_data exited with error: ' + err)
@@ -119,14 +118,14 @@ class Catsrc():
             tf_maps, err = get_tfs(self.clusname)
             if err:
                 maketf = 1
-                tf_maps = get_data(self.clusname)
+                tf_maps, err = get_data(self.clusname)
                 ncols = len(tf_maps)
                 for i in range(ncols):
                     sztm = clus_sz_template(maps[i], params, verbose=self.verbose)
-                    tf_maps[i].xclean = sztm #maybe need to change this
-                    tf_maps[i].error = np.tiles(1.0, tf_maps[i].astr.naxis)
-                    tf_maps[i].calfac = 1.0 / tf_maps[i].JY2MJy
-        if maketf:
+                    tf_maps[i]['xclean'] = sztm #maybe need to change this
+                    tf_maps[i]['error'] = np.tile(1.0, tf_maps[i]['astr']['NAXIS'])
+                    tf_maps[i]['calfac'] = 1.0 / tf_maps[i]['JY2MJy']
+        if self.maketf:
             if self.verbose:
                 print('Making SZ template map.')
             sztm, err = clus_sz_template(maps[0], params, verbose=self.verbose)

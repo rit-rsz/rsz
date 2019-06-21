@@ -123,7 +123,7 @@ def get_data(clusname, verbose = 1, resolution = 'nr', version = '1', manpath=0,
             errmsg = ('Problem finding exclusive files, file dump is:', \
                         snapfiles, hermfiles, hlsfiles)
             if verbose:
-                pxcentrint(errmsg)
+                print(errmsg)
             return None, errmsg
         if hermcount == 3:
             files = hermfiles
@@ -142,22 +142,18 @@ def get_data(clusname, verbose = 1, resolution = 'nr', version = '1', manpath=0,
     else:
         mancount = 0
         manfiles = []
+        file_flag = False
         for x in os.listdir(manpath):
-            for item in manidentifier:
-                if item in x:
-                    pass
-                else:
-                    errmsg = 'Cannot find identifier of file'
-                    return None, errmsg
-        for i in len(manfiles):
-            mancount += 1
-        if mancount == 3:
-            errmsg = 'Cannot find 3 files fitting that path description!'
-            #message errmsg
+            if clusname in x and manidentifier in x:
+                manfiles.append(manpath + x)
+
+        if len(manfiles) != 3:
+            errmsg = 'Cannot find files in %s' %(manpath)
             if verbose:
                 print(errmsg)
             return None, errmsg
-        nfiles = mancount
+        nfiles = len(manfiles)
+        files = manfiles
 
 
     if bolocam:
@@ -246,19 +242,21 @@ def read_file(file,col,clusname,verbose=0):
 
 #   Gets header information from a fits image. Astropy should be able to do this
     astr = {}
-    cd11 = map.header['CD1_1']
-    cd12 = map.header['CD1_2']
-    cd21 = map.header['CD2_1']
-    cd22 = map.header['CD2_2']
-    pv1_1 = map.header['PV1_0']
-    pv1_2 = map.header['PV1_1']
-    pv1_3 = map.header['PV1_2']
-    pv1_4 = map.header['PV1_3']
-    pv1_5 = map.header['PV1_4'] # i don't like the way this is coded probably have to change it later
-
+    try:
+        cd11 = map.header['CD1_1']
+        cd12 = map.header['CD1_2']
+        cd21 = map.header['CD2_1']
+        cd22 = map.header['CD2_2']
+        pv1_1 = map.header['PV1_0']
+        pv1_2 = map.header['PV1_1']
+        pv1_3 = map.header['PV1_2']
+        pv1_4 = map.header['PV1_3']
+        pv1_5 = map.header['PV1_4']
+    except KeyError:
+        pass # i don't like the way this is coded probably have to change it later
     for keys in map.header.keys():
         if 'NAXIS' in keys:
-            astr.update({keys : map.header[keys]})
+            astr.update({keys : map.shape})
         if 'CD1_1' in keys:
             x =  np.array([[cd11, cd12], [cd21, cd22]])
             astr.update({'CD' : x})
@@ -280,8 +278,7 @@ def read_file(file,col,clusname,verbose=0):
         if 'PV1_0' in keys:
             x = np.array([pv1_1, pv1_2, pv1_3, pv1_4, pv1_5])
             astr.update({keys : x})
-        if True:
-            pass
+
 
     head = map.header
     herr = err.header
@@ -294,9 +291,9 @@ def read_file(file,col,clusname,verbose=0):
 #   generate default mask map
 #   searches though the data and if the log = 0 the value is filled with NaN
 #   it marks the place where if map is finite and = 0 with countnan
-    whnan = np.where(np.isfinite(map.data) == False)
-    if len(whnan) > 0:
-        pass #i really have no idea what to put here i think i don't fundamentally understand what is happening in the idl script
+    # whnan = np.where(np.isfinite(map.data) == False)
+    # if len(whnan) > 0:
+    #     pass #i really have no idea what to put here i think i don't fundamentally understand what is happening in the idl script
 
 
 #    This is how the idl to python site shows how to do these conditional indexing

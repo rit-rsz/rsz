@@ -36,11 +36,13 @@ from get_clusparams import *
 sys.path.append('source_handling')
 from get_data import *
 import config
-
+from get_xid import *
+sys.path.append('reduc')
+from get_cats import *
 # def catsrc(clusname,saveplots,cattype, savecat,savemap,maketf,simmap,nsim,s2n,yin,tin,verbose,success,errmsg):
 class Catsrc():
 
-    def __init__(self, clusname,nsim=0, verbose=1, cattype='24 um', savecat=0, savemap=0, saveplot=1,
+    def __init__(self, clusname,nsim=0, verbose=1, cattype="24um", savecat=0, savemap=0, saveplot=1,
                  maketf=0, simmap=0, s2n=3,yin=0,tin=0):
         # possibly how we would get around defining these terms, not positive
         self.verbose = verbose
@@ -99,7 +101,6 @@ class Catsrc():
         # Grab the real data if the simflag is not set
         if not self.simmap:
             maps, err = get_data(self.clusname,verbose=self.verbose)
-            print(maps)
             if err:
                 if self.verbose:
                     print('clus_get_data exited with error: ' + err)
@@ -122,15 +123,14 @@ class Catsrc():
         if not self.maketf and not self.simmap:
             tf_maps, err = get_tfs(self.clusname)
             if err:
-                maketf = 1
-                tf_maps = get_data(self.clusname)
+                tf_maps, err = get_data(self.clusname)
                 ncols = len(tf_maps)
                 for i in range(ncols):
                     sztm = clus_sz_template(maps[i], params, verbose=self.verbose)
-                    tf_maps[i].xclean = sztm #maybe need to change this
-                    tf_maps[i].error = np.tiles(1.0, tf_maps[i].astr.naxis)
-                    tf_maps[i].calfac = 1.0 / tf_maps[i].JY2MJy
-        if maketf:
+                    tf_maps[i]['xclean'] = sztm #maybe need to change this
+                    tf_maps[i]['error'] = np.tile(1.0, tf_maps[i]['astr']['NAXIS'])
+                    tf_maps[i]['calfac'] = 1.0 / tf_maps[i]['JY2MJy']
+        if self.maketf:
             if self.verbose:
                 print('Making SZ template map.')
             sztm, err = clus_sz_template(maps[0], params, verbose=self.verbose)
@@ -157,7 +157,9 @@ class Catsrc():
 
         if self.verbose:
             print('Fetching regression catalogs')
-        cats, err = clus_get_cats(args) #args need to be figured out
+        cats, err = get_cats(self.clusname,self.cattype,maps,savecat=self.savecat,
+                                  savemap=self.savemap, simmap=self.simmap, nsim=self.nsim, s2n=self.s2n,
+                                  verbose=self.verbose) #args need to be figured out
         if err:
             if self.verbose:
                 print('clus_get_cats exited with error: ' + err)
@@ -165,16 +167,16 @@ class Catsrc():
 
         if self.verbose:
             print('Band merging catalogs')
-        xid, err = clus_get_xid(maps, cats, savemap=self.savemap, simmap=self.simmap, verbose=self.verbose)
+        xid, err = get_xid(maps, cats, savemap=self.savemap, simmap=self.simmap, verbose=self.verbose)
         if err:
             if self.verbose:
-                print('clus_get_bm exited with error: ' + err)
+                print('clus_get_xid exited with error: ' + err)
             exit()
 
         if self.verbose:
             print('Regressing and subtracting catalogs')
 
-        arg, err = clus_subtract_cat(cats, maps, xid, verbose=self.verbose)
+        maps, err = clus_subtract_cat(cats, maps, xid, verbose=self.verbose)
         if err:
             if self.verbose:
                 print('clus_subtract_cat exited with error: ' + err)

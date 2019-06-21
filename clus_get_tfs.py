@@ -18,11 +18,12 @@ sys.path.append('source_handling')
 from get_data import *
 
 def get_tfs(clusname):
+    err = False
     tf_file = config.CLUSBOS
-    tf_identifier = ['_itermap_tf.fits',  clusname] #missing !CLUSSBOX don't know
+    tf_identifier = '_itermap_tf' #missing !CLUSSBOX don't know
     tf_maps, err = get_data(clusname,manpath=tf_file, manidentifier=tf_identifier)
     if err:
-        print('error when running clus_get_data: ', err)
+        print('error when running clus_get_data: ' + err)
         return None, err
     else:
         ncols = len(tf_maps)

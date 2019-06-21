@@ -22,7 +22,6 @@ def get_tfs(clusname):
     tf_file = config.CLUSBOS
     tf_identifier = '_itermap_tf' #missing !CLUSSBOX don't know
     tf_maps, err = get_data(clusname,manpath=tf_file, manidentifier=tf_identifier)
-    print(type(tf_maps[0]))
     if err:
         print('error when running clus_get_data: ' + err)
         return None, err

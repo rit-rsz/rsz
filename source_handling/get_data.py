@@ -278,8 +278,7 @@ def read_file(file,col,clusname,verbose=0):
         if 'PV1_0' in keys:
             x = np.array([pv1_1, pv1_2, pv1_3, pv1_4, pv1_5])
             astr.update({keys : x})
-        if True:
-            pass
+
 
     head = map.header
     herr = err.header

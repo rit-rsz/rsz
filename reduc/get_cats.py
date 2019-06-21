@@ -14,53 +14,61 @@
 # OUTPUTS :
 # REVISION HISTORY :
 ################################################################################
+import config
+from astropy.io import fits
+import math
+import numpy as np
 
-def get_cats(clusname, cattype, maps,resolution, simmap, nsim, s2n, verbose=1, savecat=0, savemap=0,):
+
+def get_cats(clusname, cattype, maps, nsim, simmap=0, s2n=3, resoltuion='fr', verbose=1, savecat=0, savemap=0,):
+    err = False
     if cattype == 'PSW':
         if verbose:
             print('Requested %s catalog generation creating catalog' % (cattype))
-        catalog, err = make_plw_src_cat(args) # this function needs to be written :)
+        catalog, err = make_plw_src_cat(clusname, nsim, s2n=s2n,resolution=resolution, savecat=savecat, savemap=savemap, simmap=simmap, verbose=verbose) # this function needs to be written :)
         if err:
             if verbose:
                 print(err)
             return None, err
 
-    if cattype == 'PLW':
+    elif cattype == 'PLW':
         if verbose:
             print('Requested %s catalog generation creating catalog' % (cattype))
-        catalog, err = make_plw_src_cat(args)
+        catalog, err = make_plw_src_cat(clusname, nsim, resolution=resolution, simmap=simmap, s2n=s2n, verbose=verbose, savecat=savecat, savemap=savemap)
         if err:
             if verbose:
                 print(err)
             return None, err
 
-    if cattype == '24um':
+    elif cattype == '24um':
         if verbose:
             print('Requested %s catalog generation creating catalog' % (cattype))
-        catalog, err = make_mips_src_cat(args) # this also needs to be written :)
+        catalog, err = make_mips_src_cat(clusname, maps, s2n=s2n, savecat=savecat, savemap=savemap, verbose=verbose) # this also needs to be written :)
         if err:
             if verbose:
                 print(err)
             return None, err
+        print(cattype)
 
-    if cattype == 'MFLR':
+    elif cattype == 'MFLR':
         if verbose:
             print('Requested %s catalog generation creating catalog' % (cattype))
-        catalog, err = make_mflr_src_cat(args)
+        catalog, err = make_mflr_src_cat(clusname, resolution=resolution, s2n=s2n, savecat=savecat, savemap=savemap, verbose=verbose)
         if err:
             if verbose:
                 print(err)
             return None, err
 
     else:
-        err = 'cattype not recognized'
+        err = 'cattype not recognized %s' % cattype
         if verbose:
             print(err)
         return None, err
 
-    return catalog
+    return catalog, err
 
 def make_plw_src_cat(clusname, resolution, nsim, simmap=0, s2n=3, verbose=1, savecat=0, savemap=0):
+    err = False
     if s2n < 3 and verbose:
         print('WARNING: S/N requested less than 3, extraction may be suspect')
 
@@ -77,7 +85,7 @@ def make_plw_src_cat(clusname, resolution, nsim, simmap=0, s2n=3, verbose=1, sav
         maps, err = get_data(clusname, simflag=simflag, nsim=nsim, verbose=verbose)
         if err:
             if verbose:
-                print('clus get data exited with error: ' err)
+                print('clus get data exited with error: ' + err)
             return None, err
     for i in range(len(maps)):
         if 'PLW' in maps[i]['band']:
@@ -123,9 +131,10 @@ def make_plw_src_cat(clusname, resolution, nsim, simmap=0, s2n=3, verbose=1, sav
            'cluster' : clusname,
            'instrument': 'SPIRE PLW',
            's2n' : s2n}
-    return cat
+    return cat, err
 
 def make_mflr_src_cat(clusname, resolution='fr', s2n=3, savecat=0, savemap=0, verbose=1):
+    err = False
     if s2n < 2 and verbose:
         print('WARNING: S/N requested less than 2, extraction may be suspect')
     min_corr = 0.1
@@ -187,9 +196,10 @@ def make_mflr_src_cat(clusname, resolution='fr', s2n=3, savecat=0, savemap=0, ve
            'cluster' : clusname,
            'instrument': 'SPIRE PLW',
            's2n' : s2n}
-    return cat
+    return cat, err
 
 def make_psw_src_cat(clusname, resolution, nsim, s2n=3, savecat=0, savemap=0, simmap=0, verbose=1):
+    err = False
     if s2n < 3 and verbose:
         print('WARNING: S/N requested less than 3, extraction may be suspect')
 
@@ -252,21 +262,23 @@ def make_psw_src_cat(clusname, resolution, nsim, s2n=3, savecat=0, savemap=0, si
            'cluster' : clusname,
            'instrument': 'SPIRE PLW',
            's2n' : s2n}
-    return cat
+    return cat, err
 
 def make_mips_src_cat(clusname, maps, s2n=3, savecat=0, savemap=0, verbose=1):
+    err = False
     if s2n < 3:
         print('WARNING: S/N requested less tahn 3, extraction may be suspect')
 
     imgfile = config.CLUSDATA + 'mips/' + clusname + '_24um_sig.fits'
     uncfile = config.CLUSDATA + 'mips/' + clusname + '_24um_unc.fits'
-    psffile = config.CLUSDATA + 'mips/mips_psf/mips_24_3000k.fits'
+    psffile = config.CLUSDATA + 'mips/mips_psf/mips_24_3000K.fits'
+
 
     if imgfile:
         hdul = fits.open(imgfile)
         imgh2 = hdul
-        imgh = hdul[1].header
-        img = hdul[1].data
+        imgh = hdul[0].header
+        img = hdul[0].data
     else:
         err = 'Cannot find %s' %(imgfile)
         if verbose:
@@ -274,8 +286,8 @@ def make_mips_src_cat(clusname, maps, s2n=3, savecat=0, savemap=0, verbose=1):
         return None, err
     if uncfile:
         hdul = fits.open(uncfile)
-        unch = hdul[1].header
-        unc = hdul[1].data
+        unch = hdul[0].header
+        unc = hdul[0].data
         #there are some operations here but i don't know what they do
     else:
         err = 'Cannot find %s' %(uncfile)
@@ -284,15 +296,15 @@ def make_mips_src_cat(clusname, maps, s2n=3, savecat=0, savemap=0, verbose=1):
         return None, err
     if psffile:
         hdul = fits.open(psffile)
-        psfh = hdul[1].header
-        psf = hdul[1].data
+        psfh = hdul[0].header
+        psf = hdul[0].data
     else:
         err = 'Cannot find %s' %(psffile)
         if verbose:
             print(err)
         return None, err
 
-    imgpix = math.sqrt(imgh['PXSCAL1'] * imgh['PXSCAL1'] +  imgh['PXCAL2'] * imgh['PXCAL2']) / math.sqrt(2.0)
+    imgpix = math.sqrt(imgh['PXSCAL1'] * imgh['PXSCAL1'] +  imgh['PXSCAL2'] * imgh['PXSCAL2']) / math.sqrt(2.0)
     psfpix = psfh['PIXSCALE']
 
     #call to change image scale don't know what that does so :)
@@ -304,8 +316,8 @@ def make_mips_src_cat(clusname, maps, s2n=3, savecat=0, savemap=0, verbose=1):
             print('Saving catalog debug maps.')
         #code to write to a fits file
 
-    astr = extast(imgh2)
-
+    astr = extast(imgh2[0])
+    count = 0
     #call to convert from xy to celestial coordinate system
     # whpl = WHERE(f/sf GE s2n,count)    # whpl = WHERE(f/sf GE s2n,count)
     # a = a[whpl]
@@ -324,16 +336,23 @@ def make_mips_src_cat(clusname, maps, s2n=3, savecat=0, savemap=0, verbose=1):
         ncol = len(maps)
         for i in range(ncol):
             #call to HASTROM i don't think we have an equivalent lol
-            whpl = np.where(np.isfinite(unc_align) == False)
-            whpl2 = np.where(unc_align >= 0.2)
-            maps[i]['mask'][whpl] =  1
-            maps[i]['mask'][whpl2] = 1
+            # whpl = np.where(np.isfinite(unc_align) == False)
+            # whpl2 = np.where(unc_align >= 0.2)
+            # maps[i]['mask'][whpl] =  1
+            # maps[i]['mask'][whpl2] = 1
             #call to write to a fits image here
+            pass
     if savecat:
         catfile = config.CLUSDATA + 'catalogs/' + clusname + '_24um.dat'
         if verbose:
             print('Saving catalog data to %s' % (catfile))
         #code to save data to a file
+
+    #dumb numbers to test....
+    a = 3
+    d = 1
+    sigf = 12
+    fPLW = 15
 
     cat = {'ra': a,
            'dec' : d,
@@ -342,7 +361,7 @@ def make_mips_src_cat(clusname, maps, s2n=3, savecat=0, savemap=0, verbose=1):
            'cluster' : clusname,
            'instrument': 'SPIRE PLW',
            's2n' : s2n}
-    return cat
+    return cat, err
 
 
 def extast(map):

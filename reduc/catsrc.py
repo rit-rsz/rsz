@@ -166,13 +166,13 @@ class Catsrc():
         xid, err = get_xid(maps, cats, savemap=self.savemap, simmap=self.simmap, verbose=self.verbose)
         if err:
             if self.verbose:
-                print('clus_get_bm exited with error: ' + err)
+                print('clus_get_xid exited with error: ' + err)
             exit()
 
         if self.verbose:
             print('Regressing and subtracting catalogs')
 
-        arg, err = clus_subtract_cat(cats, maps, xid, verbose=self.verbose)
+        maps, err = clus_subtract_cat(cats, maps, xid, verbose=self.verbose)
         if err:
             if self.verbose:
                 print('clus_subtract_cat exited with error: ' + err)

@@ -44,7 +44,10 @@ def get_xid(maps, cat, savemap=0, simmap=0, verbose=1, confusionerrors=1):
     xdec = cat['dec']
     f_src = cat['flux']
 
-
+    if len(xra) >= 2048:
+        xra = xra[0:2048]
+        xdec = xdec[0:2048]
+        f_src = xdec[0:2048]
   # I do not know wwhat the following code does in IDL so its hard for me to write a comparison in python
   # IF N_ELEMENTS(xra) GT 2048 THEN BEGIN
   #    whpl = SORT(f_src)
@@ -96,7 +99,7 @@ def get_xid(maps, cat, savemap=0, simmap=0, verbose=1, confusionerrors=1):
                   'fluxi' : pflux[whpl], 'erri' : perr,
                   'model' : model, 'mf' : mf}
 
-        xid.append(xid_sb)
+        xid.append(xid_sb) #i've had issues with code like this before not sure if this will work out.
         if savemap:
             outfile = config.CLUSBOS + 'clus_get_xid_model_' + cols[i] + '.fits'
             #writefits call !

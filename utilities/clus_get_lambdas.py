@@ -4,9 +4,9 @@
 # DATE STARTED : June 20, 2019
 # AUTHORS : Dale Mercado
 # PURPOSE : Adding in the SZ isomap
-# EXPLANATION :
+# EXPLANATION : This script assigns the wavelength in um to the given band.
 # CALLING SEQUENCE :
-# INPUTS :
+# INPUTS : band defined as one of the four listed in this file.
 #
 #
 # OUTPUTS :
@@ -14,9 +14,10 @@
 ################################################################################
 
 
-# from config import * #(this line will give me access to all directory variables)
+
 
 def clus_get_lambdas(band):
+    # wavelen was defined as lambda in IDL but python treats that an internal variable
     if band = 'PSW':
         wavelen = 250
     if band = 'PMW':

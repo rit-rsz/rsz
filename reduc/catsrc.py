@@ -64,6 +64,7 @@ class Catsrc():
             exit()
 
         if self.simmap == 0:
+            # If simmap is set to 0 then ignore nsims
             self.nsim = np.nan #maybe this isn't what is being set.
 
         if self.verbose:
@@ -73,14 +74,16 @@ class Catsrc():
             #call to nuplot idk what to put here instead
             pass
 
-        ringw = 18.0 #arcseconds
-        calfac = ((m.pi/ 180.0) * (1.0 / 3600)*(1.0 / 3600)) * (m.pi / 4 * m.log(2.0)) * 1*10**6
-        PMWthres = 5*10**-3
-        PLWthres = 8*10**-3
+        # ringw = 18.0 #arcseconds
+        # calfac = ((m.pi/ 180.0) * (1.0 / 3600)*(1.0 / 3600)) * (m.pi / 4 * m.log(2.0)) * 1*10**6
+        # PMWthres = 5*10**-3
+        # PLWthres = 8*10**-3
+        #
+        # ncols = 3.0
 
-        ncols = 3.0
-
-        #beam = [get_spire_beam_fwhm('PSW'), get_spire_beam_fwhm('PMW'), get_spire_beam_fwhm('PLW')]
+        beam = [get_spire_beam_fwhm('PSW'),\
+                get_spire_beam_fwhm('PMW'),\
+                get_spire_beam_fwhm('PLW')]
 
         if self.verbose:
             print('Fetching cluster parameters')
@@ -93,6 +96,7 @@ class Catsrc():
         if self.verbose:
             print('Fetching SPIRE maps')
 
+        # Grab the real data if the simflag is not set
         if not self.simmap:
             maps, err = get_data(self.clusname,verbose=self.verbose)
             print(maps)

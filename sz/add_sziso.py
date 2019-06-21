@@ -20,8 +20,8 @@ import math
 from astropy.io import fits
 import os
 
-def add_sziso(maps,YIN=yin,TIN=tin,\
-                          verbose = 0,ERRMSG=errmsg,success = '0b'):
+def add_sziso(maps,yin,tin,\
+                          verbose = 0,errmsg = False):
 
 #   Now the bolocam data is in the SPIRE format
 #   we can do a loop over the map adding in the false sz signal

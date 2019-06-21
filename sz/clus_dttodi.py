@@ -13,10 +13,8 @@
 # OUTPUTS :
 # REVISION HISTORY :
 ################################################################################
-import scipy.io
-import numpy as np
+
 import math
-# from config import * #(this line will give me access to all directory variables)
 
 def clus_dttodi(freq,dT):
 
@@ -31,10 +29,10 @@ def clus_dttodi(freq,dT):
 
     x = (h * nu) / (k_b * T_0)
 
-    fx = x * (exp(x) + 1.) / (exp(x) - 1.) - 4.d0
-    hx = x^4 * exp(x) / ((exp(x) - 1.)^2)
+    fx = x * (exp(x) + 1) / (exp(x) - 1) - 4
+    hx = x**4 * exp(x) / ((exp(x) - 1)**2)
     gx = hx * fx
-    Iz = 2.d0 * (k_B * T_0)^3 / (h * c)^2
+    Iz = 2 * (k_B * T_0)**3 / (h * c)**2
 
     dI = Iz * hx * dT / T_0
 #   Below is a remnent for what I assume is for a wider data set, left in incase this needs to be turned on

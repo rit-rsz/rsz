@@ -22,6 +22,8 @@
 #       http://adsabs.harvard.edu/abs/2002ARA%26A..40..643C
 # REVISION HISTORY :
 ################################################################################
+
+# Currently this is in a rough state, while I am trying to interperate the idl script
 import scipy.io
 import numpy as np
 # from config import * #(this line will give me access to all directory variables)
@@ -55,34 +57,34 @@ def get_Y(x):
     y0 = -4 + xp
 
     y1 = -10 + (47/2) * xp - \
-        (42/5) * xp^2 + (7/10) * xp^3 + \
-        sp^2 * ((-21/5) + (7/5)*xp)
+        (42/5) * xp**2 + (7/10) * xp**3 + \
+        sp**2 * ((-21/5) + (7/5)*xp)
 
-    y2 = (-15/2) + (1023/8) * xp - (868/5) * xp^2 + (329/5) * xp^3 - \
-        (44/5) * xp^4 + (11/30) * xp^5 + \
-        sp^2 * (-434/5 + (658/5) * xp - \
-        (242/5) * xp^2 + (143/30) * xp^3) + \
-        sp^4*(-44/5 + (187/60) * xp)
+    y2 = (-15/2) + (1023/8) * xp - (868/5) * xp**2 + (329/5) * xp**3 - \
+        (44/5) * xp**4 + (11/30) * xp**5 + \
+        sp**2 * (-434/5 + (658/5) * xp - \
+        (242/5) * xp**2 + (143/30) * xp**3) + \
+        sp**4*(-44/5 + (187/60) * xp)
 
-    y3 = (15/2) + (2505/8) * xp - (7098/5) * xp^2 + (14253/10) * xp^3 - \
-        (18594/35) * xp^4 + (12059/140) * xp^5 - (128/21) * xp^6 + \
-        (16.0d0/105) * xp^7 + \
-        sp^2 * ((-7098/10) + (14253/5) * xp - (102267/35) * xp^2 + \
-        (156767/140) * xp^3 - (1216/7) * xp^4 + (64/7) * xp^5) + \
-        sp^4*((-18594/35) + (205003/280) * xp - (1920/7) * xp^2 + \
-        (1024/35) * xp^3) + sp^6 * ((-544/21) + (992/105) * xp)
+    y3 = (15/2) + (2505/8) * xp - (7098/5) * xp**2 + (14253/10) * xp**3 - \
+        (18594/35) * xp**4 + (12059/140) * xp**5 - (128/21) * xp**6 + \
+        (16.0d0/105) * xp**7 + \
+        sp**2 * ((-7098/10) + (14253/5) * xp - (102267/35) * xp**2 + \
+        (156767/140) * xp**3 - (1216/7) * xp**4 + (64/7) * xp**5) + \
+        sp**4*((-18594/35) + (205003/280) * xp - (1920/7) * xp**2 + \
+        (1024/35) * xp**3) + sp**6 * ((-544/21) + (992/105) * xp)
 
-    y4 = (-135/32) + (30375/128) * xp - (62391/10) * xp^2 + \
-        (614727/40) * xp^3 - (124389/10) * xp^4 + (355703/80) * xp^5 - \
-        (16568/21) * xp^6 + (7516/105) * xp^7 - (22/7) * xp^8 + \
-        (11/210) * xp^9 + \
-    sp^2 * ((-62391/20) + (614727/20) * xp - (1368279/20) * xp^2 + \
-    (4624139/80) * xp^3 - (157396/7) * xp^4 + \
-    (30064/7) * xp^5 - (2717/7) * xp^6 + (2761/210) * xp^7) + \
-    sp^4 * ((-124389/10) + (6046951/160) * xp - (248520/7) * xp^2 + \
-    (481024/35) * xp^3 - (15972/7) * xp^4 + (18689/140) * xp^5) + \
-    sp^6 * ((-70414/21) + (465992/105) * xp - (11792/7) * xp^2 + \
-    (19778/105) * xp^3) + sp^8*((-682/7) + (7601/210) * xp)
+    y4 = (-135/32) + (30375/128) * xp - (62391/10) * xp**2 + \
+        (614727/40) * xp**3 - (124389/10) * xp**4 + (355703/80) * xp**5 - \
+        (16568/21) * xp**6 + (7516/105) * xp**7 - (22/7) * xp**8 + \
+        (11/210) * xp**9 + \
+    sp**2 * ((-62391/20) + (614727/20) * xp - (1368279/20) * xp**2 + \
+    (4624139/80) * xp**3 - (157396/7) * xp**4 + \
+    (30064/7) * xp**5 - (2717/7) * xp**6 + (2761/210) * xp**7) + \
+    sp**4 * ((-124389/10) + (6046951/160) * xp - (248520/7) * xp**2 + \
+    (481024/35) * xp**3 - (15972/7) * xp**4 + (18689/140) * xp**5) + \
+    sp**6 * ((-70414/21) + (465992/105) * xp - (11792/7) * xp**2 + \
+    (19778/105) * xp**3) + sp**8*((-682/7) + (7601/210) * xp)
 
     # This should be a dictionary
     bigY = {y0:y0,y1:y1,y2:y2,y3:y3,y4:y4}
@@ -93,11 +95,18 @@ def get_Y(x):
 
 
 def clus_get_relsz(nu,y,T_e,\
-                        CANONICAL=canonical,X=x,NOR=nor,\
+                        canonical = 0,x = 0,nor = 0,\
                         szpack=1,recomplookup=0,\
-                        lookup=1,dIfidp=0,HEAD=header)
-                        # Need to correct dIfidp to be 1 if anything input
-    T_0     = 2.725                 #CMB temperature, K
+                        lookup=1,dIfidp=0,header = 0)
+                        # in idl ones that didnt have an input were
+                          # canonical,x,nor,difid,header
+
+    errmsg = False
+    # If there is any dIfidp input set it equal to 1
+    if dIfidp:
+        dIfidp = 1
+
+    T_0     = 2.725                   #CMB temperature, K
     k_B     = 1.3806503e-23           #Boltzmann constant, J/K
     h       = 6.626068e-34            #Planck constant, J s
     m_e     = 5.11e2                  #electron mass keV
@@ -108,17 +117,18 @@ def clus_get_relsz(nu,y,T_e,\
     I0 = 2 * (k_B * T_0)**3 / (h * c)**2
 
 #   There is a line for a file test not sure if this is needed for python
-#  I guess this is important in that later on the files is then called as printf,1,stuff where 1 means the opened file?
+#  I guess this is important in that later on the file is being called as printf,1,stuff where 1 means the opened file?
     # ft = open('lookup/clus_szdi_lookup.fits')
 
-    # if recomplookup:
-    #     # this does some sxaddpar header stuff but doesnt return anythin and has a stop?
-    #     clus_szdi_lookup()
-    errmsg = False
+    if recomplookup:
+        #this does some sxaddpar header stuff but doesnt return anythin and has a stop?
+        #Currently is not written recomlookup set zero default so skipping for now
+        clus_szdi_lookup()
+
+
     if ft and lookup:
 
         deltaI = np.zeros(nu.size)
-
         if dIfidp = 0:
             dIfid = fits.open('lookup/clus_szdi_lookup.fits')
 
@@ -128,15 +138,18 @@ def clus_get_relsz(nu,y,T_e,\
 
         # Is this still necessary??
         # this unnecessary replicate is to fool interpolate, which is dumb
-        thisy = npts * (y / (1e-3))
-        thisx = npts * (T_e / 25)
+        thisy = npts * y / 1e-3
+        thisx = npts * T_e / 25
 
         if thisy > npts:
             errmsg = 'Input y is larger than test grid.'
+            return None, errmsg
             # Talk with Ben about returning this ERRMSG
+        if thist > npts:
+            errmsg = 'Input T_e is larger than test grid.'
+            return None, errmsg
 
         for i in range(nu):
-
             if abs(nu[i] - 140.187) < 0.1:
                 knu = 0
             if abs(nu[i]) - 600) < 0.1:
@@ -146,16 +159,16 @@ def clus_get_relsz(nu,y,T_e,\
 
             if knu.size = 0:
                 errmsg = 'Confused about nu mapping'
-                return None , errmsg
+                return None, errmsg
                 # Again talk with Ben about the ERRMSG
             # This gets reformed and then interpolated??? use interpld or use Rbf in scipy
             # Need to better understand reform
-            deltaI[i] =interp1d(reshape(dIfid[:,:,knu]),thisy,thist)
+            # deltaI[i] = interp1d(reshape(dIfid[:,:,knu]),thisy,thist)
 
         # This 1 is apparently
         print('1')
         # Need to fix something with the syntax of this retun. the else only activates if there is a : afer the return???
-        return deltaI,errmsg:
+        return deltaI,errmsg
 
     else:
 
@@ -166,7 +179,6 @@ def clus_get_relsz(nu,y,T_e,\
         szpack = 0
 
         if szpack:
-
             tau = y * 420 / T_e**0.9
             te = T_e
 
@@ -198,13 +210,13 @@ def clus_get_relsz(nu,y,T_e,\
 
             y = np.double(y)
 #           Check to make sure the y value isn't crazy
-            if y < 1e-7 ^ y > 1e-2:
+            if y < 1e-7 or y > 1e-2:
                 errmsg = 'T_e input out bounds, please check : ' + errmsg
                 return None, ermmsg
 
             T_e = np.double(T_e)
 #           Check that the T_e input isn't beyond the equation
-            if T_e < 0 ^ T_e > 200:
+            if T_e < 0 or T_e > 200:
                 errmsg = 'T_e input out of bounds, please check : ' + errmsg
                 return None, errmsg
 

@@ -1,6 +1,6 @@
 ################################################################################
 # NAME : compute_rings.py
-# DATE STARTED : June 22, 2019
+# DATE STARTED : June 24, 2019
 # AUTHORS : Benjamin Vaughan
 # PURPOSE : idk lol
 # EXPLANATION :

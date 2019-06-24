@@ -103,8 +103,12 @@ def make_plw_src_cat(clusname, resolution, nsim, simmap=0, s2n=3, verbose=1, sav
     if savemap:
         if verbose:
             print('saving catalog debug maps')
-        #writefits is called here need to make a replacement for this type of function
-        #don't know what dictionary to add to the fits file.
+        writefits(config.CLUSBOS + 'make_PLW_src_cat_model.fits', data=modelPSW, header_dict=headPSW)
+        data = np.empty(dataPLW.shape)
+        for i in range(dataPLW.shape[0]):
+            for j in range(dataPLW.shape[1]):
+                data[i,j] = dataPLW[i,j] - modelPLW[i,j]
+        writefits(config.CLUSBOS + 'make_PLW_src_cat_mdiff.fits', data=data, header_dict=headPSW)
     astr = extast(headPLW)
         #more starfinder stuff computing RA and dec from x, y.
 
@@ -122,8 +126,19 @@ def make_plw_src_cat(clusname, resolution, nsim, simmap=0, s2n=3, verbose=1, sav
         catfile = config.CLUSDATA + 'catalogs/' + clusname + '_PLW.dat'
         if verbose:
             print('Saving catalog data to %s' % (catfile))
-        #code that then writes to a file
-
+        file = open(catfile, 'w')
+        file.write('Catalog extracted by make_PLW_src_cat')
+        file.write('Created: ' + str(datetime.datetime.now()))
+        file.write('Extracted from ' + imgfile)
+        file.write('Extracted S/N >= ' + str(s2n))
+        file.write('RA    DEC    FLUX    ERROR')
+        for i in range(len(a)):
+            myline = '9B' + str(a[i]).translate(str.maketrans('', '', string.whitespace)) + '9B' +
+                            str(d[i]).translate(str.maketrans('', '', string.whitespace)) + '9B' +
+                            str(fPSW[i]).translate(str.maketrans('', '', string.whitespace)) + '9B' +
+                            str(sigf[i]).translate(str.maketrans('', '', string.whitespace))
+            file.write(myline)
+        file.close()
     cat = {'ra': a,
            'dec' : d,
            'flux' : fPLW,
@@ -169,7 +184,12 @@ def make_mflr_src_cat(clusname, resolution='fr', s2n=3, savecat=0, savemap=0, ve
     if savemap:
         if verbose:
             print('Saving catalog debug maps.')
-        #another call to write fits so RIP
+        writefits(config.CLUSBOS + 'make_PSW_src_cat_model.fits', data=modelPSW, header_dict=headPSW)
+        data = np.empty(dataPSW.shape)
+        for i in range(dataPSW.shape[0]):
+            for j in range(dataPSW.shape[1]):
+                data[i,j] = dataPSW[i,j] - modelPSW[i,j]
+        writefits(config.CLUSBOS + 'make_PSW_src_cat_mdiff.fits', data=data, header_dict=headPSW)
 
     astr = extast(map)
 
@@ -187,7 +207,19 @@ def make_mflr_src_cat(clusname, resolution='fr', s2n=3, savecat=0, savemap=0, ve
         catfile = config.CLUSDATA + 'catalogs/' + clusname + '_MFLR.dat'
         if verbose:
             print('Saving catalog data to %s' % (catfile))
-        #code to then save the data to a file
+        file = open(catfile, 'w')
+        file.write('Catalog extracted by make_MFLR_src_cat')
+        file.write('Created :' + str(datetime.datetime.now()))
+        file.write('Extracted from ' + imgfile)
+        file.write('Extracted S/N >= ' + s2n)
+        file.write('RA    DEC    FLUX    ERROR')
+        for i in range(len(a)):
+            myline = '9B' + str(a[i]).translate(str.maketrans('', '', string.whitespace)) + '9B'
+                      str(d[i]).translate(str.maketrans('', '', string.whitespace)) + '9B' +
+                      str(fPSW[i]).translate(str.maketrans('', '', string.whitespace)) + '9B' +
+                      str(sigf[i]).translate(str.maketrans('', '', string.whitespace))
+            file.write(myline)
+        file.close()
 
     cat = {'ra': a,
            'dec' : d,
@@ -235,7 +267,12 @@ def make_psw_src_cat(clusname, resolution, nsim, s2n=3, savecat=0, savemap=0, si
     if savemap:
         if verbose:
             print('Saving catalog debug maps')
-        #code to write to a fits file
+        writefits(config.CLUSBOS + 'make_PSW_src_cat_model.fits', data=modelPSW, header_dict=headPSW)
+        data = np.empty(dataPSW.shape)
+        for i in range(dataPSW.shape[0]):
+            for j in range(dataPSW.shape[1]):
+                data[i,j] = dataPSW[i,j] - modelPSW[i,j]
+        writefits(config.CLUSBOS + 'make_PSW_src_cat_mdiff.fits', data=data, header_dict=headPSW)
 
     astr = extast(headPSW)
 
@@ -253,7 +290,19 @@ def make_psw_src_cat(clusname, resolution, nsim, s2n=3, savecat=0, savemap=0, si
         catfile = config.CLUSDATA + 'catalogs/' + clusname + '_PSW.dat'
         if verbose:
             print('Saving catalog data to %s .' % (catfile))
-        #code to save to a file
+        file = open(catfile, 'w')
+        file.write('Catalog extracted by make_PSW_src_cat')
+        file.write('Created :' + str(datetime.datetime.now()))
+        file.write('Extracted from ' + imgfile)
+        file.write('Extracted S/N >= ' + str(s2n))
+        file.write('RA    DEC    FLUX    ERROR')
+        for i in range(len(a)):
+            myline = '9B' + str(a[i]).translate(str.maketrans('', '', string.whitespace)) + '9B' +
+                            str(d[i]).translate(str.maketrans('', '', string.whitespace)) + '9B' +
+                            str(fPSW[i]).translate(str.maketrans('', '', string.whitespace)) + '9B' +
+                            str(sigf[i]).translate(str.maketrans('', '', string.whitespace))
+            file.write(myline)
+        file.close()
 
     cat = {'ra': a,
            'dec' : d,
@@ -314,7 +363,12 @@ def make_mips_src_cat(clusname, maps, s2n=3, savecat=0, savemap=0, verbose=1):
     if savemap:
         if verbose:
             print('Saving catalog debug maps.')
-        #code to write to a fits file
+        writefits(config.CLUSBOS + 'make_mips_src_cat_model.fits', data=imgmodel, header_dict=imgh)
+        data = np.empty(imgmodel.shape)
+        for i in range(imgmodel.shape[0]):
+            for j in range(imgmodel.shape[1]):
+                data[i,j] = img[i,j] - imgmodel[i,j]
+        writefits(config.CLUSBOS + 'make_mips_src_cat_mdiff.fits', data=data, header_dict=imgh)
 
     astr = extast(imgh2[0])
     count = 0
@@ -346,14 +400,20 @@ def make_mips_src_cat(clusname, maps, s2n=3, savecat=0, savemap=0, verbose=1):
         catfile = config.CLUSDATA + 'catalogs/' + clusname + '_24um.dat'
         if verbose:
             print('Saving catalog data to %s' % (catfile))
-        #code to save data to a file
-
-    #dumb numbers to test....
-    a = 3
-    d = 1
-    sigf = 12
-    fPLW = 15
-
+        file = open(catfile, 'w')
+        file.write('Catalog extracted by make_mips_src_cat')
+        file.write('Created: ' + str(datetime.datetime.now()))
+        file.write('Extracted from ' + imgfile)
+        file.write('Extracted S/N >= ' + str(s2n))
+        file.write('RA    DEC    FLUX    ERROR')
+        for i in range(len(a)):
+            myline = '9B' + str(a[i]).translate(str.maketrans('', '', string.whitespace)) + '9B' +
+                            str(d[i]).translate(str.maketrans('', '', string.whitespace)) + '9B' +
+                            str(f[i]).translate(str.maketrans('', '', string.whitespace)) + '9B' +
+                            str(sf[i]).translate(str.maketrans('', '', string.whitespace))
+            file.write(myline)
+        file.close()
+        
     cat = {'ra': a,
            'dec' : d,
            'flux' : fPLW,

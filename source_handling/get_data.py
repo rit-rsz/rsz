@@ -232,7 +232,7 @@ def read_file(file,col,clusname,verbose=0):
 
     psf = get_spire_beam(pixsize, band=col, factor=1)
     widtha = get_spire_beam_fwhm(col)
-    width = (widtha / math.sqrt(8 * math.log(2)) * pixsize)
+    width = (widtha / sqrt(8 * log(2)) * pixsize)
 #   We wouldnt be able to put this one in calfac since it is determined by the source called
     calfac = 1 / (calfac * (get_spire_beam_fwhm(col))**2)
 #   This should be defined in the catsrsc file

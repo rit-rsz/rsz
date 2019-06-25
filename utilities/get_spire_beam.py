@@ -51,19 +51,20 @@ import math
 from astropy.io import fits
 import scipy.signal
 import os
-import pyfits
-from astropy.modeling import models, fitting
+# from astropy.modeling import models, fitting
+from astropy.convolution import Gaussian2DKernel
 from get_spire_beam_fwhm import *
+
 
 # !!! This file is currently in an unworking state
 # !!! The Gaussian Model needs to be fixed before this code can work
 
 
-def get_spire_beam(pixsize, xcent=0, ycent=0,
-                   bolometer=0, fwhm='',
-                   norm=0, oversamp=0, verbose=1,
-                   factor=0, band='', npixx=0, npixy=0):
-    if bolometer == 0:
+def get_spire_beam(band = '',pixsize = 0,npixx=0, npixy=0,\
+                   xcent=0, ycent=0,bolometer=0, fwhm='',\
+                   norm=0, oversamp=0, verbose=1,\
+                   factor=0):
+    if bolometer != 0:
         if verbose:
             print('PSFs for specific bolometer not yet supported -- ignoring')
 
@@ -75,17 +76,19 @@ def get_spire_beam(pixsize, xcent=0, ycent=0,
         band = 'PSW'
 #   Check if we have been givin a pixel size
     if pixsize == 0:
-        band = upper(band)
+        # band = upper(band)
         if band == 'PSW':
             pixsize = 6
         if band == 'PMW':
-            pixsize = 8 + (1/3) * npixx
+            pixsize = 8 + (1/3)
         if band == 'PLW':
             pixsize = 12
         else:
             print('Unknown band'+band)
         if verbose:
             print('pixsize paramter not supplied assuming %s arcsec' % (pixsize))
+
+    # Figure out which color this is
 
     if len(fwhm) == 0:
         beamFWHM = get_spire_beam_fwhm(band)
@@ -99,17 +102,17 @@ def get_spire_beam(pixsize, xcent=0, ycent=0,
 #   npixx/npixy will be the final number of pixels
 
     if npixx == 0:
-        npixx = round(beamFWHM * (5 / pixsize))
+        npixx = round(beamFWHM * 5 / (pixsize))
         if npixx % 2 != 1:
             npixx +=1
             if verbose:
                 print('npixx not supplied, using ",I0"')
-#   if no y size then assume same as x
+    #If no y size then assume same as x
     if npixy == 0:
         npixy = npixx
 
-# Not sure if this needs to be done in python
-  # ;; make sure that these have been cast from a float properly or we get errors
+    #Not sure if this needs to be done in python
+    #Make sure that these have been cast from a float properly or we get errors
     npixx = math.ceil(npixx)
     npixy = math.ceil(npixy)
 
@@ -135,40 +138,76 @@ def get_spire_beam(pixsize, xcent=0, ycent=0,
         ixcent = x_gen / 2
         if verbose:
             print('xcent parameter not supplied, assuming array center')
-        else:
-            ixcent = xcent * ioversamp
-            if ioversamp > 1:
-                ixcent += ioversamp / 2
+    else:
+        ixcent = xcent * ioversamp
+        if ioversamp > 1:
+            ixcent = ixcent + ioversamp / 2
 
     if ycent == 0:
         iycent = y_gen / 2
         if verbose:
             print('ycent parameter not supplied, assuming array center')
-        else:
-            iycent = ycent * ioversamp
-            if ioversamp > 1:
-                iycent += ioversamp / 2
+    else:
+        iycent = ycent * ioversamp
+        if ioversamp > 1:
+            iycent = iycent +ioversamp / 2
 #   Normalize FWHM to pixels
     beamFWHM /= gen_pixsize
 
-#   if we want this normalized than call with
-    if factor == 1:
-#       1D BEAM, this also now uses a scrpit called PSF_GAUSSIAN from astrolib
-        #convert FWHM to stdev\
-        stdev = beamFWHM / (2*math.sqrt(2*math.log(2)))
-        beamkern = scipy.signal.gaussian(x_gen, stdev) #this may work, but i have a feeling it won't work we might have to write our own function.
-    else:
-        pass #need to find a way to make a 2d gaussian
+    # Needed in this python version
+    stdev = beamFWHM / (2*math.sqrt(2 * np.log(2)))
 
-        if ioversamp > 1:
-            # There doesnt seem to be a python equivalent
-            pass
-            #beamkern = rebin()
+    print('beamfwhm = ', beamFWHM)
+    print('stdev =',stdev)
+    print('pixsize = ',pixsize)
+    print('gen_pixsize = ',gen_pixsize)
+    print('xgen = ',x_gen)
+    print('ygen = ',y_gen)
+    print('ioversamp =',ioversamp)
+    print('ixcent = ', round(ixcent))
+    print('iycent = ',round(iycent))
+    print('npixx =', npixx)
+    print('npixy =', npixy)
+    # x_gen = int(x_gen - ixcent)
+    # y_gen = int(y_gen - iycent)
+    beamkern = Gaussian2DKernel(stdev,x_size = x_gen, y_size =  y_gen, mode = 'center')
+    beamkern = np.array(beamkern)
+    if ioversamp > 1:
+        beamkern = 	rebin(beamkern,15,15)
+    print('beamkern = ',beamkern)
+# #   if we want this normalized than call with
+#     if factor == 1:
+# #       1D BEAM, this also now uses a scrpit called PSF_GAUSSIAN from astrolib
+#         #convert FWHM to stdev\
+#         stdev = beamFWHM / (2*math.sqrt(2*math.log(2)))
+#         beamkern = scipy.signal.gaussian(x_gen, stdev) #this may work, but i have a feeling it won't work we might have to write our own function.
+#     else:
+#         pass #need to find a way to make a 2d gaussian
+#
+#         if ioversamp > 1:
+#             # There doesnt seem to be a python equivalent
+#             pass
+#             #beamkern = rebin()
 
-
+    plt.imshow(beamkern, interpolation='none', origin='lower')
+    plt.xlabel('x [pixels]')
+    plt.ylabel('y [pixels]')
+    plt.colorbar()
+    plt.show()
+    print('beamkern = ', beamkern)
     return beamkern
 
 
+def rebin(a, *args):
+    shape = a.shape
+    lenShape = len(shape)
+    factor = np.asarray(shape)/np.asarray(args)
+    evList = ['a.reshape('] + \
+             ['args[%d],factor[%d],'%(i,i) for i in range(lenShape)] + \
+             [')'] + ['.mean(%d)'%(i+1) for i in range(lenShape)]
+    print ''.join(evList)
+    return eval(''.join(evList))
+
 
 if __name__ == '__main__':
-    get_spire_beam('rxj1347',1)
+    get_spire_beam()

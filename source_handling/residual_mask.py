@@ -19,17 +19,25 @@ def residual_mask(maps, pswonly=1, verbose=1):
         ncols = 3
 
     for i in range(ncols):
+        #generate signal to noise maps
         snmap = np.empty(maps[i]['srcrm'].shape)
         for j in range(maps[i]['srcrm'].shape[0]):
             for k in range(maps[i]['srcrm'].shape[1]):
                 snmap[j,k] = maps[i]['srcrm'][j,k] / maps[i]['error'][j,k]
-        abs_snmap = np.empty(snmap.shape) #i think these are 2 dimensional arrays...
+        #find s/n pixels > 8
+        whpl = []
         for j in range(snmap.shape[0]):
             for k in range(snmap.shape[1]):
-                abs_snmap[j,k] = abs(snmap[j,k])
+                if abs(snmap[j,k]) >= 3:
+                    whpl.append([j,k])
+
+
 
         #the stuff after this is commented out.
+
         #then it gives a call to contour...
+        #and finally make an image I can look at
+        levels, colls = contour() #need to figure this stuff out..
         maskmap = np.empty(maps[i]['mask'].shape)
         for j in range(maps[i]['mask'].shape[0]):
             for k in range(maps[i]['mask'].shape[1]):

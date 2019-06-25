@@ -26,8 +26,8 @@ sys.path.append('utilities')
 #from get_spire_beam import *
 from get_spire_beam_fwhm import *
 
-def get_data(clusname, verbose = 1, resolution = 'nr', version = '1', manpath=0,
-             bolocam=None, manidentifier=None):
+def get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
+            verbose = 1, version = '1', manidentifier=None):
     # place holders for the if statements to work until I add them to the input for get data
     # This will happen when the script is fully functional
     errmsg = False
@@ -125,13 +125,13 @@ def get_data(clusname, verbose = 1, resolution = 'nr', version = '1', manpath=0,
                 maps[ifile] = np.empty(clus_read_bolocam(clusname,verbose=verbose)) #args need to be filled in bolocam one
     return maps, errmsg
 
+##################################################################################################
+##################################################################################################
 
 def read_file(file,col,clusname,verbose=0):
-#   The way this works in IDL is a pointer is populated with this kind of information in this case
-#   we should be using a dictionary as this is one of the important ones called maps
-#   This should ulitmatly be defined in as a self.calfac for this calibration
-    calfac = (np.pi/180) * (1/3600)**2 * (np.pi / (4 * np.log(2))) * (1e6)
-#   This will ultimatly be in the list of constants
+    # Should this calfac be listed as a self.calfac or not?
+    calfac = (pi/180) * (1/3600)**2 * (pi / (4 * log(2))) * (1e6)
+    # This will ultimatly be in the list of constants
     # The rest of the scrpit involves idl_libs stuff that
     # will get grabbed from astropy
     hdul = fits.open(file)
@@ -214,6 +214,7 @@ def read_file(file,col,clusname,verbose=0):
     xclean = np.empty(astr['NAXIS'])
     mask = np.empty(astr['NAXIS'])
 
+#  Need to generate default mask map
 #  whnan = WHERE(FINITE(map) EQ 0,countnan)
 #  IF countnan GT 0 THEN mask[whnan] = 1
 
@@ -238,6 +239,8 @@ def read_file(file,col,clusname,verbose=0):
           'JY2MJy':JY2MJy} #check
     return maps
 
+
+# This can be done with numpy
 def mean(data):
     length = len(data)
     sum = 0

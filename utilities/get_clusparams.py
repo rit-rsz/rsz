@@ -1,4 +1,3 @@
-
 ################################################################################
 # NAME : get_clusparams.py
 # DATE STARTED : June 11, 2019
@@ -22,7 +21,7 @@ import config
 
 def get_clus_params(clusname_in,
                     verbose = 1):#, su    return errmsg
-
+    ermsg = False
     config.CLUSDATA = '/data/mercado/SPIRE/'
 #   Read in the csv file to work with
 #   Can I read this in as a dictionary???
@@ -100,7 +99,6 @@ def get_clus_params(clusname_in,
 
 #   Hand off clusparams back to catsrc
     success = '1b'
-    errmsg = False
     return clusparams, errmsg
 
 #For debugging, used to call this file directly

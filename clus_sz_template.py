@@ -1,17 +1,20 @@
-'''
-Name: clus_sz_template
-Date Started June 18, 2019
-Authors: Benjamin Vaughan
-Purpose: to get the sz templates
-Explanation:
-Calling Sequence:
-Inputs: maps - maps typically created from get_data
-        params - parameters
-        verbose - 1 if you want error messages
-                  0 if you don't want any messages
-Outputs: szmap -
-Revision History:
-'''
+################################################################################
+# NAME : clus_sz_template
+# DATE STARTED : June 18, 2019
+# AUTHORS : Benjamin Vaughan
+# PURPOSE : to get the sz templates
+# EXPLANATION :
+# CALLING SEQUENCE :
+# INPUTS : maps - a dictionary created by get_data
+#          params - a dictionary created by get_params
+#           verbose - 1 - if you want error messages
+#                     0 - if you don't want error messages
+#
+#
+# OUTPUTS : szmap -
+# REVISION HISTORY :
+################################################################################
+
 
 import math as m
 import numpy as np

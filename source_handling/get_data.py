@@ -3,7 +3,7 @@
 # NAME : get_data.py
 # DATE STARTED : June 11, 2019
 # AUTHORS : Dale Mercado & Benjamin Vaughan
-# PURPOSE : This is where the data is retevied and can be
+# PURPOSE : This is where the data is retevied 
 # EXPLANATION :
 # CALLING SEQUENCE :
 # INPUTS :

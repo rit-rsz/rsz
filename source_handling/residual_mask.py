@@ -2,7 +2,7 @@
 # NAME : residual_mask.py
 # DATE STARTED : June 21, 2019
 # AUTHORS : Benjamin Vaughan
-# PURPOSE : idk lol
+# PURPOSE : this function collects the residual mask from maps input in.
 # EXPLANATION :
 # CALLING SEQUENCE :
 # INPUTS :

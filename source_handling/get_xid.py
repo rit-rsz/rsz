@@ -2,7 +2,7 @@
 # NAME : get_xid.py
 # DATE STARTED : June 21, 2019
 # AUTHORS : Benjamin Vaughan
-# PURPOSE : idk lol
+# PURPOSE : a script to interface with the XID program
 # EXPLANATION :
 # CALLING SEQUENCE :
 # INPUTS :

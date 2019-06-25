@@ -21,6 +21,25 @@ import numpy as np
 
 
 def get_cats(clusname, cattype, maps, nsim, simmap=0, s2n=3, resoltuion='fr', verbose=1, savecat=0, savemap=0,):
+    '''
+    Purpose : to collect the catalogs given a specifc band
+    Inputs : clusname - name of the cluster
+             cattype - type of catalog
+             maps - a dictionary created by get_data
+             nsims - the number of sims
+             simmap - 0 = no simmap
+                      1 = simmap
+            s2n -
+            resolution - the resolution
+            verbose - 0 = no error messages
+                      1 = error messages
+            savecat - 0 = don't save the catalog
+                      1 = save the catalog
+            savemap - 0 = don't save the map
+                      1 = save the map
+    Outputs: A dictionary containing a list of ras and decs, fluxes, err, clustername,
+            instrumentm and s2n.
+    '''
     err = False
     if cattype == 'PSW':
         if verbose:
@@ -68,6 +87,22 @@ def get_cats(clusname, cattype, maps, nsim, simmap=0, s2n=3, resoltuion='fr', ve
     return catalog, err
 
 def make_plw_src_cat(clusname, resolution, nsim, simmap=0, s2n=3, verbose=1, savecat=0, savemap=0):
+    '''
+    Purpose: to create a catalog with the PLW band.\
+    Inputs: clusname - clustername
+            resolution - resoltuion
+            nsim - the number of sims.
+            simmap - 0 = no simmap
+                     1 = simmap
+            s2n -
+            verbose - 0 = no error messages
+                      1 = error messages
+            savecat - 0 = don't save the catalog
+                      1 = save the catalog
+            savemap - 0 = don't save the map
+                      1 = save the map
+    Outputs: cat - the catalog dictionary.
+    '''
     err = False
     if s2n < 3 and verbose:
         print('WARNING: S/N requested less than 3, extraction may be suspect')
@@ -113,6 +148,12 @@ def make_plw_src_cat(clusname, resolution, nsim, simmap=0, s2n=3, verbose=1, sav
         #more starfinder stuff computing RA and dec from x, y.
 
         #another call here to more stuff from starfinder
+    ra_dec = wcs_pix2world(xPLW, yPLW, origin, ra_dec_order=True)
+        #xPLW = a list of x coordinates
+        #yPLW = a list of y coordinates
+        #origin = Idk what to put for the origin
+        #ra_dec is going to be a list of ra/dec pairs.
+
         # whpl = WHERE(fPLW/sigf GE s2n,count)
         # a = a[whpl]
         # d = d[whpl]
@@ -149,7 +190,22 @@ def make_plw_src_cat(clusname, resolution, nsim, simmap=0, s2n=3, verbose=1, sav
     return cat, err
 
 def make_mflr_src_cat(clusname, resolution='fr', s2n=3, savecat=0, savemap=0, verbose=1):
-    err = False
+    '''
+    Purpose: to create a catalog with the MFLR cattype.
+    Inputs: clusname - clustername
+            resolution - resoltuion
+            nsim - the number of sims.
+            simmap - 0 = no simmap
+                     1 = simmap
+            s2n -
+            verbose - 0 = no error messages
+                      1 = error messages
+            savecat - 0 = don't save the catalog
+                      1 = save the catalog
+            savemap - 0 = don't save the map
+                      1 = save the map
+    Outputs: cat - the catalog dictionary.
+    '''    err = False
     if s2n < 2 and verbose:
         print('WARNING: S/N requested less than 2, extraction may be suspect')
     min_corr = 0.1
@@ -173,8 +229,8 @@ def make_mflr_src_cat(clusname, resolution='fr', s2n=3, savecat=0, savemap=0, ve
 
     if savemap:
         if verbose:
-            print('SAving matched filter map')
-        #code to save stuff to a fits file still need to figure this out.
+            print('Saving matched filter map')
+            writefits(config.CLUSBOS + 'make_MFLR_src_cat_filt.fits', data=dataPSW, header_dict=headPSW)
 
     if verbose:
         print('Constructing MFLR catalog')
@@ -193,7 +249,12 @@ def make_mflr_src_cat(clusname, resolution='fr', s2n=3, savecat=0, savemap=0, ve
 
     astr = extast(map)
 
-    #converting form xy to celestial coordinate system don't have that code yet
+    ra_dec = wcs_pix2world(xPSW, yPSW, origin, ra_dec_order=True)
+    #xPLW = a list of x coordinates
+    #yPLW = a list of y coordinates
+    #origin = Idk what to put for the origin
+    #ra_dec is going to be a list of ra/dec pairs.
+
     # whpl = WHERE(fPSW/sigf GE s2n,count)
     # a = a[whpl]
     # d = d[whpl]
@@ -231,6 +292,22 @@ def make_mflr_src_cat(clusname, resolution='fr', s2n=3, savecat=0, savemap=0, ve
     return cat, err
 
 def make_psw_src_cat(clusname, resolution, nsim, s2n=3, savecat=0, savemap=0, simmap=0, verbose=1):
+    '''
+    Purpose: to create a catalog with the PSW band.\
+    Inputs: clusname - clustername
+            resolution - resoltuion
+            nsim - the number of sims.
+            simmap - 0 = no simmap
+                     1 = simmap
+            s2n -
+            verbose - 0 = no error messages
+                      1 = error messages
+            savecat - 0 = don't save the catalog
+                      1 = save the catalog
+            savemap - 0 = don't save the map
+                      1 = save the map
+    Outputs: cat - the catalog dictionary.
+    '''
     err = False
     if s2n < 3 and verbose:
         print('WARNING: S/N requested less than 3, extraction may be suspect')
@@ -276,7 +353,12 @@ def make_psw_src_cat(clusname, resolution, nsim, s2n=3, savecat=0, savemap=0, si
 
     astr = extast(headPSW)
 
-    #converting from xy to celestial coordinates again.
+    ra_dec = wcs_pix2world(xPSW, yPSW, origin, ra_dec_order=True)
+    #xPSW = a list of x coordinates
+    #yPSW = a list of y coordinates
+    #origin = Idk what to put for the origin
+    #ra_dec is going to be a list of ra/dec pairs.
+
     # whpl = WHERE(fPSW/sigf GE s2n,count)
     # a = a[whpl]
     # d = d[whpl]
@@ -314,6 +396,22 @@ def make_psw_src_cat(clusname, resolution, nsim, s2n=3, savecat=0, savemap=0, si
     return cat, err
 
 def make_mips_src_cat(clusname, maps, s2n=3, savecat=0, savemap=0, verbose=1):
+    '''
+    Purpose: to create a catalog with the 24um cattype.\
+    Inputs: clusname - clustername
+            resolution - resoltuion
+            nsim - the number of sims.
+            simmap - 0 = no simmap
+                     1 = simmap
+            s2n -
+            verbose - 0 = no error messages
+                      1 = error messages
+            savecat - 0 = don't save the catalog
+                      1 = save the catalog
+            savemap - 0 = don't save the map
+                      1 = save the map
+    Outputs: cat - the catalog dictionary.
+    '''
     err = False
     if s2n < 3:
         print('WARNING: S/N requested less tahn 3, extraction may be suspect')
@@ -372,7 +470,13 @@ def make_mips_src_cat(clusname, maps, s2n=3, savecat=0, savemap=0, verbose=1):
 
     astr = extast(imgh2[0])
     count = 0
-    #call to convert from xy to celestial coordinate system
+
+    ra_dec = wcs_pix2world(x, y, origin, ra_dec_order=True)
+    #x = a list of x coordinates
+    #y = a list of y coordinates
+    #origin = Idk what to put for the origin
+    #ra_dec is going to be a list of ra/dec pairs.
+
     # whpl = WHERE(f/sf GE s2n,count)    # whpl = WHERE(f/sf GE s2n,count)
     # a = a[whpl]
     # d = d[whpl]
@@ -413,7 +517,7 @@ def make_mips_src_cat(clusname, maps, s2n=3, savecat=0, savemap=0, verbose=1):
                             str(sf[i]).translate(str.maketrans('', '', string.whitespace))
             file.write(myline)
         file.close()
-        
+
     cat = {'ra': a,
            'dec' : d,
            'flux' : fPLW,
@@ -425,6 +529,11 @@ def make_mips_src_cat(clusname, maps, s2n=3, savecat=0, savemap=0, verbose=1):
 
 
 def extast(map):
+    '''
+    Purpose : gather information from a FITS header file.
+    Inputs : map - a dictionary of information generated by get_data.py.
+    Outputs : astr - a dictionary containing information from the header file.
+    '''
     astr = {}
     try:
         cd11 = map.header['CD1_1']
@@ -462,3 +571,4 @@ def extast(map):
         if 'PV1_0' in keys:
             x = np.array([pv1_1, pv1_2, pv1_3, pv1_4, pv1_5])
             astr.update({keys : x})
+        return astr

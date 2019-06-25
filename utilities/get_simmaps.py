@@ -1,3 +1,16 @@
+################################################################################
+# NAME : get_simmaps.py
+# DATE STARTED : June 18, 2019
+# AUTHORS : Benjamin Vaughan
+# PURPOSE : Fetches the simmaps
+# EXPLANATION :
+# CALLING SEQUENCE :
+# INPUTS :
+#
+#
+# OUTPUTS :
+# REVISION HISTORY :
+################################################################################
 import numpy as np
 from astropy.io import fits
 import random

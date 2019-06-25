@@ -20,8 +20,10 @@ sys.path.append('source_handling')
 from get_data import *
 
 def get_tfs(clusname):
-    tf_file = config.CLUSDATA + clusname + '_itermap_tf.fits' #missing !CLUSSBOX don't know
-    tf_maps, err = get_data(clusname,manpath=tf_file)
+    err = False
+    tf_file = config.CLUSSBOX
+    tf_id =  clusname + '_itermap_tf.fits' #missing !CLUSSBOX don't know
+    tf_maps, err = get_data(clusname,manpath=tf_file, manidentifier=tf_id)
     if err:
         print('error when running clus_get_data: ', err)
     else:
@@ -30,4 +32,4 @@ def get_tfs(clusname):
             tf_maps[i].xclean = tf_maps[i].signal
             tf_maps[i].error = np.tile(1, tf_maps[i].astr.naxis) #don't know what .astr.naxis is yet
             tf_maps[i].calfac = 1./tf_maps.JY2MJy
-    return tf_maps
+    return tf_maps, err

@@ -20,10 +20,11 @@ from math import *
 from astropy.io import fits
 import os
 import sys
-import pyfits
+#import pyfits
 import config
 sys.path.append('utilities')
-from get_spire_beam import *
+#from get_spire_beam import *
+from get_spire_beam_fwhm import *
 
 def get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
             verbose = 1, version = '1', manidentifier=None):
@@ -55,6 +56,7 @@ def get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
                 if x.startswith(clusname):
                     hlsfiles.append(hlsdir + x)
                     hlscount += 1
+
         snapdir = config.CLUSDATA + 'snapshot_clusters'
         snapfiles = []
         snapcount = 0
@@ -108,9 +110,9 @@ def get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
     maps = []
 
 #   Need to tweek the syntax of this for loop
+    counter = 0
     for ifile in range(nfiles):
         count = []
-        counter = 0
         if ifile < 3:
             if cols[ifile] in files[ifile]:
                 counter += 1
@@ -118,7 +120,7 @@ def get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
                 errmsg = 'Problem finding ' + cols[ifile] + ' file.'
                 if verbose:
                     print(errmsg)
-            maps.append(read_file(files[counter], cols[ifile], clusname, verbose=verbose))
+            maps.append(read_file(files[counter-1], cols[ifile], clusname, verbose=verbose))
         else:
                 maps[ifile] = np.empty(clus_read_bolocam(clusname,verbose=verbose)) #args need to be filled in bolocam one
     return maps, errmsg
@@ -154,7 +156,8 @@ def read_file(file,col,clusname,verbose=0):
                   mean([abs(map.header['CD1_1']+map.header['CD2_1']), \
                         abs(map.header['CD2_1'] + map.header['CD2_2'])])
 
-    psf = get_spire_beam(pixsize, band=col, factor=1)
+    #psf = get_spire_beam(pixsize, band=col, factor=1) commented out to test xid_test.py
+    psf = 4 #for xid test only...
     widtha = get_spire_beam_fwhm(col)
     width = (widtha / sqrt(8 * log(2)) * pixsize)
 #   We wouldnt be able to put this one in calfac since it is determined by the source called
@@ -234,7 +237,6 @@ def read_file(file,col,clusname,verbose=0):
           'widtha':widtha, #check
           'calfac':calfac, #check
           'JY2MJy':JY2MJy} #check
-
     return maps
 
 

@@ -35,7 +35,6 @@ from clus_get_tfs import *
 from get_clusparams import *
 sys.path.append('source_handling')
 from get_data import *
-import config
 from get_xid import *
 sys.path.append('reduc')
 from get_cats import *
@@ -75,12 +74,14 @@ class Catsrc():
             #call to nuplot idk what to put here instead
             pass
 
-        ringw = 18.0 #arcseconds
-        calfac = (pi/ 180.0) * (1.0 / 3600)*(1.0 / 3600)) * (pi / 4 * log(2.0)) * 1*10**6
-        PMWthres = 5*10**-3
-        PLWthres = 8*10**-3
 
-        ncols = 3.0
+        # This is the width of the radial bins we want to make
+        # ringw = 18.0 #arcseconds
+        # calfac = (pi/ 180.0) * (1.0 / 3600*(1.0 / 3600)) * (pi / 4 * log(2.0)) * 1*10**6
+        # PMWthres = 5*10**-3
+        # PLWthres = 8*10**-3
+        #
+        # ncols = 3.0
 
         #beam = [get_spire_beam_fwhm('PSW'), get_spire_beam_fwhm('PMW'), get_spire_beam_fwhm('PLW')]
 

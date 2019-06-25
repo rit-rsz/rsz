@@ -21,7 +21,7 @@ import config
 
 def get_clus_params(clusname_in,
                     verbose = 1):#, su    return errmsg
-    ermsg = False
+    errmsg = False
     config.CLUSDATA = '/data/mercado/SPIRE/'
 #   Read in the csv file to work with
 #   Can I read this in as a dictionary???

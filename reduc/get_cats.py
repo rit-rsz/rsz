@@ -18,6 +18,7 @@ import config
 from astropy.io import fits
 from math import *
 import numpy as np
+from astropy.wcs import WCS as wcs
 
 
 def get_cats(clusname, cattype, maps, nsim, simmap=0, s2n=3, resoltuion='fr', verbose=1, savecat=0, savemap=0,):
@@ -148,7 +149,7 @@ def make_plw_src_cat(clusname, resolution, nsim, simmap=0, s2n=3, verbose=1, sav
         #more starfinder stuff computing RA and dec from x, y.
 
         #another call here to more stuff from starfinder
-    ra_dec = wcs_pix2world(xPLW, yPLW, origin, ra_dec_order=True)
+    ra_dec = wcs.wcs_pix2world(xPLW, yPLW, origin, ra_dec_order=True)
         #xPLW = a list of x coordinates
         #yPLW = a list of y coordinates
         #origin = Idk what to put for the origin
@@ -174,9 +175,9 @@ def make_plw_src_cat(clusname, resolution, nsim, simmap=0, s2n=3, verbose=1, sav
         file.write('Extracted S/N >= ' + str(s2n))
         file.write('RA    DEC    FLUX    ERROR')
         for i in range(len(a)):
-            myline = '9B' + str(a[i]).translate(str.maketrans('', '', string.whitespace)) + '9B' +
-                            str(d[i]).translate(str.maketrans('', '', string.whitespace)) + '9B' +
-                            str(fPSW[i]).translate(str.maketrans('', '', string.whitespace)) + '9B' +
+            myline = '9B' + str(a[i]).translate(str.maketrans('', '', string.whitespace)) + '9B' + \
+                            str(d[i]).translate(str.maketrans('', '', string.whitespace)) + '9B' + \
+                            str(fPSW[i]).translate(str.maketrans('', '', string.whitespace)) + '9B' + \
                             str(sigf[i]).translate(str.maketrans('', '', string.whitespace))
             file.write(myline)
         file.close()
@@ -205,7 +206,8 @@ def make_mflr_src_cat(clusname, resolution='fr', s2n=3, savecat=0, savemap=0, ve
             savemap - 0 = don't save the map
                       1 = save the map
     Outputs: cat - the catalog dictionary.
-    '''    err = False
+    '''
+    err = False
     if s2n < 2 and verbose:
         print('WARNING: S/N requested less than 2, extraction may be suspect')
     min_corr = 0.1
@@ -249,7 +251,7 @@ def make_mflr_src_cat(clusname, resolution='fr', s2n=3, savecat=0, savemap=0, ve
 
     astr = extast(map)
 
-    ra_dec = wcs_pix2world(xPSW, yPSW, origin, ra_dec_order=True)
+    ra_dec = wcs.wcs_pix2world(xPSW, yPSW, origin, ra_dec_order=True)
     #xPLW = a list of x coordinates
     #yPLW = a list of y coordinates
     #origin = Idk what to put for the origin
@@ -275,9 +277,9 @@ def make_mflr_src_cat(clusname, resolution='fr', s2n=3, savecat=0, savemap=0, ve
         file.write('Extracted S/N >= ' + s2n)
         file.write('RA    DEC    FLUX    ERROR')
         for i in range(len(a)):
-            myline = '9B' + str(a[i]).translate(str.maketrans('', '', string.whitespace)) + '9B'
-                      str(d[i]).translate(str.maketrans('', '', string.whitespace)) + '9B' +
-                      str(fPSW[i]).translate(str.maketrans('', '', string.whitespace)) + '9B' +
+            myline = '9B' + str(a[i]).translate(str.maketrans('', '', string.whitespace)) + '9B' + \
+                      str(d[i]).translate(str.maketrans('', '', string.whitespace)) + '9B' + \
+                      str(fPSW[i]).translate(str.maketrans('', '', string.whitespace)) + '9B' + \
                       str(sigf[i]).translate(str.maketrans('', '', string.whitespace))
             file.write(myline)
         file.close()
@@ -353,7 +355,7 @@ def make_psw_src_cat(clusname, resolution, nsim, s2n=3, savecat=0, savemap=0, si
 
     astr = extast(headPSW)
 
-    ra_dec = wcs_pix2world(xPSW, yPSW, origin, ra_dec_order=True)
+    ra_dec = wcs.wcs_pix2world(xPSW, yPSW, origin, ra_dec_order=True)
     #xPSW = a list of x coordinates
     #yPSW = a list of y coordinates
     #origin = Idk what to put for the origin
@@ -379,9 +381,9 @@ def make_psw_src_cat(clusname, resolution, nsim, s2n=3, savecat=0, savemap=0, si
         file.write('Extracted S/N >= ' + str(s2n))
         file.write('RA    DEC    FLUX    ERROR')
         for i in range(len(a)):
-            myline = '9B' + str(a[i]).translate(str.maketrans('', '', string.whitespace)) + '9B' +
-                            str(d[i]).translate(str.maketrans('', '', string.whitespace)) + '9B' +
-                            str(fPSW[i]).translate(str.maketrans('', '', string.whitespace)) + '9B' +
+            myline = '9B' + str(a[i]).translate(str.maketrans('', '', string.whitespace)) + '9B' + \
+                            str(d[i]).translate(str.maketrans('', '', string.whitespace)) + '9B' + \
+                            str(fPSW[i]).translate(str.maketrans('', '', string.whitespace)) + '9B' + \
                             str(sigf[i]).translate(str.maketrans('', '', string.whitespace))
             file.write(myline)
         file.close()
@@ -429,7 +431,7 @@ def make_mips_src_cat(clusname, maps, s2n=3, savecat=0, savemap=0, verbose=1):
     else:
         err = 'Cannot find %s' %(imgfile)
         if verbose:
-            print('Cannot find %s' %s (imgfile))
+            print('Cannot find %s' % s (imgfile))
         return None, err
     if uncfile:
         hdul = fits.open(uncfile)
@@ -471,7 +473,7 @@ def make_mips_src_cat(clusname, maps, s2n=3, savecat=0, savemap=0, verbose=1):
     astr = extast(imgh2[0])
     count = 0
 
-    ra_dec = wcs_pix2world(x, y, origin, ra_dec_order=True)
+    ra_dec = wcs.wcs_pix2world(x, y, origin, ra_dec_order=True)
     #x = a list of x coordinates
     #y = a list of y coordinates
     #origin = Idk what to put for the origin
@@ -511,9 +513,9 @@ def make_mips_src_cat(clusname, maps, s2n=3, savecat=0, savemap=0, verbose=1):
         file.write('Extracted S/N >= ' + str(s2n))
         file.write('RA    DEC    FLUX    ERROR')
         for i in range(len(a)):
-            myline = '9B' + str(a[i]).translate(str.maketrans('', '', string.whitespace)) + '9B' +
-                            str(d[i]).translate(str.maketrans('', '', string.whitespace)) + '9B' +
-                            str(f[i]).translate(str.maketrans('', '', string.whitespace)) + '9B' +
+            myline = '9B' + str(a[i]).translate(str.maketrans('', '', string.whitespace)) + '9B' + \
+                            str(d[i]).translate(str.maketrans('', '', string.whitespace)) + '9B' + \
+                            str(f[i]).translate(str.maketrans('', '', string.whitespace)) + '9B' + \
                             str(sf[i]).translate(str.maketrans('', '', string.whitespace))
             file.write(myline)
         file.close()

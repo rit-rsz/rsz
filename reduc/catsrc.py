@@ -76,7 +76,7 @@ class Catsrc():
             pass
 
         ringw = 18.0 #arcseconds
-        calfac = (pi/ 180.0) * (1.0 / 3600)*(1.0 / 3600)) * (pi / 4 * log(2.0)) * 1*10**6
+        calfac = (pi/ 180.0) * (1.0 / 3600)*(1.0 / 3600) * (pi / 4 * log(2.0)) * 1*10**6
         PMWthres = 5*10**-3
         PLWthres = 8*10**-3
 

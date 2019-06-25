@@ -3,7 +3,7 @@
 # NAME : get_data.py
 # DATE STARTED : June 11, 2019
 # AUTHORS : Dale Mercado & Benjamin Vaughan
-# PURPOSE : This is where the data is retevied 
+# PURPOSE : This is where the data is retevied
 # EXPLANATION :
 # CALLING SEQUENCE :
 # INPUTS :
@@ -16,7 +16,7 @@ import scipy.io
 import numpy as np
 # from config import * #(this line will give me access to all directory variables)
 import matplotlib.pyplot as plt
-import math
+from math import *
 from astropy.io import fits
 import os
 import sys
@@ -62,62 +62,6 @@ def get_data(clusname, verbose = 1, resolution = 'nr', version = '1', manpath=0,
             if x.startswith(clusname):
                 snapfiles.append(snapdir + x)
                 snapcount += 1
-
-
-        # hermfile = [self.dir + x for x in x.startswith('/data/mercado/SPIRE/' + 'hermes_cluster/' + clusname)\
-        #             + x.endswith('_' + resolution + '_' + version + '.fits')]
-        # files = [self.dir + x for x in os.listdir(self.dir) if x.startswith("omnilog")]
-        # This is still broken and I am usure how to move forward on this
-        # print(hermfile)
-        # hermfile = str('/data/mercado/SPIRE/' + 'hermes_clusters/' + clusname + '*_' +\
-        #             resolution + '_' + version + '.fits')
-        # This is an example of the file name that we are trying to call
-        # rxj1347_PLW_fr_1.fits
-        # hermfiles = []
-#        hermcount = 0
-#        hlscount = 0
-#        snapcount = 0
-#        for i in range(len(cols)):
-            # Still need to figureout how to append these fits files to an array of some sort
-#            hermfile = (CLUSDATA + 'hermes_clusters/' + clusname + '_' +\
-#                        cols[i] + '_' + resolution + '_' + version + '.fits')
-#            hermfiles = (fits.open(hermfile))
-
-#           Count the number of hermfiles that are looked at
-#            if len(hermfiles):
-#                hermcount += 1
-#            print(hermcount)
-
-            # In the idl file it uses a * to grab all the bands here I had to use a for loop in order
-            # to acheive the same results
-            # This method provides difficulty for the hls and snapfiles below as they use other numbers in their names
-
-
-#           Currently these two are broken:
-#           I need to figureout how to use the * to call them all.
-#           There are other variables not that are being called and I cant work around it like the otehr
-#
-#           This is example of all the hls files that are being called
-#           a0068_BL_HP16_1.0_8.1.fits
-#           a0068_PLW_12_8.2.fits
-#           a0068_PMW_9_8.2.fits
-#           a0068_PSW_6_8.2.fits
-#           a0068_R_HP25_2.0_8.1.fits
-
-            # hlsfile = (CLUSDATA + 'hls_clusters/' + clusname + '*')
-            # hlsfiles = fits.open(hlsfile)
-            # print(hlsfiles.info())
-
-#           This is an example of all of the snapshot files that are getting called,
-#           only 3 in the dicrectory
-#           cl1226_PLW_12_8.2.fits
-#           cl1226_PMW_9_8.2.fits
-#           cl1226_PSW_6_8.2.fits
-            # snapfile = (CLUSDATA + 'snapshot_clusters/' + clusname +'*.fits')
-            # snapfiles = fits.open(snapfile)
-
-#       For now I will just create and empty array for these ones and come back when I havea better idea of how to proceed
-
 
         if snapcount ^ hermcount ^ hlscount != 3 :
             errmsg = ('Problem finding exclusive files, file dump is:', \
@@ -180,25 +124,6 @@ def get_data(clusname, verbose = 1, resolution = 'nr', version = '1', manpath=0,
                 maps[ifile] = np.empty(clus_read_bolocam(clusname,verbose=verbose)) #args need to be filled in bolocam one
     return maps, errmsg
 
-#               From get_clus params it's very close to the same
-# param_len = len(param_data)
-# count = 0
-# for i in range(param_len):
-#     place = str(param_name[i])
-#
-#     if place == clusname_in :
-#         whpl = i
-#         count += 1
-
-#           makes maps a pointer again, we're gona try using a dictionary
-#           This is also where readfile is used for the first time
-        #     maps[ifile] = read_file(files[whpl],cols[ifile],\
-        #                                   clusname,VERBOSE=verbose)
-        # else:
-        #     maps[ifile] = read_file(files[whpl],cols[ifile],\
-        #                                   clusname,VERBOSE=vercolbose)
-
-
 
 def read_file(file,col,clusname,verbose=0):
 #   The way this works in IDL is a pointer is populated with this kind of information in this case
@@ -238,7 +163,6 @@ def read_file(file,col,clusname,verbose=0):
 #   This should be defined in the catsrsc file
     JY2MJy = 1e6
 
-#   Something called EXTAST?????    astr = map.header
 
 #   Gets header information from a fits image. Astropy should be able to do this
     astr = {}
@@ -288,20 +212,8 @@ def read_file(file,col,clusname,verbose=0):
     xclean = np.empty(astr['NAXIS'])
     mask = np.empty(astr['NAXIS'])
 
-#   generate default mask map
-#   searches though the data and if the log = 0 the value is filled with NaN
-#   it marks the place where if map is finite and = 0 with countnan
-    # whnan = np.where(np.isfinite(map.data) == False)
-    # if len(whnan) > 0:
-    #     pass #i really have no idea what to put here i think i don't fundamentally understand what is happening in the idl script
-
-
-#    This is how the idl to python site shows how to do these conditional indexing
-	# (i,j) = a.nonzero()
-    # (i,j) = where(a!=0)
-
-    # SXPAR()  data[0].header['KEY'] 	Obtain value of header keyword
-    # SXADDPAR()  data[0].header['KEY']='value' OR data[0].header.update('KEY','value', 'comment')
+#  whnan = WHERE(FINITE(map) EQ 0,countnan)
+#  IF countnan GT 0 THEN mask[whnan] = 1
 
     maps = {'name':clusname, #check
           'file':file, #check

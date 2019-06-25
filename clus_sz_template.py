@@ -16,7 +16,7 @@
 ################################################################################
 
 
-import math as m
+from math import *
 import numpy as np
 
 def clus_sz_template(maps, params, verbose = 1):
@@ -30,7 +30,7 @@ def clus_sz_template(maps, params, verbose = 1):
 
     dra = 3600.0 * (racent - params['fidrad']) # arcseconds
     ddc = -3600.0 * (decent- params['fidded']) #arcseconds
-    dra = dra * m.cos(m.radians(decent)) / pixsize
+    dra = dra * cos(radians(decent)) / pixsize
     ddc = ddc / pixsize
     sizemap = maps['astr']['NAXIS'] #again don't know if this will work.
     midmapx = maps['astr']['CRPIX'][0] - 1 #float(sizemap[0] / 2 ) ???
@@ -44,7 +44,7 @@ def clus_sz_template(maps, params, verbose = 1):
 
     for i in range(sizemap[0]): #not sure if len(sizemap[0]) or just sizemap[0]
         for j in range(sizemap[1]): #same thing
-            rad = m.sqrt((float(i) - midmapx - dra)**2 +
+            rad = sqrt((float(i) - midmapx - dra)**2 +
             (float(j) - midmapy - ddc)**2)
             szmap[i][j] = norm * (1.0 + (rad / rad_c)**2)**((1.0 - 3.0 * beta) / 2.0)
 

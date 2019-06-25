@@ -11,6 +11,7 @@
 # OUTPUTS :
 # REVISION HISTORY :
 ################################################################################
+import numpy as np
 
 def subtract_cat(maps, cat, verbose=1):
     err = False

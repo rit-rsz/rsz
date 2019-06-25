@@ -27,7 +27,7 @@
 import scipy.io
 import numpy as np
 # from config import * #(this line will give me access to all directory variables)
-import math
+from math import *
 from astropy.io import fits
 from scipy.interpolate import interp1d
 
@@ -299,8 +299,8 @@ def clus_get_relsz(nu,y,T_e,\
 
 #           if we got this far we propbably have a correct SZ effect shape in
 #           our band and can get out of here
-            return deltaI
+            return deltaI, errmsg
 
 #   Error handler has been replaced by the returns
 
-    return deltaI
+    return deltaI, errmsg

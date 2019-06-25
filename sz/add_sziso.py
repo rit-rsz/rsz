@@ -16,13 +16,13 @@ import scipy.io
 import numpy as np
 # from config import * #(this line will give me access to all directory variables)
 import matplotlib.pyplot as plt
-import math
+from math import *
 from astropy.io import fits
 import os
 
-def add_sziso(maps,yin,tin,\
-                          verbose = 0,errmsg = False):
-
+def add_sziso(maps,yin,tin,
+              verbose = 0):
+    errmsg = False
 #   Now the bolocam data is in the SPIRE format
 #   we can do a loop over the map adding in the false sz signal
 
@@ -52,8 +52,9 @@ def add_sziso(maps,yin,tin,\
 #   Need to ask what this does
     crpix = naxis[1] / 2
     crpix = naxis[2] / 2
-
+#   this needs to be put into a tempheader for the bolocam stuff
 #   What is the mapts eleent thats getting used instead
+#   use astropy to append to FITS header, i.e. hdr.append('CRVAL1')
     map[0].header['CRVAL1'] = bolocam.deconvolved_image_ra_j2000_deg[crpix1,crpix2]
     map[0].header['CRVAL2'] = bolocam.deconvolved_image_dec_j2000_deg[crpix1,crpix2]
     map[0].header['CRPIX1'] = crpix1
@@ -72,7 +73,7 @@ def add_sziso(maps,yin,tin,\
     x = np.arange(naxis[1]) - 14.5
     y = np.arange(naxis[2]) - 14.5
 
-    rad = np.zeros(naxis[1],naxis[2])
+    rad = np.empty(naxis[1],naxis[2])
 
 
 #   Need to figure out how to use replicate in a fashion for python
@@ -95,7 +96,7 @@ def add_sziso(maps,yin,tin,\
 #       print,CLUS_GET_LAMBDAS((*maps[imap]).band),dI
 #       this accounts for a conversion to surface brightness in a later step
 #       dI = dI / (1.13d0 * (60./3600.)^2 * (!DTOR)^2 * 1e9)
-
+        #np.tile instead of idls replicate
         szin = repeat(dI*((1.13*(*maps[imap]).widtha/3600.)^2 * \
                     (!DTOR)^2),naxis[1],naxis[2]) * szmap
 

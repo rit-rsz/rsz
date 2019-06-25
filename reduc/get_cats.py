@@ -16,7 +16,7 @@
 ################################################################################
 import config
 from astropy.io import fits
-import math
+from math import *
 import numpy as np
 
 
@@ -138,12 +138,12 @@ def make_plw_src_cat(clusname, resolution, nsim, simmap=0, s2n=3, verbose=1, sav
     if savemap:
         if verbose:
             print('saving catalog debug maps')
-        writefits(config.CLUSBOS + 'make_PLW_src_cat_model.fits', data=modelPSW, header_dict=headPSW)
+        writefits(config.CLUSSBOX + 'make_PLW_src_cat_model.fits', data=modelPSW, header_dict=headPSW)
         data = np.empty(dataPLW.shape)
         for i in range(dataPLW.shape[0]):
             for j in range(dataPLW.shape[1]):
                 data[i,j] = dataPLW[i,j] - modelPLW[i,j]
-        writefits(config.CLUSBOS + 'make_PLW_src_cat_mdiff.fits', data=data, header_dict=headPSW)
+        writefits(config.CLUSSBOX + 'make_PLW_src_cat_mdiff.fits', data=data, header_dict=headPSW)
     astr = extast(headPLW)
         #more starfinder stuff computing RA and dec from x, y.
 
@@ -230,7 +230,7 @@ def make_mflr_src_cat(clusname, resolution='fr', s2n=3, savecat=0, savemap=0, ve
     if savemap:
         if verbose:
             print('Saving matched filter map')
-            writefits(config.CLUSBOS + 'make_MFLR_src_cat_filt.fits', data=dataPSW, header_dict=headPSW)
+            writefits(config.CLUSSBOX + 'make_MFLR_src_cat_filt.fits', data=dataPSW, header_dict=headPSW)
 
     if verbose:
         print('Constructing MFLR catalog')
@@ -240,12 +240,12 @@ def make_mflr_src_cat(clusname, resolution='fr', s2n=3, savecat=0, savemap=0, ve
     if savemap:
         if verbose:
             print('Saving catalog debug maps.')
-        writefits(config.CLUSBOS + 'make_PSW_src_cat_model.fits', data=modelPSW, header_dict=headPSW)
+        writefits(config.CLUSSBOX + 'make_PSW_src_cat_model.fits', data=modelPSW, header_dict=headPSW)
         data = np.empty(dataPSW.shape)
         for i in range(dataPSW.shape[0]):
             for j in range(dataPSW.shape[1]):
                 data[i,j] = dataPSW[i,j] - modelPSW[i,j]
-        writefits(config.CLUSBOS + 'make_PSW_src_cat_mdiff.fits', data=data, header_dict=headPSW)
+        writefits(config.CLUSSBOX + 'make_PSW_src_cat_mdiff.fits', data=data, header_dict=headPSW)
 
     astr = extast(map)
 
@@ -344,12 +344,12 @@ def make_psw_src_cat(clusname, resolution, nsim, s2n=3, savecat=0, savemap=0, si
     if savemap:
         if verbose:
             print('Saving catalog debug maps')
-        writefits(config.CLUSBOS + 'make_PSW_src_cat_model.fits', data=modelPSW, header_dict=headPSW)
+        writefits(config.CLUSSBOX + 'make_PSW_src_cat_model.fits', data=modelPSW, header_dict=headPSW)
         data = np.empty(dataPSW.shape)
         for i in range(dataPSW.shape[0]):
             for j in range(dataPSW.shape[1]):
                 data[i,j] = dataPSW[i,j] - modelPSW[i,j]
-        writefits(config.CLUSBOS + 'make_PSW_src_cat_mdiff.fits', data=data, header_dict=headPSW)
+        writefits(config.CLUSSBOX + 'make_PSW_src_cat_mdiff.fits', data=data, header_dict=headPSW)
 
     astr = extast(headPSW)
 
@@ -451,7 +451,7 @@ def make_mips_src_cat(clusname, maps, s2n=3, savecat=0, savemap=0, verbose=1):
             print(err)
         return None, err
 
-    imgpix = math.sqrt(imgh['PXSCAL1'] * imgh['PXSCAL1'] +  imgh['PXSCAL2'] * imgh['PXSCAL2']) / math.sqrt(2.0)
+    imgpix = sqrt(imgh['PXSCAL1'] * imgh['PXSCAL1'] +  imgh['PXSCAL2'] * imgh['PXSCAL2']) / sqrt(2.0)
     psfpix = psfh['PIXSCALE']
 
     #call to change image scale don't know what that does so :)
@@ -461,12 +461,12 @@ def make_mips_src_cat(clusname, maps, s2n=3, savecat=0, savemap=0, verbose=1):
     if savemap:
         if verbose:
             print('Saving catalog debug maps.')
-        writefits(config.CLUSBOS + 'make_mips_src_cat_model.fits', data=imgmodel, header_dict=imgh)
+        writefits(config.CLUSSBOX + 'make_mips_src_cat_model.fits', data=imgmodel, header_dict=imgh)
         data = np.empty(imgmodel.shape)
         for i in range(imgmodel.shape[0]):
             for j in range(imgmodel.shape[1]):
                 data[i,j] = img[i,j] - imgmodel[i,j]
-        writefits(config.CLUSBOS + 'make_mips_src_cat_mdiff.fits', data=data, header_dict=imgh)
+        writefits(config.CLUSSBOX + 'make_mips_src_cat_mdiff.fits', data=data, header_dict=imgh)
 
     astr = extast(imgh2[0])
     count = 0

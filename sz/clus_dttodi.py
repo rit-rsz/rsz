@@ -14,7 +14,7 @@
 # REVISION HISTORY :
 ################################################################################
 
-import math
+from math import *
 
 def clus_dttodi(freq,dT):
 

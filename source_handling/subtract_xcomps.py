@@ -11,6 +11,7 @@
 # OUTPUTS :
 # REVISION HISTORY :
 ################################################################################
+from math import *
 
 def subtract_xcomps(maps, simflag=0, verbose=1):
     ncols = len(maps)
@@ -24,7 +25,7 @@ def subtract_xcomps(maps, simflag=0, verbose=1):
     for i in range(ncols):
         if verbose:
             print('On band %s' %(maps[i]['band']))
-        width = math.sqrt(maps[icol]['widtha']**2 - maps[0]['widtha']**2) / maps[0]['pixsize']
+        width = sqrt(maps[icol]['widtha']**2 - maps[0]['widtha']**2) / maps[0]['pixsize']
         #kern = PSF_GAUSSIAN we need to have a function for PSF_GAUSSIAN
         inmap = maps[0]['srcrm']
         maps[0]['xclean'] = maps[0]['srcrm']

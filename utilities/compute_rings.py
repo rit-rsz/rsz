@@ -11,7 +11,7 @@
 # OUTPUTS :
 # REVISION HISTORY :
 ################################################################################
-import math
+from math import *
 import numpy as np
 
 def compute_rings(maps, params, binwidth, superplot=0, verbose=1, noconfusion=None):
@@ -28,7 +28,7 @@ def compute_rings(maps, params, binwidth, superplot=0, verbose=1, noconfusion=No
         mapsize = maps[i]['astr']['NAXIS']
         pixsize = maps[i]['pixsize']
 
-        maxrad = math.ceil(pixsize * np.amax(mapsize) / math.sqrt(2.0))
+        maxrad = ceil(pixsize * np.amax(mapsize) / sqrt(2.0))
 
         nbinsp = maxrad / binwidth + 1
 
@@ -44,7 +44,7 @@ def compute_rings(maps, params, binwidth, superplot=0, verbose=1, noconfusion=No
         mapsize = maps[m]['astr']['NAXIS']
         pixsize = maps[m]['pixsize']
 
-        maxrad = math.ceil(pixsize * np.amax(mapsize) /math.sqrt(2.0))
+        maxrad = ceil(pixsize * np.amax(mapsize) / sqrt(2.0))
 
         radbin = []
         for i in range(int(nbins)):
@@ -86,7 +86,7 @@ def compute_rings(maps, params, binwidth, superplot=0, verbose=1, noconfusion=No
                 rad = []
                 for k in range(thisrad.shape[0]):
                     for h in range(thisrad.shape[1]):
-                        if abs(thisrad[k,h] - midbin[k,h]) == math.floor(abs(thisrad[k,h] -midbin[k,h])):
+                        if abs(thisrad[k,h] - midbin[k,h]) == floor(abs(thisrad[k,h] -midbin[k,h])):
                             rad.append([k,h])
                 for vlaue in rad:
                     midbinp[rad] = midbinp[rad] + thisrad #this may not work...might have to use np.add()
@@ -96,7 +96,7 @@ def compute_rings(maps, params, binwidth, superplot=0, verbose=1, noconfusion=No
                 tempmap[i,j] = thisrad #i don't get this.
 
                 if len(rad) > 0 and maps[m]['mask'][i,j] == 0 and rad < maxrad:
-                    thiserr = calfac * math.sqrt(maps[m]['error'][i,j]**2 + confnoise**2)
+                    thiserr = calfac * sqrt(maps[m]['error'][i,j]**2 + confnoise**2)
                     for value in rad:
                         fluxbin[value] = fluxbin[value] + calfac * maps[m]['srcrm'][i,j] / thiserr**2
                         hitbin[value] = hitbin[value] + 1.0 / thiserr**2
@@ -127,7 +127,7 @@ def compute_rings(maps, params, binwidth, superplot=0, verbose=1, noconfusion=No
 
         for value in whpl:
             fluxbin[value] = fluxbin[value] / hitbin[value]
-            errbin[value] = math.sqrt(1.0 / hitbin[value])\
+            errbin[value] = sqrt(1.0 / hitbin[value])\
         if len(nnan) > 0:
             for value in whnan:
                 midbinp[value] = np.nan

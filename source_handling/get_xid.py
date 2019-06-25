@@ -101,7 +101,7 @@ def get_xid(maps, cat, savemap=0, simmap=0, verbose=1, confusionerrors=1):
 
         xid.append(xid_sb) #i've had issues with code like this before not sure if this will work out.
         if savemap:
-            outfile = config.CLUSBOS + 'clus_get_xid_model_' + cols[i] + '.fits'
+            outfile = config.CLUSSBOX + 'clus_get_xid_model_' + cols[i] + '.fits'
             #writefits call !
 
     return xid, err

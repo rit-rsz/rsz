@@ -47,7 +47,7 @@ import scipy.io
 import numpy as np
 # from config import * #(this line will give me access to all directory variables)
 import matplotlib.pyplot as plt
-import math
+from math import *
 from astropy.io import fits
 import scipy.signal
 import os

@@ -46,28 +46,30 @@ def add_sziso(maps,yin,tin,
 
 #   Set this to the size of bolocam.deconvolved image
     # naxis =
-#   Some kind of header maker??? Fuction??
+#   Some kind of temphead maker??? Fuction??
 #   MKHDR
-
+    temphead = fits.Header(bolocam['deconvolved_image'])
 #   Need to ask what this does
     crpix = naxis[1] / 2
     crpix = naxis[2] / 2
-#   this needs to be put into a tempheader for the bolocam stuff
+#   this needs to be put into a temptemphead for the bolocam stuff
 #   What is the mapts eleent thats getting used instead
-#   use astropy to append to FITS header, i.e. hdr.append('CRVAL1')
-    map[0].header['CRVAL1'] = bolocam.deconvolved_image_ra_j2000_deg[crpix1,crpix2]
-    map[0].header['CRVAL2'] = bolocam.deconvolved_image_dec_j2000_deg[crpix1,crpix2]
-    map[0].header['CRPIX1'] = crpix1
-    map[0].header['CRPIX2'] = crpix2
+#   use astropy to append to FITS temphead, i.e. hdr.append('CRVAL1')
+    temphead.append('CRVAl1', 'CRVAL2', 'CRPIX1', 'CRPIX2', 'CD1_1', 'CD1_2', 'CD2_1', 'CD2_2',
+                    'EPOCH', 'EQUINOX', 'CTYPE1', 'CTYPE2')
+    temphead['CRVAL1'] = [bolocam['deconvolved_image_ra_j2000_deg']['crpix1'],bolocam['deconvolved_image_ra_j2000_deg']['crpix2']]
+    temphead['CRVAL2'] = [bolocam['deconvolved_image_dec_j2000_deg']['crpix1'],bolocam['deconvolved_image_dec_j2000_deg']['crpix2']]
+    temphead['CRPIX1'] = crpix1
+    temphead['CRPIX2'] = crpix2
     # Why is this one negative???
-    map[0].header['CD1_1'] = -bolocam.deconvolved_image_resolution_arcmin/60
-    map[0].header['CD1_2'] = 0
-    map[0].header['CD2_1'] = 0
-    map[0].header['CD2_2'] = bolocam.deconvolved_image_resolution_arcmin/60
-    map[0].header['EPOCH'] = 2000.00
-    map[0].header['EQUINOX'] = 2000.00
-    map[0].header['CTYPE1'] = 'RA---TAN'
-    map[0].header['CTYPE2'] = 'DEC---TAN'
+    temphead['CD1_1'] = -1 * bolocam['deconvolved_image_resolution_arcmin'] / 60.0
+    temphead['CD1_2'] = 0
+    temphead['CD2_1'] = 0
+    temphead['CD2_2'] = bolocam['deconvolved_image_resolution_arcmin'] / 60.0
+    temphead['EPOCH'] = 2000.00
+    temphead['EQUINOX'] = 2000.00
+    temphead['CTYPE1'] = 'RA---TAN'
+    temphead['CTYPE2'] = 'DEC---TAN'
 
 #   This was findgen in idl. I may have to chage this to np.zeros I need to test the output in idl to confirm
     x = np.arange(naxis[1]) - 14.5

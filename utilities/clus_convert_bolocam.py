@@ -21,8 +21,7 @@ from astropy.io import fits
 import os
 import pyfits
 
-def clus_convert_bolocam(bolocam,verbose = 0,errmsg):
-
+def clus_convert_bolocam(bolocam, verbose=0):
     bolocam.deconvolved_image = clus_dTtoDI(143,1e-6*bolocam.deconvolved_image)
     bolocam.deconvolved_image_smooth_trim_sn = \
         clus_dTtoDI(143,1e-6*bolocam.deconvolved_image_smooth_trim_sn)

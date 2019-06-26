@@ -156,7 +156,7 @@ def get_spire_beam(band = '',pixsize = 0,npixx=0, npixy=0,
     beamFWHM /= gen_pixsize
     # Convert the FWHM to a standard deviation for astropy fit
     stdev = beamFWHM / (2*sqrt(2 * log(2)))
-    
+
     # If we want this normalized then call with norm flag set
     if factor:
         # 1D beam
@@ -198,7 +198,7 @@ def rebin(a, *args):
     evList = ['a.reshape('] + \
              ['args[%d],factor[%d],'%(i,i) for i in range(lenShape)] + \
              [')'] + ['.mean(%d)'%(i+1) for i in range(lenShape)]
-    print ''.join(evList)
+    #print() ''.join(evList))
     return eval(''.join(evList))
 
 

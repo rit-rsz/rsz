@@ -37,7 +37,7 @@ def subtract_cat(maps, cat, verbose=1):
 
         whpl = np.where(maps[i]['mask'] == 1)
         for value in whpl:
-            datasub[whpl] = np.nan
+            datasub[value] = np.nan
 
      # CONTOUR,datafull,/NODATA,$
      #         TITLE='clus_subtract_cat: Signal map for ' + $
@@ -49,7 +49,6 @@ def subtract_cat(maps, cat, verbose=1):
      #         (*maps[icol]).band
      # tvimage,bytscl(datasub,min=-0.01,max=0.01,/NAN),/OVERPLOT
 
-        datasub[whpl] = np.nan
         maps[i]['scrrm'] = datasub
         maps[i]['xclean'] = datasub
 

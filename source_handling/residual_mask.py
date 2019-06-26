@@ -15,7 +15,7 @@ import matplotlib as plt
 import matplotlib.pyplot as p
 import sys
 sys.path.append('source_handling')
-sys.path.append('utilities')
+sys.path.append('../utilities')
 from get_data import *
 import numpy as np
 from writefits import *
@@ -49,10 +49,18 @@ def residual_mask(maps, pswonly=0, verbose=1):
 
         #then it gives a call to contour...
         #and finally make an image I can look at
-        contoured = plt.contour(snmap) #maybe this can be a replacement? what does tvimage do in the idl version.
-        p.clabel(contoured, inline=True)
-        p.title('clus_residual_mask : Residual bright source subtracted map for %s' % (maps[i]['band']))
-        p.show() # for some reason this only shows the first band.
+
+        print('snmap = ',snmap[150,150])
+        plt.imshow(error, interpolation='none', origin='lower')
+        plt.colorbar()
+        plt.xlabel('x [pixels]')
+        plt.ylabel('y [pixels]')
+        plt.show()
+
+        # contoured = plt.contour(snmap) #maybe this can be a replacement? what does tvimage do in the idl version.
+        # p.clabel(contoured, inline=True)
+        # p.title('clus_residual_mask : Residual bright source subtracted map for %s' % (maps[i]['band']))
+        # p.show() # for some reason this only shows the first band.
         maskmap = np.empty(maps[i]['mask'].shape)
         data = np.empty(maskmap.shape)
         for j in range(maps[i]['mask'].shape[0]):

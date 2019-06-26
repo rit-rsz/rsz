@@ -20,8 +20,8 @@ from math import *
 from astropy.io import fits
 import os
 import sys
-import pyfits
-sys.path.append('../utilities')
+#import pyfits
+sys.path.append('utilities')
 from get_spire_beam import *
 from get_spire_beam_fwhm import *
 import config

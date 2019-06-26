@@ -12,6 +12,12 @@
 # REVISION HISTORY :
 ################################################################################
 from math import *
+from scipy import signal
+from math import *
+from astropy.FITS_tools.hcongrid import hcongrid #not sure if this is the right module or not, it wasn't clear.
+import sys
+sys.path.append('../utilities')
+from meanclip import meanclip
 
 def subtract_xcomps(maps, simflag=0, verbose=1):
     ncols = len(maps)
@@ -25,10 +31,12 @@ def subtract_xcomps(maps, simflag=0, verbose=1):
     for i in range(ncols):
         if verbose:
             print('On band %s' %(maps[i]['band']))
-        width = sqrt(maps[icol]['widtha']**2 - maps[0]['widtha']**2) / maps[0]['pixsize']
-        #kern = PSF_GAUSSIAN we need to have a function for PSF_GAUSSIAN
+        width = sqrt(maps[i]['widtha']**2 - maps[0]['widtha']**2) / maps[0]['pixsize']
+        stdev = width / (2*sqrt(2 * log(2.)))
+        kern = Gaussian2DKernel(stdev, x_size=15, y_size=15)
+        kern = np.array(kern)
         inmap = maps[0]['srcrm']
-        maps[0]['xclean'] = maps[0]['srcrm']
+        maps[0]['xclean'] = maps[0]['srcrm'].
         whpl = []
         whnan = []
         for j in range(inmap.shape[0]):
@@ -40,9 +48,17 @@ def subtract_xcomps(maps, simflag=0, verbose=1):
         for indexes in whnan:
             maps[0]['mask'][indexes] = 1
             inmap[indexes] = 0.0
-        #xmap = CONVOL which is some math thing that i don't understand what it does so i can't find an equivalent.
-        #then it does a where in xmap and calls HASTROM.
-        #meanclip is called which supposedly just returns a mean, but i don't know if its got some weird thing in it.
+        xmap = signal.convolve2d(inmap, kern)
+        indexes = []
+        for j in range(xmap.shape[0]):
+            for k in range(xmap.shape[1]):
+                if maps[0]['mask'][j,k] != 0:
+                    indexes.append([j,k])
+        for value in indexes:
+            xmap[value] = np.nan #not sure about this because it doesn't specify a condition for where in IDL so i don't know if my if statement is correct.
+        xmap_align = hcongrid(xmap, maps[0]['shead'], maps[i]['shead']) #this may not work the package was FITS_tools.hcongrid.hcongrid but I'm not sure if its part of astropy or not.
+
+        mean, sigma = meanclip(maps[i]['srcrm'], clipsig=10, maxiter=3, verbose=verbose)
         whpl = []
         whnan = []
         for j in range(maps[i]['srcrm'].shape[0]):
@@ -53,7 +69,17 @@ def subtract_xcomps(maps, simflag=0, verbose=1):
                     whnan.append([j,k])
         #then it calls plot, so i don't know if we can just matplotlib here but ok i guess
 
-        #coeff = Least squares fit of some other stuff.
+        #setting up for python version of SVDFIT
+        xmap_align_whpl = []
+        srcrm_whpl = []
+        for value in whpl:
+            xmap_align_whpl.append(xmap_align[value])
+            srcrm_whpl.append(maps[i]['srcrm'][value])
+        srcrm_whpl = np.array(srcrm_whpl)
+        xmap_align_whpl = np.array(xmap_align_whpl)
+
+        #call to SVDFIT which is a least squares fit.
+
 
         x = np.empty(1000)
         for j in range(x.shape[0]):
@@ -72,8 +98,7 @@ def subtract_xcomps(maps, simflag=0, verbose=1):
             filename = config.CLUSDATA + 'sz/' + maps[i]['name'] + str(maps[i]['band']) + '_xc.fits'
         else:
             filename = config.CLUSDATA + 'sz/sim/' + maps[i]['name'] + str(maps[i]['band']) + '_xc.fits'
-        #we do writefits here again so i really need to find an equivalent...
-
+        writefits(filename, data=datasub, header_dict=maps[i]['shead'])
         #another call to contour need to fix this.
 
     for i in range(maps[0]['xclean'].shape[0]):

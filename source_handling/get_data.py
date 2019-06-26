@@ -20,11 +20,12 @@ from math import *
 from astropy.io import fits
 import os
 import sys
-#import pyfits
-import config
+import pyfits
 sys.path.append('utilities')
-#from get_spire_beam import *
+from get_spire_beam import *
 from get_spire_beam_fwhm import *
+import config
+
 
 def get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
             verbose = 1, version = '1', manidentifier=None):
@@ -130,7 +131,7 @@ def get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
 
 def read_file(file,col,clusname,verbose=0):
     # Should this calfac be listed as a self.calfac or not?
-    calfac = (pi/180) * (1/3600)**2 * (pi / (4 * log(2))) * (1e6)
+    calfac = (pi/180.0) * (1/3600.0)**2 * (pi / (4.0 * log(2.0))) * (1e6)
     # This will ultimatly be in the list of constants
     # The rest of the scrpit involves idl_libs stuff that
     # will get grabbed from astropy

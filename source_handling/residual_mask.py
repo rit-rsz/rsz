@@ -11,19 +11,31 @@
 # OUTPUTS :
 # REVISION HISTORY :
 ################################################################################
-def residual_mask(maps, pswonly=1, verbose=1):
+import matplotlib as plt
+import matplotlib.pyplot as p
+import sys
+sys.path.append('source_handling')
+sys.path.append('utilities')
+from get_data import *
+import numpy as np
+from writefits import *
+
+def residual_mask(maps, pswonly=0, verbose=1):
     err = False
     if pswonly:
         ncols = 1
     else:
         ncols = 3
 
+
     for i in range(ncols):
         #generate signal to noise maps
-        snmap = np.empty(maps[i]['srcrm'].shape)
-        for j in range(maps[i]['srcrm'].shape[0]):
-            for k in range(maps[i]['srcrm'].shape[1]):
-                snmap[j,k] = maps[i]['srcrm'][j,k] / maps[i]['error'][j,k]
+        srcrm = maps[i]['srcrm']
+        error = maps[i]['error'].data
+        snmap = np.empty(srcrm.shape)
+        for j in range(srcrm.shape[0]):
+            for k in range(srcrm.shape[1]):
+                snmap[j,k] = srcrm[j,k] / error[j,k]
         #find s/n pixels > 8
         whpl = []
         for j in range(snmap.shape[0]):
@@ -37,10 +49,22 @@ def residual_mask(maps, pswonly=1, verbose=1):
 
         #then it gives a call to contour...
         #and finally make an image I can look at
-        levels, colls = contour() #need to figure this stuff out..
+        contoured = plt.contour(snmap) #maybe this can be a replacement? what does tvimage do in the idl version.
+        p.clabel(contoured, inline=True)
+        p.title('clus_residual_mask : Residual bright source subtracted map for %s' % (maps[i]['band']))
+        p.show() # for some reason this only shows the first band.
         maskmap = np.empty(maps[i]['mask'].shape)
+        data = np.empty(maskmap.shape)
         for j in range(maps[i]['mask'].shape[0]):
             for k in range(maps[i]['mask'].shape[1]):
                     maskmap[j,k] = abs(1 - maps[i]['mask'][j,k])
+                    data[j,k] = maskmap[j,k] * maps[i]['xclean'][j,k]
+
+        writefits('test_' + str(maps[i]['band']) + '.fits', data=data, header_dict=maps[i]['shead'])
 
     return maskmap, err
+
+
+if __name__ == '__main__':
+    maps, err = get_data('rxj1347')
+    mask, err = residual_mask(maps)

@@ -26,7 +26,6 @@ from get_spire_beam import *
 from get_spire_beam_fwhm import *
 import config
 
-
 def get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
             verbose = 1, version = '1', manidentifier=None):
     # place holders for the if statements to work until I add them to the input for get data
@@ -136,8 +135,10 @@ def read_file(file,col,clusname,verbose=0):
     # The rest of the scrpit involves idl_libs stuff that
     # will get grabbed from astropy
     hdul = fits.open(file)
+    print(hdul.info())
     map = hdul[1]
-    err = hdul[2]
+    err = hdul['error']
+    print(err.data)
     exp = hdul[3]
     flag = hdul[4]
 
@@ -251,4 +252,4 @@ def mean(data):
     return average
 
 if __name__ == '__main__':
-    get_data('rxj1347',1)
+    get_data('rxj1347')

@@ -40,7 +40,7 @@ def fitsz(radave, params, beam=None, maxlim=3600, minlim=0, noweight=1, superplo
                 pf = -1*(2.18 * math.log(2.0) / beam[i]**2)
                 psf[j] = math.exp(pf * xrad[j]**2)
                 psf[j] = psf[j] / np.sum(psf)
-                #roftprimep = CONVOL(roftprime, psf, EDGE_TRUNCATE) don't know what the equivalent of this is.
+                #roftprimep = CONVOL(roftprime, psf, EDGE_TRUNCATE)
                 roftprimep[j] = roftprimep[j] / np.amax(abs(roftprimep))
                 #roft = INTERPL(roftprimep, xrad, radwave[i]['midbin'])
 
@@ -56,7 +56,7 @@ def fitsz(radave, params, beam=None, maxlim=3600, minlim=0, noweight=1, superplo
             #fitSZ = LINFIT(roft[whpl], radave[i]['fluxbin'][whpl], CHISQ, sigma)
         else:
             #fitSZ = LINFIT(roft[whpl], radave[i]['fluxbin'][whpl], MEASURE_ERRORS=radave[i]['errbin'][whpl], chisq=chisq, sigma=SIGMA)
-            # don't have the best understanding of what linfti does
+
         print(fitSZ)
         print(chisq) #probably gets made in LINFIT.
         print(sigma) #probably gets made in LINFIT.

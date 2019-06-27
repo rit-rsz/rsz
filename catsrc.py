@@ -126,30 +126,6 @@ class Catsrc():
                     tf_maps[i]['xclean'] = sztm #maybe need to change this
                     tf_maps[i]['error'] = np.tile(1.0, tf_maps[i]['astr']['NAXIS'])
                     tf_maps[i]['calfac'] = 1.0 / tf_maps[i]['JY2MJy']
-        if self.maketf:
-            if self.verbose:
-                print('Making SZ template map.')
-            sztm, err = clus_sz_template(maps[0], params, verbose=self.verbose)
-            if err:
-                if self.verbose:
-                    print('clus_sz_template exited with error: '+ err)
-                exit()
-
-            sztemplatemapfile = config.CLUSBOS + self.lusname + '_sztemplate.fits'
-            #this part creates a fits header file from data and i need to properly work out how to do this
-
-            intfmaps = np.empty(ncols)
-            for i in range(ncols):
-                intfmaps[i] = maps[i].file[0]
-
-            conffiles = config.SMAP_PATH + 'map_making/createmap/conffiles/' + clusname + '_tf.conf' #config.SMAP_PATH needs to be filled in
-            itest = smap_transfun_pipline_v4(args) #args need to be worked out when writing this function
-
-            tf_maps, err = clus_get_tfs(self.clusname)
-            if err:
-                if self.verbose:
-                    print('Cannot find created TF files, Aborting.')
-                exit()
 
         if self.verbose:
             print('Fetching regression catalogs')

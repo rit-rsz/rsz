@@ -1,6 +1,6 @@
 ################################################################################
 # NAME : xid_test.py
-# DATE STARTED : June 24, 2019
+# DATE STARTED : June 25, 2019
 # AUTHORS : Benjamin Vaughan
 # PURPOSE : Test for interfacing with XID
 # EXPLANATION :
@@ -53,9 +53,9 @@ def xid_test(maps):
     inra = np.arange(90)
     indec = np.arange(90)
 
-    c = SkyCoord(ra=[100]*u.degree, dec=[10]*u.degree) #i don't know if we need this or not
-    moc = pymoc.util.catalog.catalog_to_moc(c, 100, 15) #i don't know about the radius or resolution for the moc.
-    #this code seems to create a moc centered on the position given from the instance of the skycoords class.
+    # c = SkyCoord(ra=[100]*u.degree, dec=[10]*u.degree) #i don't know if we need this or not
+    # moc = pymoc.util.catalog.catalog_to_moc(c, 100, 15) #i don't know about the radius or resolution for the moc.
+    # #this code seems to create a moc centered on the position given from the instance of the skycoords class.
     priors = []
     prf_size = np.array([18.15,25.15,36.3])
     prfs = []
@@ -85,7 +85,6 @@ def xid_test(maps):
         priors[i].set_prf(prfs[i],pinds[i],pinds[i]) #add prf array and corresponding x and y scales.
         #set_prf(prf, pindx, pindy) prf - nxn array and center or prf is center of array
         #pindx - n array pixel scale of prf array #pindy - n array pixel scale of prf array.
-        #whats the difference between pindx and pindy?
         priors[i].get_pointing_matrix()#calculate the pointing get_pointing_matrix
         #get_pointing_matrix(bkg=True) if bkg = True bkg is fitted to all pixels, else only fitted where prior souces contribute.
         priors[i].upper_lim_map() #updates the flux upper limit to abs(bkg) + 2*sigma_bkg + max(D) where max(D) is the maximum value of pixels the source contributes to.
@@ -99,7 +98,7 @@ def xid_test(maps):
     #chains - the number of chains
     #iter - # the number of iterations
     for key in fit.data.keys():
-        print(key)
+        print(key, fit.data[key])
 
 
 

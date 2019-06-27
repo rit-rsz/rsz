@@ -19,6 +19,7 @@ from astropy.io import fits
 from math import *
 import numpy as np
 from astropy.wcs import WCS as wcs
+from idlpy import *
 
 
 def get_cats(clusname, cattype, maps, nsim, simmap=0, s2n=3, resoltuion='fr', verbose=1, savecat=0, savemap=0,):
@@ -146,7 +147,10 @@ def make_plw_src_cat(clusname, resolution, nsim, simmap=0, s2n=3, verbose=1, sav
                 data[i,j] = dataPLW[i,j] - modelPLW[i,j]
         writefits(config.CLUSSBOX + 'make_PLW_src_cat_mdiff.fits', data=data, header_dict=headPSW)
     astr = extast(headPLW)
-        #more starfinder stuff computing RA and dec from x, y.
+
+    IDL.STARFINDER(dataPLW, psfPLW, s2n, min_corr, xPLW, yPLW, fPLW, sigx, sigy,
+                   sigf, corr, NOISE_STD=errPLW, REL_THRESHOLD=1, CORREL_MAG=2, /DEBLEND, STARS=modelPLW, BACKGROUND=background,
+                   SILENT=0)
 
         #another call here to more stuff from starfinder
     ra_dec = wcs.wcs_pix2world(xPLW, yPLW, origin, ra_dec_order=True)
@@ -154,6 +158,7 @@ def make_plw_src_cat(clusname, resolution, nsim, simmap=0, s2n=3, verbose=1, sav
         #yPLW = a list of y coordinates
         #origin = Idk what to put for the origin
         #ra_dec is going to be a list of ra/dec pairs.
+
 
         # whpl = WHERE(fPLW/sigf GE s2n,count)
         # a = a[whpl]

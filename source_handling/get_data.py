@@ -135,10 +135,8 @@ def read_file(file,col,clusname,verbose=0):
     # The rest of the scrpit involves idl_libs stuff that
     # will get grabbed from astropy
     hdul = fits.open(file)
-    print(hdul.info())
     map = hdul[1]
     err = hdul['error']
-    print(err.data)
     exp = hdul[3]
     flag = hdul[4]
 

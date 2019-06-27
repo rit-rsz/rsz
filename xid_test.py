@@ -1,3 +1,17 @@
+################################################################################
+# NAME : xid_test.py
+# DATE STARTED : June 24, 2019
+# AUTHORS : Benjamin Vaughan
+# PURPOSE : Test for interfacing with XID
+# EXPLANATION :
+# CALLING SEQUENCE :
+# INPUTS :
+#
+#
+# OUTPUTS :
+# REVISION HISTORY :
+################################################################################
+
 from xidplus import moc_routines
 import xidplus
 import sys

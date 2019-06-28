@@ -25,25 +25,29 @@
 ################################################################################
 import scipy.io
 import numpy as np
-from config import * #(this line will give me access to all directory variables)
 import matplotlib.pyplot as plt
 from math import *
 import sys
 from clus_sz_template import *
 sys.path.append('utilities')
+from config import * #(this line will give me access to all directory variables)
 from clus_get_tfs import *
 from get_clusparams import *
+from get_simmaps import *
 sys.path.append('source_handling')
 from get_data import *
 import config
 from get_xid import *
 sys.path.append('reduc')
-from get_cats import *
+# from get_cats import *
+sys.path.append('sz')
+from add_sziso import *
 # def catsrc(clusname,saveplots,cattype, savecat,savemap,maketf,simmap,nsim,s2n,yin,tin,verbose,success,errmsg):
 class Catsrc():
 
-    def __init__(self, clusname,nsim=0, verbose=1, cattype="24um", savecat=0, savemap=0, saveplot=1,
-                 maketf=0, simmap=0, s2n=3,yin=0,tin=0):
+    def __init__(self, clusname, saveplot=1, cattype="24um", savecat=0,
+                 savemap=0, maketf=0, simmap=0, nsim=0, s2n=3, yin=0,
+                 tin=0, verbose=1):
         # possibly how we would get around defining these terms, not positive
         self.verbose = verbose
         self.cattype = cattype
@@ -60,7 +64,7 @@ class Catsrc():
         self.setup()
 
     def setup(self):
-        if self.simmap > 0 and len(self.nsim) == 0:
+        if self.simmap > 0 and self.nsim == 0:
             if self.verbose:
                 print('simmap set but nsim not supplied! Aborting')
             exit()
@@ -75,14 +79,17 @@ class Catsrc():
             #call to nuplot idk what to put here instead
             pass
 
-        ringw = 18.0 #arcseconds
-        calfac = (pi/ 180.0) * (1.0 / 3600)*(1.0 / 3600) * (pi / 4 * log(2.0)) * 1*10**6
-        PMWthres = 5*10**-3
-        PLWthres = 8*10**-3
+        # These were comments inside of the catsrc file in idl
+        # ringw = 18.0 #arcseconds
+        # calfac = (pi/ 180.0) * (1.0 / 3600)*(1.0 / 3600) * (pi / 4 * log(2.0)) * 1*10**6
+        # PMWthres = 5*10**-3
+        # PLWthres = 8*10**-3
+        #
+        # ncols = 3.0
 
-        ncols = 3.0
-
-        #beam = [get_spire_beam_fwhm('PSW'), get_spire_beam_fwhm('PMW'), get_spire_beam_fwhm('PLW')]
+        beam = [get_spire_beam_fwhm('PSW'),\
+                get_spire_beam_fwhm('PMW'),\
+                get_spire_beam_fwhm('PLW')]
 
         if self.verbose:
             print('Fetching cluster parameters')
@@ -102,12 +109,12 @@ class Catsrc():
                     print('clus_get_data exited with error: ' + err)
                 exit()
         else:
-            maps, err = clus_get_simmaps(self.clusname, simflag=self.simmap, verbose=self.verbose, nsim=self.nsim)
+            maps, err = get_simmaps(self.clusname,nsim=self.nsim, simflag=self.simmap, verbose=self.verbose)
             if err:
                 if self.verbose:
                     print('clus_get_simmaps exited with error: ' + err)
                 exit()
-            maps, err = clus_add_sziso(maps,yin=self.yin, tin=self.tin,verbose=self.verbose)
+            maps, err = add_sziso(maps,yin=self.yin, tin=self.tin,verbose=self.verbose)
             if err:
                 if self.verbose:
                     print('clus_add_sziso exited with error: '+ err)
@@ -254,7 +261,7 @@ class Catsrc():
 
 
 if __name__ == '__main__':
-    catsrc = Catsrc('rxj1347', verbose=1)
+    catsrc = Catsrc('rxj1347', verbose=1,simmap = 1,nsim = 1)
         # SAVEPLOTS=saveplots,\
         # CATTYPE=cattype,\
         # SAVECAT=savecat,\

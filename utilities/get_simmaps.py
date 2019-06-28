@@ -20,7 +20,7 @@ import config
 #fits.open() may need to be replaced or expanded on depending on how things go
 
 
-def get_simmaps(clusname, nsim, simflag=1, sb=0, xc=0):
+def get_simmaps(clusname, nsim, simflag=1, sb=0, xc=0, verbose=0):
     # """
     # Purpose: I honestly have no idea what the purpose ofthis function is, i guess to get simmaps?
     # Inputs: clusname - name of the cluster
@@ -73,7 +73,7 @@ def get_simmaps(clusname, nsim, simflag=1, sb=0, xc=0):
             noisemap = 1.0 * thismap['thismap'].error[0] * np.random.standard_normal((mapsize[0], mapsize[1]))
             thismap['thismap'].signal[0] = thismap['thismap'].signal[0] + noisemap #STILL don't know what thismap is
             maps[i] = thismap['thismap']
-    return maps
+    return maps ,None
 
 if __name__ == "__main__":
     maps = get_simmaps('rxj1347', 100, simflag=1, xc=1)

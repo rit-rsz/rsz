@@ -156,7 +156,7 @@ def read_file(file,col,clusname,verbose=0):
                   mean([abs(map.header['CD1_1']+map.header['CD2_1']), \
                         abs(map.header['CD2_1'] + map.header['CD2_2'])])
 
-    #psf = get_spire_beam(pixsize, band=col, factor=1) commented out to test xid_test.py
+    psf = get_spire_beam(pixsize=pixsize, band=col, factor=1)
     #psf = 4 #for xid test only...
     widtha = get_spire_beam_fwhm(col)
     width = (widtha / sqrt(8 * log(2)) * pixsize)

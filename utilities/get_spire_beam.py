@@ -60,7 +60,7 @@ from get_spire_beam_fwhm import *
 # !!! The Gaussian Model needs to be fixed before this code can work
 
 
-def get_spire_beam(band = '',pixsize = 0,npixx=0, npixy=0,
+def get_spire_beam(band=None, pixsize=0,npixx=0, npixy=0,
                    xcent=0, ycent=0,bolometer=0, fwhm='',
                    norm=0, oversamp=0, verbose=1,
                    factor=0):
@@ -71,7 +71,7 @@ def get_spire_beam(band = '',pixsize = 0,npixx=0, npixy=0,
 
     # Check if we have been given a band
     # If not make an assumption
-    if len(band) == 0:
+    if band == None:
         if verbose:
             print('Band parameter not supplied, assuming PSW')
         band = 'PSW'
@@ -198,8 +198,8 @@ def rebin(a, *args):
     evList = ['a.reshape('] + \
              ['args[%d],factor[%d],'%(i,i) for i in range(lenShape)] + \
              [')'] + ['.mean(%d)'%(i+1) for i in range(lenShape)]
-    print ''.join(evList)
-    return eval(''.join(evList))
+    print( ''.join(evList))
+    return ''.join(evList)
 
 
 if __name__ == '__main__':

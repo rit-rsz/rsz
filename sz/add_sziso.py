@@ -19,22 +19,25 @@ import matplotlib.pyplot as plt
 from math import *
 from astropy.io import fits
 import os
+from config import *
+sys.path.append('../')
 
 def add_sziso(maps,yin,tin,
               verbose = 0):
     errmsg = False
 #   Now the bolocam data is in the SPIRE format
 #   we can do a loop over the map adding in the false sz signal
-
-    mapsize = maps.size
+    #This currently doesnt work
+    mapsize = len(maps)
 
     if verbose:
         print('Fetching BOLOCAM maps')
-#   Need to check how its calling the maps name
-    data_file = str(CLUSDATA + 'bolocam/data/' + maps[0].name + '.sav')
-    data = scipy.io.readsav(CLUSDATA + data_file,python_dict = True)
-    arr_data = data.values()[0][k][0] # only works on python 2, returns increment
-    ''' for python 3 use arr_data = list(data.values())[0][k][0] '''
+#   Need to check how its calling the maps
+#   Need to fix maps call. Currently outputing as ['clusname']
+    # data_file = 'bolocam/data/' + str(maps[0].name) + '.sav'
+    print(maps[0].name)
+    data_file = 'bolocam/data/' + 'rxj1347' + '.sav'
+    data_dict = scipy.io.readsav(CLUSDATA + data_file,python_dict = True)
 
     bolocam = clus_convert_bolocam(cluster_struct,VERBOSE=verbose,\
                                  ERRMSG=ccb_errmsg,SUCCESS=ccb_success)
@@ -88,19 +91,19 @@ def add_sziso(maps,yin,tin,
     szmap = -1 * bolocam.deconvolved_image
     szmap = szmap - mean(szmap[outer])
     szmap = szmap / max(szmap)
-
+    print('hello')
     for imap in range(mapsize):
 # Below are the changes to units of Jy to beam
 # calculate the surface brightness to put in each pixel at this sim step
 # Need to fix maps right now it is written as a pointer
-        nu = 3e5 / CLUS_GET_LAMBDAS((*maps[imap]).band)
+        nu = 3e5 / CLUS_GET_LAMBDAS((maps[imap]).band)
         dI = 1e26*clus_get_relSZ(nu,yin,tin)
 #       print,CLUS_GET_LAMBDAS((*maps[imap]).band),dI
 #       this accounts for a conversion to surface brightness in a later step
 #       dI = dI / (1.13d0 * (60./3600.)^2 * (!DTOR)^2 * 1e9)
         #np.tile instead of idls replicate
-        szin = repeat(dI*((1.13*(*maps[imap]).widtha/3600.)^2 * \
-                    (!DTOR)^2),naxis[1],naxis[2]) * szmap
+        szin = repeat(dI*((1.13*(maps[imap]).widtha/3600.)^2 * \
+                    (pi/180)^2),naxis[1],naxis[2]) * szmap
 
 #       Have to interpolate to SPIRE map size
         HASTROM
@@ -108,3 +111,7 @@ def add_sziso(maps,yin,tin,
 #       Need to then set something for maps thats back to the dictonary format
 
     return maps
+
+
+if __name__ == '__main__':
+    add_sziso(norm=1,factor = 0)

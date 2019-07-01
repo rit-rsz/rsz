@@ -11,10 +11,10 @@
 # OUTPUTS :
 # REVISION HISTORY :
 ################################################################################
-
+import sys
+sys.path.append('/home/vaughan/XID_plus/')
 from xidplus import moc_routines
 import xidplus
-import sys
 from scipy.io import readsav
 sys.path.append('source_handling')
 from get_data import *

@@ -32,10 +32,12 @@ from photutils import CircularAperture
 
 def starfindertest(clusname):
     # make a table of Gaussian sources
-    hermdir = '/data/mercado/SPIRE/hermes_clustersrxj1347_PSW_nr_1.fits'
+    hermdir = '/home/mercado/bitten/SPIRE/test.fits'
     # hdu = fits.open
-    hdu = datasets.load_star_image(hermdir)
-    data = hdu.data[0:401, 0:401]
+    # hdu = datasets.load_star_image()
+    hdu = fits.open(hermdir)
+    data = hdu[0].data
+    print('data =', data)
     mean, median, std = sigma_clipped_stats(data, sigma=3.0)
     print((mean, median, std))
 
@@ -50,10 +52,18 @@ def starfindertest(clusname):
     positions = (sources['xcentroid'], sources['ycentroid'])
     apertures = CircularAperture(positions, r=4.)
     norm = ImageNormalize(stretch=SqrtStretch())
+
     plt.imshow(data, cmap='Greys', origin='lower', norm=norm)
-    apertures.plot(color='blue', lw=1.5, alpha=0.5
+    apertures.plot(color='blue', lw=1.5, alpha=0.5)
+    plt.show()
 
-
+    # make a table of Gaussian sources
+    # hermdir = '/home/mercado/bitten/SPIRE/test.fits'
+    # # hdu = fits.open
+    # hdu = fits.open(hermdir)
+    # print(hdu)
+    # plt.imshow(hdu[0].data, origin='lower', interpolation='nearest')
+    # plt.show()
 
 
 
@@ -103,5 +113,5 @@ def starfindertest(clusname):
     # ax1.imshow(image, origin='lower', interpolation='nearest')
     # ax2.imshow(segm.data, origin='lower', interpolation='nearest')
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     starfindertest('rxj1347')

@@ -26,11 +26,14 @@ from astropy.coordinates import SkyCoord
 from astropy.convolution import Gaussian2DKernel
 from xidplus.stan_fit import SPIRE
 
-def xid_test(maps):
-    length = len(maps)
+def xid_test():
     files = []
-    for i in range(length):
-        files.append(maps[i]['file'])
+    file = '/data/mercado/SPIRE/bethermin_sims/a0370/a0370_PSW_sim0200.fits'
+    files.append(file)
+    file = '/data/mercado/SPIRE/bethermin_sims/a0370/a0370_PMW_sim0200.fits'
+    files.append(file)
+    file = '/data/mercado/SPIRE/bethermin_sims/a0370/a0370_PLW_sim0200.fits'
+    files.append(file)
     headers = []
     datas = []
     datas2 = []
@@ -47,6 +50,12 @@ def xid_test(maps):
         headers2.append(header2)
         datas2.append(data2)
 
+    pixsizes = []
+    for header in headers:
+        pixsize = 3600 * \
+                  mean([abs(header['CD1_1']+header['CD2_1']), \
+                        abs(header['CD2_1'] + header['CD2_2'])])
+        pixsizes.append(pixsize)
     #getting a catalog thingy... nvm we ignore this.
     catdir = '/data/mercado/SPIRE/catalogs/'
     catfilename = 'srcext_rxj1347_1.00000.sav'
@@ -71,7 +80,7 @@ def xid_test(maps):
     priors = []
     prf_size = np.array([18.15,25.15,36.3])
     prfs = []
-    pixsize = np.array([maps[0]['pixsize'], maps[1]['pixsize'], maps[2]['pixsize']])
+    pixsize = np.array([pixsizes[0], pixsizes[1], pixsizes[2]])
     pinds = []
     for i in range(len(files)):
         prior = xidplus.prior(datas[i], datas2[i], headers2[i], headers[i])
@@ -84,7 +93,7 @@ def xid_test(maps):
         #z_sig - sigma of redshift pdf
         prior.prior_bkg(-5.0, 5) #sets mean and sigma. should these be different values?
         #prior_bkg(mu, sigma) mu = mean, sigma = standard deviation
-        priors.append(prior)
+        priors.append(prior=1000)
         prf = Gaussian2DKernel(prf_size[i] / 2.355, x_size=101, y_size=101)
         #create a gaussian based off of the FWHM of each of the different beams
         prf.normalize(mode='peak')
@@ -103,7 +112,7 @@ def xid_test(maps):
         print(priors[i].amat_data)
         priors[i].upper_lim_map() #updates the flux upper limit to abs(bkg) + 2*sigma_bkg + max(D) where max(D) is the maximum value of pixels the source contributes to.
 
-    fit = SPIRE.all_bands(priors[0], priors[1], priors[2], iter=1000)
+    fit = SPIRE.all_bands(priors[0], priors[1], priors[2], iter=10)
     #fits the three spire bands.
     #SPIRE.all_bands(spire1, spire2, spire3, chains, iter)
     #spire1 - spire image 1
@@ -119,6 +128,6 @@ def xid_test(maps):
 
 
 
+
 if __name__ == '__main__':
-    maps, err = get_data('a0370', verbose=1)
-    xid_test(maps)
+    xid_test()

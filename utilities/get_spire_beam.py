@@ -78,6 +78,7 @@ def get_spire_beam(band=None, pixsize=0,npixx=0, npixy=0,
         # Check if we have been givin a pixel size
     if pixsize == 0:
         # band = upper(band)
+        # units arcsec/pixel
         if band == 'PSW':
             pixsize = 6
         if band == 'PMW':
@@ -90,6 +91,7 @@ def get_spire_beam(band=None, pixsize=0,npixx=0, npixy=0,
             print('pixsize paramter not supplied assuming %s arcsec' , (pixsize))
 
     # Figure out which color this is
+    # Units should be in arcsec
     if len(fwhm) == 0:
         beamFWHM = get_spire_beam_fwhm(band)
     else:
@@ -154,8 +156,8 @@ def get_spire_beam(band=None, pixsize=0,npixx=0, npixy=0,
 
     # Normalize FWHM to pixels
     beamFWHM /= gen_pixsize
-    # Convert the FWHM to a standard deviation for astropy fit
-    stdev = beamFWHM / (2*sqrt(2 * log(2)))
+    # Convert the FWHM to a standard deviation for astropy fit. From psf_gaussian
+    stdev = beamFWHM / (sqrt(8 * log(2)))
 
     # If we want this normalized then call with norm flag set
     if factor:

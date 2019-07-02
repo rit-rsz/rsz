@@ -17,6 +17,10 @@ from xidplus import moc_routines
 import xidplus
 import xidplus.catalogue as cat
 import sys
+sys.path.append('/home/vaughan/XID_plus/')
+from xidplus import moc_routines
+import xidplus
+>>>>>>> fa2efb6f586982c0fc6c5c48b1a76a38866fbd7c
 from scipy.io import readsav
 sys.path.append('/home/vaughan/rsz/source_handling')
 from get_data import *

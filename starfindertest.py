@@ -32,26 +32,50 @@ from photutils import CircularAperture
 
 def starfindertest(clusname):
     # make a table of Gaussian sources
-    hermdir = '/data/mercado/SPIRE/hermes_clustersrxj1347_PSW_nr_1.fits'
+    hermdir = '/home/mercado/bitten/SPIRE/test.fits'
+    starfinder = '/home/mercado/bitten/SPIRE/test1.fits'
     # hdu = fits.open
-    hdu = datasets.load_star_image(hermdir)
-    data = hdu.data[0:401, 0:401]
+    # hdu = datasets.load_star_image()
+    hdu = fits.open(hermdir)
+    starf = fits.open(starfinder)
+    data = hdu[0].data
+    datast = starf[0].data
+    print('data = ',data)
+    print('datast =', datast)
     mean, median, std = sigma_clipped_stats(data, sigma=3.0)
     print((mean, median, std))
 
 
-    daofind = DAOStarFinder(fwhm=3.0, threshold=5.*std)
-    sources = daofind(data - median)
+    data_arr = np.array(data)
+    datast_arr = np.array(datast)
+
+    print('std = ', std)
+
+    beamfwhm = [18,25,36] #arcsec
+        # 'PSW' : pixsize = 6
+        # 'PMW' : pixsize = 8 + 1.0/3.0
+        # 'PLW' : pixsize = 12
+    pixsize = [6,25/3,12]#arcsec/pixel
+
+    fwhm = np.divide(beamfwhm,pixsize)
+
+    print('fwhm', fwhm)
+    findstars = DAOStarFinder(fwhm=fwhm[0], threshold=1.*std)
+    sources = findstars(data - median)
     for col in sources.colnames:
         sources[col].info.format = '%.8g'  # for consistent table output
     print(sources)
 
-
     positions = (sources['xcentroid'], sources['ycentroid'])
     apertures = CircularAperture(positions, r=4.)
     norm = ImageNormalize(stretch=SqrtStretch())
+    # print('apertures',apertures)
+
+    np.savetxt('test.txt',sources)
+    # plt.scatter(positions[0],positions[1])
     plt.imshow(data, cmap='Greys', origin='lower', norm=norm)
-    apertures.plot(color='blue', lw=1.5, alpha=0.5
+    apertures.plot(color='blue', lw=1.5, alpha=0.5)
+    plt.show()
 
 
 
@@ -103,5 +127,5 @@ def starfindertest(clusname):
     # ax1.imshow(image, origin='lower', interpolation='nearest')
     # ax2.imshow(segm.data, origin='lower', interpolation='nearest')
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     starfindertest('rxj1347')

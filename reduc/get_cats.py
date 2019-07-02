@@ -19,7 +19,14 @@ from astropy.io import fits
 from math import *
 import numpy as np
 from astropy.wcs import WCS as wcs
-
+from idlpy import *
+from astropy.stats import sigma_clipped_stats
+from photutils import datasets
+from photutils import DAOStarFinder
+import matplotlib.pyplot as plt
+from astropy.visualization import SqrtStretch
+from astropy.visualization.mpl_normalize import ImageNormalize
+from photutils import CircularAperture
 
 def get_cats(clusname, cattype, maps, nsim, simmap=0, s2n=3, resoltuion='fr', verbose=1, savecat=0, savemap=0,):
     '''
@@ -45,7 +52,7 @@ def get_cats(clusname, cattype, maps, nsim, simmap=0, s2n=3, resoltuion='fr', ve
     if cattype == 'PSW':
         if verbose:
             print('Requested %s catalog generation creating catalog' % (cattype))
-        catalog, err = make_plw_src_cat(clusname, nsim, s2n=s2n,resolution=resolution, savecat=savecat, savemap=savemap, simmap=simmap, verbose=verbose) # this function needs to be written :)
+        catalog, err = make_psw_src_cat(clusname, nsim, s2n=s2n,resolution=resolution, savecat=savecat, savemap=savemap, simmap=simmap, verbose=verbose) # this function needs to be written :)
         if err:
             if verbose:
                 print(err)
@@ -131,14 +138,39 @@ def make_plw_src_cat(clusname, resolution, nsim, simmap=0, s2n=3, verbose=1, sav
     headPLW = maps[index]['shead']
     psfPLW = maps[index]['psf']
 
+    beamFWHM = maps[index]['widtha'] #arcsec
+    pixsize = maps[index]['pixsize'] #arcsec/pixel
+
+    #Now convert FWHM from arcsec to pixel
+    fwhm = np.divide(beamFWHM,pixsize)
+
     if verbose:
         print('Constructing PLW catalog')
     # IDL.STARFINDER(dataPLW, psfPLW, s2n, min_corr, xPLW, yPLW, fPLW, sigx, sigy,
     #                sigf, corr, NOISE_STD=errPLW, REL_THRESHOLD=1, CORREL_MAG=2, /DEBLEND, STARS=modelPLW, BACKGROUND=background,
     #                SILENT=0)
 
-    #starfinder here we are going to ignore that for now
+    #Starfinder Chunk
+    # Determine statistics for the starfinder application to utilize
+    mean, median, std = sigma_clipped_stats(dataPLW, sigma=3.0)
 
+
+    findstars = DAOStarFinder(fwhm=fwhm, threshold=1.*std)
+    sources = findstars(data - median)
+    for col in sources.colnames:
+        sources[col].info.format = '%.8g'  # for consistent table output
+
+
+
+    # Used to look at the images
+    # positions = (sources['xcentroid'], sources['ycentroid'])
+    # apertures = CircularAperture(positions, r=4.)
+    # norm = ImageNormalize(stretch=SqrtStretch())
+    # plt.imshow(data, cmap='Greys', origin='lower', norm=norm)
+    # apertures.plot(color='blue', lw=1.5, alpha=0.5)
+    # plt.show()
+
+    #Starfinder Chunk
     if savemap:
         if verbose:
             print('saving catalog debug maps')
@@ -236,6 +268,12 @@ def make_mflr_src_cat(clusname, resolution='fr', s2n=3, savecat=0, savemap=0, ve
     headPSW = filtmaps['shead']
     psfPSW = filtmaps['psw']
 
+    beamFWHM = maps[index]['widtha'] #arcsec
+    pixsize = maps[index]['pixsize'] #arcsec/pixel
+
+    #Now convert FWHM from arcsec to pixel
+    fwhm = np.divide(beamFWHM,pixsize)
+
     if savemap:
         if verbose:
             print('Saving matched filter map')
@@ -244,7 +282,27 @@ def make_mflr_src_cat(clusname, resolution='fr', s2n=3, savecat=0, savemap=0, ve
     if verbose:
         print('Constructing MFLR catalog')
 
-    #ANOTHER call to starfinder, which we don't have so RIP
+    #Starfinder Start
+    # Determine statistics for the starfinder application to utilize
+    mean, median, std = sigma_clipped_stats(dataPLW, sigma=3.0)
+
+
+    findstars = DAOStarFinder(fwhm=fwhm, threshold=1.*std)
+    sources = findstars(data - median)
+    for col in sources.colnames:
+        sources[col].info.format = '%.8g'  # for consistent table output
+
+
+
+    # Used to look at the images
+    # positions = (sources['xcentroid'], sources['ycentroid'])
+    # apertures = CircularAperture(positions, r=4.)
+    # norm = ImageNormalize(stretch=SqrtStretch())
+    # plt.imshow(data, cmap='Greys', origin='lower', norm=norm)
+    # apertures.plot(color='blue', lw=1.5, alpha=0.5)
+    # plt.show()
+
+    #Starfinder End
 
     if savemap:
         if verbose:
@@ -345,10 +403,37 @@ def make_psw_src_cat(clusname, resolution, nsim, s2n=3, savecat=0, savemap=0, si
     headPSW = maps[index]['shead']
     psfPSW = maps[index]['psf']
 
+    beamFWHM = maps[index]['widtha'] #arcsec
+    pixsize = maps[index]['pixsize'] #arcsec/pixel
+
+    #Now convert FWHM from arcsec to pixel
+    fwhm = np.divide(beamFWHM,pixsize)
+
     if verbose:
         print('constructing PSW catalog')
 
-    #STARINFDER call to starfinder.
+    #Starfinder Start
+    # Determine statistics for the starfinder application to utilize
+    mean, median, std = sigma_clipped_stats(dataPSW, sigma=3.0)
+
+
+    findstars = DAOStarFinder(fwhm=fwhm, threshold=1.*std)
+    sources = findstars(data - median)
+
+    for col in sources.colnames:
+        sources[col].info.format = '%.8g'  # for consistent table output
+
+
+
+    # Used to look at the images
+    # positions = (sources['xcentroid'], sources['ycentroid'])
+    # apertures = CircularAperture(positions, r=4.)
+    # norm = ImageNormalize(stretch=SqrtStretch())
+    # plt.imshow(data, cmap='Greys', origin='lower', norm=norm)
+    # apertures.plot(color='blue', lw=1.5, alpha=0.5)
+    # plt.show()
+
+    #Starfinder End
 
     if savemap:
         if verbose:
@@ -362,10 +447,10 @@ def make_psw_src_cat(clusname, resolution, nsim, s2n=3, savecat=0, savemap=0, si
 
     astr = extast(headPSW)
 
-    ra_dec = wcs.wcs_pix2world(xPSW, yPSW, origin, ra_dec_order=True)
+    ra_dec = wcs.wcs_pix2world(source['xcentroid'], source['ycentroid'], origin =1, ra_dec_order=True)
     #xPSW = a list of x coordinates
     #yPSW = a list of y coordinates
-    #origin = Idk what to put for the origin
+    #origin = 1 for Fits files, 0 for numpy
     #ra_dec is going to be a list of ra/dec pairs.
 
     # whpl = WHERE(fPSW/sigf GE s2n,count)

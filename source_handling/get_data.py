@@ -21,7 +21,7 @@ from astropy.io import fits
 import os
 import sys
 #import pyfits
-sys.path.append('utilities')
+sys.path.append('/home/vaughan/rsz/utilities')
 from get_spire_beam import *
 from get_spire_beam_fwhm import *
 import config
@@ -123,7 +123,6 @@ def get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
             maps.append(read_file(files[counter-1], cols[ifile], clusname, verbose=verbose))
         else:
                 maps[ifile] = np.empty(clus_read_bolocam(clusname,verbose=verbose)) #args need to be filled in bolocam one
-    print('maps *************************************************** ',maps[1])
     return maps, errmsg
 
 ##################################################################################################
@@ -136,10 +135,8 @@ def read_file(file,col,clusname,verbose=0):
     # The rest of the scrpit involves idl_libs stuff that
     # will get grabbed from astropy
     hdul = fits.open(file)
-    print(hdul.info())
     map = hdul[1]
     err = hdul['error']
-    print(err.data)
     exp = hdul[3]
     flag = hdul[4]
 
@@ -159,7 +156,8 @@ def read_file(file,col,clusname,verbose=0):
                   mean([abs(map.header['CD1_1']+map.header['CD2_1']), \
                         abs(map.header['CD2_1'] + map.header['CD2_2'])])
 
-    psf = get_spire_beam(band=col,pixsize=pixsize, factor=1)# commented out to test xid_test.py
+    psf = get_spire_beam(pixsize=pixsize, band=col, factor=1)
+    #psf = 4 #for xid test only...
     widtha = get_spire_beam_fwhm(col)
     width = (widtha / sqrt(8 * log(2)) * pixsize)
 #   We wouldnt be able to put this one in calfac since it is determined by the source called

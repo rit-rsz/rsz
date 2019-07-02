@@ -15,6 +15,7 @@ import numpy as np
 import sys
 sys.path.append('utilities')
 from get_spire_beam_fwhm import *
+import matplotlib as plt
 
 def get_xid(maps, cat, savemap=0, simmap=0, verbose=1, confusionerrors=1):
     err = False
@@ -72,48 +73,52 @@ def get_xid(maps, cat, savemap=0, simmap=0, verbose=1, confusionerrors=1):
         prior.upper_lim_map()
 
         #appending prior to priors list.
-        priors.append(prior)\
+        priors.append(prior)
 
     fit = SPIRE.all_bands(priors[0], priors[1], priors[2], iter=10) #number of iterations can be changed easily.
+    spire_cat = cat.create_SPIRE_cat(posterior, priors[0], priors[1], priors[2])
 
+    xid_data = spire_cat[1].data
     xid = []
 
-    xid1 = {'sid' : 1,
+    #I think this is wrong.
+    #in units of mJy for fluxes and degrees for RA/DEC
+    xid1 = {'sid' : priors[0].ID,
             'band' : 'PSW',
-            'sra' : inra,
-            'sdec' : indec,
-            'sflux' : fit['Val_psw'],
-            'serr' : fit['sigma_psw'],
-            'pflux' : fit['Val_psw'],
-            'perr' : fit['sigma_psw'],
-            'x' : fit['Row_psw'],
-            'y' : fit['Col_psw'],
+            'sra' : xid_data.field('RA'),
+            'sdec' : xid_data.field('DEC'),
+            'sflux' : xid_data.field('F_SPIRE_250'),
+            'serr' : xid_data.field('FErr_SPIRE_250_u'), #there was also FErr_SPIRE_250_l don't know which to use.
+            'pflux' : xid_data.field('F_SPIRE_250'),
+            'perr' : xid_data.field('FErr_SPIRE_250_u'),
+            'x' : None,
+            'y' : None,
             'model' : None,
             'mf' : mf} #idk if perr and pflux is right there may be a conversion needed for pflux.
             #in mikes code it has pflux = output from xid / mJy2Jy.
-    xid2 = {'sid' : 2,
+    xid2 = {'sid' : priors[1].ID,
             'band' : 'PMW',
-            'sra' : inra,
-            'sdec' : indec,
-            'sflux' : fit['Val_pmw'],
-            'serr' : fit['sigma_pmw'],
-            'pflux' : fit['Val_pmw'],
-            'perr' : fit['sigma_pmw'],
-            'x' : fit['Row_pmw'],
-            'y' : fit['Col_pmw'],
-            'model' : None,
+            'sra' : xid_data.field('RA'),,
+            'sdec' : xid_data.field('DEC'),,
+            'sflux' : xid_data.field('F_SPIRE_350'),
+            'serr' : xid_data.field('FErr_SPIRE_350_u'),
+            'pflux' : xid_data.field('F_SPIRE_350'),
+            'perr' : xid_data.field('FErr_SPIRE_350_u'),
+            'x' : None,
+            'y' : None,
+            'model' : Nonehttps://docs.astropy.org/en/stable/io/fits/w,
             'mf' : mf}
 
-    xid3 = {'sid' : 3,
+    xid3 = {'sid' : priors[2].ID,
             'band' : 'PLW',
-            'sra' : inra,
-            'sdec' : indec,
-            'sflux' : fit['Val_plw'],
-            'serr' : fit['sigma_plw'],
-            'pflux' : fit['Val_plw'],
-            'perr' : fit['sigma_plw'],
-            'x' : fit['Row_plw'],
-            'y' : fit['Col_plw'],
+            'sra' : xid_data.field('RA'),
+            'sdec' : xid_data.field('DEC'),
+            'sflux' : xid_data.field('F_SPIRE_500'),
+            'serr' : xid_data.field('FErr_SPIRE_500_u'),
+            'pflux' : xid_data.field('F_SPIRE_500'),
+            'perr' : xid_data.field('FErr_SPIRE_500_u'),
+            'x' : None,
+            'y' : None,
             'model' : None,
             'mf' : mf}
 
@@ -122,8 +127,16 @@ def get_xid(maps, cat, savemap=0, simmap=0, verbose=1, confusionerrors=1):
     xid.append(xid1)
     xid.append(xid2)
     xid.append(xid3)
-    #don't know if inra gets changed or the input is just spit back out, but in the python XID version there is
-    #Row_psw and Col_psw for all bands, I think this refers to the pixel coordinates of sources within that band.
+
+    w = wcs(spire_cat[1].header)
+
+    #I hope this is correct...
+    for i in range(len(xid)):
+        wx = xid[i]['sra']
+        wy = xid[i]['sdec']
+        px, py = w.wcs_world2pix(wx, wy, 0.0)
+        xid[i]['x'] = px
+        xid[i]['y'] = py
 
     #model = image_model(x,y, sflux, maps[i]['astr']['NAXIS'][0], maps[i]['astr']['NAXIS'][1],
     #maps[i]['psf'])
@@ -145,8 +158,13 @@ def get_xid(maps, cat, savemap=0, simmap=0, verbose=1, confusionerrors=1):
         xid[i]['sflux'] = xid[i]['sflux'][whpl]
         xid[i]['serr'] = xid[i]['serr']
 
+
+
+
         if savemap:
             outfile = config.CLUSSBOX + 'clus_get_xid_model_' + maps[i]['band'] + '.fit'
             writefits(outfile, data=model, header_dict=maps[i]['shead'])
+
+
 
     return xid

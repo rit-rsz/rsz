@@ -19,7 +19,6 @@ from astropy.io import fits
 from math import *
 import numpy as np
 from astropy.wcs import WCS as wcs
-from idlpy import *
 
 
 def get_cats(clusname, cattype, maps, nsim, simmap=0, s2n=3, resoltuion='fr', verbose=1, savecat=0, savemap=0,):
@@ -134,6 +133,9 @@ def make_plw_src_cat(clusname, resolution, nsim, simmap=0, s2n=3, verbose=1, sav
 
     if verbose:
         print('Constructing PLW catalog')
+    # IDL.STARFINDER(dataPLW, psfPLW, s2n, min_corr, xPLW, yPLW, fPLW, sigx, sigy,
+    #                sigf, corr, NOISE_STD=errPLW, REL_THRESHOLD=1, CORREL_MAG=2, /DEBLEND, STARS=modelPLW, BACKGROUND=background,
+    #                SILENT=0)
 
     #starfinder here we are going to ignore that for now
 
@@ -148,9 +150,9 @@ def make_plw_src_cat(clusname, resolution, nsim, simmap=0, s2n=3, verbose=1, sav
         writefits(config.CLUSSBOX + 'make_PLW_src_cat_mdiff.fits', data=data, header_dict=headPSW)
     astr = extast(headPLW)
 
-    IDL.STARFINDER(dataPLW, psfPLW, s2n, min_corr, xPLW, yPLW, fPLW, sigx, sigy,
-                   sigf, corr, NOISE_STD=errPLW, REL_THRESHOLD=1, CORREL_MAG=2, /DEBLEND, STARS=modelPLW, BACKGROUND=background,
-                   SILENT=0)
+    # IDL.STARFINDER(dataPLW, psfPLW, s2n, min_corr, xPLW, yPLW, fPLW, sigx, sigy,
+    #                sigf, corr, NOISE_STD=errPLW, REL_THRESHOLD=1, CORREL_MAG=2, /DEBLEND, STARS=modelPLW, BACKGROUND=background,
+    #                SILENT=0)
 
         #another call here to more stuff from starfinder
     ra_dec = wcs.wcs_pix2world(xPLW, yPLW, origin, ra_dec_order=True)
@@ -434,7 +436,7 @@ def make_mips_src_cat(clusname, maps, s2n=3, savecat=0, savemap=0, verbose=1):
         imgh = hdul[0].header
         img = hdul[0].data
     else:
-        err = 'Cannot find %s' %(imgfile)
+        err = https://docs.astropy.org/en/stable/wcs/'Cannot find %s' %(imgfile)
         if verbose:
             print('Cannot find %s' % s (imgfile))
         return None, err
@@ -477,6 +479,8 @@ def make_mips_src_cat(clusname, maps, s2n=3, savecat=0, savemap=0, verbose=1):
 
     astr = extast(imgh2[0])
     count = 0
+
+    x,y = starfinder
 
     ra_dec = wcs.wcs_pix2world(x, y, origin, ra_dec_order=True)
     #x = a list of x coordinates

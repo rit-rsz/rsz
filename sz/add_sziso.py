@@ -20,6 +20,7 @@ from math import *
 from astropy.io import fits
 import os
 from config import *
+import sys
 sys.path.append('../')
 
 def add_sziso(maps,yin,tin,

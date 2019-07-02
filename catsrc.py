@@ -42,6 +42,7 @@ sys.path.append('reduc')
 # from get_cats import *
 sys.path.append('sz')
 from add_sziso import *
+from get_cats import *
 # def catsrc(clusname,saveplots,cattype, savecat,savemap,maketf,simmap,nsim,s2n,yin,tin,verbose,success,errmsg):
 class Catsrc():
 
@@ -114,7 +115,7 @@ class Catsrc():
                 if self.verbose:
                     print('clus_get_simmaps exited with error: ' + err)
                 exit()
-            maps, err = add_sziso(maps,yin=self.yin, tin=self.tin,verbose=self.verbose)
+            # maps, err = add_sziso(maps,yin=self.yin, tin=self.tin,verbose=self.verbose)
             if err:
                 if self.verbose:
                     print('clus_add_sziso exited with error: '+ err)

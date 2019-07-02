@@ -49,24 +49,18 @@ def starfindertest(clusname):
     data_arr = np.array(data)
     datast_arr = np.array(datast)
 
-    n = 0
-    for i in range(len(data_arr)):
-        for j in range(len(datast_arr)):
-            if data_arr[i].any() == datast_arr[j].any():
-                n += 1
-    print('n = ',n)
-
-
-
     print('std = ', std)
-    fwhm = 18
-                # 'PSW' : pixsize = 6
-                # 'PMW' : pixsize = 8 + 1.0/3.0
-                # 'PLW' : pixsize = 12
-    pixsize = [6,25/3,12]
-    width = fwhm / (sqrt(8 * log(2)) * pixsize[0])
-    print('width = ', width)
-    findstars = DAOStarFinder(fwhm=width, threshold=1.*std)
+
+    beamfwhm = [18,25,36] #arcsec
+        # 'PSW' : pixsize = 6
+        # 'PMW' : pixsize = 8 + 1.0/3.0
+        # 'PLW' : pixsize = 12
+    pixsize = [6,25/3,12]#arcsec/pixel
+
+    fwhm = np.divide(beamfwhm,pixsize)
+
+    print('fwhm', fwhm)
+    findstars = DAOStarFinder(fwhm=fwhm[0], threshold=1.*std)
     sources = findstars(data - median)
     for col in sources.colnames:
         sources[col].info.format = '%.8g'  # for consistent table output
@@ -75,7 +69,7 @@ def starfindertest(clusname):
     positions = (sources['xcentroid'], sources['ycentroid'])
     apertures = CircularAperture(positions, r=4.)
     norm = ImageNormalize(stretch=SqrtStretch())
-    print('apertures',apertures)
+    # print('apertures',apertures)
 
     np.savetxt('test.txt',sources)
     # plt.scatter(positions[0],positions[1])

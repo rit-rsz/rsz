@@ -154,7 +154,7 @@ def get_spire_beam(band=None, pixsize=0,npixx=0, npixy=0,
 
     # Normalize FWHM to pixels
     beamFWHM /= gen_pixsize
-    # Convert the FWHM to a standard deviation for astropy fit
+    # Convert the FWHM to a standard deviation for astropy fit. From psf_gaussian
     stdev = beamFWHM / (2*sqrt(2 * log(2)))
 
     # If we want this normalized then call with norm flag set

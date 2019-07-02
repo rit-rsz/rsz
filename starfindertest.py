@@ -33,37 +33,57 @@ from photutils import CircularAperture
 def starfindertest(clusname):
     # make a table of Gaussian sources
     hermdir = '/home/mercado/bitten/SPIRE/test.fits'
+    starfinder = '/home/mercado/bitten/SPIRE/test1.fits'
     # hdu = fits.open
     # hdu = datasets.load_star_image()
     hdu = fits.open(hermdir)
+    starf = fits.open(starfinder)
     data = hdu[0].data
-    print('data =', data)
+    datast = starf[0].data
+    print('data = ',data)
+    print('datast =', datast)
     mean, median, std = sigma_clipped_stats(data, sigma=3.0)
     print((mean, median, std))
 
 
-    daofind = DAOStarFinder(fwhm=3.0, threshold=5.*std)
-    sources = daofind(data - median)
+    data_arr = np.array(data)
+    datast_arr = np.array(datast)
+
+    n = 0
+    for i in range(len(data_arr)):
+        for j in range(len(datast_arr)):
+            if data_arr[i].any() == datast_arr[j].any():
+                n += 1
+    print('n = ',n)
+
+
+
+    print('std = ', std)
+    fwhm = 18
+                # 'PSW' : pixsize = 6
+                # 'PMW' : pixsize = 8 + 1.0/3.0
+                # 'PLW' : pixsize = 12
+    pixsize = [6,25/3,12]
+    width = fwhm / (sqrt(8 * log(2)) * pixsize[0])
+    print('width = ', width)
+    findstars = DAOStarFinder(fwhm=width, threshold=1.*std)
+    sources = findstars(data - median)
     for col in sources.colnames:
         sources[col].info.format = '%.8g'  # for consistent table output
     print(sources)
 
-
     positions = (sources['xcentroid'], sources['ycentroid'])
     apertures = CircularAperture(positions, r=4.)
     norm = ImageNormalize(stretch=SqrtStretch())
+    print('apertures',apertures)
 
+    np.savetxt('test.txt',sources)
+    # plt.scatter(positions[0],positions[1])
     plt.imshow(data, cmap='Greys', origin='lower', norm=norm)
     apertures.plot(color='blue', lw=1.5, alpha=0.5)
     plt.show()
 
-    # make a table of Gaussian sources
-    # hermdir = '/home/mercado/bitten/SPIRE/test.fits'
-    # # hdu = fits.open
-    # hdu = fits.open(hermdir)
-    # print(hdu)
-    # plt.imshow(hdu[0].data, origin='lower', interpolation='nearest')
-    # plt.show()
+
 
 
 

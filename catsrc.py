@@ -1,4 +1,3 @@
-
 ################################################################################
 # NAME : catsrc.py
 # DATE STARTED : June 11, 2019
@@ -273,4 +272,4 @@ if __name__ == '__main__':
         # S2N=s2n,\
         # YIN=yin,\
         # TIN=tin,\
-        # VERBOSE=verbose,SUCCESS=success,ERRMSG=errmsg)
+# VERBOSE=verbose,SUCCESS=success,ERRMSG=errmsg)

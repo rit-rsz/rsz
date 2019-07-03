@@ -193,14 +193,13 @@ def get_spire_beam(band=None, pixsize=0,npixx=0, npixy=0,
     return beamkern
 
 
-def rebin(a, *args):
-    shape = a.shape
+def rebin(beamkern, *args):
+    shape = beamkern.shape
     lenShape = len(shape)
     factor = np.asarray(shape)/np.asarray(args)
-    evList = ['a.reshape('] + \
+    evList = ['beamkern.reshape('] + \
              ['args[%d],factor[%d],'%(i,i) for i in range(lenShape)] + \
              [')'] + ['.mean(%d)'%(i+1) for i in range(lenShape)]
-    print( ''.join(evList))
     return ''.join(evList)
 
 

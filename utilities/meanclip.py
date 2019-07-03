@@ -11,7 +11,8 @@
 #
 # OUTPUTS :
 # REVISION HISTORY :
-################################################################################import numpy
+################################################################################
+import numpy as np
 
 
 def meanclip(indata, clipsig=3.0, maxiter=5, converge_num=0.02, verbose=0):
@@ -22,9 +23,9 @@ def meanclip(indata, clipsig=3.0, maxiter=5, converge_num=0.02, verbose=0):
 
     while (c1 >= c2) and (iter < maxiter):
         lastct = ct
-        medval = numpy.median(skpix)
-        sig = numpy.std(skpix)
-        wsm = numpy.where( abs(skpix-medval) < clipsig*sig )
+        medval = np.median(skpix)
+        sig = np.std(skpix)
+        wsm = np.where( abs(skpix-medval) < clipsig*sig )
         ct = len(wsm[0])
         if ct > 0:
             skpix = skpix[wsm]
@@ -34,7 +35,7 @@ def meanclip(indata, clipsig=3.0, maxiter=5, converge_num=0.02, verbose=0):
         iter += 1
     # End of while loop
 
-    mean  = numpy.mean( skpix )
+    mean  = np.mean( skpix )
     sigma = robust_sigma( skpix )
 
     if verbose:

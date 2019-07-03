@@ -25,7 +25,7 @@ def save_fitsz(increment, offset, radave, params, simflag=1, outname='szout', ou
                        'rc' : params['rc'][0],
                        'beta' : params['beta'][0],
                        'clusname' : params['clusname'][0]}
-    #szout = REPLICATE(szout, ncols) I don't think my method of np.tiles will work for a dictionary...
+    #szout = REPLICATE(szout, ncols) 
     szout = []
     for i in range(ncols):
         szout.append(szout_template)

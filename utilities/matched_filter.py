@@ -217,3 +217,11 @@ def dist(nx, ny):
 # end
 #
 #
+#
+# def convolve(image, psf): #yea i don't get this one...
+#/home/vaughan/bitten/SPIRE/smap_pipeline/astrolib/pro/convolve.pro
+#     sim = image.shape
+#     sc = floor((sim-1)/2)
+#     npix = image.size
+#
+#     conv = npix * np.real()

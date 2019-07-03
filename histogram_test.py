@@ -25,13 +25,13 @@ def data_gen(nsims,l):
     clusters = ['a0370','a1689','a1835','a2219','cl0024', 'ms0451','ms1054','rxj0152','rxj1347']
     bands = ['PSW', 'PMW', 'PLW']
 
-    for k in range(len(bands)-1):
-        I_0_sim = np.zeros((nsims+1))
-        xbin = np.zeros((l+1))
-        band = bands[k]
+    for j in range(len(clusters)-1):
+        clusname = clusters[j]
 
-        for j in range(len(clusters)-1):
-            clusname = clusters[j]
+        for k in range(len(bands)-1):
+            I_0_sim = np.zeros((nsims))
+            xbin = np.zeros((l))
+            band = bands[k]
 
             n = 0
             for i in range(200,200+nsims-1) :
@@ -40,7 +40,7 @@ def data_gen(nsims,l):
                 arr_data = data.values()[0][k][0] # only works on python 2, returns increment
                 ''' for python 3 use arr_data = list(data.values())[0][k][0] '''
                 # filter out nan values if they exist #
-                # final_data = [value for value in arr_data if not math.isnan(value)]
+                # final_data = [value for value in arr_data if not value == 0.0]
                 I_0_sim[n] = arr_data
                 n += 1
             plot_hist(j,k,l,I_0_sim,xbin,clusname,band)
@@ -50,9 +50,13 @@ def data_gen(nsims,l):
 def plot_hist(j,k,l,I_0,xbin,clusname,band) :
     b = 0
     dI = abs((max(I_0)-min(I_0))/l) # this is the binsize
-    for b in range(l-1) :
+    for b in range(l) :
         xbin[b] = min(I_0)+ (b+0.5)*dI
+        print(dI,b,min(I_0))
         b += 1
+    # xbin2 = np.arange(min(I_0),8*0.5*dI,0.5*dI)
+    print(xbin)
+    # print(xbin2)
     n, bins, patches = plt.hist(x=I_0, bins=xbin)#,density = True)
                                 # rwidth is the width of the bars as a fraction of the bin width
 

@@ -87,7 +87,7 @@ class Catsrc():
         #
         # ncols = 3.0
 
-        beam = [get_spire_beam_fwhm('PSW'),\
+        beam = [get_spire_beam_fwhm('PSW'),\ #arcsec
                 get_spire_beam_fwhm('PMW'),\
                 get_spire_beam_fwhm('PLW')]
 
@@ -102,12 +102,18 @@ class Catsrc():
         if self.verbose:
             print('Fetching SPIRE maps')
 
+
+        '''
+        Check output of get_data
+        '''
+        ########################################################################
         if not self.simmap:
             maps, err = get_data(self.clusname,verbose=self.verbose)
             if err:
                 if self.verbose:
                     print('clus_get_data exited with error: ' + err)
                 exit()
+        ########################################################################
         else:
             maps, err = get_simmaps(self.clusname,nsim=self.nsim, simflag=self.simmap, verbose=self.verbose)
             if err:
@@ -144,8 +150,14 @@ class Catsrc():
                 print('clus_get_cats exited with error: ' + err)
             exit()
 
+        '''
+        This is where the analysis of data starts happening, not just retrieving data anymore.
+        '''
         if self.verbose:
             print('Band merging catalogs')
+        '''
+        Check get_xid and see how its using starfinder stuff
+        '''
         xid, err = get_xid(maps, cats, savemap=self.savemap, simmap=self.simmap, verbose=self.verbose)
         if err:
             if self.verbose:

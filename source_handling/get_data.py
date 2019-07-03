@@ -20,7 +20,6 @@ from math import *
 from astropy.io import fits
 import os
 import sys
-#import pyfits
 sys.path.append('utilities')
 from get_spire_beam import *
 from get_spire_beam_fwhm import *
@@ -144,7 +143,7 @@ def read_file(file,col,clusname,verbose=0):
     flag = hdul[4]
 
     if 'CDELT1' in map.header.keys():
-        pixsize = 3600 * mean([abs(map[0].header['CDELT1'],abs(map[0].header['CDELT2']))])
+        pixsize = 3600 * mean([abs(map[0].header['CDELT1'],abs(map[0].header['CDELT2']))])#pixsize in arcsec/pixel
         map[0].header['cd_1'] = map[0].header['CDELT1']
         map[0].header['cd_2'] = 0
         map[0].header['cd_1'] = 0
@@ -157,14 +156,14 @@ def read_file(file,col,clusname,verbose=0):
     else:
         pixsize = 3600 * \
                   mean([abs(map.header['CD1_1']+map.header['CD2_1']), \
-                        abs(map.header['CD2_1'] + map.header['CD2_2'])])
+                        abs(map.header['CD2_1'] + map.header['CD2_2'])])#pixsize in arcsec/pixel
 
-    psf = get_spire_beam(band=col,pixsize=pixsize, factor=1)# commented out to test xid_test.py
-    widtha = get_spire_beam_fwhm(col)
-    width = (widtha / sqrt(8 * log(2)) * pixsize)
-#   We wouldnt be able to put this one in calfac since it is determined by the source called
+    psf = get_spire_beam(band=col,pixsize=pixsize, factor=1) #unitless???
+    widtha = get_spire_beam_fwhm(col) #arcsec
+    width = (widtha / sqrt(8 * log(2)) * pixsize) #fwhm to a gaussian sigma, binned in pixels
+
     calfac = 1 / (calfac * (get_spire_beam_fwhm(col))**2)
-#   This should be defined in the catsrsc file
+#   Jy2MJyThis should be defined in the catsrsc file
     JY2MJy = 1e6
 
 

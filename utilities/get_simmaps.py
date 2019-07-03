@@ -35,7 +35,7 @@ def get_simmaps(clusname, nsim, simflag=1, sb=0, xc=0, verbose=0):
         print('simmap set but nsim not supplied! Aborting.')
         exit()
     cols = ['PSW', 'PMW', 'PLW']
-    bigpix = [6.0,8.3,12.0]
+    bigpix = [6.0,8.3,12.0] #arcsec/pixel
     ncols = len(cols)
     maps = []
     for i in range(ncols):

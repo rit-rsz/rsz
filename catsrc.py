@@ -87,6 +87,7 @@ class Catsrc():
         #
         # ncols = 3.0
 
+        # Beam in arcsec
         beam = [get_spire_beam_fwhm('PSW'),\
                 get_spire_beam_fwhm('PMW'),\
                 get_spire_beam_fwhm('PLW')]

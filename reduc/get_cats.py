@@ -147,27 +147,8 @@ def make_plw_src_cat(clusname, resolution, nsim, simmap=0, s2n=3, verbose=1, sav
     if verbose:
         print('Constructing PLW catalog')
 
-    #Starfinder Chunk
-    # Determine statistics for the starfinder application to utilize
-    mean, median, std = sigma_clipped_stats(dataPLW, sigma=3.0)
+    x, y = starfinder(dataPLW)
 
-
-    findstars = DAOStarFinder(fwhm=fwhm, threshold=1.*std)
-    sources = findstars(data - median)
-    for col in sources.colnames:
-        sources[col].info.format = '%.8g'  # for consistent table output
-
-
-
-    # Used to look at the images
-    # positions = (sources['xcentroid'], sources['ycentroid'])
-    # apertures = CircularAperture(positions, r=4.)
-    # norm = ImageNormalize(stretch=SqrtStretch())
-    # plt.imshow(data, cmap='Greys', origin='lower', norm=norm)
-    # apertures.plot(color='blue', lw=1.5, alpha=0.5)
-    # plt.show()
-
-    #Starfinder Chunk
     if savemap:
         if verbose:
             print('saving catalog debug maps')
@@ -256,9 +237,9 @@ def make_mflr_src_cat(clusname, resolution='fr', s2n=3, savecat=0, savemap=0, ve
     for i in range(len(maps)):
         if 'PSW' in maps[i]['band']:
             index = i
-    newmaps = maps[i]
+            newmaps = maps[i]
 
-    filtmaps = clus_matched_filter(newmaps) #this function also needs to be written :) :)
+    filtmaps = clus_matched_filter(newmaps) #we need to find an equiv for this.
 
     dataPSW = filtmaps['signal']
     errPSW = filtmaps['error']
@@ -279,27 +260,7 @@ def make_mflr_src_cat(clusname, resolution='fr', s2n=3, savecat=0, savemap=0, ve
     if verbose:
         print('Constructing MFLR catalog')
 
-    #Starfinder Start
-    # Determine statistics for the starfinder application to utilize
-    mean, median, std = sigma_clipped_stats(dataPLW, sigma=3.0)
-
-
-    findstars = DAOStarFinder(fwhm=fwhm, threshold=1.*std)
-    sources = findstars(data - median)
-    for col in sources.colnames:
-        sources[col].info.format = '%.8g'  # for consistent table output
-
-
-
-    # Used to look at the images
-    # positions = (sources['xcentroid'], sources['ycentroid'])
-    # apertures = CircularAperture(positions, r=4.)
-    # norm = ImageNormalize(stretch=SqrtStretch())
-    # plt.imshow(data, cmap='Greys', origin='lower', norm=norm)
-    # apertures.plot(color='blue', lw=1.5, alpha=0.5)
-    # plt.show()
-
-    #Starfinder End
+    x,y = starfinder(dataPSW)
 
     if savemap:
         if verbose:
@@ -313,7 +274,7 @@ def make_mflr_src_cat(clusname, resolution='fr', s2n=3, savecat=0, savemap=0, ve
 
     astr = extast(map)
 
-    ra_dec = wcs.wcs_pix2world(xPSW, yPSW, origin, ra_dec_order=True)
+    # ra_dec = wcs.wcs_pix2world(xPSW, yPSW, origin, ra_dec_order=True)
     #xPLW = a list of x coordinates
     #yPLW = a list of y coordinates
     #origin = Idk what to put for the origin
@@ -409,28 +370,7 @@ def make_psw_src_cat(clusname, resolution, nsim, s2n=3, savecat=0, savemap=0, si
     if verbose:
         print('constructing PSW catalog')
 
-    #Starfinder Start
-    # Determine statistics for the starfinder application to utilize
-    mean, median, std = sigma_clipped_stats(dataPSW, sigma=3.0)
-
-
-    findstars = DAOStarFinder(fwhm=fwhm, threshold=1.*std)
-    sources = findstars(data - median)
-
-    for col in sources.colnames:
-        sources[col].info.format = '%.8g'  # for consistent table output
-
-
-
-    # Used to look at the images
-    # positions = (sources['xcentroid'], sources['ycentroid'])
-    # apertures = CircularAperture(positions, r=4.)
-    # norm = ImageNormalize(stretch=SqrtStretch())
-    # plt.imshow(data, cmap='Greys', origin='lower', norm=norm)
-    # apertures.plot(color='blue', lw=1.5, alpha=0.5)
-    # plt.show()
-
-    #Starfinder End
+    x,y = starfinder(dataPSW)
 
     if savemap:
         if verbose:
@@ -518,7 +458,7 @@ def make_mips_src_cat(clusname, maps, s2n=3, savecat=0, savemap=0, verbose=1):
         imgh = hdul[0].header
         img = hdul[0].data
     else:
-        err = 'Cannot find %s' %(imgfile)
+        err = https://docs.astropy.org/en/stable/wcs/'Cannot find %s' %(imgfile)
         if verbose:
             print('Cannot find %s' % s (imgfile))
         return None, err
@@ -547,7 +487,7 @@ def make_mips_src_cat(clusname, maps, s2n=3, savecat=0, savemap=0, verbose=1):
 
     #call to change image scale don't know what that does so :)
 
-    #call to starfinder
+    x,y = starfinder(img)
 
     if savemap:
         if verbose:
@@ -561,6 +501,8 @@ def make_mips_src_cat(clusname, maps, s2n=3, savecat=0, savemap=0, verbose=1):
 
     astr = extast(imgh2[0])
     count = 0
+
+    x,y = starfinder
 
     ra_dec = wcs.wcs_pix2world(x, y, origin, ra_dec_order=True)
     #x = a list of x coordinates
@@ -663,3 +605,27 @@ def extast(map):
             x = np.array([pv1_1, pv1_2, pv1_3, pv1_4, pv1_5])
             astr.update({keys : x})
         return astr
+
+
+def starfinder(data):
+    # Determine statistics for the starfinder application to utilize
+    mean, median, std = sigma_clipped_stats(data, sigma=3.0)
+
+
+    findstars = DAOStarFinder(fwhm=fwhm, threshold=1.*std)
+    sources = findstars(data - median)
+    for col in sources.colnames:
+        sources[col].info.format = '%.8g'  # for consistent table output
+    positions = (sources['xcentroid'], sources['ycentroid'])
+    apertures = CircularAperture(positions, r=4.)
+    norm = ImageNormalize(stretch=SqrtStretch())
+    # print('apertures',apertures)
+    return positions[0], positions[1]
+
+    # Used to look at the images
+    # positions = (sources['xcentroid'], sources['ycentroid'])
+    # apertures = CircularAperture(positions, r=4.)
+    # norm = ImageNormalize(stretch=SqrtStretch())
+    # plt.imshow(data, cmap='Greys', origin='lower', norm=norm)
+    # apertures.plot(color='blue', lw=1.5, alpha=0.5)
+    # plt.show()

@@ -1,4 +1,3 @@
-
 ################################################################################
 # NAME : catsrc.py
 # DATE STARTED : June 11, 2019
@@ -42,6 +41,7 @@ sys.path.append('reduc')
 # from get_cats import *
 sys.path.append('sz')
 from add_sziso import *
+from get_cats import *
 # def catsrc(clusname,saveplots,cattype, savecat,savemap,maketf,simmap,nsim,s2n,yin,tin,verbose,success,errmsg):
 class Catsrc():
 
@@ -87,7 +87,6 @@ class Catsrc():
         #
         # ncols = 3.0
 
-        # Beam in arcsec
         beam = [get_spire_beam_fwhm('PSW'),\
                 get_spire_beam_fwhm('PMW'),\
                 get_spire_beam_fwhm('PLW')]
@@ -115,7 +114,7 @@ class Catsrc():
                 if self.verbose:
                     print('clus_get_simmaps exited with error: ' + err)
                 exit()
-            maps, err = add_sziso(maps,yin=self.yin, tin=self.tin,verbose=self.verbose)
+            # maps, err = add_sziso(maps,yin=self.yin, tin=self.tin,verbose=self.verbose)
             if err:
                 if self.verbose:
                     print('clus_add_sziso exited with error: '+ err)
@@ -273,4 +272,4 @@ if __name__ == '__main__':
         # S2N=s2n,\
         # YIN=yin,\
         # TIN=tin,\
-        # VERBOSE=verbose,SUCCESS=success,ERRMSG=errmsg)
+# VERBOSE=verbose,SUCCESS=success,ERRMSG=errmsg)

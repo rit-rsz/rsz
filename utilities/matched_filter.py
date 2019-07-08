@@ -14,6 +14,8 @@
 import numpy as np
 from math import *
 from scipy.ndimage.interpolation import shift
+from scipy.signal import convolve2d
+from get_spire_beam import get_spire_beam
 
 def matched_filter(mapin):
 
@@ -61,8 +63,7 @@ def matched_filter(mapin):
 
     filtsize = filt.shape
     filtp = fix_fft(filt)
-    #filtq = CONVOLVE this is Convolve not CONVOL, so it is a custom function that I have to find.
-
+    filtq = convolve2d(filtp, get_spire_beam(band=mapin['band']))
     filt = filtq
 
     #set pixels with no data to NAN
@@ -92,7 +93,6 @@ def matched_filter_pro(psf, conf, map, pad, noise,  ):
 
     nx = weightmap.shape[0]
     ny = weightmap.shape[1]
-https://docs.astropy.org/en/stable/wcs/#loading-wcs-information-from-a-fits-file
     sz = int(nx*0.1) # look at the central 20% x 20% of the map.
 
     white_out = 1 / sqrt(weightmap[nx/2-sz:nx/2+sz, ny/2-sz:ny/2+sz]) #not sure about this indexing
@@ -178,10 +178,10 @@ def fix_fft(data):
         lims[2,i] = sizedata[i] / 2
         lims[3,i] = sizedata[i] - 1
 
-    data[lims[0,0]:lims[1,0],lims[0,1]:lims[1,1]] = rotate(data[lims[0,0]:lims[1,0], lims[0,1]:lims[1,1]])
-    data[lims[2,0]:lims[3,0],lims[0,1]:lims[1,1]] = rotate(data[lims[2,0]:lims[3,0], lims[0,1]:lims[1,1]])
-    data[lims[0,0]:lims[1,0],lims[2,1]:lims[3,1]] = rotate(data[lims[0,0]:lims[1,0], lims[0,1]:lims[1,1]])
-    data[lims[2,0]:lims[3,0],lims[2,1]:lims[3,1]] = rotate(data[lims[2,0]:lims[3,0], lims[2,1]:lims[3,1]])
+    data[lims[0,0]:lims[1,0],lims[0,1]:lims[1,1]] = np.rot90(np.rot90((data[lims[0,0]:lims[1,0], lims[0,1]:lims[1,1]])))
+    data[lims[2,0]:lims[3,0],lims[0,1]:lims[1,1]] = np.rot90(np.rot90((data[lims[2,0]:lims[3,0], lims[0,1]:lims[1,1]])))
+    data[lims[0,0]:lims[1,0],lims[2,1]:lims[3,1]] = np.rot90(np.rot90((data[lims[0,0]:lims[1,0], lims[0,1]:lims[1,1]])))
+    data[lims[2,0]:lims[3,0],lims[2,1]:lims[3,1]] = np.rot90(np.rot90((data[lims[2,0]:lims[3,0], lims[2,1]:lims[3,1]])))
 
     return data
 

@@ -89,8 +89,9 @@ class Catsrc():
         #
         # ncols = 3.0
 
-        beam = [get_spire_beam_fwhm('PSW'), #arcsec
-                get_spire_beam_fwhm('PMW'),
+        #beam in arcsec
+        beam = [get_spire_beam_fwhm('PSW'),\
+                get_spire_beam_fwhm('PMW'),\
                 get_spire_beam_fwhm('PLW')]
 
         if self.verbose:
@@ -104,19 +105,25 @@ class Catsrc():
         if self.verbose:
             print('Fetching SPIRE maps')
 
+
+        '''
+        Check output of get_data
+        '''
+        ########################################################################
         if not self.simmap:
             maps, err = get_data(self.clusname,verbose=self.verbose)
             if err:
                 if self.verbose:
                     print('clus_get_data exited with error: ' + err)
                 exit()
+        ########################################################################
         else:
             maps, err = get_simmaps(self.clusname,nsim=self.nsim, simflag=self.simmap, verbose=self.verbose)
             if err:
                 if self.verbose:
                     print('clus_get_simmaps exited with error: ' + err)
                 exit()
-            # maps, err = add_sziso(maps,yin=self.yin, tin=self.tin,verbose=self.verbose)
+            maps, err = add_sziso(maps,yin=self.yin, tin=self.tin,verbose=self.verbose)
             if err:
                 if self.verbose:
                     print('clus_add_sziso exited with error: '+ err)
@@ -138,20 +145,22 @@ class Catsrc():
 
         if self.verbose:
             print('Fetching regression catalogs')
-        cats = []
-        for i in range(len(maps)):
-            cat, err = get_cats(self.clusname,self.cattype,maps[i],savecat=self.savecat,
+        cats, err = get_cats(self.clusname,self.cattype,maps,savecat=self.savecat,
                                   savemap=self.savemap, simmap=self.simmap, nsim=self.nsim, s2n=self.s2n,
                                   verbose=self.verbose) #args need to be figured out
-            cats.append(cat)
-
         if err:
             if self.verbose:
                 print('clus_get_cats exited with error: ' + err)
             exit()
 
+        '''
+        This is where the analysis of data starts happening, not just retrieving data anymore.
+        '''
         if self.verbose:
             print('Band merging catalogs')
+        '''
+        Check get_xid and see how its using starfinder stuff
+        '''
         xid, err = get_xid(maps, cats, savemap=self.savemap, simmap=self.simmap, verbose=self.verbose)
         if err:
             if self.verbose:
@@ -267,7 +276,7 @@ class Catsrc():
 
 
 if __name__ == '__main__':
-    catsrc = Catsrc('rxj1347', verbose=1, nsim = 1)
+    catsrc = Catsrc('rxj1347', verbose=1,simmap = 1,nsim = 200)
         # SAVEPLOTS=saveplots,\
         # CATTYPE=cattype,\
         # SAVECAT=savecat,\
@@ -279,3 +288,4 @@ if __name__ == '__main__':
         # YIN=yin,\
         # TIN=tin,\
 # VERBOSE=verbose,SUCCESS=success,ERRMSG=errmsg)
+        # Set nsim to 200 so that the 200 simulation group will be used

@@ -209,6 +209,7 @@ def read_file(file,col,clusname,verbose=0):
     head = map.header
     herr = err.header
 
+    print(type(head))
 #   Not sure if this is the correct syntax for astr naxis
     srcrm = np.empty(astr['NAXIS'])
     xclean = np.empty(astr['NAXIS'])

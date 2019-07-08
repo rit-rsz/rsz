@@ -14,7 +14,7 @@
 from math import *
 from scipy import signal
 from math import *
-from astropy.FITS_tools.hcongrid import hcongrid #not sure if this is the right module or not, it wasn't clear.
+# from astropy.FITS_tools.hcongrid import hcongrid #not sure if this is the right module or not, it wasn't clear.
 import sys
 sys.path.append('../utilities')
 from meanclip import meanclip
@@ -36,7 +36,7 @@ def subtract_xcomps(maps, simflag=0, verbose=1):
         kern = Gaussian2DKernel(stdev, x_size=15, y_size=15)
         kern = np.array(kern)
         inmap = maps[0]['srcrm']
-        maps[0]['xclean'] = maps[0]['srcrm'].
+        maps[0]['xclean'] = maps[0]['srcrm']
         whpl = []
         whnan = []
         for j in range(inmap.shape[0]):

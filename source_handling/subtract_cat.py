@@ -24,18 +24,23 @@ def subtract_cat(maps, cat, verbose=1):
         datasub = np.empty(maps[i]['astr']['NAXIS'])
         counter = 0
         whgd = []
-        whpl = np.where(np.isfinite(maps[i]['signal'] == False))
-        for i in range(len(maps[i]['signal']):
-            if counter in whpl:
-                pass
-            else:
-                whgd.append(counter)
-            counter += 1
+        # whpl = np.where(np.isfinite(maps[i]['signal'] == False))
+        for j in range(maps[i]['signal'].data.shape[0]):
+            for k in range(maps[i]['signal'].data.shape[1]):
+                if np.isfinite(maps[i]['signal'].data[j,k]) == False:
+                    pass
+                else:
+                    whgd.append([j,k])
         for value in whgd:
-            datasub[value] = maps[i]['signal'][value] - cat[i]['model'][value]
-        datafull = maps[i]['signal']
+            datasub[value] = maps[i]['signal'].data[value] - cat[i]['model'][value]
+        datafull = maps[i]['signal'].data
 
-        whpl = np.where(maps[i]['mask'] == 1)
+        whpl = []
+        for j in range(maps[i]['mask'].shape[0]):
+            for k in range(maps[i]['mask'].shape[1]):
+                if maps[i]['mask'] == 1:
+                    whpl.append([j,k])
+        # whpl = np.where(maps[i]['mask'] == 1)
         for value in whpl:
             datasub[value] = np.nan
 

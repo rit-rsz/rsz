@@ -38,10 +38,10 @@ def meanclip(indata, clipsig=3.0, maxiter=5, converge_num=0.02, verbose=0):
     mean  = np.mean( skpix )
     sigma = robust_sigma( skpix )
 
-    if verbose:
-    prf = 'MEANCLIP:'
-    print '%s %.1f-sigma clipped mean' % (prf, clipsig)
-    print '%s Mean computed in %i iterations' % (prf, iter)
-    print '%s Mean = %.6f, sigma = %.6f' % (prf, mean, sigma)
+    # if verbose:
+    #     prf = 'MEANCLIP:'
+    #     print '%s %.1f-sigma clipped mean' % (prf, clipsig)
+    #     print '%s Mean computed in %i iterations' % (prf, iter)
+    #     print '%s Mean = %.6f, sigma = %.6f' % (prf, mean, sigma)
 
     return mean, sigma

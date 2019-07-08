@@ -171,7 +171,7 @@ def get_xid(maps, cats, savemap=0, simmap=0, verbose=1, confusionerrors=1):
     for i in range(len(xid)):
         whpl = []
         for j in range(xid[i]['pflux'].shape[0]):
-            if xid[i]['pflux'][j,k] >= 0.0:
+            if xid[i]['pflux'][j] >= 0.0:
                 whpl.append(j)
         whpl = np.array(whpl)
 
@@ -191,4 +191,4 @@ def get_xid(maps, cats, savemap=0, simmap=0, verbose=1, confusionerrors=1):
 
 
 
-    return xid
+    return xid, err

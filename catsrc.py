@@ -34,6 +34,8 @@ from clus_get_tfs import *
 from get_clusparams import *
 from get_simmaps import *
 sys.path.append('source_handling')
+from subtract_cat import *
+from subtract_xcomps import *
 from get_data import *
 import config
 from get_xid import *
@@ -159,7 +161,7 @@ class Catsrc():
         if self.verbose:
             print('Regressing and subtracting catalogs')
 
-        maps, err = clus_subtract_cat(cats, maps, xid, verbose=self.verbose)
+        maps, err = subtract_cat(maps, xid, verbose=self.verbose)
         if err:
             if self.verbose:
                 print('clus_subtract_cat exited with error: ' + err)

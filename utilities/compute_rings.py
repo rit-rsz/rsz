@@ -16,11 +16,11 @@ import numpy as np
 
 def compute_rings(maps, params, binwidth, superplot=0, verbose=1, noconfusion=None):
     ncols = len(maps)
-    radave = npo.empty(ncols)
+    radave = np.empty(ncols)
     if noconfusion:
         confusionnoise = np.empty(ncols)
     else:
-        confusionnoise = np.array()[5.8, 6.3, 6.8]) * 0.001 #not sure if this will work
+        confusionnoise = np.array([5.8, 6.3, 6.8]) * 0.001 #not sure if this will work
 
     bands = ['PSW', 'PMW', 'PLW']
     nbins = 0
@@ -36,7 +36,9 @@ def compute_rings(maps, params, binwidth, superplot=0, verbose=1, noconfusion=No
             nbins = nbinsp
 
     #!P.MULTI = [0,1,ncols] I have absolutley no idea what this means...
-
+    # This is a function in idl that allows multiple plots on a page
+    # If we want to have the plots come up on the screen as we plot them we will need
+    # find a matplot replacement.
     for m in range(ncols):
         if verbose:
             print('Average for ' + maps[m]['band'])
@@ -65,7 +67,7 @@ def compute_rings(maps, params, binwidth, superplot=0, verbose=1, noconfusion=No
         #convert RA/DEC to xy coordinates
 
         conv = pixsize / binwidth
-        calfac = (1*10**-6) / (1.13*25.0**2*(3.14/180.0)**2/3600.0**2)
+        calfac = (1*10**-6) / (1.13*25.0**2*( pi /180.0)**2/3600.0**2)
         confnoise = confusionnoise[m]
         mask = make_noise_mask(maps, m)
         whplerr = []

@@ -18,7 +18,7 @@ import config
 from astropy.io import fits
 from math import *
 import numpy as np
-from astropy.wcs import WCS as wcs
+from astropy.wcs import WCS
 from idlpy import *
 from astropy.stats import sigma_clipped_stats
 from photutils import datasets
@@ -49,6 +49,8 @@ def get_cats(clusname, cattype, maps, nsim, simmap=0, s2n=3, resoltuion='fr', ve
             instrumentm and s2n.
     '''
     err = False
+    header = maps['shead']
+    wcs = WCS(header)
     if cattype == 'PSW':
         if verbose:
             print('Requested %s catalog generation creating catalog' % (cattype))
@@ -110,7 +112,10 @@ def make_plw_src_cat(clusname, resolution, nsim, simmap=0, s2n=3, verbose=1, sav
             savemap - 0 = don't save the map
                       1 = save the map
     Outputs: cat - the catalog dictionary.
-    '''
+    '''        #xPLW = a list of x coordinates
+        #yPLW = a list of y coordinates
+        #origin = Idk what to put for the origin
+        #ra_dec is going to be a list of ra/dec pairs.
     err = False
     if s2n < 3 and verbose:
         print('WARNING: S/N requested less than 3, extraction may be suspect')
@@ -160,16 +165,10 @@ def make_plw_src_cat(clusname, resolution, nsim, simmap=0, s2n=3, verbose=1, sav
         writefits(config.CLUSSBOX + 'make_PLW_src_cat_mdiff.fits', data=data, header_dict=headPSW)
     astr = extast(headPLW)
 
-    # IDL.STARFINDER(dataPLW, psfPLW, s2n, min_corr, xPLW, yPLW, fPLW, sigx, sigy,
-    #                sigf, corr, NOISE_STD=errPLW, REL_THRESHOLD=1, CORREL_MAG=2, /DEBLEND, STARS=modelPLW, BACKGROUND=background,
-    #                SILENT=0)
-
-        #another call here to more stuff from starfinder
-    ra_dec = wcs.wcs_pix2world(xPLW, yPLW, origin, ra_dec_order=True)
-        #xPLW = a list of x coordinates
-        #yPLW = a list of y coordinates
-        #origin = Idk what to put for the origin
-        #ra_dec is going to be a list of ra/dec pairs.
+    ra_dec = wcs.wcs_pix2world(xPLW, yPLW, 1, ra_dec_order=True)
+    #origin is 1 idk if this is good or not.
+    a = ra_dec[0]
+    d = ra_dec[1]
 
 
         # whpl = WHERE(fPLW/sigf GE s2n,count)
@@ -177,7 +176,7 @@ def make_plw_src_cat(clusname, resolution, nsim, simmap=0, s2n=3, verbose=1, sav
         # d = d[whpl]
         # fPLW = fPLW[whpl]
         # sigf = sigf[whpl]
-
+        #our version of starfinder doesn't do this stuff.
     if verbose:
         print('CUT S/N >= %s sources, kept %s stars' % (s2n, count))
 
@@ -274,17 +273,20 @@ def make_mflr_src_cat(clusname, resolution='fr', s2n=3, savecat=0, savemap=0, ve
 
     astr = extast(map)
 
-    # ra_dec = wcs.wcs_pix2world(xPSW, yPSW, origin, ra_dec_order=True)
+    ra_dec = wcs.wcs_pix2world(x, y, 1, ra_dec_order=True)
     #xPLW = a list of x coordinates
     #yPLW = a list of y coordinates
-    #origin = Idk what to put for the origin
+    #1 is origin
     #ra_dec is going to be a list of ra/dec pairs.
 
+    a = ra_dec[0]
+    d = ra_dec[1]
     # whpl = WHERE(fPSW/sigf GE s2n,count)
     # a = a[whpl]
     # d = d[whpl]
     # fPSW = fPSW[whpl]
     # sigf = sigf[whpl]
+    #our version of starfinder doesn't do this stuff.
 
     if verbose:
         print('Cut S/N >= %s sources, kept %s stars' % (s2n, count))
@@ -384,7 +386,11 @@ def make_psw_src_cat(clusname, resolution, nsim, s2n=3, savecat=0, savemap=0, si
 
     astr = extast(headPSW)
 
-    ra_dec = wcs.wcs_pix2world(source['xcentroid'], source['ycentroid'], origin =1, ra_dec_order=True)
+    ra_dec = wcs.wcs_pix2world(x, y, 1, ra_dec_order=True)
+
+    a = ra_dec[0]
+    d = ra_dec[1]
+
     #xPSW = a list of x coordinates
     #yPSW = a list of y coordinates
     #origin = 1 for Fits files, 0 for numpy
@@ -504,12 +510,13 @@ def make_mips_src_cat(clusname, maps, s2n=3, savecat=0, savemap=0, verbose=1):
 
     x,y = starfinder
 
-    ra_dec = wcs.wcs_pix2world(x, y, origin, ra_dec_order=True)
+    ra_dec = wcs.wcs_pix2world(x, y, 1, ra_dec_order=True)
     #x = a list of x coordinates
     #y = a list of y coordinates
     #origin = Idk what to put for the origin
     #ra_dec is going to be a list of ra/dec pairs.
-
+    a = ra_dec[0]
+    d = ra_dec[1]
     # whpl = WHERE(f/sf GE s2n,count)    # whpl = WHERE(f/sf GE s2n,count)
     # a = a[whpl]
     # d = d[whpl]

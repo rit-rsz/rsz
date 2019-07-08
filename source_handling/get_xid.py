@@ -13,11 +13,30 @@
 ################################################################################
 import numpy as np
 import sys
-sys.path.append('utilities')
+sys.path.append('../utilities')
 from get_spire_beam_fwhm import *
 import matplotlib as plt
+import config
+from astropy.io import fits
+from xidplus import moc_routines
+import xidplus
+import xidplus.catalogue as cat
+import sys
+sys.path.append('/home/vaughan/XID_plus/')
+from xidplus import moc_routines
+import xidplus
+from scipy.io import readsav
+sys.path.append('/home/vaughan/rsz/source_handling')
+from get_data import *
+import numpy as np
+import pymoc
+from astropy import units as u
+from astropy.coordinates import SkyCoord
+from astropy.convolution import Gaussian2DKernel
+from xidplus.stan_fit import SPIRE
+from astropy.wcs import WCS as wcs
 
-def get_xid(maps, cat, savemap=0, simmap=0, verbose=1, confusionerrors=1):
+def get_xid(maps, cats, savemap=0, simmap=0, verbose=1, confusionerrors=1):
     err = False
     if simmap > 0:
         thresh = 3.0
@@ -31,8 +50,13 @@ def get_xid(maps, cat, savemap=0, simmap=0, verbose=1, confusionerrors=1):
     # but you need something for this for some reason.
 
     #data from cat
-    inra = cat['ra']
-    indec = cat['dec']
+    inra = np.array([])
+    indec = np.array([])
+    for i in range(len(cats)):
+        cats[i]['ra'] = np.array(cats[i]['ra'])
+        cats[i]['dec'] = np.array(cats[i]['dec']) #converted to numpy array so we can concatenate
+        inra = np.concatenate((inra, cats[i]['ra']))
+        indec = np.concatenate((indec, cats[i]['dec']))
 
     #initializing data containers.
     pinds = []
@@ -45,7 +69,7 @@ def get_xid(maps, cat, savemap=0, simmap=0, verbose=1, confusionerrors=1):
     prf_sizes = []
     priors = []
     prfs = []
-    for i in range(len(map)):
+    for i in range(len(maps)):
         #getting data from the fits files
         files.append(maps[i]['file'])
         hdul = fits.open(files[i])
@@ -75,7 +99,8 @@ def get_xid(maps, cat, savemap=0, simmap=0, verbose=1, confusionerrors=1):
         #appending prior to priors list.
         priors.append(prior)
 
-    fit = SPIRE.all_bands(priors[0], priors[1], priors[2], iter=10) #number of iterations can be changed easily.
+    fit = SPIRE.all_bands(priors[0], priors[1], priors[2], iter=10) #number of iterations should be at least 100 just set lower for testing.
+    posterior = xidplus.posterior_stan(fit,[priors[0],priors[1],priors[2]])
     spire_cat = cat.create_SPIRE_cat(posterior, priors[0], priors[1], priors[2])
 
     xid_data = spire_cat[1].data
@@ -98,15 +123,15 @@ def get_xid(maps, cat, savemap=0, simmap=0, verbose=1, confusionerrors=1):
             #in mikes code it has pflux = output from xid / mJy2Jy.
     xid2 = {'sid' : priors[1].ID,
             'band' : 'PMW',
-            'sra' : xid_data.field('RA'),,
-            'sdec' : xid_data.field('DEC'),,
+            'sra' : xid_data.field('RA'),
+            'sdec' : xid_data.field('DEC'),
             'sflux' : xid_data.field('F_SPIRE_350'),
             'serr' : xid_data.field('FErr_SPIRE_350_u'),
             'pflux' : xid_data.field('F_SPIRE_350'),
             'perr' : xid_data.field('FErr_SPIRE_350_u'),
             'x' : None,
             'y' : None,
-            'model' : Nonehttps://docs.astropy.org/en/stable/io/fits/w,
+            'model' : None,
             'mf' : mf}
 
     xid3 = {'sid' : priors[2].ID,
@@ -146,9 +171,8 @@ def get_xid(maps, cat, savemap=0, simmap=0, verbose=1, confusionerrors=1):
     for i in range(len(xid)):
         whpl = []
         for j in range(xid[i]['pflux'].shape[0]):
-            for k in range(xid[i]['pflux'].shape[1]):
-                if xid[i]['pflux'][j,k] >= 0.0:
-                    whpl.append([j,k])
+            if xid[i]['pflux'][j,k] >= 0.0:
+                whpl.append(j)
         whpl = np.array(whpl)
 
         xid[i]['sra'] = xid[i]['sra'][whpl]

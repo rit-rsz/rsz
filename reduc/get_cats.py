@@ -19,7 +19,6 @@ from astropy.io import fits
 from math import *
 import numpy as np
 from astropy.wcs import WCS
-from idlpy import *
 from astropy.stats import sigma_clipped_stats
 from photutils import datasets
 from photutils import DAOStarFinder
@@ -49,8 +48,14 @@ def get_cats(clusname, cattype, maps, nsim, simmap=0, s2n=3, resoltuion='fr', ve
             instrumentm and s2n.
     '''
     err = False
-    header = maps['shead']
-    wcs = WCS(header)
+    beamfwhm = [18,25,36] #arcsec
+        # 'PSW' : pixsize = 6
+        # 'PMW' : pixsize = 8 + 1.0/3.0
+        # 'PLW' : pixsize = 12
+    pixsize = [6,25/3,12]#arcsec/pixel
+
+    fwhm = np.divide(beamfwhm,pixsize)
+
     if cattype == 'PSW':
         if verbose:
             print('Requested %s catalog generation creating catalog' % (cattype))
@@ -116,6 +121,8 @@ def make_plw_src_cat(clusname, resolution, nsim, simmap=0, s2n=3, verbose=1, sav
         #yPLW = a list of y coordinates
         #origin = Idk what to put for the origin
         #ra_dec is going to be a list of ra/dec pairs.
+    header = maps['shead']
+    wcs = WCS(header)
     err = False
     if s2n < 3 and verbose:
         print('WARNING: S/N requested less than 3, extraction may be suspect')
@@ -152,7 +159,9 @@ def make_plw_src_cat(clusname, resolution, nsim, simmap=0, s2n=3, verbose=1, sav
     if verbose:
         print('Constructing PLW catalog')
 
-    x, y = starfinder(dataPLW)
+    positions = starfinder(dataPLW, fwhm)
+    x = positions[0]
+    y = positions[1]
 
     if savemap:
         if verbose:
@@ -199,8 +208,8 @@ def make_plw_src_cat(clusname, resolution, nsim, simmap=0, s2n=3, verbose=1, sav
         file.close()
     cat = {'ra': a,
            'dec' : d,
-           'flux' : fPLW,
-           'err' : sigf,
+           # 'flux' : fPLW,
+           # 'err' : sigf,
            'cluster' : clusname,
            'instrument': 'SPIRE PLW',
            's2n' : s2n}
@@ -223,6 +232,8 @@ def make_mflr_src_cat(clusname, resolution='fr', s2n=3, savecat=0, savemap=0, ve
                       1 = save the map
     Outputs: cat - the catalog dictionary.
     '''
+    header = maps['shead']
+    wcs = WCS(header)
     err = False
     if s2n < 2 and verbose:
         print('WARNING: S/N requested less than 2, extraction may be suspect')
@@ -238,7 +249,7 @@ def make_mflr_src_cat(clusname, resolution='fr', s2n=3, savecat=0, savemap=0, ve
             index = i
             newmaps = maps[i]
 
-    filtmaps = clus_matched_filter(newmaps) #we need to find an equiv for this.
+    filtmaps = clus_matched_filter(newmaps[index]) #we need to find an equiv for this.
 
     dataPSW = filtmaps['signal']
     errPSW = filtmaps['error']
@@ -259,7 +270,9 @@ def make_mflr_src_cat(clusname, resolution='fr', s2n=3, savecat=0, savemap=0, ve
     if verbose:
         print('Constructing MFLR catalog')
 
-    x,y = starfinder(dataPSW)
+    positions = starfinder(dataPSW, fwhm)
+    x = positions[0]
+    y = positions[1]
 
     if savemap:
         if verbose:
@@ -311,8 +324,8 @@ def make_mflr_src_cat(clusname, resolution='fr', s2n=3, savecat=0, savemap=0, ve
 
     cat = {'ra': a,
            'dec' : d,
-           'flux' : fPLW,
-           'err' : sigf,
+           # 'flux' : fPLW,
+           # 'err' : sigf,
            'cluster' : clusname,
            'instrument': 'SPIRE PLW',
            's2n' : s2n}
@@ -335,6 +348,8 @@ def make_psw_src_cat(clusname, resolution, nsim, s2n=3, savecat=0, savemap=0, si
                       1 = save the map
     Outputs: cat - the catalog dictionary.
     '''
+    header = maps['shead']
+    wcs = WCS(header)
     err = False
     if s2n < 3 and verbose:
         print('WARNING: S/N requested less than 3, extraction may be suspect')
@@ -372,7 +387,9 @@ def make_psw_src_cat(clusname, resolution, nsim, s2n=3, savecat=0, savemap=0, si
     if verbose:
         print('constructing PSW catalog')
 
-    x,y = starfinder(dataPSW)
+    positions = starfinder(dataPSW, fwhm)
+    x = positions[0]
+    y = positions[1]
 
     if savemap:
         if verbose:
@@ -425,8 +442,8 @@ def make_psw_src_cat(clusname, resolution, nsim, s2n=3, savecat=0, savemap=0, si
 
     cat = {'ra': a,
            'dec' : d,
-           'flux' : fPLW,
-           'err' : sigf,
+           # 'flux' : fPLW,
+           # 'err' : sigf,
            'cluster' : clusname,
            'instrument': 'SPIRE PLW',
            's2n' : s2n}
@@ -449,6 +466,8 @@ def make_mips_src_cat(clusname, maps, s2n=3, savecat=0, savemap=0, verbose=1):
                       1 = save the map
     Outputs: cat - the catalog dictionary.
     '''
+    header = maps['shead']
+    wcs = WCS(header)
     err = False
     if s2n < 3:
         print('WARNING: S/N requested less tahn 3, extraction may be suspect')
@@ -464,7 +483,7 @@ def make_mips_src_cat(clusname, maps, s2n=3, savecat=0, savemap=0, verbose=1):
         imgh = hdul[0].header
         img = hdul[0].data
     else:
-        err = https://docs.astropy.org/en/stable/wcs/'Cannot find %s' %(imgfile)
+        err = 'Cannot find %s' %(imgfile)
         if verbose:
             print('Cannot find %s' % s (imgfile))
         return None, err
@@ -492,8 +511,10 @@ def make_mips_src_cat(clusname, maps, s2n=3, savecat=0, savemap=0, verbose=1):
     psfpix = psfh['PIXSCALE']
 
     #call to change image scale don't know what that does so :)
-
-    x,y = starfinder(img)
+    fwhm = 18.0 / 6.0 #placeholder for PSW pixsize don't know what band mips is.
+    positions = starfinder(img, fwhm)
+    x = positions[0]
+    y = positions[1]
 
     if savemap:
         if verbose:
@@ -507,8 +528,6 @@ def make_mips_src_cat(clusname, maps, s2n=3, savecat=0, savemap=0, verbose=1):
 
     astr = extast(imgh2[0])
     count = 0
-
-    x,y = starfinder
 
     ra_dec = wcs.wcs_pix2world(x, y, 1, ra_dec_order=True)
     #x = a list of x coordinates
@@ -560,8 +579,8 @@ def make_mips_src_cat(clusname, maps, s2n=3, savecat=0, savemap=0, verbose=1):
 
     cat = {'ra': a,
            'dec' : d,
-           'flux' : fPLW,
-           'err' : sigf,
+           # 'flux' : fPLW, starfinder doesnt output flux
+           # 'err' : sigf, starfinder doesnt output sigf
            'cluster' : clusname,
            'instrument': 'SPIRE PLW',
            's2n' : s2n}
@@ -614,7 +633,7 @@ def extast(map):
         return astr
 
 
-def starfinder(data):
+def starfinder(data, fwhm):
     # Determine statistics for the starfinder application to utilize
     mean, median, std = sigma_clipped_stats(data, sigma=3.0)
 
@@ -623,11 +642,11 @@ def starfinder(data):
     sources = findstars(data - median)
     for col in sources.colnames:
         sources[col].info.format = '%.8g'  # for consistent table output
-    positions = (sources['xcentroid'], sources['ycentroid'])
-    apertures = CircularAperture(positions, r=4.)
-    norm = ImageNormalize(stretch=SqrtStretch())
+    positions = sources['xcentroid'], sources['ycentroid']
+    # apertures = CircularAperture(positions, r=4.)
+    # norm = ImageNormalize(stretch=SqrtStretch())
     # print('apertures',apertures)
-    return positions[0], positions[1]
+    return positions
 
     # Used to look at the images
     # positions = (sources['xcentroid'], sources['ycentroid'])

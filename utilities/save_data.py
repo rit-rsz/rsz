@@ -12,6 +12,7 @@
 # REVISION HISTORY :
 ################################################################################
 import numpy as np
+import json
 
 def save_data(maps, yin=0, tin=0, simflag=0,verbose=1):
     ncol = len(maps)
@@ -20,7 +21,7 @@ def save_data(maps, yin=0, tin=0, simflag=0,verbose=1):
         if thismap['band'] in thismap['file']# need to figure out what to put here :)
             ststart = thismap['file'].find(thismap['band'])
             stend = thismap['file'].find('.')
-            fileext = thismap['file'][ststart:stend] + '.npy'
+            fileext = thismap['file'][ststart:stend] + '.json'
 
         if simflag == 0:
             filename = config.CLUSDATA + 'sz/' + thismap['name'] + '_' + fileext
@@ -33,5 +34,5 @@ def save_data(maps, yin=0, tin=0, simflag=0,verbose=1):
 
         #not sure what the point of the if statements are if its just going to set the filename to thismap['file'] anyway...
         thismap['file'] = filename
-        np.save(filename, thismap) #i have a feeling thismap needs to be an array.
-        #call to this into a .sav file currently looking for a python equivalent.
+        with open(filename, 'w') as f:
+            json.dump(thismap, f)

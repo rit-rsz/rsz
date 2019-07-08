@@ -41,10 +41,10 @@ def save_fitsz(increment, offset, radave, params, simflag=1, outname='szout', ou
         #i have a feeling this may  not work ex: szout[i]['radbin'] = radave[i]['radbin'] but not sure
 
     if not simflag:
-        outfile = config.CLUSDATA + outdir + '/' + outname + '_' + params['clusname'][0] + '.sav'
+        outfile = config.CLUSDATA + outdir + '/' + outname + '_' + params['clusname'][0] + '.json'
         print(outfile)
     else:
-        outfile = config.CLUSDATA + outdir + '/sim/' + outname + '_' + params['clusname'][0] + '.sav'
+        outfile = config.CLUSDATA + outdir + '/sim/' + outname + '_' + params['clusname'][0] + '.json'
         print(outfile)
     with open(outfile, 'w') as f:
         json.dump(szout, f)

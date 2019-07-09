@@ -33,12 +33,13 @@ from config import * #(this line will give me access to all directory variables)
 from clus_get_tfs import *
 from get_clusparams import *
 from get_simmaps import *
+# from clus_convert_bolocam import *
 sys.path.append('source_handling')
 from subtract_cat import *
 from subtract_xcomps import *
 from get_data import *
 import config
-from get_xid import *
+# from get_xid import *
 sys.path.append('reduc')
 # from get_cats import *
 sys.path.append('sz')
@@ -116,13 +117,14 @@ class Catsrc():
                 if self.verbose:
                     print('clus_get_simmaps exited with error: ' + err)
                 exit()
-            # maps, err = add_sziso(maps,yin=self.yin, tin=self.tin,verbose=self.verbose)
+            print(maps[0]['name'])
+            maps, err = add_sziso(maps,yin=self.yin, tin=self.tin,verbose=self.verbose)
             if err:
                 if self.verbose:
                     print('clus_add_sziso exited with error: '+ err)
                 exit()
         ncols = len(maps)
-
+        print(maps)
         if self.verbose:
             print('Fetching transfer functions')
         if not self.maketf and not self.simmap:
@@ -149,7 +151,7 @@ class Catsrc():
             if self.verbose:
                 print('clus_get_cats exited with error: ' + err)
             exit()
-
+        exit()
         if self.verbose:
             print('Band merging catalogs')
         xid, err = get_xid(maps, cats, savemap=self.savemap, simmap=self.simmap, verbose=self.verbose)
@@ -267,7 +269,7 @@ class Catsrc():
 
 
 if __name__ == '__main__':
-    catsrc = Catsrc('rxj1347', verbose=1, simmap=0, nsim = 200)
+    catsrc = Catsrc('rxj1347', verbose=1, simmap=2, nsim = 200)
         # SAVEPLOTS=saveplots,\
         # CATTYPE=cattype,\
         # SAVECAT=savecat,\

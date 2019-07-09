@@ -19,9 +19,11 @@ import matplotlib.pyplot as plt
 from math import *
 from astropy.io import fits
 import os
+# import sys
+# sys.path.append('../')
 from config import *
-import sys
-sys.path.append('../')
+
+
 
 def add_sziso(maps,yin,tin,
               verbose = 0):
@@ -33,12 +35,16 @@ def add_sziso(maps,yin,tin,
 
     if verbose:
         print('Fetching BOLOCAM maps')
-#   Need to check how its calling the maps
-#   Need to fix maps call. Currently outputing as ['clusname']
-    # data_file = 'bolocam/data/' + str(maps[0].name) + '.sav'
-    print(maps[0].name)
-    data_file = 'bolocam/data/' + 'rxj1347' + '.sav'
-    data_dict = scipy.io.readsav(CLUSDATA + data_file,python_dict = True)
+
+#   Need to check how its calling the maps in simmaps
+
+    print(maps)
+    a = maps[0]['name'].astype(str)
+    print(a[0])
+    exit()
+    data_file = str('bolocam/data/' + a + '.sav')
+    print(data_file)
+    data_dict = scipy.io.readsav(CLUSDATA + 'bolocam/data/' + str(maps[0]['name']) + '.sav',python_dict = True)
 
     bolocam = clus_convert_bolocam(cluster_struct,VERBOSE=verbose,\
                                  ERRMSG=ccb_errmsg,SUCCESS=ccb_success)

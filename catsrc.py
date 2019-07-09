@@ -39,9 +39,9 @@ from subtract_cat import *
 from subtract_xcomps import *
 from get_data import *
 import config
-# from get_xid import *
+from get_xid import *
 sys.path.append('reduc')
-# from get_cats import *
+from get_cats import *
 sys.path.append('sz')
 from add_sziso import *
 from get_cats import *
@@ -152,7 +152,6 @@ class Catsrc():
             if self.verbose:
                 print('clus_get_cats exited with error: ' + err)
             exit()
-        exit()
         if self.verbose:
             print('Band merging catalogs')
         xid, err = get_xid(maps, cats, savemap=self.savemap, simmap=self.simmap, verbose=self.verbose)

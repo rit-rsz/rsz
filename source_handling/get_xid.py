@@ -107,9 +107,15 @@ def get_xid(maps, cats, savemap=0, simmap=0, verbose=1, confusionerrors=1):
     # print(type(figs)) #figs is list.
     # print(figs) #fig is matplotlib.figure.figure object.
     # print(type(fig))
-    fig.draw()
+    cols = ['PSW', 'PMW', 'PLW']
+    counter = 0
+    for figure in figs:
+        figure.save('xid_%s.jpg' %(cols[counter]))
+        counter += 1
     for figure in figs:
         figure.show_colorscale()
+
+    fig.show()
     # plt.imshow(figs)
 
     spire_cat = cat.create_SPIRE_cat(posterior, priors[0], priors[1], priors[2])

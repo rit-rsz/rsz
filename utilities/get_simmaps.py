@@ -39,7 +39,7 @@ def get_simmaps(clusname, nsim, simflag=1, sb=0, xc=0, verbose=0):
     if simflag == 1: #if we want to get simulated data.
         for i in range(ncols):
             mapfilename = config.CLUSDATA + 'sim_clusters/' + clusname + '_' + cols[i] + '.sav'
-            thismap = sp.readsav(mapfilename, python_dict = True) #extracting a python dictionary to contain the data for each map from a .sav file
+            thismap = sp.readsav(mapfilename) #extracting a python dictionary to contain the data for each map from a .sav file
             #have to use format thismap['thismap'] because of the way data gets extracted from .sav file in python.
             #also thismap['thismap'] is a numpy record array.
             thismap['thismap'].calfac = 1.0 / (thismap['thismap'].calfac * (thismap['thismap'].pixsize)* thismap['thismap'].pixsize)
@@ -78,7 +78,29 @@ def get_simmaps(clusname, nsim, simflag=1, sb=0, xc=0, verbose=0):
             noisemap = 1.0 * thismap['thismap'].error[0] * np.random.standard_normal((mapsize[0], mapsize[1]))
             thismap['thismap'].signal[0] = thismap['thismap'].signal[0] + noisemap
             maps[i] = thismap['thismap']
-    return maps ,None
+
+    new_maps = []
+    for map in maps:
+        # print(map.dtype.names)
+        new_map = {'name' : map.name[0],
+                   'file' : map.file[0],
+                   'band' : map.band[0],
+                   'signal' : map.signal[0],
+                   'srcrm' : map.srcrm[0],
+                   'xclean' : map.xclean[0],
+                   'error' : map.error[0],
+                   'mask' : map.mask[0],
+                   'shead' : map.shead[0],
+                   'ehead' : map.ehead[0],
+                   'astr' : map.astr[0],
+                   'pixsize' : map.pixsize[0],
+                   'psf' : map.psf[0],
+                   'width' : map.width[0],
+                   'withda' : map.widtha[0],
+                   'calfac' : map.calfac[0],
+                   'jy2mjy' : map.jy2mjy[0]}
+        new_maps.append(new_map)
+    return new_maps ,None
 
 if __name__ == "__main__":
     maps = get_simmaps('a0370', 100, simflag=1, xc=1)

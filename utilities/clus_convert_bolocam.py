@@ -18,22 +18,25 @@ import numpy as np
 from math import *
 from astropy.io import fits
 import os
-import pyfits
+import sys
+sys.path.append('../sz')
+from clus_dTtoDI import *
 
 def clus_convert_bolocam(bolocam, verbose=0):
     # Converts mK to MJy/sr
-    bolocam.deconvolved_image = clus_dTtoDI(143,1e-6*bolocam.deconvolved_image)
-    bolocam.deconvolved_image_smooth_trim_sn = \
-        clus_dTtoDI(143,1e-6*bolocam.deconvolved_image_smooth_trim_sn)
+    # bolocam['deconvolved_image'].setflags(write=1)
+    bolocam['deconvolved_image'] = clus_dTtoDI(143,1e-6*(bolocam['deconvolved_image']))
+    bolocam['deconvolved_image_smooth_trim_sn'] = \
+        clus_dTtoDI(143,1e-6*bolocam['deconvolved_image_smooth_trim_sn'])
 
-    bolocamsize = (bolocam.deconvolved_image_noise_realizations).size
+    bolocamsize = (bolocam['deconvolved_image_noise_realizations']).size
     for ib in range(bolocamsize):
 #       This made use of reform but I am not sure that it is needed in python the way that it is used
-        bolocam.deconvolved_image_noise_realizations[:,:,ib] = \
-            clus_dTtoDI(143,1e-6*bolocam.deconvolved_image_noise_realizations)
+        bolocam['deconvolved_image_noise_realizations'][:,:,ib] = \
+            clus_dTtoDI(143,1e-6*bolocam['deconvolved_image_noise_realizations'])
 
-reform(a,2,3)
-	               arange(1,7).reshape(2,-1)
-                    a.setshape(2,3
+        reform(a,2,3)
+        arange(1,7).reshape(2,-1)
+        a.setshape(2,3)
 
     return bolocam

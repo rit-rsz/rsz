@@ -16,7 +16,7 @@
 
 from math import *
 
-def clus_dttodi(freq,dT):
+def clus_dTtoDI(freq,dT):
 
     T_0     = 2.725                   #CMB temperature, K
     k_B     = 1.3806503e-23           #Boltzmann constant, J/K
@@ -27,7 +27,7 @@ def clus_dttodi(freq,dT):
 
     nu = freq * HztoGHz
 
-    x = (h * nu) / (k_b * T_0)
+    x = (h * nu) / (k_B * T_0)
 
     fx = x * (exp(x) + 1) / (exp(x) - 1) - 4
     hx = x**4 * exp(x) / ((exp(x) - 1)**2)

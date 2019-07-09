@@ -22,7 +22,9 @@ import os
 # import sys
 # sys.path.append('../')
 from config import *
-
+import sys
+sys.path.append('../utilities')
+from clus_convert_bolocam import *
 
 
 def add_sziso(maps,yin,tin,
@@ -38,16 +40,20 @@ def add_sziso(maps,yin,tin,
 
 #   Need to check how its calling the maps in simmaps
 
-    print(maps)
-    a = maps[0]['name'].astype(str)
-    print(a[0])
-    exit()
-    data_file = str('bolocam/data/' + a + '.sav')
+    # This is needed until get_simmaps is fixed to out put maps[names] as a str
+    clusname = maps[0]['name'].astype(str)
+    # print(a[0])
+    data_file = str('bolocam/data/' + clusname[0] + '.sav')
     print(data_file)
-    data_dict = scipy.io.readsav(CLUSDATA + 'bolocam/data/' + str(maps[0]['name']) + '.sav',python_dict = True)
+    data_dict = scipy.io.readsav(CLUSDATA + data_file,python_dict = True)
+    # example of how you need to call this list
+    # data_dict.setflags(write=1)
+    cluster_struct = list(data_dict.values())[0][0]
+    # print(cluster_struct['y_500'])
 
-    bolocam = clus_convert_bolocam(cluster_struct,VERBOSE=verbose,\
-                                 ERRMSG=ccb_errmsg,SUCCESS=ccb_success)
+
+    bolocam = clus_convert_bolocam(cluster_struct,verbose=verbose)
+    exit()
     if not ccb_sucess:
         errmsg = str('clus_convert_bolocam exited with error: ' + ccb_errmsg)
         if verbose:

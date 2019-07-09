@@ -82,9 +82,9 @@ def get_simmaps(clusname, nsim, simflag=1, sb=0, xc=0, verbose=0):
     new_maps = []
     for map in maps:
         # print(map.dtype.names)
-        new_map = {'name' : map.name[0],
-                   'file' : map.file[0],
-                   'band' : map.band[0],
+        new_map = {'name' : map['name'].astype(str)[0],
+                   'file' : map['file'][0].astype(str),
+                   'band' : map.band.astype(str)[0],
                    'signal' : map.signal[0],
                    'srcrm' : map.srcrm[0],
                    'xclean' : map.xclean[0],
@@ -103,4 +103,4 @@ def get_simmaps(clusname, nsim, simflag=1, sb=0, xc=0, verbose=0):
     return new_maps ,None
 
 if __name__ == "__main__":
-    maps = get_simmaps('a0370', 100, simflag=1, xc=1)
+    maps = get_simmaps('a0370', nsim=200, simflag=2)

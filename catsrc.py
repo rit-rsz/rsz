@@ -117,12 +117,13 @@ class Catsrc():
                 if self.verbose:
                     print('clus_get_simmaps exited with error: ' + err)
                 exit()
-            print(maps[0]['name'])
+            
             maps, err = add_sziso(maps,yin=self.yin, tin=self.tin,verbose=self.verbose)
             if err:
                 if self.verbose:
                     print('clus_add_sziso exited with error: '+ err)
                 exit()
+        exit()
         ncols = len(maps)
         print(maps)
         if self.verbose:
@@ -268,7 +269,7 @@ class Catsrc():
 
 
 if __name__ == '__main__':
-    catsrc = Catsrc('a0370', verbose=1, nsim = 1)
+    catsrc = Catsrc('rxj1347', verbose=1, simmap=2, nsim = 200)
         # SAVEPLOTS=saveplots,\
         # CATTYPE=cattype,\
         # SAVECAT=savecat,\

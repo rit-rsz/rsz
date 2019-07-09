@@ -48,10 +48,10 @@ def add_sziso(maps,yin,tin,
     data_dict = scipy.io.readsav(CLUSDATA + data_file,python_dict = True)
     # example of how you need to call this list
     # data_dict.setflags(write=1)
-    cluster_struct = list(data_dict.values())[0][0]
-    # print(cluster_struct['y_500'])
+    cluster_struct = list(data_dict.values())
+    print(cluster_struct['deconvolved_image'])
 
-
+    exit()
     bolocam = clus_convert_bolocam(cluster_struct,verbose=verbose)
     exit()
     if not ccb_sucess:

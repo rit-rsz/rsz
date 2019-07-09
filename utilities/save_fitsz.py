@@ -11,6 +11,7 @@
 # OUTPUTS :
 # REVISION HISTORY :
 ################################################################################
+import json
 
 def save_fitsz(increment, offset, radave, params, simflag=1, outname='szout', outdir='sz', verbose=1):
     ncols = len(radave)
@@ -25,7 +26,7 @@ def save_fitsz(increment, offset, radave, params, simflag=1, outname='szout', ou
                        'rc' : params['rc'][0],
                        'beta' : params['beta'][0],
                        'clusname' : params['clusname'][0]}
-    #szout = REPLICATE(szout, ncols) 
+    #szout = REPLICATE(szout, ncols)
     szout = []
     for i in range(ncols):
         szout.append(szout_template)
@@ -40,9 +41,10 @@ def save_fitsz(increment, offset, radave, params, simflag=1, outname='szout', ou
         #i have a feeling this may  not work ex: szout[i]['radbin'] = radave[i]['radbin'] but not sure
 
     if not simflag:
-        outfile = config.CLUSDATA + outdir + '/' + outname + '_' + params['clusname'][0] + '.sav'
+        outfile = config.CLUSDATA + outdir + '/' + outname + '_' + params['clusname'][0] + '.json'
         print(outfile)
     else:
-        outfile = config.CLUSDATA + outdir + '/sim/' + outname + '_' + params['clusname'][0] + '.sav'
+        outfile = config.CLUSDATA + outdir + '/sim/' + outname + '_' + params['clusname'][0] + '.json'
         print(outfile)
-    #call to save the .sav file... maybe we want to make this .sav files .csv files but not sure
+    with open(outfile, 'w') as f:
+        json.dump(szout, f)

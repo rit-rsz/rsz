@@ -71,9 +71,9 @@ def starfindertest(clusname):
     norm = ImageNormalize(stretch=SqrtStretch())
     # print('apertures',apertures)
 
-    np.savetxt('test.txt',sources)
-    # plt.scatter(positions[0],positions[1])
-    plt.imshow(data, cmap='Greys', origin='lower', norm=norm)
+    # np.savetxt('test.txt',data)
+    plt.scatter(positions[0],positions[1])
+    plt.imshow(data-median, cmap='Greys', origin='lower', norm=norm)
     apertures.plot(color='blue', lw=1.5, alpha=0.5)
     plt.show()
 

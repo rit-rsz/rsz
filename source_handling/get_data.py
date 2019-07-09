@@ -114,7 +114,7 @@ def get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
     for ifile in range(nfiles):
         count = []
         if ifile < 3:
-            if cols[ifile] in files[ifile]:
+            if any(col in files[ifile] for col in cols):
                 counter += 1
             else:
                 errmsg = 'Problem finding ' + cols[ifile] + ' file.'

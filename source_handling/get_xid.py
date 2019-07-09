@@ -35,6 +35,7 @@ from astropy.coordinates import SkyCoord
 from astropy.convolution import Gaussian2DKernel
 from xidplus.stan_fit import SPIRE
 from astropy.wcs import WCS as wcs
+import json
 
 def get_xid(maps, cats, savemap=0, simmap=0, verbose=1, confusionerrors=1):
     err = False
@@ -101,6 +102,16 @@ def get_xid(maps, cats, savemap=0, simmap=0, verbose=1, confusionerrors=1):
 
     fit = SPIRE.all_bands(priors[0], priors[1], priors[2], iter=10) #number of iterations should be at least 100 just set lower for testing.
     posterior = xidplus.posterior_stan(fit,[priors[0],priors[1],priors[2]])
+
+    figs, fig = xidplus.plots.plot_Bayes_pval_map(priors, posterior)
+    # print(type(figs)) #figs is list.
+    # print(figs) #fig is matplotlib.figure.figure object.
+    # print(type(fig))
+    fig.draw()
+    for figure in figs:
+        figure.show_colorscale()
+    # plt.imshow(figs)
+
     spire_cat = cat.create_SPIRE_cat(posterior, priors[0], priors[1], priors[2])
 
     xid_data = spire_cat[1].data
@@ -108,7 +119,7 @@ def get_xid(maps, cats, savemap=0, simmap=0, verbose=1, confusionerrors=1):
 
     #I think this is wrong.
     #in units of mJy for fluxes and degrees for RA/DEC
-    xid1 = {'sid' : priors[0].ID,
+    xid1 = {#'sid' : priors[0].ID,
             'band' : 'PSW',
             'sra' : xid_data.field('RA'),
             'sdec' : xid_data.field('DEC'),
@@ -121,7 +132,7 @@ def get_xid(maps, cats, savemap=0, simmap=0, verbose=1, confusionerrors=1):
             'model' : None,
             'mf' : mf} #idk if perr and pflux is right there may be a conversion needed for pflux.
             #in mikes code it has pflux = output from xid / mJy2Jy.
-    xid2 = {'sid' : priors[1].ID,
+    xid2 = {#'sid' : priors[1].ID,
             'band' : 'PMW',
             'sra' : xid_data.field('RA'),
             'sdec' : xid_data.field('DEC'),
@@ -134,7 +145,7 @@ def get_xid(maps, cats, savemap=0, simmap=0, verbose=1, confusionerrors=1):
             'model' : None,
             'mf' : mf}
 
-    xid3 = {'sid' : priors[2].ID,
+    xid3 = {#'sid' : priors[2].ID,
             'band' : 'PLW',
             'sra' : xid_data.field('RA'),
             'sdec' : xid_data.field('DEC'),
@@ -156,16 +167,43 @@ def get_xid(maps, cats, savemap=0, simmap=0, verbose=1, confusionerrors=1):
     w = wcs(spire_cat[1].header)
 
     #I hope this is correct...
-    for i in range(len(xid)):
-        wx = xid[i]['sra']
-        wy = xid[i]['sdec']
-        px, py = w.wcs_world2pix(wx, wy, 0.0)
-        xid[i]['x'] = px
-        xid[i]['y'] = py
+
+
+                #
+                # 'band' : 'PMW',
+                # 'sra' : xid_data.field('RA'),
+                # 'sdec' : xid_data.field('DEC'),
+                # 'sflux' : xid_data.field('F_SPIRE_350'),
+                # 'serr' : xid_data.field('FErr_SPIRE_350_u'),
+                # 'pflux' : xid_data.field('F_SPIRE_350'),
+                # 'perr' : xid_data.field('FErr_SPIRE_350_u'),
+                # 'x' : None,
+                # 'y' : None,
+                # 'model' : None,
+                # 'mf' : mf}
+    # for i in range(len(xid)):
+    #     wx = xid[i]['sra']
+    #     wy = xid[i]['sdec']
+    #     px, py = w.wcs_world2pix(wx, wy, 1)
+    #     xid[i]['x'] = px
+    #     xid[i]['y'] = py
+    #     xid[i]['sra'] = xid[i]['sra'].tolist()
+    #     xid[i]['sdec'] = xid[i]['sdec'].tolist()
+    #     xid[i]['sflux'] = xid[i]['sflux'].tolist()
+    #     xid[i]['serr'] = xid[i]['serr'].tolist()
+    #     xid[i]['pflux'] = xid[i]['pflux'].tolist()
+    #     xid[i]['perr'] = xid[i]['perr'].tolist()
+    #     xid[i]['x'] = xid[i]['x'].tolist()
+    #     xid[i]['y'] = xid[i]['y'].tolist()
+    #     with open('xid_%s.json' %(xid[i]['band']), 'w') as f: #code for saving output to a file.
+    #         json.dump(xid[i], f)
 
     #model = image_model(x,y, sflux, maps[i]['astr']['NAXIS'][0], maps[i]['astr']['NAXIS'][1],
     #maps[i]['psf'])
     #need to finish converting model over to python.
+
+
+
 
 
     for i in range(len(xid)):

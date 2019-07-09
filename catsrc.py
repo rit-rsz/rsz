@@ -267,7 +267,7 @@ class Catsrc():
 
 
 if __name__ == '__main__':
-    catsrc = Catsrc('rxj1347', verbose=1, simmap=0, nsim = 200)
+    catsrc = Catsrc('a0370', verbose=1, nsim = 1)
         # SAVEPLOTS=saveplots,\
         # CATTYPE=cattype,\
         # SAVECAT=savecat,\

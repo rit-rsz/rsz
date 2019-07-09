@@ -178,7 +178,7 @@ def make_plw_src_cat(clusname, resolution, nsim, simmap=0, s2n=3, verbose=1, sav
     #origin is 1 idk if this is good or not.
     a = ra_dec[0]
     d = ra_dec[1]
-
+    count = len(a)
 
         # whpl = WHERE(fPLW/sigf GE s2n,count)
         # a = a[whpl]
@@ -294,6 +294,7 @@ def make_mflr_src_cat(clusname, resolution='fr', s2n=3, savecat=0, savemap=0, ve
 
     a = ra_dec[0]
     d = ra_dec[1]
+    count = len(a)
     # whpl = WHERE(fPSW/sigf GE s2n,count)
     # a = a[whpl]
     # d = d[whpl]
@@ -407,7 +408,7 @@ def make_psw_src_cat(clusname, resolution, nsim, s2n=3, savecat=0, savemap=0, si
 
     a = ra_dec[0]
     d = ra_dec[1]
-
+    count = len(a)
     #xPSW = a list of x coordinates
     #yPSW = a list of y coordinates
     #origin = 1 for Fits files, 0 for numpy
@@ -536,6 +537,7 @@ def make_mips_src_cat(clusname, maps, s2n=3, savecat=0, savemap=0, verbose=1):
     #ra_dec is going to be a list of ra/dec pairs.
     a = ra_dec[0]
     d = ra_dec[1]
+    count = len(a)
     # whpl = WHERE(f/sf GE s2n,count)    # whpl = WHERE(f/sf GE s2n,count)
     # a = a[whpl]
     # d = d[whpl]

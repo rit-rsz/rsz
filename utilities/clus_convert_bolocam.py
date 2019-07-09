@@ -15,13 +15,13 @@
 import scipy.io
 import numpy as np
 # from config import * #(this line will give me access to all directory variables)
-import matplotlib.pyplot as plt
 from math import *
 from astropy.io import fits
 import os
 import pyfits
 
 def clus_convert_bolocam(bolocam, verbose=0):
+    # Converts mK to MJy/sr
     bolocam.deconvolved_image = clus_dTtoDI(143,1e-6*bolocam.deconvolved_image)
     bolocam.deconvolved_image_smooth_trim_sn = \
         clus_dTtoDI(143,1e-6*bolocam.deconvolved_image_smooth_trim_sn)

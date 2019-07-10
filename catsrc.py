@@ -66,6 +66,13 @@ class Catsrc():
         self.setup()
 
     def setup(self):
+        # Purpose :
+        #   -
+        # Inputs :
+        #   -
+        # Outputs :
+        #   - 
+
         if self.simmap > 0 and self.nsim == 0:
             if self.verbose:
                 print('simmap set but nsim not supplied! Aborting')

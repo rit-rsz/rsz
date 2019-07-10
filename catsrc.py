@@ -39,7 +39,7 @@ from subtract_cat import *
 from subtract_xcomps import *
 from get_data import *
 import config
-from get_xid import *
+# from get_xid import *
 sys.path.append('reduc')
 from get_cats import *
 sys.path.append('sz')
@@ -117,7 +117,7 @@ class Catsrc():
                 if self.verbose:
                     print('clus_get_simmaps exited with error: ' + err)
                 exit()
-            
+
             maps, err = add_sziso(maps,yin=self.yin, tin=self.tin,verbose=self.verbose)
             if err:
                 if self.verbose:
@@ -269,7 +269,7 @@ class Catsrc():
 
 
 if __name__ == '__main__':
-    catsrc = Catsrc('rxj1347', verbose=1, simmap=2, nsim = 200)
+    catsrc = Catsrc('a0370', verbose=1, simmap=1, nsim = 200)
         # SAVEPLOTS=saveplots,\
         # CATTYPE=cattype,\
         # SAVECAT=savecat,\

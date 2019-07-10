@@ -117,13 +117,12 @@ class Catsrc():
                 if self.verbose:
                     print('clus_get_simmaps exited with error: ' + err)
                 exit()
-            
+            print(maps[0]['name'])
             maps, err = add_sziso(maps,yin=self.yin, tin=self.tin,verbose=self.verbose)
             if err:
                 if self.verbose:
                     print('clus_add_sziso exited with error: '+ err)
                 exit()
-        exit()
         ncols = len(maps)
         print(maps)
         if self.verbose:
@@ -141,20 +140,16 @@ class Catsrc():
 
         if self.verbose:
             print('Fetching regression catalogs')
-        cats = []
-        for i in range(len(maps)):
-            cat, err = get_cats(self.clusname,self.cattype,maps[i],savecat=self.savecat,
+        cat, err = get_cats(self.clusname,self.cattype,maps,savecat=self.savecat,
                                   savemap=self.savemap, simmap=self.simmap, nsim=self.nsim, s2n=self.s2n,
                                   verbose=self.verbose) #args need to be figured out
-            cats.append(cat)
-
         if err:
             if self.verbose:
                 print('clus_get_cats exited with error: ' + err)
             exit()
         if self.verbose:
             print('Band merging catalogs')
-        xid, err = get_xid(maps, cats, savemap=self.savemap, simmap=self.simmap, verbose=self.verbose)
+        xid, err = get_xid(maps, cat, savemap=self.savemap, simmap=self.simmap, verbose=self.verbose)
         if err:
             if self.verbose:
                 print('clus_get_xid exited with error: ' + err)
@@ -201,7 +196,7 @@ class Catsrc():
 
         if self.simmap == 0:
             if self.verbose:
-                print('Computing radial averages')
+                print('Computing radial averagesnsim=200')
 
             radave, err = clus_compute_rings(maps,params,30.0,verbose=self.verbose)
             if err:
@@ -269,7 +264,7 @@ class Catsrc():
 
 
 if __name__ == '__main__':
-    catsrc = Catsrc('rxj1347', verbose=1, simmap=2, nsim = 200)
+    catsrc = Catsrc('a0370', verbose=1)
         # SAVEPLOTS=saveplots,\
         # CATTYPE=cattype,\
         # SAVECAT=savecat,\

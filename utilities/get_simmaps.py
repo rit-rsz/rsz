@@ -54,7 +54,7 @@ def get_simmaps(clusname, nsim, simflag=1, sb=0, xc=0, verbose=0):
                 #     for k in range(overmap.shape[1]):
                 #         if np.isfinite(overmap[j,k]) == False:
                 #             whpl.append([j,k])
-                # thismap['thismap'].mask[0][whpl] = 1
+                # thismap['thismap'].mask[0][whpl] = 1  
             elif xc:
                 overmap = fits.open(config.CLUSDATA + 'sim_clusters/' + clusname +
                 '_' + cols[i] + '_xc.fits') #opening a fit file to get some data.

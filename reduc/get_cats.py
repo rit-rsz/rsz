@@ -26,6 +26,8 @@ import matplotlib.pyplot as plt
 from astropy.visualization import SqrtStretch
 from astropy.visualization.mpl_normalize import ImageNormalize
 from photutils import CircularAperture
+from astropy.wcs.utils import pixel_to_skycoord
+import json
 
 def get_cats(clusname, cattype, maps, nsim, simmap=0, s2n=3, resoltuion='fr', verbose=1, savecat=0, savemap=0,):
     '''
@@ -121,8 +123,7 @@ def make_plw_src_cat(clusname, resolution, nsim, simmap=0, s2n=3, verbose=1, sav
         #yPLW = a list of y coordinates
         #origin = Idk what to put for the origin
         #ra_dec is going to be a list of ra/dec pairs.
-    header = maps['shead']
-    wcs = WCS(header)
+
     err = False
     if s2n < 3 and verbose:
         print('WARNING: S/N requested less than 3, extraction may be suspect')
@@ -137,11 +138,13 @@ def make_plw_src_cat(clusname, resolution, nsim, simmap=0, s2n=3, verbose=1, sav
 
     else:
         min_corr = 0.01
-        maps, err = get_data(clusname, simflag=simflag, nsim=nsim, verbose=verbose)
+        maps, err = get_simmaps(clusname, simflag=simflag, nsim=nsim, verbose=verbose)
         if err:
             if verbose:
                 print('clus get data exited with error: ' + err)
             return None, err
+
+    #looking for the the PLW map.
     for i in range(len(maps)):
         if 'PLW' in maps[i]['band']:
             index = i
@@ -153,13 +156,18 @@ def make_plw_src_cat(clusname, resolution, nsim, simmap=0, s2n=3, verbose=1, sav
     beamFWHM = maps[index]['widtha'] #arcsec
     pixsize = maps[index]['pixsize'] #arcsec/pixel
 
+    #initialzing wcs class from astropy.
+    header = maps[index]['shead']
+    wcs = WCS(header)
+    # header = maps['shead']
+    # wcs = WCS(header)
     #Now convert FWHM from arcsec to pixel
-    fwhm = np.divide(beamFWHM,pixsize)
+    fwhm = np.divide(beamFWHM,pixsize) #converting to pixels.
 
     if verbose:
         print('Constructing PLW catalog')
 
-    positions = starfinder(dataPLW, fwhm)
+    positions, fluxes = starfinder(dataPLW, fwhm)
     x = positions[0]
     y = positions[1]
 
@@ -174,18 +182,39 @@ def make_plw_src_cat(clusname, resolution, nsim, simmap=0, s2n=3, verbose=1, sav
         writefits(config.CLUSSBOX + 'make_PLW_src_cat_mdiff.fits', data=data, header_dict=headPSW)
     astr = extast(headPLW)
 
-    ra_dec = wcs.wcs_pix2world(xPLW, yPLW, 1, ra_dec_order=True)
+    # ra_dec = wcs.wcs_pix2world(xPLW, yPLW, 1, ra_dec_order=True)
+    c = pixel_to_skycoord(xPLW, yPLW, wcs, 1)
     #origin is 1 idk if this is good or not.
-    a = ra_dec[0]
-    d = ra_dec[1]
+    a = []
+    d = []
+    coordinates = np.array(c.to_string('decimal'))
+    for i in range(len(coordinates)):
+        split_coords = coordinates[i].split(' ')
+        a.append(float(split_coords[0]))
+        d.append(float(split_coords[1]))
+
+    a = np.array(a)
+    d = np.array(d)
     count = len(a)
 
-        # whpl = WHERE(fPLW/sigf GE s2n,count)
-        # a = a[whpl]
-        # d = d[whpl]
-        # fPLW = fPLW[whpl]
-        # sigf = sigf[whpl]
-        #our version of starfinder doesn't do this stuff.
+    #originally it was fPLW / sigF which were two outputs from starfinder.
+    #however, these are the outputs from our version of STARFINDER
+    # id: unique object identification number.
+    # xcentroid, ycentroid: object centroid.
+    # sharpness: object sharpness.
+    # roundness1: object roundness based on symmetry.
+    # roundness2: object roundness based on marginal Gaussian fits.
+    # npix: the total number of pixels in the Gaussian kernel array.
+    # sky: the input sky parameter.
+    # peak: the peak, sky-subtracted, pixel value of the object.
+    # flux: the object flux calculated as the peak density in the convolved image divided by the detection threshold. This derivation matches that of DAOFIND if sky is 0.0.
+    #so is the flux output the same as fPLW or is it the same as fPLW / sigf, i don't know.
+    whpl = np.where(fluxes <= s2n)
+    count = len(whpl)
+    a = a[whpl]
+    d = d[whpl]
+    fluxes = fluxes[whpl]
+
     if verbose:
         print('CUT S/N >= %s sources, kept %s stars' % (s2n, count))
 
@@ -227,13 +256,12 @@ def make_mflr_src_cat(clusname, resolution='fr', s2n=3, savecat=0, savemap=0, ve
             verbose - 0 = no error messages
                       1 = error messages
             savecat - 0 = don't save the catalog
-                      1 = save the catalog
+                      1 = save the catalog    # ra_dec = wcs.wcs_pix2world(x, y, 1, ra_dec_order=True)
             savemap - 0 = don't save the map
                       1 = save the map
     Outputs: cat - the catalog dictionary.
     '''
-    header = maps['shead']
-    wcs = WCS(header)
+
     err = False
     if s2n < 2 and verbose:
         print('WARNING: S/N requested less than 2, extraction may be suspect')
@@ -259,6 +287,8 @@ def make_mflr_src_cat(clusname, resolution='fr', s2n=3, savecat=0, savemap=0, ve
     beamFWHM = maps[index]['widtha'] #arcsec
     pixsize = maps[index]['pixsize'] #arcsec/pixel
 
+    header = maps[index]['shead']
+    wcs = WCS(header)
     #Now convert FWHM from arcsec to pixel
     fwhm = np.divide(beamFWHM,pixsize)
 
@@ -285,22 +315,38 @@ def make_mflr_src_cat(clusname, resolution='fr', s2n=3, savecat=0, savemap=0, ve
         writefits(config.CLUSSBOX + 'make_PSW_src_cat_mdiff.fits', data=data, header_dict=headPSW)
 
     astr = extast(map)
+    # ra_dec = wcs.wcs_pix2world(x, y, 1, ra_dec_order=True)
 
-    ra_dec = wcs.wcs_pix2world(x, y, 1, ra_dec_order=True)
-    #xPLW = a list of x coordinates
-    #yPLW = a list of y coordinates
-    #1 is origin
-    #ra_dec is going to be a list of ra/dec pairs.
+    c = pixel_to_skycoord(x, y, wcs, 1)
 
-    a = ra_dec[0]
-    d = ra_dec[1]
+    a = []
+    d = []
+    coordinates = np.array(c.to_string('decimal'))
+    for i in range(len(coordinates)):
+        split_coords = coordinates[i].split(' ')
+        a.append(float(split_coords[0]))
+        d.append(float(split_coords[1]))
+
+    a = np.array(a)
+    d = np.array(d)
     count = len(a)
-    # whpl = WHERE(fPSW/sigf GE s2n,count)
-    # a = a[whpl]
-    # d = d[whpl]
-    # fPSW = fPSW[whpl]
-    # sigf = sigf[whpl]
-    #our version of starfinder doesn't do this stuff.
+    #originally it was fPLW / sigF which were two outputs from starfinder.
+    #however, these are the outputs from our version of STARFINDER
+    # id: unique object identification number.
+    # xcentroid, ycentroid: object centroid.
+    # sharpness: object sharpness.
+    # roundness1: object roundness based on symmetry.
+    # roundness2: object roundness based on marginal Gaussian fits.
+    # npix: the total number of pixels in the Gaussian kernel array.
+    # sky: the input sky parameter.
+    # peak: the peak, sky-subtracted, pixel value of the object.
+    # flux: the object flux calculated as the peak density in the convolved image divided by the detection threshold. This derivation matches that of DAOFIND if sky is 0.0.
+    #so is the flux output the same as fPLW or is it the same as fPLW / sigf, i don't know.
+    whpl = np.where(fluxes <= s2n)
+    count = len(whpl)
+    a = a[whpl]
+    d = d[whpl]
+    fluxes = fluxes[whpl]
 
     if verbose:
         print('Cut S/N >= %s sources, kept %s stars' % (s2n, count))
@@ -349,8 +395,7 @@ def make_psw_src_cat(clusname, resolution, nsim, s2n=3, savecat=0, savemap=0, si
                       1 = save the map
     Outputs: cat - the catalog dictionary.
     '''
-    header = maps['shead']
-    wcs = WCS(header)
+
     err = False
     if s2n < 3 and verbose:
         print('WARNING: S/N requested less than 3, extraction may be suspect')
@@ -382,6 +427,9 @@ def make_psw_src_cat(clusname, resolution, nsim, s2n=3, savecat=0, savemap=0, si
     beamFWHM = maps[index]['widtha'] #arcsec
     pixsize = maps[index]['pixsize'] #arcsec/pixel
 
+
+    header = maps[index]['shead']
+    wcs = WCS(header)
     #Now convert FWHM from arcsec to pixel
     fwhm = np.divide(beamFWHM,pixsize)
 
@@ -404,21 +452,36 @@ def make_psw_src_cat(clusname, resolution, nsim, s2n=3, savecat=0, savemap=0, si
 
     astr = extast(headPSW)
 
-    ra_dec = wcs.wcs_pix2world(x, y, 1, ra_dec_order=True)
+    # ra_dec = wcs.wcs_pix2world(x, y, 1, ra_dec_order=True)
+    c = pixel_to_skycoord(x, y, wcs, 1)
+    a = []
+    d = []
+    coordinates = np.array(c.to_string('decimal'))
+    for i in range(len(coordinates)):
+        split_coords = coordinates[i].split(' ')
+        a.append(float(split_coords[0]))
+        d.append(float(split_coords[1]))
 
-    a = ra_dec[0]
-    d = ra_dec[1]
+    a = np.array(a)
+    d = np.array(d)
     count = len(a)
-    #xPSW = a list of x coordinates
-    #yPSW = a list of y coordinates
-    #origin = 1 for Fits files, 0 for numpy
-    #ra_dec is going to be a list of ra/dec pairs.
-
-    # whpl = WHERE(fPSW/sigf GE s2n,count)
-    # a = a[whpl]
-    # d = d[whpl]
-    # fPSW = fPSW[whpl]
-    # sigf = sigf[whpl]
+    #originally it was fPLW / sigF which were two outputs from starfinder.
+    #however, these are the outputs from our version of STARFINDER
+    # id: unique object identification number.
+    # xcentroid, ycentroid: object centroid.
+    # sharpness: object sharpness.
+    # roundness1: object roundness based on symmetry.
+    # roundness2: object roundness based on marginal Gaussian fits.
+    # npix: the total number of pixels in the Gaussian kernel array.
+    # sky: the input sky parameter.
+    # peak: the peak, sky-subtracted, pixel value of the object.
+    # flux: the object flux calculated as the peak density in the convolved image divided by the detection threshold. This derivation matches that of DAOFIND if sky is 0.0.
+    #so is the flux output the same as fPLW or is it the same as fPLW / sigf, i don't know.
+    whpl = np.where(fluxes <= s2n)
+    count = len(whpl)
+    a = a[whpl]
+    d = d[whpl]
+    fluxes = fluxes[whpl]
 
     if verbose:
         print('Cut S/N >= %s sources, kept %s stars' % (s2n, count))
@@ -467,8 +530,7 @@ def make_mips_src_cat(clusname, maps, s2n=3, savecat=0, savemap=0, verbose=1):
                       1 = save the map
     Outputs: cat - the catalog dictionary.
     '''
-    header = maps['shead']
-    wcs = WCS(header)
+
     err = False
     if s2n < 3:
         print('WARNING: S/N requested less tahn 3, extraction may be suspect')
@@ -483,6 +545,7 @@ def make_mips_src_cat(clusname, maps, s2n=3, savecat=0, savemap=0, verbose=1):
         imgh2 = hdul
         imgh = hdul[0].header
         img = hdul[0].data
+        wcs = WCS(imgh)
     else:
         err = 'Cannot find %s' %(imgfile)
         if verbose:
@@ -513,7 +576,7 @@ def make_mips_src_cat(clusname, maps, s2n=3, savecat=0, savemap=0, verbose=1):
 
     #call to change image scale don't know what that does so :)
     fwhm = 18.0 / 6.0 #placeholder for PSW pixsize don't know what band mips is.
-    positions = starfinder(img, fwhm)
+    positions, fluxes = starfinder(img, fwhm)
     x = positions[0]
     y = positions[1]
 
@@ -530,23 +593,41 @@ def make_mips_src_cat(clusname, maps, s2n=3, savecat=0, savemap=0, verbose=1):
     astr = extast(imgh2[0])
     count = 0
 
-    ra_dec = wcs.wcs_pix2world(x, y, 1, ra_dec_order=True)
+    # ra_dec = wcs.wcs_pix2world(x, y, 1, ra_dec_order=True)
+    c = pixel_to_skycoord(x, y, wcs, 1)\
     #x = a list of x coordinates
     #y = a list of y coordinates
     #origin = Idk what to put for the origin
     #ra_dec is going to be a list of ra/dec pairs.
-    a = ra_dec[0]
-    d = ra_dec[1]
+    a = []
+    d = []
+    coordinates = c.to_string('decimal')
+    for i in range(len(coordinates)):
+        split_coords = coordinates[i].split(' ')
+        a.append(float(split_coords[0]))
+        d.append(float(split_coords[1]))
+
+    a = np.array(a)
+    d = np.array(d)
     count = len(a)
-    # whpl = WHERE(f/sf GE s2n,count)    # whpl = WHERE(f/sf GE s2n,count)
-    # a = a[whpl]
-    # d = d[whpl]
-    # f = f[whpl]
-    # sf = sf[whpl]
-    # a = a[whpl]
-    # d = d[whpl]
-    # f = f[whpl]
-    # sf = sf[whpl]
+    #originally it was fPLW / sigF which were two outputs from starfinder.
+    #however, these are the outputs from our version of STARFINDER
+    # id: unique object identification number.
+    # xcentroid, ycentroid: object centroid.
+    # sharpness: object sharpness.
+    # roundness1: object roundness based on symmetry.
+    # roundness2: object roundness based on marginal Gaussian fits.
+    # npix: the total number of pixels in the Gaussian kernel array.
+    # sky: the input sky parameter.
+    # peak: the peak, sky-subtracted, pixel value of the object.
+    # flux: the object flux calculated as the peak density in the convolved image divided by the detection threshold. This derivation matches that of DAOFIND if sky is 0.0.
+    #so is the flux output the same as fPLW or is it the same as fPLW / sigf, i don't know.
+    whpl = np.where(fluxes <= s2n)
+    count = len(whpl)
+    a = a[whpl]
+    d = d[whpl]
+    fluxes = fluxes[whpl]
+
     if verbose:
         print('Cut S/N >= %s sources, kept %s stars' %(s2n, count))
     if maps:
@@ -586,6 +667,7 @@ def make_mips_src_cat(clusname, maps, s2n=3, savecat=0, savemap=0, verbose=1):
            'cluster' : clusname,
            'instrument': 'SPIRE PLW',
            's2n' : s2n}
+
     return cat, err
 
 
@@ -645,10 +727,11 @@ def starfinder(data, fwhm):
     for col in sources.colnames:
         sources[col].info.format = '%.8g'  # for consistent table output
     positions = sources['xcentroid'], sources['ycentroid']
+    fluxes = sources['flux']
     # apertures = CircularAperture(positions, r=4.)
     # norm = ImageNormalize(stretch=SqrtStretch())
     # print('apertures',apertures)
-    return positions
+    return positions, fluxes
 
     # Used to look at the images
     # positions = (sources['xcentroid'], sources['ycentroid'])

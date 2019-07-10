@@ -2,7 +2,7 @@
 # NAME : subtract_xcomps.py
 # DATE STARTED : June 21, 2019
 # AUTHORS : Benjamin Vaughan
-# PURPOSE : idk lol
+# PURPOSE : 
 # EXPLANATION :
 # CALLING SEQUENCE :
 # INPUTS :

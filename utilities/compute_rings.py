@@ -2,7 +2,7 @@
 # NAME : compute_rings.py
 # DATE STARTED : June 24, 2019
 # AUTHORS : Benjamin Vaughan
-# PURPOSE : idk lol
+# PURPOSE : computes the radial average 
 # EXPLANATION :
 # CALLING SEQUENCE :
 # INPUTS :
@@ -32,7 +32,8 @@ def compute_rings(maps, params, binwidth, superplot=0, verbose=1, noconfusion=No
 
         nbinsp = maxrad / binwidth + 1
 
-        if nbinsp > nbins:
+        if nbinsp > nbins:# PURPOSE : idk lol
+
             nbins = nbinsp
 
     #!P.MULTI = [0,1,ncols] I have absolutley no idea what this means...

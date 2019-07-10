@@ -2,7 +2,8 @@
 # NAME : subtract_cat.py
 # DATE STARTED : June 21, 2019
 # AUTHORS : Benjamin Vaughan
-# PURPOSE : idk lol
+# PURPOSE : the purpose of this script is to subtract the data from XID from
+#           the original signal
 # EXPLANATION :
 # CALLING SEQUENCE :
 # INPUTS :

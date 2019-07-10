@@ -35,7 +35,11 @@ from astropy.coordinates import SkyCoord
 from astropy.convolution import Gaussian2DKernel
 from xidplus.stan_fit import SPIRE
 from astropy.wcs import WCS as wcs
+from astropy.wcs.utils import skycoord_to_pixel
 import json
+from astropy.coordinates import SkyCoord
+from astropy import units as u
+
 
 def get_xid(maps, cats, savemap=0, simmap=0, verbose=1, confusionerrors=1):
     err = False
@@ -50,14 +54,20 @@ def get_xid(maps, cats, savemap=0, simmap=0, verbose=1, confusionerrors=1):
     catfile = config.CLUSDATA + 'placeholder' #this doesn't actually seem to do anything in the xid code,
     # but you need something for this for some reason.
 
-    #data from cat
-    inra = np.array([])
-    indec = np.array([])
-    for i in range(len(cats)):
-        cats[i]['ra'] = np.array(cats[i]['ra'])
-        cats[i]['dec'] = np.array(cats[i]['dec']) #converted to numpy array so we can concatenate
-        inra = np.concatenate((inra, cats[i]['ra']))
-        indec = np.concatenate((indec, cats[i]['dec']))
+    #this is dumb idk why I wrote this...
+    # print('Retrieving data from cats')
+    # inra = []
+    # indec = []
+    # for i in range(len(cats)):
+    #     for j in range(len(cats[i]['ra'])):
+    #         if cats[i]['ra'][j] not in inra and cats[i]['dec'][j] not in indec:
+    #             inra.append(cats[i]['ra'][j])
+    #             indec.append(cats[i]['dec'][j])
+    # print('Done retrieving data from cats')
+
+    inra = cats['ra']
+    indec = cats['dec']
+
 
     #initializing data containers.
     pinds = []
@@ -100,7 +110,7 @@ def get_xid(maps, cats, savemap=0, simmap=0, verbose=1, confusionerrors=1):
         #appending prior to priors list.
         priors.append(prior)
 
-    fit = SPIRE.all_bands(priors[0], priors[1], priors[2], iter=10) #number of iterations should be at least 100 just set lower for testing.
+    fit = SPIRE.all_bands(priors[0], priors[1], priors[2], iter=100) #number of iterations should be at least 100 just set lower for testing.
     posterior = xidplus.posterior_stan(fit,[priors[0],priors[1],priors[2]])
 
     figs, fig = xidplus.plots.plot_Bayes_pval_map(priors, posterior)
@@ -110,12 +120,9 @@ def get_xid(maps, cats, savemap=0, simmap=0, verbose=1, confusionerrors=1):
     cols = ['PSW', 'PMW', 'PLW']
     counter = 0
     for figure in figs:
-        figure.save('xid_%s.jpg' %(cols[counter]))
+        figure.save('xid_%s.png' %(cols[counter]))
         counter += 1
-    for figure in figs:
-        figure.show_colorscale()
 
-    fig.show()
     # plt.imshow(figs)
 
     spire_cat = cat.create_SPIRE_cat(posterior, priors[0], priors[1], priors[2])
@@ -123,7 +130,6 @@ def get_xid(maps, cats, savemap=0, simmap=0, verbose=1, confusionerrors=1):
     xid_data = spire_cat[1].data
     xid = []
 
-    #I think this is wrong.
     #in units of mJy for fluxes and degrees for RA/DEC
     xid1 = {#'sid' : priors[0].ID,
             'band' : 'PSW',
@@ -170,48 +176,7 @@ def get_xid(maps, cats, savemap=0, simmap=0, verbose=1, confusionerrors=1):
     xid.append(xid2)
     xid.append(xid3)
 
-    w = wcs(spire_cat[1].header)
-
-    #I hope this is correct...
-
-
-                #
-                # 'band' : 'PMW',
-                # 'sra' : xid_data.field('RA'),
-                # 'sdec' : xid_data.field('DEC'),
-                # 'sflux' : xid_data.field('F_SPIRE_350'),
-                # 'serr' : xid_data.field('FErr_SPIRE_350_u'),
-                # 'pflux' : xid_data.field('F_SPIRE_350'),
-                # 'perr' : xid_data.field('FErr_SPIRE_350_u'),
-                # 'x' : None,
-                # 'y' : None,
-                # 'model' : None,
-                # 'mf' : mf}
-    # for i in range(len(xid)):
-    #     wx = xid[i]['sra']
-    #     wy = xid[i]['sdec']
-    #     px, py = w.wcs_world2pix(wx, wy, 1)
-    #     xid[i]['x'] = px
-    #     xid[i]['y'] = py
-    #     xid[i]['sra'] = xid[i]['sra'].tolist()
-    #     xid[i]['sdec'] = xid[i]['sdec'].tolist()
-    #     xid[i]['sflux'] = xid[i]['sflux'].tolist()
-    #     xid[i]['serr'] = xid[i]['serr'].tolist()
-    #     xid[i]['pflux'] = xid[i]['pflux'].tolist()
-    #     xid[i]['perr'] = xid[i]['perr'].tolist()
-    #     xid[i]['x'] = xid[i]['x'].tolist()
-    #     xid[i]['y'] = xid[i]['y'].tolist()
-    #     with open('xid_%s.json' %(xid[i]['band']), 'w') as f: #code for saving output to a file.
-    #         json.dump(xid[i], f)
-
-    #model = image_model(x,y, sflux, maps[i]['astr']['NAXIS'][0], maps[i]['astr']['NAXIS'][1],
-    #maps[i]['psf'])
-    #need to finish converting model over to python.
-
-
-
-
-
+    # only look at data with a flux lower than 0.0
     for i in range(len(xid)):
         whpl = []
         for j in range(xid[i]['pflux'].shape[0]):
@@ -224,7 +189,47 @@ def get_xid(maps, cats, savemap=0, simmap=0, verbose=1, confusionerrors=1):
         xid[i]['x'] = xid[i]['x'][whpl]
         xid[i]['y'] = xid[i]['y'][whpl]
         xid[i]['sflux'] = xid[i]['sflux'][whpl]
-        xid[i]['serr'] = xid[i]['serr']
+        xid[i]['serr'] = xid[i]['serr'][whpl]
+
+          #initializing w class.
+
+    # w = wcs(spire_cat[1].header)
+
+    #converting data to a list instead of numpy array so that we can save it in a .json file.
+    for i in range(len(xid)):
+        ra = xid[i]['sra'] * u.deg
+        dec = xid[i]['sdec'] * u.deg
+        c = SkyCoord(ra, dec)
+        #initializing w class.
+        hdul = fits.open(maps[i]['file'])
+        w = wcs(hdul[1].header)
+        #converting ra/dec to pixel coords.
+        px, py = skycoord_to_pixel(c, w)
+        xid[i]['x'] = px
+        xid[i]['y'] = py
+        xid[i]['sra'] = xid[i]['sra'].tolist()
+        xid[i]['sdec'] = xid[i]['sdec'].tolist()
+        xid[i]['sflux'] = xid[i]['sflux'].tolist()
+        xid[i]['serr'] = xid[i]['serr'].tolist()
+        xid[i]['pflux'] = xid[i]['pflux'].tolist()
+        xid[i]['perr'] = xid[i]['perr'].tolist()
+        xid[i]['x'] = xid[i]['x'].tolist()
+        xid[i]['y'] = xid[i]['y'].tolist()
+
+        #saving to json file for further analysis.
+        with open('xid_%s.json' %(xid[i]['band']), 'w') as f: #code for saving output to a file.
+            json.dump(xid[i], f)
+
+    #model = image_model(x,y, sflux, maps[i]['astr']['NAXIS'][0], maps[i]['astr']['NAXIS'][1],
+    #maps[i]['psf'])
+    #need to finish converting model over to python.
+
+
+
+
+
+
+
 
 
 

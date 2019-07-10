@@ -20,7 +20,6 @@ import sys
 sys.path.append('/home/vaughan/XID_plus/')
 from xidplus import moc_routines
 import xidplus
->>>>>>> fa2efb6f586982c0fc6c5c48b1a76a38866fbd7c
 from scipy.io import readsav
 sys.path.append('/home/vaughan/rsz/source_handling')
 from get_data import *
@@ -126,14 +125,16 @@ def xid_test(maps):
         #get_pointing_matrix(bkg=True) if bkg = True bkg is fitted to all pixels, else only fitted where prior souces contribute.
         #priors[i].upper_lim_map() #updates the flux upper limit to abs(bkg) + 2*sigma_bkg + max(D) where max(D) is the maximum value of pixels the source contributes to.
 
-    fit = SPIRE.all_bands(priors[0], priors[1], priors[2], iter=100)
+    fit = SPIRE.all_bands(priors[0], priors[1], priors[2], iter=10)
     posterior = xidplus.posterior_stan(fit,[priors[0],priors[1],priors[2]])
 
     spire_cat = cat.create_SPIRE_cat(posterior, priors[0], priors[1], priors[2])
     print(fit)
     print(spire_cat.info())
 
-    # w = wcs('test1.fits')
+
+
+    w = wcs(spire_cat[0].header)
 
     # for key in spire_cat[1].header.keys():
     #     print(key)
@@ -141,40 +142,60 @@ def xid_test(maps):
     dec = spire_cat[1].data.field('DEC')
 
     x, y = w.all_pix2world(ra, dec, 1.0)
+
+    ra, dec = w.all_world2pix(x, y, 1.0)
+
+    print('ra', ra,'dec', dec)
     print(len(inra))
     print(len(indec))
     print(len(ra))
     print(len(dec))
 
-    plt.scatter(x,y)
-    plt.show()
+    # plt.scatter(x,y)
+    # plt.show()
 
-    print(posterior.sra)
-    # plt.plot(figs)
-    # print(fit.summary('src_f')['summary'])
-    #fits the three spire bands.
-    #SPIRE.all_bands(spire1, spire2, spire3, chains, iter)
-    #spire1 - spire image 1
-    #spire2 - spire image 2
-    #spire3 - spire image 3
-    #chains - the number of chains
-    #iter - # the number of i    hdul = fits.open('/data/mercado/SPIRE/hermes_clusters/a0370_PLW_fr_1.fits')
-    # print(hdul.info())
-    # print(fit)
-    # print(fit.summary())
-    pixels = fit.data['Row_psw'] #the pixel contributing to the source number, I don't get how this is related to the actual pixel number.
-    sources = fit.data['Col_plw'] #what source number we are on
-    val = fit.data['Val_plw']
-
-    # for i in range(len(sources)):
-    #     indexes = np.where(sources == i)
-    #     star_pixels = pixels[indexes]
+    #
+    figs, fig = xidplus.plots.plot_Bayes_pval_map(priors, posterior)
+    # # print(type(figs)) #figs is list.
+    # # print(figs) #fig is matplotlib.figure.figure object.
+    # # print(type(fig))
+    cols = ['PSW', 'PMW', 'PLW']
+    counter = 0
+    for figure in figs:
+        figure.save('xid_%s.png' %(cols[counter]))
+        counter += 1
+    # # plt.plot(figs)
+    # # print(fit.summary('src_f')['summary'])
+    # #fits the three spire bands.
+    # #SPIRE.all_bands(spire1, spire2, spire3, chains, iter)
+    # #spire1 - spire image 1
+    # #spire2 - spire image 2
+    # #spire3 - spire image 3
+    # #chains - the number of chains
+    # #iter - # the number of i    hdul = fits.open('/data/mercado/SPIRE/hermes_clusters/a0370_PLW_fr_1.fits')
+    # # print(hdul.info())
+    # # print(fit)
+    # # print(fit.summary())
+    # pixels = fit.data['Row_psw'] #the pixel contributing to the source number, I don't get how this is related to the actual pixel number.
+    # sources = fit.data['Col_plw']    #
+    # figs, fig = xidplus.plots.plot_Bayes_pval_map(priors, posterior)
+    # # print(type(figs)) #figs is list.
+    # # print(figs) #fig is matplotlib.figure.figure object.
+    # # print(type(fig))
+    # cols = ['PSW', 'PMW', 'PLW']
+    # counter = 0 #what source number we are on
+    # val = fit.data['Val_plw']
+    #
+    # # for i in range(len(sources)):
+    # #     indexes = np.where(sources == i)
+    # #     star_pixels = pixels[indexes]
     #
     #
     #
     # plt.scatter(px,py)
     # plt.show()
     #
+    return posterior, priors
 
 
 

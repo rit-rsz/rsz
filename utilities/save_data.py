@@ -2,7 +2,7 @@
 # NAME : save_data.py
 # DATE STARTED : June 24, 2019
 # AUTHORS : Benjamin Vaughan
-# PURPOSE : idk lol
+# PURPOSE : save data to a .json file
 # EXPLANATION :
 # CALLING SEQUENCE :
 # INPUTS :

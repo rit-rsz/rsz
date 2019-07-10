@@ -32,24 +32,18 @@ def add_sziso(maps,yin,tin,
     errmsg = False
 #   Now the bolocam data is in the SPIRE format
 #   we can do a loop over the map adding in the false sz signal
-    #This currently doesnt work
+    #This code currently doesnt work
+
     mapsize = len(maps)
 
     if verbose:
         print('Fetching BOLOCAM maps')
 
-#   Need to check how its calling the maps in simmaps
-
-    # This is needed until get_simmaps is fixed to out put maps[names] as a str
-    # clusname = maps[0]['name'].astype(str)
-    # print(a[0])
     data_file = str('bolocam/data/' + maps[0]['name'] + '.sav')
-    print(data_file)
     data_dict = scipy.io.readsav(CLUSDATA + data_file,python_dict = True)
-    # example of how you need to call this list
-    # data_dict.setflags(write=1)
     cluster_struct = list(data_dict.values())
-
+    # Since the bolocam data is in a slightly differnt format we need to convert it to
+    # the same format as the hermes data
     bolocam,err = clus_convert_bolocam(cluster_struct,verbose=verbose)
 
     # See how to incorporate this error message
@@ -60,7 +54,7 @@ def add_sziso(maps,yin,tin,
             # Has a go to the err handerler right here in idl
 
 #   Set this to the size of bolocam.deconvolved image
-    # naxis =
+    naxis = bolocam[0]['deconvolved_image'].size
 #   Some kind of temphead maker??? Fuction??
 #   MKHDR
     temphead = fits.header(bolocam[0]['deconvolved_image'])

@@ -25,19 +25,24 @@ from clus_dTtoDI import *
 def clus_convert_bolocam(bolocam, verbose=0):
     # Converts mK to MJy/sr
     # bolocam['deconvolved_image'].setflags(write=1)
-    print((bolocam[0]['deconvolved_image_smooth_trim_sn'])*1e-6)
+
     bolocam[0]['deconvolved_image'] = clus_dTtoDI(143,1e-6*(bolocam[0]['deconvolved_image']))
+    # bolocam[0]['deconvolved_image_noise_realizations'].setflags(write = 1)
+    print(bolocam[0]['deconvolved_image_noise_realizations'])
     bolocam[0]['deconvolved_image_smooth_trim_sn'] = \
         clus_dTtoDI(143,1e-6*bolocam[0]['deconvolved_image_smooth_trim_sn'])
 
-    bolocamsize = (bolocam[0]['deconvolved_image_noise_realizations']).size
-    for ib in range(bolocamsize-1):
-#       This made use of reform but I am not sure that it is needed in python the way that it is used
-        bolocam[0]['deconvolved_image_noise_realizations'][:,:,ib] = \
-            clus_dTtoDI(143,1e-6*bolocam[0]['deconvolved_image_noise_realizations'])
+    # This was used when the following conversion was in a for loop.
+    # Due to issues with being not writable I'm trying to skip it and modify afterwards
+    bolocamsize = bolocam[0]['deconvolved_image_noise_realizations'][0].shape
 
-        reform(a,2,3)
-        arange(1,7).reshape(2,-1)
-        a.setshape(2,3)
-    print(bolocam)
+    # for ib in range(bolocamsize[2]):
+    # This still needs to be reformed inorder to matcht the idl version. It should be
+    # a 1-D array
+    bolocam[0]['deconvolved_image_noise_realizations'] = \
+        clus_dTtoDI(143,1e-6*bolocam[0]['deconvolved_image_noise_realizations'])
+    bolocam[0]['deconvolved_image_noise_realizations'] = bolocam[0]['deconvolved_image_noise_realizations'].flatten()
+
+    print('bolocamsize = ', bolocam[0]['deconvolved_image_noise_realizations'][0])
+
     return bolocam,None

@@ -44,7 +44,6 @@ sys.path.append('reduc')
 from get_cats import *
 sys.path.append('sz')
 from add_sziso import *
-from get_cats import *
 # def catsrc(clusname,saveplots,cattype, savecat,savemap,maketf,simmap,nsim,s2n,yin,tin,verbose,success,errmsg):
 class Catsrc():
 
@@ -269,7 +268,7 @@ class Catsrc():
 
 
 if __name__ == '__main__':
-    catsrc = Catsrc('a0370', verbose=1, simmap=1, nsim = 200)
+    catsrc = Catsrc('a0370', verbose=1, simmap=2, nsim = 200)
         # SAVEPLOTS=saveplots,\
         # CATTYPE=cattype,\
         # SAVECAT=savecat,\

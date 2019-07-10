@@ -39,12 +39,11 @@ from subtract_cat import *
 from subtract_xcomps import *
 from get_data import *
 import config
-from get_xid import *
+# from get_xid import *
 sys.path.append('reduc')
 from get_cats import *
 sys.path.append('sz')
 from add_sziso import *
-from get_cats import *
 # def catsrc(clusname,saveplots,cattype, savecat,savemap,maketf,simmap,nsim,s2n,yin,tin,verbose,success,errmsg):
 class Catsrc():
 

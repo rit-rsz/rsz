@@ -30,20 +30,23 @@ class Xid_Model():
                     self.data.append(datastore)
 
     def plot_pixel_x_y(self, maps):
-        fig, axs = plt.subplots(1,3)
+        # fig, axs = plt.subplots(1,3)
         for i in range(len(self.data)):
             hdul = fits.open(maps[i]['file'])
-            print(hdul[1].header['naxis1'])
-            print(hdul[1].header['naxis2'])
             w = WCS(hdul[1].header)
             ra = np.array(self.data[i]['sra']) * u.deg
             dec = np.array(self.data[i]['sdec']) * u.deg
+            flux = np.array(self.data[i]['sflux'])
             c = SkyCoord(ra, dec)
             px, py = skycoord_to_pixel(c, w)
-            axs[i].scatter(px, py)
-            axs[i].set_title('posterior_model_%s_%s' % (maps[i]['name'], maps[i]['band']))
-        fig.savefig('xid_image_models.png')
-        plt.show()
+            plot = plt.scatter(px, py, c=flux, alpha=0.5)
+            colorbar = plt.colorbar()
+            colorbar.set_label('Flux')
+            # axs[i].scatter(px, py, c=flux, alpha=0.5)
+            # axs[i].set_title('posterior_model_%s_%s' % (maps[i]['name'], maps[i]['band']))
+            # plt.set_title('posterior_model_%s_%s' % (maps[i]['name'], maps[i]['band']))
+            plt.savefig('posterior_model_%s_%s' % (maps[i]['name'], maps[i]['band']))
+            plt.show()
         # print(self.data[1]['x'])
         # print(len(self.data[1]['x']))
 

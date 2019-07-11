@@ -54,13 +54,18 @@ def add_sziso(maps,yin,tin,
             # Has a go to the err handerler right here in idl
 
 #   Set this to the size of bolocam.deconvolved image
-    naxis = bolocam[0]['deconvolved_image'].size
-#   Some kind of temphead maker??? Fuction??
-#   MKHDR
-    temphead = fits.header(bolocam[0]['deconvolved_image'])
+    sziso = fits.PrimaryHDU(bolocam[0]['deconvolved_image'][0])
+    naxis = bolocam[0]['deconvolved_image'][0].shape
+    # print('naxis =',naxis)
+    # exit()
+#   MKHDR replacement
+    # sziso.header = bolocam[0]['deconvolved_image']
+    print(sziso.header)
 #   Need to ask what this does
     crpix = naxis[1] / 2
     crpix = naxis[2] / 2
+    print('crpix values = ', crpix1, crpix2)
+    exit()
 #   this needs to be put into a temptemphead for the bolocam stuff
 #   What is the mapts eleent thats getting used instead
 #   use astropy to append to FITS temphead, i.e. hdr.append('CRVAL1')

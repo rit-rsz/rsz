@@ -71,7 +71,7 @@ class Catsrc():
         # Inputs :
         #   -
         # Outputs :
-        #   - 
+        #   -
 
         if self.simmap > 0 and self.nsim == 0:
             if self.verbose:
@@ -270,7 +270,7 @@ class Catsrc():
 
 
 if __name__ == '__main__':
-    catsrc = Catsrc('a0370', verbose=1)
+    catsrc = Catsrc('a0370', verbose=1 , simmap = 2, nsim = 200)
         # SAVEPLOTS=saveplots,\
         # CATTYPE=cattype,\
         # SAVECAT=savecat,\

@@ -24,11 +24,8 @@ from clus_dTtoDI import *
 
 def clus_convert_bolocam(bolocam, verbose=0):
     # Converts mK to MJy/sr
-    # bolocam['deconvolved_image'].setflags(write=1)
-
     bolocam[0]['deconvolved_image'] = clus_dTtoDI(143,1e-6*(bolocam[0]['deconvolved_image']))
-    # bolocam[0]['deconvolved_image_noise_realizations'].setflags(write = 1)
-    print(bolocam[0]['deconvolved_image_noise_realizations'])
+    # print(bolocam[0]['deconvolved_image_noise_realizations'])
     bolocam[0]['deconvolved_image_smooth_trim_sn'] = \
         clus_dTtoDI(143,1e-6*bolocam[0]['deconvolved_image_smooth_trim_sn'])
 
@@ -43,6 +40,6 @@ def clus_convert_bolocam(bolocam, verbose=0):
         clus_dTtoDI(143,1e-6*bolocam[0]['deconvolved_image_noise_realizations'])
     bolocam[0]['deconvolved_image_noise_realizations'] = bolocam[0]['deconvolved_image_noise_realizations'].flatten()
 
-    print('bolocamsize = ', bolocam[0]['deconvolved_image_noise_realizations'][0])
+    # print('bolocamsize = ', bolocam[0]['deconvolved_image_noise_realizations'][0])
 
     return bolocam,None

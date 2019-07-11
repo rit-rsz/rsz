@@ -176,20 +176,20 @@ def get_xid(maps, cats, savemap=0, simmap=0, verbose=1, confusionerrors=1):
     xid.append(xid2)
     xid.append(xid3)
 
-    # only look at data with a flux lower than 0.0
-    for i in range(len(xid)):
-        whpl = []
-        for j in range(xid[i]['pflux'].shape[0]):
-            if xid[i]['pflux'][j] >= 0.0:
-                whpl.append(j)
-        whpl = np.array(whpl)
-
-        xid[i]['sra'] = xid[i]['sra'][whpl]
-        xid[i]['sdec'] = xid[i]['sdec'][whpl]
-        xid[i]['x'] = xid[i]['x'][whpl]
-        xid[i]['y'] = xid[i]['y'][whpl]
-        xid[i]['sflux'] = xid[i]['sflux'][whpl]
-        xid[i]['serr'] = xid[i]['serr'][whpl]
+    # # only look at data with a flux lower than 0.0
+    # for i in range(len(xid)):
+    #     whpl = []
+    #     for j in range(xid[i]['pflux'].shape[0]):
+    #         if xid[i]['pflux'][j] >= 0.0:
+    #             whpl.append(j)
+    #     whpl = np.array(whpl)
+    #
+    #     xid[i]['sra'] = xid[i]['sra'][whpl]
+    #     xid[i]['sdec'] = xid[i]['sdec'][whpl]
+    #     xid[i]['x'] = xid[i]['x'][whpl]
+    #     xid[i]['y'] = xid[i]['y'][whpl]
+    #     xid[i]['sflux'] = xid[i]['sflux'][whpl]
+    #     xid[i]['serr'] = xid[i]['serr'][whpl]
 
           #initializing w class.
 

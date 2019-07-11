@@ -209,6 +209,10 @@ def make_plw_src_cat(clusname, resolution, nsim, simmap=0, s2n=3, verbose=1, sav
     # peak: the peak, sky-subtracted, pixel value of the object.
     # flux: the object flux calculated as the peak density in the convolved image divided by the detection threshold. This derivation matches that of DAOFIND if sky is 0.0.
     #so is the flux output the same as fPLW or is it the same as fPLW / sigf, i don't know.
+    '''
+    unclear if the output of starfinder is also fPLW/sigf , best guess is we need to do
+    stdev on flux and divide by output of new starfinder
+    '''
     whpl = np.where(fluxes <= s2n)
     count = len(whpl)
     a = a[whpl]
@@ -237,7 +241,7 @@ def make_plw_src_cat(clusname, resolution, nsim, simmap=0, s2n=3, verbose=1, sav
         file.close()
     cat = {'ra': a,
            'dec' : d,
-           # 'flux' : fPLW,
+           'flux' : fluxes,
            # 'err' : sigf,
            'cluster' : clusname,
            'instrument': 'SPIRE PLW',

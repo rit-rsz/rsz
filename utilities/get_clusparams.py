@@ -35,7 +35,7 @@ def get_clus_params(clusname_in,
                    'z: redshift of source',\
                    'nomrah: nominal RA in hh:mm:ss',\
                    'nomrad: nominal RA in deg',\
-                   'fidrah: fiducial SZ RA in hh:mm:ss',\ # the actual measured position of the SZ effect
+                   'fidrah: fiducial SZ RA in hh:mm:ss', # the actual measured position of the SZ effect
                    'fidrad: fiducial SZ RA in deg',\
                    'nomdeh: nominal Dec in dd:am,as',\
                    'nomded: nominal Dec in deg',\

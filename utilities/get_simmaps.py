@@ -31,7 +31,7 @@ def get_simmaps(clusname, nsim, simflag=1, sb=0, xc=0, verbose=0, maps = None):
     bigpix = [6.0,8.3,12.0] #arcsec/pixel for each of the bands.
     nbands = len(band)
 
-    if simflag = 0 :
+    if simflag == 0 :
         return maps
 
     elif simflag == 1: #if we want to get simulated data.
@@ -69,8 +69,9 @@ def get_simmaps(clusname, nsim, simflag=1, sb=0, xc=0, verbose=0, maps = None):
     else:
         maps = [] #initializing maps.
         for i in range(nbands):
-            thissim = lead_zero(nsim)
-            mapfilename = config.CLUSDATA + 'bethermin_sims/' + clusname +'/' + clusname + '_' + band[i] + '_sim' + thissim + '.sav'
+            # thissim = lead_zero(nsim)
+            thissim = str(nsim)
+            mapfilename = config.CLUSDATA + 'bethermin_sims/' + clusname +'/' + clusname + '_' + band[i] + '_sim0' + thissim + '.sav'
             thismap = sp.readsav(mapfilename,python_dict = True) #get data from a .sav file.
 
             #creating noise maps and signal maps.
@@ -102,15 +103,16 @@ def get_simmaps(clusname, nsim, simflag=1, sb=0, xc=0, verbose=0, maps = None):
         new_maps.append(new_map)
     return new_maps ,None
 
-def lead_zero(nsim):
-    nsim = str(nsim)
-    if len(nsim) == 3 :
-        out = f"{1:01d}"
-    elif len(nsim) == 2 :
-        out = f"{1:02d}"
-    elif len(nsim) == 1 :
-        out = f"{1:03d}"
-    return out
+# def lead_zero(nsim):
+#     nsim = str(nsim)
+#     if len(nsim) == 3 :
+#         out = "%01d" %int(nsim)
+#     elif len(nsim) == 2 :
+#         out = "%02d" %int(nsim)
+#     elif len(nsim) == 1 :
+#         # out = f"{1:03d}"
+#         out = "%03d" %int(nsim)
+#     return out
 
 if __name__ == "__main__":
     maps = get_simmaps('a0370', nsim=200, simflag=2)

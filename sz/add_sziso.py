@@ -54,49 +54,53 @@ def add_sziso(maps,yin,tin,
             # Has a go to the err handerler right here in idl
 
 #   Set this to the size of bolocam.deconvolved image
-    sziso = fits.PrimaryHDU(bolocam[0]['deconvolved_image'][0])
+    sziso = fits.PrimaryHDU()
     naxis = bolocam[0]['deconvolved_image'][0].shape
     # print('naxis =',naxis)
     # exit()
 #   MKHDR replacement
     # sziso.header = bolocam[0]['deconvolved_image']
-    print(sziso.header)
+    temphead = sziso.header
 #   Need to ask what this does
+    crpix = naxis[0] / 2
     crpix = naxis[1] / 2
-    crpix = naxis[2] / 2
     print('crpix values = ', crpix1, crpix2)
     exit()
 #   this needs to be put into a temptemphead for the bolocam stuff
 #   What is the mapts eleent thats getting used instead
 #   use astropy to append to FITS temphead, i.e. hdr.append('CRVAL1')
-    temphead.append('CRVAl1', 'CRVAL2', 'CRPIX1', 'CRPIX2', 'CD1_1', 'CD1_2', 'CD2_1', 'CD2_2',
-                    'EPOCH', 'EQUINOX', 'CTYPE1', 'CTYPE2')
-    temphead['CRVAL1'] = [bolocam[0]['deconvolved_image_ra_j2000_deg']['crpix1'],bolocam[0]['deconvolved_image_ra_j2000_deg']['crpix2']]
-    temphead['CRVAL2'] = [bolocam[0]['deconvolved_image_dec_j2000_deg']['crpix1'],bolocam[0]['deconvolved_image_dec_j2000_deg']['crpix2']]
-    temphead['CRPIX1'] = crpix1
-    temphead['CRPIX2'] = crpix2
+    # temphead.append('CRVAl1', 'CRVAL2', 'CRPIX1', 'CRPIX2', 'CD1_1', 'CD1_2', 'CD2_1', 'CD2_2',
+    #                 'EPOCH', 'EQUINOX', 'CTYPE1', 'CTYPE2')
+    temphead.set('CRVAL1' , [bolocam[0]['deconvolved_image_ra_j2000_deg']['crpix1'],bolocam[0]['deconvolved_image_ra_j2000_deg']['crpix2']])
+    temphead.set('CRVAL2' , [bolocam[0]['deconvolved_image_dec_j2000_deg']['crpix1'],bolocam[0]['deconvolved_image_dec_j2000_deg']['crpix2']])
+    temphead.set('CRPIX1' , crpix1)
+    temphead.set('CRPIX2' , crpix2)
     # Why is this one negative???
-    temphead['CD1_1'] = -1 * bolocam['deconvolved_image_resolution_arcmin'] / 60.0
-    temphead['CD1_2'] = 0
-    temphead['CD2_1'] = 0
-    temphead['CD2_2'] = bolocam['deconvolved_image_resolution_arcmin'] / 60.0
-    temphead['EPOCH'] = 2000.00
-    temphead['EQUINOX'] = 2000.00
-    temphead['CTYPE1'] = 'RA---TAN'
-    temphead['CTYPE2'] = 'DEC---TAN'
+    temphead.set('CD1_1' , -1 * bolocam['deconvolved_image_resolution_arcmin'] / 60.0)
+    temphead.set('CD1_2' , 0)
+    temphead.set('CD2_1' ,  0)
+    temphead.set('CD2_2' , bolocam['deconvolved_image_resolution_arcmin'] / 60.0)
+    temphead.set('EPOCH' , 2000.00)
+    temphead.set('EQUINOX' , 2000.00)
+    temphead.set('CTYPE1' , 'RA---TAN')
+    temphead.set('CTYPE2' , 'DEC---TAN')
 
 #   This was findgen in idl. I may have to chage this to np.zeros I need to test the output in idl to confirm
-    x = np.arange(naxis[1]) - 14.5
-    y = np.arange(naxis[2]) - 14.5
+    x = np.arange(naxis[0]) - 14.5
+    y = np.arange(naxis[1]) - 14.5
 
-    rad = np.empty(naxis[1],naxis[2])
+    rad = np.empty(naxis[0],naxis[1])
 
 
 #   Need to figure out how to use replicate in a fashion for python
-    for ix in range(naxis[2]):
-        rad[:,ix] = sqrt(replicate())
+    for ix in range(naxis[1]):
+        rad[:,ix] = sqrt(replicate()) #np.tile
 
-    circ = where(rad < 10)
+    '''
+    Add in section to find all values in rad that are greater than 10
+    Loop through nested for loops because rad is multi dimensional
+    Called "outer" , use in szmap
+    '''
 
 #   right syntax???
     szmap = -1 * bolocam.deconvolved_image

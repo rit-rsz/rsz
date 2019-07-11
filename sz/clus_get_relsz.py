@@ -32,7 +32,7 @@ from astropy.io import fits
 from scipy.interpolate import interp1d
 
 
-def get_ai():
+def get_aij():
 
     aij = [[ 4.212483e-3, -4.444816e-1, 1.073238e+1, -1.096539e+2, 5.964685e+2, -1.925063e+3, 3.876921e+3, -4.927770e+3, 3.843121e+3, -1.677474e+3, 3.131417e+2],\
     [ -6.65860e-2, 3.141377e+0, -5.060928e+1, 2.931651e+2, -4.799553e+2, -1.656944e+3, 9.022748e+3, -1.777832e+4, 1.807900e+4, -9.401495e+3, 1.968976e+3],\
@@ -87,7 +87,7 @@ def get_Y(x):
     (19778/105) * xp**3) + sp**8*((-682/7) + (7601/210) * xp)
 
     # This should be a dictionary
-    bigY = {y0:y0,y1:y1,y2:y2,y3:y3,y4:y4}
+    bigY = {'y0':y0,'y1':y1,'y2':y2,'y3':y3,'y4':y4}
 
     return bigY
 
@@ -116,17 +116,12 @@ def clus_get_relsz(nu,y,T_e,\
 
     I0 = 2 * (k_B * T_0)**3 / (h * c)**2
 
-#   There is a line for a file test not sure if this is needed for python
-#  I guess this is important in that later on the file is being called as printf,1,stuff where 1 means the opened file?
-    # ft = open('lookup/clus_szdi_lookup.fits')
-
     if recomplookup:
         #this does some sxaddpar header stuff but doesnt return anythin and has a stop?
         #Currently is not written recomlookup set zero default so skipping for now
         clus_szdi_lookup()
 
-
-    if ft and lookup:
+    if lookup:
 
         deltaI = np.zeros(nu.size)
         if dIfidp = 0:

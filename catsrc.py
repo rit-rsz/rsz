@@ -15,7 +15,8 @@
 # ;;  subtracts or masks them from the map.  Finally, it takes radial averages
 # ;;  and fits for the SZ effect.
 # EXPLANATION :
-# CALLING SEQUENCE :
+# CALLING SEQUENCE : First edit the config.py script and change it to your personal
+#                    data directories. 
 # INPUTS :
 #           nsims (number of simulations/files to read in)
 #
@@ -78,7 +79,7 @@ class Catsrc():
                 print('simmap set but nsim not supplied! Aborting')
             exit()
 
-        if self.simmap == 0:
+        if self.simmap == 0: # discussion make this zero or nan ?
             self.nsim = np.nan #maybe this isn't what is being set.
 
         if self.verbose:
@@ -96,6 +97,10 @@ class Catsrc():
         #
         # ncols = 3.0
 
+        '''
+            It's not clear that we need these functions calls, could also
+            use a config file that keeps track of beam sizes ?
+        '''
         beam = [get_spire_beam_fwhm('PSW'), #arcsec
                 get_spire_beam_fwhm('PMW'),
                 get_spire_beam_fwhm('PLW')]

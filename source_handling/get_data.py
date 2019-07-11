@@ -3,7 +3,7 @@
 # NAME : get_data.py
 # DATE STARTED : June 11, 2019
 # AUTHORS : Dale Mercado & Benjamin Vaughan
-# PURPOSE : This is where the data is retevied
+# PURPOSE : This is where the data is retrieved
 # EXPLANATION :
 # CALLING SEQUENCE :
 # INPUTS :
@@ -21,7 +21,7 @@ from astropy.io import fits
 import os
 import sys
 #import pyfits
-sys.path.append('/home/vaughan/rsz/utilities')
+sys.path.append('../utilities')
 from get_spire_beam import *
 from get_spire_beam_fwhm import *
 import config
@@ -37,6 +37,7 @@ def get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
     else:
         cols = ['PSW','PMW','PLW','BOLOCAM']
         bolocam = 1
+
 
 #   If there is no manual path set
     if manpath == 0:
@@ -75,11 +76,11 @@ def get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
             files = hermfiles
             nfiles = hermcount
 
-        if hlscount == 3:
+        elif hlscount == 3:
             files = hlsfiles
             nfiles = hlscount
 
-        if snapcount == 3:
+        elif snapcount == 3:
             files = snapfiles
             nfiles = snapcount
 
@@ -102,7 +103,7 @@ def get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
 
 
     if bolocam:
-        nfiles = nfiles +1
+        nfiles = nfiles +1 # we need to grab an extra file to accomodate bolocam
 
 
 #   This is maps as the ptr array<NullPointer><NullPointer><NullPointer>
@@ -110,17 +111,15 @@ def get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
     maps = []
 
 #   Need to tweek the syntax of this for loop
-    counter = 0
     for ifile in range(nfiles):
-        count = []
         if ifile < 3:
-            if any(col in files[ifile] for col in cols):
-                counter += 1
+            if any(col in files[ifile] for col in cols): # checks if name of band is in the filename
+                continue
             else:
                 errmsg = 'Problem finding ' + cols[ifile] + ' file.'
                 if verbose:
                     print(errmsg)
-            maps.append(read_file(files[counter-1], cols[ifile], clusname, verbose=verbose))
+            maps.append(read_file(files[ifile], cols[ifile], clusname, verbose=verbose))
         else:
                 maps[ifile] = np.empty(clus_read_bolocam(clusname,verbose=verbose)) #args need to be filled in bolocam one
     return maps, errmsg
@@ -128,7 +127,7 @@ def get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
 ##################################################################################################
 ##################################################################################################
 
-def read_file(file,col,clusname,verbose=0):
+def read_file(file,band,clusname,verbose=0):
     # Should this calfac be listed as a self.calfac or not?
     calfac = (pi/180.0) * (1/3600.0)**2 * (pi / (4.0 * log(2.0))) * (1e6)
     # This will ultimatly be in the list of constants
@@ -140,7 +139,10 @@ def read_file(file,col,clusname,verbose=0):
     exp = hdul[3]
     flag = hdul[4]
 
-    if 'CDELT1' in map.header.keys():
+    '''
+    We have no idea what this section does...
+    '''
+    if 'CDELT1' in map.header.keys(): # don't know why we care about this or what it is
         pixsize = 3600 * mean([abs(map[0].header['CDELT1'],abs(map[0].header['CDELT2']))])
         map[0].header['cd_1'] = map[0].header['CDELT1']
         map[0].header['cd_2'] = 0
@@ -156,12 +158,16 @@ def read_file(file,col,clusname,verbose=0):
                   mean([abs(map.header['CD1_1']+map.header['CD2_1']), \
                         abs(map.header['CD2_1'] + map.header['CD2_2'])])
 
-    psf = get_spire_beam(pixsize=pixsize, band=col, factor=1)
+    '''
+    Needed to call get_spire_beam for STARFINDER but
+    obsolete for photutils
+    '''
+    # psf = get_spire_beam(pixsize=pixsize, band=band, factor=1)
     #psf = 4 #for xid test only...
-    widtha = get_spire_beam_fwhm(col)
-    width = (widtha / sqrt(8 * log(2)) * pixsize)
+    widtha = get_spire_beam_fwhm(band) #arcsecs (sigma of gaussian)
+    width = widtha / (sqrt(8 * log(2)) * pixsize) # width in pixels
 #   We wouldnt be able to put this one in calfac since it is determined by the source called
-    calfac = 1 / (calfac * (get_spire_beam_fwhm(col))**2)
+    calfac = 1 / (calfac * (get_spire_beam_fwhm(band))**2)
 #   This should be defined in the catsrsc file
     JY2MJy = 1e6
 

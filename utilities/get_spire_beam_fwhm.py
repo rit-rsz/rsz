@@ -3,7 +3,7 @@
 # DATE STARTED : June 18, 2019
 # AUTHORS : Benjamin Vaughan
 # PURPOSE : Fetches the full-width half-maximum for a given band.
-# EXPLANATION :
+# EXPLANATION : Units are arcseconds
 # CALLING SEQUENCE :
 # INPUTS :
 #

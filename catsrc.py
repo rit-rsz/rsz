@@ -50,7 +50,7 @@ class Catsrc():
 
     def __init__(self, clusname, saveplot=1, cattype="24um", savecat=0,
                  savemap=0, maketf=0, simmap=0, nsim=0, s2n=3, yin=0,
-                 tin=0, verbose=1):
+                 tin=0, verbose=1, resolution='nr'):
         # possibly how we would get around defining these terms, not positive
         self.verbose = verbose
         self.cattype = cattype
@@ -64,9 +64,11 @@ class Catsrc():
         self.tin = tin
         self.clusname = clusname
         self.nsim = nsim
+        self.resolution = resolution
         self.setup()
 
     def setup(self):
+<<<<<<< Updated upstream
         # Purpose :
         #   -
         # Inputs :
@@ -74,6 +76,8 @@ class Catsrc():
         # Outputs :
         #   -
 
+=======
+>>>>>>> Stashed changes
         if self.simmap > 0 and self.nsim == 0:
             if self.verbose:
                 print('simmap set but nsim not supplied! Aborting')
@@ -163,7 +167,7 @@ class Catsrc():
         '''
         cat, err = get_cats(self.clusname,self.cattype,maps,savecat=self.savecat,
                                   savemap=self.savemap, simmap=self.simmap, nsim=self.nsim, s2n=self.s2n,
-                                  verbose=self.verbose) #args need to be figured out
+                                  verbose=self.verbose, resolution=self.resolution) #args need to be figured out
         if err:
             if self.verbose:
                 print('clus_get_cats exited with error: ' + err)
@@ -294,7 +298,11 @@ class Catsrc():
 
 
 if __name__ == '__main__':
+<<<<<<< Updated upstream
     catsrc = Catsrc('a0370', verbose=1 , simmap = 0, nsim = 200, cattype = 'PSW')
+=======
+    catsrc = Catsrc('a0370', verbose=1, cattype='PSW')
+>>>>>>> Stashed changes
         # SAVEPLOTS=saveplots,\
         # CATTYPE='cattype',\
         # SAVECAT=savecat,\

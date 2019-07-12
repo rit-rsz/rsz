@@ -19,6 +19,9 @@ from astropy.wcs import WCS
 from astropy.wcs.utils import skycoord_to_pixel
 from astropy import units as u
 from astropy.coordinates import SkyCoord
+from astropy.convolution import Gaussian2DKernel, convolve
+from astropy.modeling.functional_models import Gaussian2D
+from scipy.signal import convolve2d
 
 class Xid_Model():
     def __init__(self, json_dir):
@@ -36,20 +39,69 @@ class Xid_Model():
             w = WCS(hdul[1].header)
             ra = np.array(self.data[i]['sra']) * u.deg
             dec = np.array(self.data[i]['sdec']) * u.deg
-            flux = np.array(self.data[i]['sflux'])
+            self.flux = np.array(self.data[i]['sflux'])
             c = SkyCoord(ra, dec)
             px, py = skycoord_to_pixel(c, w)
-            plot = plt.scatter(px, py, c=flux, alpha=0.5)
+            plot = plt.scatter(px, py, c=self.flux, alpha=0.5)
             colorbar = plt.colorbar()
             colorbar.set_label('Flux')
+            plt.title('XID_output_catalog_for_%s_%s' % (maps[i]['name'],maps[i]['band']))
             # axs[i].scatter(px, py, c=flux, alpha=0.5)
             # axs[i].set_title('posterior_model_%s_%s' % (maps[i]['name'], maps[i]['band']))
             # plt.set_title('posterior_model_%s_%s' % (maps[i]['name'], maps[i]['band']))
             plt.savefig('posterior_model_%s_%s' % (maps[i]['name'], maps[i]['band']))
-            plt.show()
+            # plt.show()
         # print(self.data[1]['x'])
         # print(len(self.data[1]['x']))
 
+    def plot_in_cat(self, filename, maps):
+        for i in range(len(maps)):
+            if 'PSW' in maps[i]['band']:
+                index = i
+        hdul = fits.open(maps[index]['file'])
+        w = WCS(hdul[1].header)
+        with open(filename) as json_file:
+            data = json.load(json_file)
+        ra = np.array(data['ra']) * u.deg
+        dec = np.array(data['dec']) * u.deg
+        c = SkyCoord(ra, dec)
+        px, py = skycoord_to_pixel(c, w)
+        plot = plt.scatter(px, py)
+        plt.savefig('initial_catalog_for_xid')
+        # plt.show()
+
+    def create_psfs(self):
+        self.psfs = []
+        bands = [18, 25, 36]
+        for i in range(len(self.data)):
+            self.psfs.append([])
+            for j in range(len(self.data[i]['sflux'])):
+                kern = Gaussian2DKernel(bands[i] / 2.355)
+                # psf = Gaussian2D(amplitude=self.data[i]['sflux'][j], x_stddev=bands[i])
+                self.psfs[i].append(kern)
+
+
+    def mapping_psfs(self, maps):
+        gal_clusts = []
+        for i in range(len(self.psfs)):
+            gal_clusts.append([])
+            naxis = maps[i]['astr']['NAXIS']
+            gal_clust = np.empty(naxis)
+            hdul = fits.open(maps[i]['file'])
+            w = WCS(hdul[1].header)
+            print(naxis)
+            ra = np.array(self.data[i]['sra']) * u.deg
+            dec = np.array(self.data[i]['sdec']) * u.deg
+            c = SkyCoord(ra, dec)
+            px, py = skycoord_to_pixel(c, w)
+            for j in range(len(self.psfs[i])):
+                psf_shape = np.asarray(self.psfs[i][j]).shape
+                # print(psf_shape)
+                # print(px[j]-int(psf_shape[0]/2), px[j]+int(psf_shape[0]/2), py[j]-int(psf_shape[1]/2), py[j]-int(psf_shape[1]/2))
+                gal_clust = convolve2d(gal_clust[int(px[j])-int(psf_shape[0]/2):int(px[j])+int(psf_shape[0]/2), int(py[j])-int(psf_shape[1]/2):int(py[j])-int(psf_shape[1]/2)], self.psfs[i][j])
+            gal_clusts.append(gal_clust)
+            print(gal_clust)
+            plt.show()
 
 # def create_xid_map(priors, posterior):
 #
@@ -94,4 +146,7 @@ class Xid_Model():
 if __name__ == '__main__':
     maps, err = get_data('a0370')
     model = Xid_Model('/home/vaughan/rsz/')
+    model.plot_in_cat('cat_file.json', maps)
     model.plot_pixel_x_y(maps)
+    model.create_psfs()
+    model.mapping_psfs(maps)

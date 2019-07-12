@@ -28,8 +28,11 @@ from astropy.visualization.mpl_normalize import ImageNormalize
 from photutils import CircularAperture
 from astropy.wcs.utils import pixel_to_skycoord
 import json
+import sys
+sys.path.append('../source_handling')
+from get_data import *
 
-def get_cats(clusname, cattype, maps, nsim, simmap=0, s2n=3, resoltuion='fr', verbose=1, savecat=0, savemap=0,):
+def get_cats(clusname, cattype, maps, nsim, simmap=0, s2n=3, resolution='fr', verbose=1, savecat=0, savemap=0,):
     '''
     Purpose : to collect the catalogs given a specifc band
     Inputs : clusname - name of the cluster
@@ -50,6 +53,7 @@ def get_cats(clusname, cattype, maps, nsim, simmap=0, s2n=3, resoltuion='fr', ve
             instrumentm and s2n.
     '''
     err = False
+    print('THE NSIM', nsim)
     beamfwhm = [18,25,36] #arcsec
         # 'PSW' : pixsize = 6
         # 'PMW' : pixsize = 8 + 1.0/3.0
@@ -61,7 +65,7 @@ def get_cats(clusname, cattype, maps, nsim, simmap=0, s2n=3, resoltuion='fr', ve
     if cattype == 'PSW':
         if verbose:
             print('Requested %s catalog generation creating catalog' % (cattype))
-        catalog, err = make_psw_src_cat(clusname, nsim, s2n=s2n,resolution=resolution, savecat=savecat, savemap=savemap, simmap=simmap, verbose=verbose) # this function needs to be written :)
+        catalog, err = make_psw_src_cat(clusname,resolution, nsim, s2n=s2n, savecat=savecat, savemap=savemap, simmap=simmap, verbose=verbose) # this function needs to be written :)
         if err:
             if verbose:
                 print(err)
@@ -423,7 +427,7 @@ def make_psw_src_cat(clusname, resolution, nsim, s2n=3, savecat=0, savemap=0, si
         if 'PSW' in maps[i]['band']:
             index = i
 
-    dataPSW = maps[index]['signal']
+    dataPSW = maps[index]['signal'].data
     errPSW = maps[index]['error']
     headPSW = maps[index]['shead']
     psfPSW = maps[index]['psf']
@@ -440,7 +444,7 @@ def make_psw_src_cat(clusname, resolution, nsim, s2n=3, savecat=0, savemap=0, si
     if verbose:
         print('constructing PSW catalog')
 
-    positions = starfinder(dataPSW, fwhm)
+    positions, fluxes = starfinder(dataPSW, fwhm)
     x = positions[0]
     y = positions[1]
 
@@ -454,20 +458,19 @@ def make_psw_src_cat(clusname, resolution, nsim, s2n=3, savecat=0, savemap=0, si
                 data[i,j] = dataPSW[i,j] - modelPSW[i,j]
         writefits(config.CLUSSBOX + 'make_PSW_src_cat_mdiff.fits', data=data, header_dict=headPSW)
 
-    astr = extast(headPSW)
-
     # ra_dec = wcs.wcs_pix2world(x, y, 1, ra_dec_order=True)
     c = pixel_to_skycoord(x, y, wcs, 1)
     a = []
     d = []
-    coordinates = np.array(c.to_string('decimal'))
+    coordinates = c.to_string('decimal')
     for i in range(len(coordinates)):
         split_coords = coordinates[i].split(' ')
         a.append(float(split_coords[0]))
         d.append(float(split_coords[1]))
 
-    a = np.array(a)
-    d = np.array(d)
+    # fluxes = np.array(fluxes)
+    # a = np.array(a)
+    # d = np.array(d)
     count = len(a)
     #originally it was fPLW / sigF which were two outputs from starfinder.
     #however, these are the outputs from our version of STARFINDER
@@ -481,11 +484,11 @@ def make_psw_src_cat(clusname, resolution, nsim, s2n=3, savecat=0, savemap=0, si
     # peak: the peak, sky-subtracted, pixel value of the object.
     # flux: the object flux calculated as the peak density in the convolved image divided by the detection threshold. This derivation matches that of DAOFIND if sky is 0.0.
     #so is the flux output the same as fPLW or is it the same as fPLW / sigf, i don't know.
-    whpl = np.where(fluxes <= s2n)
-    count = len(whpl)
-    a = a[whpl]
-    d = d[whpl]
-    fluxes = fluxes[whpl]
+    # whpl = np.where(fluxes <= s2n)
+    # count = len(whpl)
+    # a = a[whpl]
+    # d = d[whpl]
+    # fluxes = fluxes[whpl]
 
     if verbose:
         print('Cut S/N >= %s sources, kept %s stars' % (s2n, count))
@@ -510,11 +513,15 @@ def make_psw_src_cat(clusname, resolution, nsim, s2n=3, savecat=0, savemap=0, si
 
     cat = {'ra': a,
            'dec' : d,
-           # 'flux' : fPLW,
+           'flux' : fluxes.tolist(),
            # 'err' : sigf,
            'cluster' : clusname,
            'instrument': 'SPIRE PLW',
            's2n' : s2n}
+
+    with open('cat_file.json', 'w') as f:
+        json.dump(cat, f)
+    print('creating catalog')
     return cat, err
 
 def make_mips_src_cat(clusname, maps, s2n=3, savecat=0, savemap=0, verbose=1):

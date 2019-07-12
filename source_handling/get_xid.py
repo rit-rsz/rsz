@@ -61,10 +61,10 @@ def get_xid(maps, cats, savemap=0, simmap=0, verbose=1, confusionerrors=1):
     #             indec.append(cats[i]['dec'][j])
     # print('Done retrieving data from cats')
 
-    inra = cats['ra']
-    indec = cats['dec']
+    inra = np.array(cats['ra'])
+    indec = np.array(cats['dec'])
 
-
+    print(inra)
     #initializing data containers.
     pinds = []
     files = []
@@ -106,22 +106,24 @@ def get_xid(maps, cats, savemap=0, simmap=0, verbose=1, confusionerrors=1):
         #appending prior to priors list.
         priors.append(prior)
 
-    fit = SPIRE.all_bands(priors[0], priors[1], priors[2], iter=100) #number of iterations should be at least 100 just set lower for testing.
+    fit = SPIRE.all_bands(priors[0], priors[1], priors[2], iter=1000) #number of iterations should be at least 100 just set lower for testing.
     posterior = xidplus.posterior_stan(fit,[priors[0],priors[1],priors[2]])
 
-    figs, fig = xidplus.plots.plot_Bayes_pval_map(priors, posterior)
+    # figs, fig = xidplus.plots.plot_Bayes_pval_map(priors, posterior)
     # print(type(figs)) #figs is list.
     # print(figs) #fig is matplotlib.figure.figure object.
     # print(type(fig))
-    cols = ['PSW', 'PMW', 'PLW']
-    counter = 0
-    for figure in figs:
-        figure.save('xid_%s.png' %(cols[counter]))
-        counter += 1
+    # cols = ['PSW', 'PMW', 'PLW']
+    # counter = 0
+    # for figure in figs:
+    #     figure.save('xid_%s.png' %(cols[counter]))
+    #     counter += 1
 
     # plt.imshow(figs)
 
     spire_cat = cat.create_SPIRE_cat(posterior, priors[0], priors[1], priors[2])
+
+    spire_cat.writeto('xid_model.fits')
 
     xid_data = spire_cat[1].data
     xid = []

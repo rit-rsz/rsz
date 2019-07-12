@@ -2,7 +2,7 @@
 # NAME : get_clusparams.py
 # DATE STARTED : June 11, 2019
 # AUTHORS : Dale Mercado
-# PURPOSE : Fetches the cluster lookup param_datale
+# PURPOSE : Fetches the cluster lookup param_data
 #           This should just be some of the header material
 # EXPLANATION :
 # CALLING SEQUENCE :
@@ -35,7 +35,7 @@ def get_clus_params(clusname_in,
                    'z: redshift of source',\
                    'nomrah: nominal RA in hh:mm:ss',\
                    'nomrad: nominal RA in deg',\
-                   'fidrah: fiducial SZ RA in hh:mm:ss',\
+                   'fidrah: fiducial SZ RA in hh:mm:ss', # the actual measured position of the SZ effect
                    'fidrad: fiducial SZ RA in deg',\
                    'nomdeh: nominal Dec in dd:am,as',\
                    'nomded: nominal Dec in deg',\
@@ -49,7 +49,7 @@ def get_clus_params(clusname_in,
                    'ydn: lower uncertainty on yzero',\
                    'cirrus: 1 = cirrus contamination present']
 
-#   This is the best python equivalent that I could conseve to counter idl's where fucntion
+#   This is the best python equivalent that I could conseve to counter idl's where function
     param_len = len(param_data)
     count = 0
     for i in range(param_len):
@@ -59,16 +59,12 @@ def get_clus_params(clusname_in,
             whpl = i
             count += 1
 #           Where place, This will indicate the position of the cluster in the sav file,
-#           this then gets past onto the clusparams dictionary for further use
+#           this then gets passed onto the clusparams dictionary for further use
 
 
     if count !=1:
         errmsg = 'Number of cluster name matches is not 1'
-        if verbose:
-            print(errmsg)
-#           This print statement should get passed to the main file and print the error there to make sure
-#           That the program actually stops. Thats the point of this 0 flag in the next line
-            return(0)
+        return None, errmsg
 
 #   Creates a dictionary for the selected galaxy and returns it back to catsource
     clusparams = {'fielddesc':fielddesc,\
@@ -96,7 +92,6 @@ def get_clus_params(clusname_in,
 #   print(clusparams['clusname'])
 
 #   Hand off clusparams back to catsrc
-    success = '1b'
     return clusparams, errmsg
 
 #For debugging, used to call this file directly

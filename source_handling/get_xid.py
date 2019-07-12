@@ -22,11 +22,11 @@ from xidplus import moc_routines
 import xidplus
 import xidplus.catalogue as cat
 import sys
-sys.path.append('/home/vaughan/XID_plus/')
+sys.path.append('../XID_plus/')
 from xidplus import moc_routines
 import xidplus
 from scipy.io import readsav
-sys.path.append('/home/vaughan/rsz/source_handling')
+sys.path.append('../source_handling')
 from get_data import *
 import numpy as np
 import pymoc
@@ -43,14 +43,10 @@ from astropy import units as u
 
 def get_xid(maps, cats, savemap=0, simmap=0, verbose=1, confusionerrors=1):
     err = False
-    if simmap > 0:
-        thresh = 3.0
-        mf = 1.0
-    else:
-        thresh = 3.0
-        mf = 1.0 #don't really know what the point of this if else was but ok.
+    thresh = 3.0
+    mf = 1.0
+
     mJy2Jy = 1000.0 / mf
-    catdir = config.CLUSDATA # this is a placeholder for now...
     catfile = config.CLUSDATA + 'placeholder' #this doesn't actually seem to do anything in the xid code,
     # but you need something for this for some reason.
 

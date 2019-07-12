@@ -43,10 +43,9 @@ def clus_sz_template(maps, params, verbose = 1):
     beta = params['beta']
     norm = 1.0
 
-    for i in range(sizemap[0]): #this is the same as the idl pipeline but this seems weird to me.
-        for j in range(sizemap[1]): #same thing
-            rad = sqrt((float(i) - midmapx - dra)**2 +
-            (float(j) - midmapy - ddc)**2)
-            szmap[i][j] = norm * (1.0 + (rad / rad_c)**2)**((1.0 - 3.0 * beta) / 2.0)
+    for i in range(sizemap[0]):
+        for j in range(sizemap[1]):
+            rad = sqrt((float(i) - midmapx - dra)**2 + (float(j) - midmapy - ddc)**2)
+            szmap[i][j] = norm * (1.0 + (rad / rad_c)**2)**((1.0 - 3.0 * beta) / 2.0) # not sure how to normalize to 1 without dividings
 
     return szmap

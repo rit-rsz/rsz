@@ -201,7 +201,7 @@ class Catsrc():
                 exit()
 
         if self.verbose:
-            print('Subtracting correlated componenets')
+            print('Subtracting correlated components')
 
         subtracted_comps, err = clus_subtract_xcomps(maps, simflag=self.simmap, verbose=self.verbose)
         if err:

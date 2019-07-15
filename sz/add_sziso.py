@@ -62,24 +62,24 @@ def add_sziso(maps,yin,tin,
     # sziso.header = bolocam[0]['deconvolved_image']
     temphead = sziso.header
 #   Need to ask what this does
-    crpix = naxis[0] / 2
-    crpix = naxis[1] / 2
-    print('crpix values = ', crpix1, crpix2)
-    exit()
+    crpix1 = int(naxis[0] / 2)
+    crpix2 = int(naxis[1] / 2)
+
 #   this needs to be put into a temptemphead for the bolocam stuff
 #   What is the mapts eleent thats getting used instead
 #   use astropy to append to FITS temphead, i.e. hdr.append('CRVAL1')
     # temphead.append('CRVAl1', 'CRVAL2', 'CRPIX1', 'CRPIX2', 'CD1_1', 'CD1_2', 'CD2_1', 'CD2_2',
     #                 'EPOCH', 'EQUINOX', 'CTYPE1', 'CTYPE2')
-    temphead.set('CRVAL1' , [bolocam[0]['deconvolved_image_ra_j2000_deg']['crpix1'],bolocam[0]['deconvolved_image_ra_j2000_deg']['crpix2']])
-    temphead.set('CRVAL2' , [bolocam[0]['deconvolved_image_dec_j2000_deg']['crpix1'],bolocam[0]['deconvolved_image_dec_j2000_deg']['crpix2']])
+    print('bolo data',-bolocam[0]['deconvolved_image_resolution_arcmin'][0])
+    temphead.set('CRVAL1' , bolocam[0]['deconvolved_image_ra_j2000_deg'][0][crpix1,crpix2])
+    temphead.set('CRVAL2' , bolocam[0]['deconvolved_image_dec_j2000_deg'][0][crpix1,crpix2])
     temphead.set('CRPIX1' , crpix1)
     temphead.set('CRPIX2' , crpix2)
     # Why is this one negative???
-    temphead.set('CD1_1' , -1 * bolocam['deconvolved_image_resolution_arcmin'] / 60.0)
+    temphead.set('CD1_1' , -bolocam[0]['deconvolved_image_resolution_arcmin'][0] / 60.0)
     temphead.set('CD1_2' , 0)
     temphead.set('CD2_1' ,  0)
-    temphead.set('CD2_2' , bolocam['deconvolved_image_resolution_arcmin'] / 60.0)
+    temphead.set('CD2_2' , bolocam[0]['deconvolved_image_resolution_arcmin'][0] / 60.0)
     temphead.set('EPOCH' , 2000.00)
     temphead.set('EQUINOX' , 2000.00)
     temphead.set('CTYPE1' , 'RA---TAN')
@@ -89,8 +89,9 @@ def add_sziso(maps,yin,tin,
     x = np.arange(naxis[0]) - 14.5
     y = np.arange(naxis[1]) - 14.5
 
-    rad = np.empty(naxis[0],naxis[1])
-
+    rad = np.zeros((naxis[0],naxis[1]))
+    print('ended', rad)
+    exit()
 
 #   Need to figure out how to use replicate in a fashion for python
     for ix in range(naxis[1]):

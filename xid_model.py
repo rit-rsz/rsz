@@ -22,6 +22,8 @@ from astropy.coordinates import SkyCoord
 from astropy.convolution import Gaussian2DKernel, convolve
 from astropy.modeling.functional_models import Gaussian2D
 from scipy.signal import convolve2d
+from photutils.psf import IntegratedGaussianPRF
+
 
 class Xid_Model():
     def __init__(self, json_dir):
@@ -74,33 +76,52 @@ class Xid_Model():
         self.psfs = []
         bands = [18, 25, 36]
         for i in range(len(self.data)):
+            prf = IntegratedGaussianPRF(sigma=bands[i])
             self.psfs.append([])
             for j in range(len(self.data[i]['sflux'])):
-                kern = Gaussian2DKernel(bands[i] / 2.355)
+                kern = Gaussian2DKernel(bands[i] / 2.355, x_size=3, y_size=3)
                 # psf = Gaussian2D(amplitude=self.data[i]['sflux'][j], x_stddev=bands[i])
                 self.psfs[i].append(kern)
 
 
     def mapping_psfs(self, maps):
         gal_clusts = []
+        print('generating mask')
         for i in range(len(self.psfs)):
+            print('Starting on %s for %s elements' % (maps[i]['band'], len(self.psfs[i])))
             gal_clusts.append([])
             naxis = maps[i]['astr']['NAXIS']
-            gal_clust = np.empty(naxis)
+            gal_clust = np.zeros(naxis)
             hdul = fits.open(maps[i]['file'])
             w = WCS(hdul[1].header)
-            print(naxis)
             ra = np.array(self.data[i]['sra']) * u.deg
             dec = np.array(self.data[i]['sdec']) * u.deg
             c = SkyCoord(ra, dec)
             px, py = skycoord_to_pixel(c, w)
             for j in range(len(self.psfs[i])):
+                # print('generating mask')
                 psf_shape = np.asarray(self.psfs[i][j]).shape
-                # print(psf_shape)
-                # print(px[j]-int(psf_shape[0]/2), px[j]+int(psf_shape[0]/2), py[j]-int(psf_shape[1]/2), py[j]-int(psf_shape[1]/2))
-                gal_clust = convolve2d(gal_clust[int(px[j])-int(psf_shape[0]/2):int(px[j])+int(psf_shape[0]/2), int(py[j])-int(psf_shape[1]/2):int(py[j])-int(psf_shape[1]/2)], self.psfs[i][j])
-            gal_clusts.append(gal_clust)
+                if int(px[j])-int(psf_shape[0]/2) >= 0 and int(px[j])+int(psf_shape[0]/2)+1 <= naxis[0] and int(py[j])-int(psf_shape[1]/2) >= 0 and int(py[j])+int(psf_shape[1]/2)+1 <= naxis[1]:
+                    x1 = int(px[j])-int(psf_shape[0]/2)
+                    x2 = int(px[j])+int(psf_shape[0]/2)+1
+                    y1 = int(py[j])-int(psf_shape[1]/2)
+                    y2 = int(py[j])+int(psf_shape[1]/2)+1
+                if x1 < 0:
+                    x1 = 0
+                if x2 > naxis[0]:
+                    x2 = naxis[0]
+                if y1 < 0:
+                    y1 = 0
+                if y2 > naxis[1]:
+                    y2 = naxis[1]
+                gal_clust[x1:x2,y1:y2] = gal_clust[x1:x2,y1:y2] + self.psfs[i][j]._array
+            hdu = fits.PrimaryHDU(gal_clust)
+            hdul = fits.HDUList([hdu])
+            hdul.writeto('test_%s_%s.fits' % (maps[i]['name'], maps[i]['band']))
+                # print(j)
+            print('huh')
             print(gal_clust)
+            plt.imshow(gal_clust)
             plt.show()
 
 # def create_xid_map(priors, posterior):
@@ -146,7 +167,7 @@ class Xid_Model():
 if __name__ == '__main__':
     maps, err = get_data('a0370')
     model = Xid_Model('/home/vaughan/rsz/')
-    model.plot_in_cat('cat_file.json', maps)
-    model.plot_pixel_x_y(maps)
+    # model.plot_in_cat('cat_file.json', maps)
+    # model.plot_pixel_x_y(maps)
     model.create_psfs()
     model.mapping_psfs(maps)

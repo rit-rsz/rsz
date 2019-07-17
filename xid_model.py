@@ -33,10 +33,10 @@ from photutils import DAOStarFinder
 np.set_printoptions(threshold=sys.maxsize)
 
 class Xid_Model():
-    def __init__(self, json_dir):
+    def __init__(self, json_dir, clusname):
         self.data = []
         for file in os.listdir(json_dir):
-            if file.startswith('xid') and file.endswith('.json'):
+            if file.startswith('xid') and file.endswith('.json') and clusname in file:
                 with open(file) as json_file:
                     datastore = json.load(json_file)
                     self.data.append(datastore)
@@ -114,28 +114,46 @@ class Xid_Model():
         self.psfs = []
         bands = [18, 25, 36]
         pixsize = [6, 25/3, 12]
+        self.fluxes = []
         for i in range(len(self.data)):
         # for i in range(1):
             sigma = bands[i] / (sqrt(8 * log(2)))
             self.psfs.append([])
             fluxes = self.data[i]['sflux']
+            self.fluxes.append(fluxes)
+            hdul = fits.open(maps[i]['file'])
+            w = WCS(hdul[1].header)
+            ra = np.array(self.data[i]['sra']) * u.deg
+            dec = np.array(self.data[i]['sdec']) * u.deg
+            c = SkyCoord(ra, dec)
+            px, py = skycoord_to_pixel(c, w, 1)
             x_gen = round(bands[i] * 5 / pixsize[i])
             if x_gen % 2 != 1:
                 x_gen +=1
             x_gen = int(ceil(x_gen))
             y_gen = x_gen
+            y_size = hdul[1].data.shape[0]
+            x_size = hdul[1].data.shape[1]
+            px = px
+            py = py
             if x_gen % 2 != 1:
                 print('WARNING: npixx not odd, so PSF will not be centered')
             if y_gen % 2 != 1:
                 print('WARNING: npixy not odd, so psf will not be centered')
             for j in range(len(self.data[i]['sflux'])):
             # for j in range(1):
-                kern = Gaussian2DKernel(sigma, x_size=x_gen*7, y_size=y_gen*7)
+                # kern = Gaussian2DKernel(sigma, x_size=x_gen*7, y_size=y_gen*7, x_mean=px[j], y_mean=py[j])
+                # kern = Gaussian2D(1, px, py, sigma, sigma)
+                # kern = make_gaussian(sigma, x_gen, px[j], py[])
+                # kern = np.asarray(kern)
+                kern = makeGaussian(x_size=x_size, y_size=y_size, fwhm =bands[i]/ pixsize[i], center=(px[j],py[j]))
                 kern = np.asarray(kern)
                 kern = kern / kern.max()
-                kern = rebin(kern, (x_gen,y_gen))
+                # plt.imshow(kern)
+                # plt.show()
+                # kern = rebin(kern, (x_gen,y_gen))
                 # print(fluxes[j])
-                coefficient = fluxes[j] # / 194.225890228
+                coefficient = fluxes[j] / (sqrt(pi) * bands[i] / pixsize[i]) #pi * (bands[i]/pixsize[i])**2 / (16 * log(2))#(sqrt(2*pi) * sigma / pixsize[i])
                 fluxes = np.array(fluxes)
                 max = fluxes.max()
                 self.index = np.where(fluxes == max)
@@ -167,7 +185,7 @@ class Xid_Model():
             ra = np.array(self.data[i]['sra']) * u.deg
             dec = np.array(self.data[i]['sdec']) * u.deg
             c = SkyCoord(ra, dec)
-            px, py = skycoord_to_pixel(c, w)
+            px, py = skycoord_to_pixel(c, w, 1)
             # plt.scatter(px, py)
             # c = pixel_to_skycoord(112, 162, w)
             # plt.show()
@@ -182,26 +200,27 @@ class Xid_Model():
             for j in range(len(self.psfs[i])):
                 # print('generating mask')
                 psf_shape = np.asarray(self.psfs[i][j]).shape
-                px[j] = px[j] - 1 - 2
-                py[j] = py[j] - 1 + 8
-                if int(px[j])-int(psf_shape[0]/2) >= 0 and int(px[j])+int(psf_shape[0]/2)+1 <= naxis[0] and int(py[j])-int(psf_shape[1]/2) >= 0 and int(py[j])+int(psf_shape[1]/2)+1 <= naxis[1]:
-                    x1 = floor(px[j]) - int(psf_shape[0]/2) 
-                    x2 = floor(px[j]) + int(psf_shape[0]/2) + 1
-                    y1 = floor(py[j]) - int(psf_shape[1]/2) 
-                    y2 = floor(py[j]) + int(psf_shape[1]/2) + 1
-                if x1 < 0:
-                    x1 = 0
-                if x2 > naxis[0]:
-                    x2 = naxis[0]
-                if y1 < 0:
-                    y1 = 0
-                if y2 > naxis[1]:
-                    y2 = naxis[1]
-                gal_clust[y1:y2,x1:x2] = gal_clust[y1:y2,x1:x2] + self.psfs[i][j]
-            for j in range(gal_clust.shape[0]):
-                for k in range(gal_clust.shape[1]):
-                    if gal_clust[j,k] > .46:
-                        gal_clust[j,k] = 0
+                # px[j] = px[j] - 1
+                # py[j] = py[j] - 1
+                # if int(px[j])-int(psf_shape[0]/2) >= 0 and int(px[j])+int(psf_shape[0]/2)+1 <= naxis[0] and int(py[j])-int(psf_shape[1]/2) >= 0 and int(py[j])+int(psf_shape[1]/2)+1 <= naxis[1]:
+                #     x1 = floor(px[j]) - int(psf_shape[0]/2)
+                #     x2 = floor(px[j]) + int(psf_shape[0]/2) + 1
+                #     y1 = floor(py[j]) - int(psf_shape[1]/2)
+                #     y2 = floor(py[j]) + int(psf_shape[1]/2) + 1
+                # if x1 < 0:
+                #     x1 = 0
+                # if x2 > naxis[0]:
+                #     x2 = naxis[0]
+                # if y1 < 0:
+                #     y1 = 0
+                # if y2 > naxis[1]:
+                #     y2 = naxis[1]
+
+                gal_clust = gal_clust + self.psfs[i][j]
+            # for j in range(gal_clust.shape[0]):
+            #     for k in range(gal_clust.shape[1]):
+            #         if gal_clust[j,k] > .46:
+            #             gal_clust[j,k] = 0
             hdu = fits.PrimaryHDU(gal_clust, hdul[1].header)
             hdul = fits.HDUList([hdu])
             hdul.writeto('mask_%s_%s.fits' % (maps[i]['name'], maps[i]['band']))
@@ -285,7 +304,7 @@ class Xid_Model():
 
 
         findstars = DAOStarFinder(fwhm=fwhm, threshold=1.*std)
-        sources = findstars(data - median)
+        sources = findstars(data)
         for col in sources.colnames:
             sources[col].info.format = '%.8g'  # for consistent table output
         positions = sources['xcentroid'], sources['ycentroid']
@@ -314,6 +333,19 @@ class Xid_Model():
             colorbar.set_label('Flux')
             plt.show()
 
+    def find_normalization_factor(self, maps):
+        for i in range(len(maps)):
+            hdul = fits.open(maps[i]['file'])
+            w = WCS(hdul[1].header)
+            ra = np.array(self.data[i]['sra']) * u.deg
+            dec = np.array(self.data[i]['sdec']) * u.deg
+            c = SkyCoord(ra, dec)
+            px, py = skycoord_to_pixel(c, w, 1)
+            new_f = 0
+            for j in range(len(self.fluxes[i])):
+                new_f += self.fluxes[i][j] / hdul[1].data[int(py[j])-1, int(px[j])-1]
+            avg = new_f / len(self.fluxes[i])
+            print(avg)
 def rebin(a, new_shape):
     shape = a.shape
     M = int(shape[0])
@@ -337,6 +369,12 @@ def rubiks_cube():
     hdul = fits.HDUList([hdu])
     hdul.writeto('rubiks.fits')
 
+def numpy_where_test():
+    arr = np.array([[2,3,67,3,4],
+                    [5,6,6,3,6]])
+    index = np.where(arr == 67)
+    print(index)
+    print(index[0], index[1])
 #
 # def rotate_origin_only(xy, radians):
 #     """Only rotate a point around the origin (0, 0)."""
@@ -346,17 +384,43 @@ def rubiks_cube():
 #
 # return xx, yy
 
+def make_gaussian(sigma, size, x_mean, y_mean):
+    pass
+
+def makeGaussian(x_size, y_size, fwhm = 3, center=None):
+    """ Make a square gaussian kernel.
+
+    size is the length of a side of the square
+    fwhm is full-width-half-maximum, which
+    can be thought of as an effective radius.
+    """
+
+    x = np.arange(0, x_size, 1, float)
+    y = np.arange(0, y_size, 1, float)
+    y = y[:,np.newaxis]
+
+    if center is None:
+        x0 = y0 = size // 2
+    else:
+        x0 = center[0]
+        y0 = center[1]
+
+    return np.exp(-4*np.log(2) * ((x-x0)**2 + (y-y0)**2) / fwhm**2)
+
+
 
 
 if __name__ == '__main__':
     # rubiks_cube()
+    numpy_where_test()
     maps, err = get_data('a0370')
-    model = Xid_Model('/home/vaughan/rsz/')
+    model = Xid_Model('/home/vaughan/rsz/', 'a0370')
     # model.finding_index(maps)
     # print('starfinder map')
     # model.plot_starfinder_flux(maps)
     # model.plot_in_cat('cat_file.json', maps)
     # model.plot_pixel_x_y(maps)
     model.create_psfs(maps)
+    model.find_normalization_factor(maps)
     models = model.mapping_psfs(maps)
     model.subtract_cat(maps, models)

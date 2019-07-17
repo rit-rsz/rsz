@@ -521,8 +521,8 @@ def make_psw_src_cat(clusname, resolution, nsim, s2n=3, savecat=0, savemap=0, si
             file.write(myline)
         file.close()
 
-    cat = {'ra': list(x),
-           'dec' : list(y),
+    cat = {'ra': a,
+           'dec' : d,
            'flux' : fluxes.tolist(),
            # 'err' : sigf,
            'cluster' : clusname,

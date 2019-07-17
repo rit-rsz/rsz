@@ -215,7 +215,7 @@ def get_xid(maps, cats, savemap=0, simmap=0, verbose=1, confusionerrors=1):
         xid[i]['y'] = xid[i]['y'].tolist()
 
         #saving to json file for further analysis.
-        with open('xid_%s.json' %(xid[i]['band']), 'w') as f: #code for saving output to a file.
+        with open('testing_xid_%s.json' %(xid[i]['band']), 'w') as f: #code for saving output to a file.
             json.dump(xid[i], f)
 
     #model = image_model(x,y, sflux, maps[i]['astr']['NAXIS'][0], maps[i]['astr']['NAXIS'][1],

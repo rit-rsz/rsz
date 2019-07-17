@@ -28,6 +28,8 @@ import matplotlib.pyplot as plt
 from astropy.visualization import SqrtStretch
 from astropy.visualization.mpl_normalize import ImageNormalize
 from photutils import CircularAperture
+from astropy.wcs.utils import pixel_to_skycoord
+from astropy.wcs import WCS
 
 
 def starfindertest(clusname):
@@ -40,6 +42,7 @@ def starfindertest(clusname):
     starf = fits.open(starfinder)
     data = hdu[0].data
     datast = starf[0].data
+
     print('data = ',data)
     print('datast =', datast)
     mean, median, std = sigma_clipped_stats(data, sigma=3.0)
@@ -62,19 +65,33 @@ def starfindertest(clusname):
     print('fwhm', fwhm)
     findstars = DAOStarFinder(fwhm=fwhm[0], threshold=1.*std)
     sources = findstars(data - median)
-    for col in sources.colnames:
-        sources[col].info.format = '%.8g'  # for consistent table output
+    # for col in sources.colnames:
+    #     sources[col].info.format = '%.8g'  # for consistent table output
+
     print(sources)
 
     positions = (sources['xcentroid'], sources['ycentroid'])
+    print(positions)
     apertures = CircularAperture(positions, r=4.)
+
+    plot_positions, ax, kwargs = apertures._prepare_plot((0,0), None, None, False)\
+
+    x = plot_positions[:,0]
+    y = plot_positions[:,1]
+
+    plt.scatter(x,y)
+    plt.show()
     norm = ImageNormalize(stretch=SqrtStretch())
     # print('apertures',apertures)
-
     # np.savetxt('test.txt',data)
     plt.scatter(positions[0],positions[1])
+    plt.xlim([0, 225])
+    plt.ylim([0, 250])
+    plt.show()
     plt.imshow(data-median, cmap='Greys', origin='lower', norm=norm)
-    apertures.plot(color='blue', lw=1.5, alpha=0.5)
+    # apertures.plot(color='blue', lw=1.5, alpha=0.5)
+    plt.xlim([0, 225])
+    plt.ylim([0, 250])
     plt.show()
 
 

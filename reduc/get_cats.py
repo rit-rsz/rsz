@@ -29,6 +29,7 @@ from photutils import CircularAperture
 from astropy.wcs.utils import pixel_to_skycoord
 import json
 import sys
+import matplotlib.pyplot as plt
 sys.path.append('../source_handling')
 from get_data import *
 
@@ -445,8 +446,17 @@ def make_psw_src_cat(clusname, resolution, nsim, s2n=3, savecat=0, savemap=0, si
         print('constructing PSW catalog')
 
     positions, fluxes = starfinder(dataPSW, fwhm)
+
+    apertures = CircularAperture(positions, r=4.)
+    plt.imshow(dataPSW, origin='lower')
+    apertures.plot(color='blue', lw=1.5, alpha=0.5)
+    plt.show()
+    # plt.imshow(dataPSW)
+    # plt.show()
     x = positions[0]
     y = positions[1]
+    # plt.scatter(x, y)
+    # plt.show()
 
     if savemap:
         if verbose:
@@ -459,7 +469,7 @@ def make_psw_src_cat(clusname, resolution, nsim, s2n=3, savecat=0, savemap=0, si
         writefits(config.CLUSSBOX + 'make_PSW_src_cat_mdiff.fits', data=data, header_dict=headPSW)
 
     # ra_dec = wcs.wcs_pix2world(x, y, 1, ra_dec_order=True)
-    c = pixel_to_skycoord(x, y, wcs, 1)
+    c = pixel_to_skycoord(x, y, wcs)
     a = []
     d = []
     coordinates = c.to_string('decimal')
@@ -511,8 +521,8 @@ def make_psw_src_cat(clusname, resolution, nsim, s2n=3, savecat=0, savemap=0, si
             file.write(myline)
         file.close()
 
-    cat = {'ra': a,
-           'dec' : d,
+    cat = {'ra': list(x),
+           'dec' : list(y),
            'flux' : fluxes.tolist(),
            # 'err' : sigf,
            'cluster' : clusname,

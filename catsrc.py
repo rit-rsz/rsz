@@ -15,8 +15,7 @@
 # ;;  subtracts or masks them from the map.  Finally, it takes radial averages
 # ;;  and fits for the SZ effect.
 # EXPLANATION :
-# CALLING SEQUENCE : First edit the config.py script and change it to your personal
-#                    data directories.
+# CALLING SEQUENCE :
 # INPUTS :
 #           nsims (number of simulations/files to read in)
 #
@@ -40,7 +39,7 @@ from subtract_cat import *
 from subtract_xcomps import *
 from get_data import *
 import config
-# from get_xid import *
+from get_xid import *
 sys.path.append('reduc')
 from get_cats import *
 sys.path.append('sz')
@@ -68,22 +67,12 @@ class Catsrc():
         self.setup()
 
     def setup(self):
-<<<<<<< Updated upstream
-        # Purpose :
-        #   -
-        # Inputs :
-        #   -
-        # Outputs :
-        #   -
-
-=======
->>>>>>> Stashed changes
         if self.simmap > 0 and self.nsim == 0:
             if self.verbose:
                 print('simmap set but nsim not supplied! Aborting')
             exit()
 
-        if self.simmap == 0: # discussion make this zero or nan ?
+        if self.simmap == 0:
             self.nsim = np.nan #maybe this isn't what is being set.
 
         if self.verbose:
@@ -101,10 +90,6 @@ class Catsrc():
         #
         # ncols = 3.0
 
-        '''
-            It's not clear that we need these functions calls, could also
-            use a config file that keeps track of beam sizes ?
-        '''
         beam = [get_spire_beam_fwhm('PSW'), #arcsec
                 get_spire_beam_fwhm('PMW'),
                 get_spire_beam_fwhm('PLW')]
@@ -140,31 +125,22 @@ class Catsrc():
                 exit()
         ncols = len(maps)
         print(maps)
-
-        ############################################
         if self.verbose:
             print('Fetching transfer functions')
-        ############################################
+        # ignore for now as this is only like a 2% correction and we are way off
+        # if not self.maketf and not self.simmap:
+        #     tf_maps, err = get_tfs(self.clusname)
+        #     if err:
+        #         tf_maps, err = get_data(self.clusname)
+        #         ncols = len(tf_maps)
+        #         for i in range(ncols):
+        #             sztm = clus_sz_template(maps[i], params, verbose=self.verbose)
+        #             tf_maps[i]['xclean'] = sztm #maybe need to change this
+        #             tf_maps[i]['error'] = np.tile(1.0, tf_maps[i]['astr']['NAXIS'])
+        #             tf_maps[i]['calfac'] = 1.0 / tf_maps[i]['JY2MJy']
 
-        if not self.maketf and not self.simmap:
-            tf_maps, err = get_tfs(self.clusname)
-            if err:
-                tf_maps, err = get_data(self.clusname)
-                for i in range(len(tf_maps)):
-                    sztm = clus_sz_template(maps[i], params, verbose=self.verbose)
-                    tf_maps[i]['xclean'] = sztm #maybe need to change this
-                    tf_maps[i]['error'] = np.tile(1.0, tf_maps[i]['astr']['NAXIS'])
-                    tf_maps[i]['calfac'] = 1.0 / tf_maps[i]['JY2MJy']
-
-        ############################################
         if self.verbose:
             print('Fetching regression catalogs')
-        #############################################
-
-        '''
-        This is where the simmap option converges for the pipeline. Both the simulated and real
-        data maps (either/or , not both) get passed through the rest of the pipeline.
-        '''
         cat, err = get_cats(self.clusname,self.cattype,maps,savecat=self.savecat,
                                   savemap=self.savemap, simmap=self.simmap, nsim=self.nsim, s2n=self.s2n,
                                   verbose=self.verbose, resolution=self.resolution) #args need to be figured out
@@ -172,12 +148,9 @@ class Catsrc():
             if self.verbose:
                 print('clus_get_cats exited with error: ' + err)
             exit()
-
         if self.verbose:
             print('Band merging catalogs')
-
         xid, err = get_xid(maps, cat, savemap=self.savemap, simmap=self.simmap, verbose=self.verbose)
-
         if err:
             if self.verbose:
                 print('clus_get_xid exited with error: ' + err)
@@ -205,7 +178,7 @@ class Catsrc():
                 exit()
 
         if self.verbose:
-            print('Subtracting correlated components')
+            print('Subtracting correlated componenets')
 
         subtracted_comps, err = clus_subtract_xcomps(maps, simflag=self.simmap, verbose=self.verbose)
         if err:
@@ -213,29 +186,23 @@ class Catsrc():
                 print('clus_subtract_xcomps exited with error: ' + err)
             exit()
 
-        ################################################
         if self.verbose:
             print('Saving processed images')
-        ################################################
 
         err = clus_save_data(maps,yin=self.yin, tin=self.tin, simflag=self.simmap, verbose=self.verbose)
-        ############################################################
         if err:
             if self.verbose:
                 print('clus_save_data exited with error: ' + err)
             exit()
-        ############################################################
 
-        ##########################################################
-        if self.verbose:
-            print('Computing radial averagesnsim=200')
-        ##########################################################
-
-        radave, err = clus_compute_rings(maps,params,30.0,verbose=self.verbose)
-        if err:
+        if self.simmap == 0:
             if self.verbose:
-                print('clus_compute_rings exited with error: ' + err)
+                print('Computing radial averagesnsim=200')
 
+            radave, err = clus_compute_rings(maps,params,30.0,verbose=self.verbose)
+            if err:
+                if self.verbose:
+                    print('clus_compute_rings exited with error: ' + err)
         if self.simmap == None:  # don't see the difference between if simmap == 0 and if not simmap ??
             tfave, err = clusnames_compute_rings(tf_maps, params, 30.0, verbose=self.verbose)
             if err:
@@ -293,18 +260,14 @@ class Catsrc():
             pass
             #do something i don't know what UNPLOT does
 
-        return #idk if we need to return anything here lol.
+        return
 
 
 
 if __name__ == '__main__':
-<<<<<<< Updated upstream
-    catsrc = Catsrc('a0370', verbose=1 , simmap = 0, nsim = 200, cattype = 'PSW')
-=======
     catsrc = Catsrc('a0370', verbose=1, cattype='PSW')
->>>>>>> Stashed changes
         # SAVEPLOTS=saveplots,\
-        # CATTYPE='cattype',\
+        # CATTYPE=cattype,\
         # SAVECAT=savecat,\
         # SAVEMAP=savemap,\
         # MAKETF=maketf,\
@@ -314,5 +277,3 @@ if __name__ == '__main__':
         # YIN=yin,\
         # TIN=tin,\
 # VERBOSE=verbose,SUCCESS=success,ERRMSG=errmsg)
-  # yin = 1e-4 * [2.50,1.91,2.26,3.99,1.36,2.42,1.59,1.90,3.99]
-  # tin = [7.2,10.1,7.7,9.8,4.5,8.6,7.8,5.5,10.9]

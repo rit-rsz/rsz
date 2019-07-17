@@ -74,14 +74,17 @@ def get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
         if hermcount == 3:
             files = hermfiles
             nfiles = hermcount
+            print('hermes data')
 
         if hlscount == 3:
             files = hlsfiles
             nfiles = hlscount
+            print('hls data')
 
         if snapcount == 3:
             files = snapfiles
             nfiles = snapcount
+            print('snap data')
 
 #   Manual Path option
     else:
@@ -156,7 +159,7 @@ def read_file(file,col,clusname,verbose=0):
                   mean([abs(map.header['CD1_1']+map.header['CD2_1']), \
                         abs(map.header['CD2_1'] + map.header['CD2_2'])])
 
-    psf = get_spire_beam(pixsize=pixsize, band=col, factor=1)
+    psf = get_spire_beam(pixsize=pixsize, band=col)
     #psf = 4 #for xid test only...
     widtha = get_spire_beam_fwhm(col)
     width = (widtha / sqrt(8 * log(2)) * pixsize)

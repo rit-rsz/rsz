@@ -167,41 +167,66 @@ def get_spire_beam(band=None, pixsize=0,npixx=0, npixy=0,
         if norm:
             beamkern = beamkern / beamkern.max()
         if ioversamp > 1:
-            beamkern = rebin(beamkern,npixx,npixy)
+            beamkern = rebin(beamkern,(npixx,npixy))
     else:
         beamkernraw = Gaussian2DKernel(stdev,x_size = x_gen, y_size =  y_gen)
         beamkern = np.array(beamkernraw)
         if norm:
             beamkern = beamkern / beamkern.max()
         if ioversamp > 1:
-            beamkern = 	rebin(beamkern,npixx,npixy)
+            beamkern = 	rebin(beamkern,(npixx,npixy))
 
 
 
-
-    # Use for debugging
-    # plt.plot for 1d
-    # plt.plot(beamkern, drawstyle='steps')
-    # plt.imshow for 2d & colorbar
+    # print('RIGHT HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!', beamkern)
+    # # Use for debugging
+    # # plt.plot for 1d
+    # # plt.plot(beamkern, drawstyle='steps')
+    # # plt.imshow for 2d & colorbar
     # plt.imshow(beamkern, interpolation='none', origin='lower')
     # plt.colorbar()
     # plt.xlabel('x [pixels]')
     # plt.ylabel('y [pixels]')
     # plt.show()
-
+    beamkern = 1
 
     return beamkern
 
 
-def rebin(beamkern, *args):
-    shape = beamkern.shape
-    lenShape = len(shape)
-    factor = np.asarray(shape)/np.asarray(args)
-    evList = ['beamkern.reshape('] + \
-             ['args[%d],factor[%d],'%(i,i) for i in range(lenShape)] + \
-             [')'] + ['.mean(%d)'%(i+1) for i in range(lenShape)]
-    return ''.join(evList)
+def rebin(a, new_shape):
+    shape = a.shape
+    M = int(shape[0])
+    N = int(shape[1])
+    m, n = new_shape
+    print('M', M, 'N', N, 'm', m, 'n', n)
+    print('M/m', M/m, 'N/n', N/n)
+    if m<M:
+        return a.reshape((m,int(M/m),n,int(N/n))).mean(3).mean(1)
+    else:
+        return np.repeat(np.repeat(a, m/M, axis=0), n/N, axis=1)
 
+
+# def rebin(beamkern, *args):
+    # shape = beamkern.shape
+    # lenShape = len(shape)
+    # factor = np.asarray(shape)/np.asarray(args)
+    # evList = ['beamkern.reshape('] + \
+    #          ['args[%d],factor[%d],'%(i,i) for i in range(lenShape)] + \
+    #          [')'] + ['.mean(%d)'%(i+1) for i in range(lenShape)] + \
+    #          ['/factor[%d]'%i for i in range(lenShape)]
+    # return eval(''.join(evList))
+
+
+# def rebin2(a, *args):
+#     shape = a.shape
+#     lenShape = len(shape)
+#     factor = asarray(shape)/asarray(args)
+#     evList = ['a.reshape('] + \
+#              ['args[%d],factor[%d],'%(i,i) for i in range(lenShape)] + \
+#              [')'] + ['.sum(%d)'%(i+1) for i in range(lenShape)] + \
+#              ['/factor[%d]'%i for i in range(lenShape)]
+#     print ''.join(evList)
+#     return eval(''.join(evList)
 
 if __name__ == '__main__':
     get_spire_beam(norm=1,factor = 0)

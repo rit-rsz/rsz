@@ -10,10 +10,15 @@
 # OUTPUTS :
 # REVISION HISTORY :
 ################################################################################
-from xid_test import *
+# from xid_test import *
 import json
+import sys
 import matplotlib.pyplot as plt
 from astropy.io import fits
+sys.path.append('../source_handling')
+print(sys.path)
+import numpy as np
+import os
 from get_data import get_data
 from astropy.wcs import WCS
 from astropy.wcs.utils import skycoord_to_pixel
@@ -37,6 +42,7 @@ class Xid_Model():
         self.data = []
         for file in os.listdir(json_dir):
             if file.startswith('xid') and file.endswith('.json') and clusname in file:
+                print(file)
                 with open(file) as json_file:
                     datastore = json.load(json_file)
                     self.data.append(datastore)
@@ -59,6 +65,7 @@ class Xid_Model():
             # axs[i].set_title('posterior_model_%s_%s' % (maps[i]['name'], maps[i]['band']))
             # plt.set_title('posterior_model_%s_%s' % (maps[i]['name'], maps[i]['band']))
             plt.savefig('posterior_model_%s_%s' % (maps[i]['name'], maps[i]['band']))
+            plt.show()
             # plt.show()
         # print(self.data[1]['x'])
         # print(len(self.data[1]['x']))
@@ -73,6 +80,7 @@ class Xid_Model():
             data = json.load(json_file)
         initial_px = np.array(data['ra']) #* u.deg
         initial_py = np.array(data['dec']) #* u.deg
+        self.cat_flux = np.array(data['flux'])
         # c = SkyCoord(ra, dec)
         # px, py = skycoord_to_pixel(c, w)
         c = pixel_to_skycoord(initial_px, initial_py, w)
@@ -113,10 +121,11 @@ class Xid_Model():
     def create_psfs(self, maps):
         self.psfs = []
         bands = [18, 25, 36]
-        pixsize = [6, 25/3, 12]
+        # pixsize = [6, 25/3, 12]
         self.fluxes = []
         for i in range(len(self.data)):
         # for i in range(1):
+            print(i)
             sigma = bands[i] / (sqrt(8 * log(2)))
             self.psfs.append([])
             fluxes = self.data[i]['sflux']
@@ -127,39 +136,39 @@ class Xid_Model():
             dec = np.array(self.data[i]['sdec']) * u.deg
             c = SkyCoord(ra, dec)
             px, py = skycoord_to_pixel(c, w, 1)
-            x_gen = round(bands[i] * 5 / pixsize[i])
-            if x_gen % 2 != 1:
-                x_gen +=1
-            x_gen = int(ceil(x_gen))
-            y_gen = x_gen
+            # x_gen = round(bands[i] * 5 / pixsize[i])
+            # if x_gen % 2 != 1:
+            #     x_gen +=1
+            # x_gen = int(ceil(x_gen))
+            # y_gen = x_gen
             y_size = hdul[1].data.shape[0]
             x_size = hdul[1].data.shape[1]
-            px = px
-            py = py
-            if x_gen % 2 != 1:
-                print('WARNING: npixx not odd, so PSF will not be centered')
-            if y_gen % 2 != 1:
-                print('WARNING: npixy not odd, so psf will not be centered')
+            # if x_gen % 2 != 1:
+            #     print('WARNING: npixx not odd, so PSF will not be centered')
+            # if y_gen % 2 != 1:
+            #     print('WARNING: npixy not odd, so psf will not be centered')
             for j in range(len(self.data[i]['sflux'])):
             # for j in range(1):
                 # kern = Gaussian2DKernel(sigma, x_size=x_gen*7, y_size=y_gen*7, x_mean=px[j], y_mean=py[j])
                 # kern = Gaussian2D(1, px, py, sigma, sigma)
                 # kern = make_gaussian(sigma, x_gen, px[j], py[])
                 # kern = np.asarray(kern)
-                kern = makeGaussian(x_size=x_size, y_size=y_size, fwhm =bands[i]/ pixsize[i], center=(px[j],py[j]))
+                kern = makeGaussian(x_size=x_size, y_size=y_size, fwhm =bands[i] / maps[i]['pixsize'], center=(px[j],py[j]))
                 kern = np.asarray(kern)
-                kern = kern / kern.max()
+                # kern = kern / kern.max()
                 # plt.imshow(kern)
                 # plt.show()
                 # kern = rebin(kern, (x_gen,y_gen))
                 # print(fluxes[j])
-                coefficient = fluxes[j] / (sqrt(pi) * bands[i] / pixsize[i]) #pi * (bands[i]/pixsize[i])**2 / (16 * log(2))#(sqrt(2*pi) * sigma / pixsize[i])
-                fluxes = np.array(fluxes)
-                max = fluxes.max()
-                self.index = np.where(fluxes == max)
+                coefficient = fluxes[j]#fluxes[j] #/ (sqrt(pi) * bands[i] / pixsize[i]) #pi * (bands[i]/pixsize[i])**2 / (16 * log(2))#(sqrt(2*pi) * sigma / pixsize[i])
                 psf = kern * coefficient
-                if j == self.index[0]:
-                    print('ha')
+                new_tf = np.sum(psf)
+                A = new_tf / fluxes[j]
+                psf = psf / A
+                print('Original total flux', fluxes[j])
+                print('New total flux', np.sum(psf))
+                # if j == self.index[0]:
+                #     print('ha')
                     # plt.imshow(psf)
                     # plt.show()
                 # psf = psf / psf.max()
@@ -193,10 +202,10 @@ class Xid_Model():
             plt.imshow(maps[i]['signal'].data, origin='lower')
             apertures.plot(color='red', lw=1.5, alpha=0.5)
             plt.show()
-            print(px[self.index], py[self.index])
+            # print(px[self.index], py[self.index])
             hdu = fits.PrimaryHDU(maps[i]['signal'].data)
             hdu = fits.HDUList([hdu])
-            hdu.writeto('original_%s_%s.fits' % (maps[i]['name'], maps[i]['band']))
+            # hdu.writeto('original_%s_%s.fits' % (maps[i]['name'], maps[i]['band']))
             for j in range(len(self.psfs[i])):
                 # print('generating mask')
                 psf_shape = np.asarray(self.psfs[i][j]).shape
@@ -223,7 +232,7 @@ class Xid_Model():
             #             gal_clust[j,k] = 0
             hdu = fits.PrimaryHDU(gal_clust, hdul[1].header)
             hdul = fits.HDUList([hdu])
-            hdul.writeto('mask_%s_%s.fits' % (maps[i]['name'], maps[i]['band']))
+            hdul.writeto('xid_mask_%s_%s.fits' % (maps[i]['name'], maps[i]['band']))
             print('finished generating mask for %s' % (maps[i]['band']))
             gal_clusts.append(gal_clust)
             plt.imshow(gal_clust)
@@ -283,7 +292,7 @@ class Xid_Model():
 
             hdu = fits.PrimaryHDU(datasub)
             hdul = fits.HDUList([hdu])
-            hdul.writeto('subtracted_%s_%s.fits' % (maps[i]['name'], maps[i]['band']))
+            hdul.writeto('xid_subtracted_%s_%s.fits' % (maps[i]['name'], maps[i]['band']))
          # # CONTOUR,datafull,/NODATA,$
          #         TITLE='clus_subtract_cat: Signal map for ' + $
          #         (*maps[icol]).band
@@ -395,6 +404,7 @@ def makeGaussian(x_size, y_size, fwhm = 3, center=None):
     can be thought of as an effective radius.
     """
 
+    sigma = fwhm / 2.355
     x = np.arange(0, x_size, 1, float)
     y = np.arange(0, y_size, 1, float)
     y = y[:,np.newaxis]
@@ -405,7 +415,8 @@ def makeGaussian(x_size, y_size, fwhm = 3, center=None):
         x0 = center[0]
         y0 = center[1]
 
-    return np.exp(-4*np.log(2) * ((x-x0)**2 + (y-y0)**2) / fwhm**2)
+#
+    return np.exp(-1 * ((x-x0)**2 + (y-y0)**2) / (2*sigma**2))
 
 
 
@@ -418,8 +429,8 @@ if __name__ == '__main__':
     # model.finding_index(maps)
     # print('starfinder map')
     # model.plot_starfinder_flux(maps)
-    # model.plot_in_cat('cat_file.json', maps)
-    # model.plot_pixel_x_y(maps)
+    model.plot_in_cat('cat_file.json', maps)
+    model.plot_pixel_x_y(maps)
     model.create_psfs(maps)
     model.find_normalization_factor(maps)
     models = model.mapping_psfs(maps)

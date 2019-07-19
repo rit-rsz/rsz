@@ -447,7 +447,7 @@ def make_psw_src_cat(clusname, resolution, nsim, s2n=3, savecat=0, savemap=0, si
 
     positions, fluxes = starfinder(dataPSW, fwhm)
 
-    apertures = CircularAperture(positions, r=4.)
+    apertures = CircularAperture(positions, r=.3)
     plt.imshow(dataPSW, origin='lower')
     apertures.plot(color='blue', lw=1.5, alpha=0.5)
     plt.show()
@@ -469,7 +469,7 @@ def make_psw_src_cat(clusname, resolution, nsim, s2n=3, savecat=0, savemap=0, si
         writefits(config.CLUSSBOX + 'make_PSW_src_cat_mdiff.fits', data=data, header_dict=headPSW)
 
     # ra_dec = wcs.wcs_pix2world(x, y, 1, ra_dec_order=True)
-    c = pixel_to_skycoord(x, y, wcs)
+    c = pixel_to_skycoord(x, y, wcs, origin=1)
     a = []
     d = []
     coordinates = c.to_string('decimal')

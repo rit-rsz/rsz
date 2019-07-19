@@ -83,7 +83,7 @@ def get_xid(maps, cats, savemap=0, simmap=0, verbose=1, confusionerrors=1):
         headers.append(hdul[1].header)
         primary_hdus.append(hdul[0].header)
         data_maps.append(hdul[1].data)
-        noise_maps.append(hdul[4].data) #don't know if this is the error image or the mask image.
+        noise_maps.append(hdul[2].data) #don't know if this is the error image or the mask image.
         pixsizes.append(maps[i]['pixsize'])
         prf_sizes.append(get_spire_beam_fwhm(maps[i]['band']))
         pinds.append(np.arange(0,101,1) * 1.0 / pixsizes[i]) #maybe this value needs to change?
@@ -123,7 +123,8 @@ def get_xid(maps, cats, savemap=0, simmap=0, verbose=1, confusionerrors=1):
 
     spire_cat = cat.create_SPIRE_cat(posterior, priors[0], priors[1], priors[2])
 
-    spire_cat.writeto('xid_model_%s.fits' % (maps[0]['name']))
+
+    spire_cat.writeto('xid_model_2_%s.fits' % (maps[0]['name']))
 
     xid_data = spire_cat[1].data
     xid = []
@@ -187,7 +188,18 @@ def get_xid(maps, cats, savemap=0, simmap=0, verbose=1, confusionerrors=1):
     #     xid[i]['x'] = xid[i]['x'][whpl]
     #     xid[i]['y'] = xid[i]['y'][whpl]
     #     xid[i]['sflux'] = xid[i]['sflux'][whpl]
-    #     xid[i]['serr'] = xid[i]['serr'][whpl]
+    #     xid[i]['serr'] = xid[i]['serr'][whpl]    # models = [[],[],[]]
+    # for file in os.listdir('/home/vaughan/rsz'):
+    #     if 'xid_model' in file and '.fits' in file:
+    #         hdul = fits.open(file)
+    #         data = hdul[0].data
+    #         if 'PSW' in file:
+    #             models[0] = data
+    #         elif 'PMW' in file:
+    #             models[1] = data
+    #         elif 'PLW' in file:
+    #             models[2] = data
+    # model.subtract_cat(maps, models)
 
           #initializing w class.
 
@@ -215,7 +227,7 @@ def get_xid(maps, cats, savemap=0, simmap=0, verbose=1, confusionerrors=1):
         xid[i]['y'] = xid[i]['y'].tolist()
 
         #saving to json file for further analysis.
-        with open('xid_a0370_%s.json' %(xid[i]['band']), 'w') as f: #code for saving output to a file.
+        with open('xid_a0370_take_2_%s.json' %(xid[i]['band']), 'w') as f: #code for saving output to a file.
             json.dump(xid[i], f)
 
     #model = image_model(x,y, sflux, maps[i]['astr']['NAXIS'][0], maps[i]['astr']['NAXIS'][1],

@@ -15,6 +15,7 @@ import numpy as np
 import sys
 sys.path.append('../utilities')
 from get_spire_beam_fwhm import *
+from model import *
 import matplotlib as plt
 import config
 from astropy.io import fits
@@ -130,42 +131,33 @@ def get_xid(maps, cats, savemap=0, simmap=0, verbose=1, confusionerrors=1):
     xid = []
 
     #in units of mJy for fluxes and degrees for RA/DEC
-    xid1 = {#'sid' : priors[0].ID,
-            'band' : 'PSW',
+    xid1 = {'band' : 'PSW',
             'sra' : xid_data.field('RA'),
             'sdec' : xid_data.field('DEC'),
             'sflux' : xid_data.field('F_SPIRE_250'),
             'serr' : xid_data.field('FErr_SPIRE_250_u'), #there was also FErr_SPIRE_250_l don't know which to use.
             'pflux' : xid_data.field('F_SPIRE_250'),
             'perr' : xid_data.field('FErr_SPIRE_250_u'),
-            'x' : None,
-            'y' : None,
             'model' : None,
             'mf' : mf} #idk if perr and pflux is right there may be a conversion needed for pflux.
             #in mikes code it has pflux = output from xid / mJy2Jy.
-    xid2 = {#'sid' : priors[1].ID,
-            'band' : 'PMW',
+    xid2 = {'band' : 'PMW',
             'sra' : xid_data.field('RA'),
             'sdec' : xid_data.field('DEC'),
             'sflux' : xid_data.field('F_SPIRE_350'),
             'serr' : xid_data.field('FErr_SPIRE_350_u'),
             'pflux' : xid_data.field('F_SPIRE_350'),
             'perr' : xid_data.field('FErr_SPIRE_350_u'),
-            'x' : None,
-            'y' : None,
             'model' : None,
             'mf' : mf}
 
-    xid3 = {#'sid' : priors[2].ID,
-            'band' : 'PLW',
+    xid3 = {'band' : 'PLW',
             'sra' : xid_data.field('RA'),
             'sdec' : xid_data.field('DEC'),
             'sflux' : xid_data.field('F_SPIRE_500'),
             'serr' : xid_data.field('FErr_SPIRE_500_u'),
             'pflux' : xid_data.field('F_SPIRE_500'),
             'perr' : xid_data.field('FErr_SPIRE_500_u'),
-            'x' : None,
-            'y' : None,
             'model' : None,
             'mf' : mf}
 
@@ -175,10 +167,16 @@ def get_xid(maps, cats, savemap=0, simmap=0, verbose=1, confusionerrors=1):
     xid.append(xid2)
     xid.append(xid3)
 
+    models = create_model(maps, xid)
+
+    for i in range(len(xid)):
+        xid[i]['model'] = models[i]
+
     # # only look at data with a flux lower than 0.0
     # for i in range(len(xid)):
     #     whpl = []
-    #     for j in range(xid[i]['pflux'].shape[0]):
+    #     for j in range(xid[i]['model'].shape[0]):
+    #         for k in range(xid[i]['model'].shape[1]):
     #         if xid[i]['pflux'][j] >= 0.0:
     #             whpl.append(j)
     #     whpl = np.array(whpl)
@@ -188,47 +186,31 @@ def get_xid(maps, cats, savemap=0, simmap=0, verbose=1, confusionerrors=1):
     #     xid[i]['x'] = xid[i]['x'][whpl]
     #     xid[i]['y'] = xid[i]['y'][whpl]
     #     xid[i]['sflux'] = xid[i]['sflux'][whpl]
-    #     xid[i]['serr'] = xid[i]['serr'][whpl]    # models = [[],[],[]]
-    # for file in os.listdir('/home/vaughan/rsz'):
-    #     if 'xid_model' in file and '.fits' in file:
-    #         hdul = fits.open(file)
-    #         data = hdul[0].data
-    #         if 'PSW' in file:
-    #             models[0] = data
-    #         elif 'PMW' in file:
-    #             models[1] = data
-    #         elif 'PLW' in file:
-    #             models[2] = data
-    # model.subtract_cat(maps, models)
+    #     xid[i]['serr'] = xid[i]['serr'][whpl]
 
-          #initializing w class.
-
-    # w = wcs(spire_cat[1].header)
-
-    #converting data to a list instead of numpy array so that we can save it in a .json file.
-    for i in range(len(xid)):
-        ra = xid[i]['sra'] * u.deg
-        dec = xid[i]['sdec'] * u.deg
-        c = SkyCoord(ra, dec)
-        #initializing w class.
-        hdul = fits.open(maps[i]['file'])
-        w = wcs(hdul[1].header)
-        #converting ra/dec to pixel coords.
-        px, py = skycoord_to_pixel(c, w)
-        xid[i]['x'] = px
-        xid[i]['y'] = py
-        xid[i]['sra'] = xid[i]['sra'].tolist()
-        xid[i]['sdec'] = xid[i]['sdec'].tolist()
-        xid[i]['sflux'] = xid[i]['sflux'].tolist()
-        xid[i]['serr'] = xid[i]['serr'].tolist()
-        xid[i]['pflux'] = xid[i]['pflux'].tolist()
-        xid[i]['perr'] = xid[i]['perr'].tolist()
-        xid[i]['x'] = xid[i]['x'].tolist()
-        xid[i]['y'] = xid[i]['y'].tolist()
-
-        #saving to json file for further analysis.
-        with open('xid_a0370_take_2_%s.json' %(xid[i]['band']), 'w') as f: #code for saving output to a file.
-            json.dump(xid[i], f)
+    # for i in range(len(xid)):
+    #     ra = xid[i]['sra'] * u.deg
+    #     dec = xid[i]['sdec'] * u.deg
+    #     c = SkyCoord(ra, dec)
+    #     #initializing w class.
+    #     hdul = fits.open(maps[i]['file'])
+    #     w = wcs(hdul[1].header)
+    #     #converting ra/dec to pixel coords.
+    #     px, py = skycoord_to_pixel(c, w)
+    #     xid[i]['x'] = px
+    #     xid[i]['y'] = py
+    #     xid[i]['sra'] = xid[i]['sra'].tolist()
+    #     xid[i]['sdec'] = xid[i]['sdec'].tolist()
+    #     xid[i]['sflux'] = xid[i]['sflux'].tolist()
+    #     xid[i]['serr'] = xid[i]['serr'].tolist()
+    #     xid[i]['pflux'] = xid[i]['pflux'].tolist()
+    #     xid[i]['perr'] = xid[i]['perr'].tolist()
+    #     xid[i]['x'] = xid[i]['x'].tolist()
+    #     xid[i]['y'] = xid[i]['y'].tolist()
+    #
+    #     #saving to json file for further analysis.
+    #     with open('xid_a0370_take_2_%s.json' %(xid[i]['band']), 'w') as f: #code for saving output to a file.
+    #         json.dump(xid[i], f)
 
     #model = image_model(x,y, sflux, maps[i]['astr']['NAXIS'][0], maps[i]['astr']['NAXIS'][1],
     #maps[i]['psf'])
@@ -243,10 +225,10 @@ def get_xid(maps, cats, savemap=0, simmap=0, verbose=1, confusionerrors=1):
 
 
 
-
-        if savemap:
-            outfile = config.CLUSSBOX + 'clus_get_xid_model_' + maps[i]['band'] + '.fit'
-            writefits(outfile, data=model, header_dict=maps[i]['shead'])
+        #
+        # if savemap:
+        #     outfile = config.CLUSSBOX + 'clus_get_xid_model_' + maps[i]['band'] + '.fit'
+        #     writefits(outfile, data=model, header_dict=maps[i]['shead'])
 
 
 

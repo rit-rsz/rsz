@@ -126,7 +126,7 @@ class Xid_Model():
 
     def create_psfs(self, maps):
         self.psfs = []
-        bands = [18, 25, 36]
+        bands = [18, 36, 25]
         # pixsize = [6, 25/3, 12]
         self.fluxes = []
         for i in range(len(self.data)):
@@ -137,12 +137,16 @@ class Xid_Model():
             fluxes = self.data[i]['sflux']
             self.fluxes.append(fluxes)
             hdul = fits.open(maps[i]['file'])
-            print(hdul.info())
             w = WCS(hdul[1].header)
             ra = np.array(self.data[i]['sra']) * u.deg
             dec = np.array(self.data[i]['sdec']) * u.deg
             c = SkyCoord(ra, dec)
             px, py = skycoord_to_pixel(c, w, 1)
+            print(bands[i], maps[i]['file'])
+            fluxes = np.array(fluxes)
+            max = np.max(fluxes)
+            index = np.where(fluxes == max)
+            print(index, 'THIS IS MY INDEX')
             # x_gen = round(bands[i] * 5 / pixsize[i])
             # if x_gen % 2 != 1:
             #     x_gen +=1
@@ -170,6 +174,10 @@ class Xid_Model():
                 coefficient = fluxes[j]#fluxes[j] #/ (sqrt(pi) * bands[i] / pixsize[i]) #pi * (bands[i]/pixsize[i])**2 / (16 * log(2))#(sqrt(2*pi) * sigma / pixsize[i])
                 psf = kern * coefficient
                 # new_tf = np.sum(psf)
+                # if j == index[0]:
+                #     print(fluxes[j])
+                #     plt.imshow(psf)
+                #     plt.show()
                 # A = new_tf / fluxes[j]
                 # psf = psf / A
                 # print('Original total flux', fluxes[j])
@@ -181,6 +189,8 @@ class Xid_Model():
                 # psf = psf / psf.max()
                 # psf = rebin(psf,(15, 15))
                 # plt.imshow(psf)
+                # plt.imshow(psf)
+                # plt.show()
                 # plt.show()
                 # psf = Gaussian2D(amplitude=self.data[i]['sflux'][j], x_stddev=bands[i])
                 self.psfs[i].append(psf)
@@ -206,9 +216,9 @@ class Xid_Model():
             # c = pixel_to_skycoord(112, 162, w)
             # plt.show()
             apertures = CircularAperture((px,py), r=.4)
-            plt.imshow(maps[i]['signal'].data, origin='lower')
-            apertures.plot(color='red', lw=1.5, alpha=0.5)
-            plt.show()
+            # plt.imshow(maps[i]['signal'].data, origin='lower')
+            # apertures.plot(color='red', lw=1.5, alpha=0.5)
+            # plt.show()
             # print(px[self.index], py[self.index])
             hdu = fits.PrimaryHDU(maps[i]['signal'].data)
             hdu = fits.HDUList([hdu])
@@ -233,16 +243,20 @@ class Xid_Model():
                 #     y2 = naxis[1]
 
                 gal_clust = gal_clust + self.psfs[i][j]
+                # plt.imshow(gal_clust)
+                # plt.show()
             # for j in range(gal_clust.shape[0]):
             #     for k in range(gal_clust.shape[1]):
             #         if gal_clust[j,k] > .46:
             #             gal_clust[j,k] = 0
+            gal_clusts.append(gal_clust)
+            # plt.imshow(gal_clust)
+            # plt.show()
             hdu = fits.PrimaryHDU(gal_clust, hdul[1].header)
             hdul = fits.HDUList([hdu])
             hdul.writeto('xid_mask_%s_%s.fits' % (maps[i]['name'], maps[i]['band']))
             print('finished generating mask for %s' % (maps[i]['band']))
-            gal_clusts.append(gal_clust)
-            plt.imshow(gal_clust)
+
             # plt.show()
                 # print(j)
             # print(gal_clust)
@@ -417,13 +431,14 @@ def makeGaussian(x_size, y_size, fwhm = 3, center=None):
     y = y[:,np.newaxis]
 
     if center is None:
-        x0 = y0 = size // 2
+        x0 = x_size // 2
+        y0 = y_size // 2
     else:
         x0 = center[0]
         y0 = center[1]
 
 #
-    return np.exp(-1 * ((x-x0)**2 + (y-y0)**2) / (2*sigma**2))
+    return np.exp(-1*4*np.log(2) * ((x-x0)**2 + (y-y0)**2) / (fwhm**2))
 
 
 
@@ -431,13 +446,16 @@ def makeGaussian(x_size, y_size, fwhm = 3, center=None):
 if __name__ == '__main__':
     # rubiks_cube()
     numpy_where_test()
+    g = makeGaussian(105, 105, fwhm=18)
+    plt.imshow(g)
+    plt.show()
     maps, err = get_data('a0370')
     model = Xid_Model('/home/vaughan/rsz/', 'a0370')
     # model.finding_index(maps)
     # print('starfinder map')
     # model.plot_starfinder_flux(maps)
     # model.plot_in_cat('cat_file.json', maps)
-    model.plot_pixel_x_y(maps)
+    # model.plot_pixel_x_y(maps)
     model.create_psfs(maps)
     # model.find_normalization_factor(maps)
     models = model.mapping_psfs(maps)

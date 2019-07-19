@@ -3,7 +3,7 @@
 # NAME : get_data.py
 # DATE STARTED : June 11, 2019
 # AUTHORS : Dale Mercado & Benjamin Vaughan
-# PURPOSE : This is where the data is retevied
+# PURPOSE : This is where the map data is retrieved from various cluster catalogs
 # EXPLANATION :
 # CALLING SEQUENCE :
 # INPUTS :
@@ -115,10 +115,10 @@ def get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
 #   Need to tweek the syntax of this for loop
     counter = 0
     for ifile in range(nfiles):
-        count = []
-        if ifile < 3:
-            if any(col in files[ifile] for col in cols):
-                counter += 1
+        if ifile < 3: # I feel like this is supposed to be ifile <= 3 :
+            if any(col in files[ifile] for col in cols): # checks if name of band is in the filename
+                continue
+
             else:
                 errmsg = 'Problem finding ' + cols[ifile] + ' file.'
                 if verbose:
@@ -133,7 +133,11 @@ def get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
 
 def read_file(file,col,clusname,verbose=0):
     # Should this calfac be listed as a self.calfac or not?
-    calfac = (pi/180.0) * (1/3600.0)**2 * (pi / (4.0 * log(2.0))) * (1e6)
+    '''
+    Calfac has been added to config.py as a constant.
+    This is the first place it is created a used.
+    '''
+    # calfac = (pi/180.0) * (1/3600.0)**2 * (pi / (4.0 * log(2.0))) * (1e6)
     # This will ultimatly be in the list of constants
     # The rest of the scrpit involves idl_libs stuff that
     # will get grabbed from astropy
@@ -161,12 +165,14 @@ def read_file(file,col,clusname,verbose=0):
 
     psf = get_spire_beam(pixsize=pixsize, band=col)
     #psf = 4 #for xid test only...
-    widtha = get_spire_beam_fwhm(col)
-    width = (widtha / sqrt(8 * log(2)) * pixsize)
-#   We wouldnt be able to put this one in calfac since it is determined by the source called
-    calfac = 1 / (calfac * (get_spire_beam_fwhm(col))**2)
+    widtha = get_spire_beam_fwhm(band) #arcsecs (sigma of gaussian)
+    width = widtha / (sqrt(8 * log(2)) * pixsize) # width in pixels
+    calfac = 1 / (config.calfac * (get_spire_beam_fwhm(band))**2)
 #   This should be defined in the catsrsc file
-    JY2MJy = 1e6
+    '''
+    This was moved to config.py
+    '''
+    # JY2MJy = 1e6
 
 
 #   Gets header information from a fits image. Astropy should be able to do this
@@ -240,7 +246,7 @@ def read_file(file,col,clusname,verbose=0):
           'width':width, #check
           'widtha':widtha, #check
           'calfac':calfac, #check
-          'JY2MJy':JY2MJy} #check
+          'JY2MJy':config.JY2MJy} #check
     return maps
 
 

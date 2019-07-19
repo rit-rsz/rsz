@@ -13,3 +13,6 @@
 
 CLUSDATA = '/data/mercado/SPIRE/'
 CLUSSBOX = '/data/mercado/SPIRE/sandbox/'
+
+calfac  = (pi/180.0) * (1/3600.0)**2 * (pi / (4.0 * log(2.0))) * (1e6)
+JY2MJy = 1e6 # Janskys to Mega Janskys

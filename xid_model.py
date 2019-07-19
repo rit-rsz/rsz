@@ -39,13 +39,18 @@ np.set_printoptions(threshold=sys.maxsize)
 
 class Xid_Model():
     def __init__(self, json_dir, clusname):
-        self.data = []
+        self.data = [[],[],[]]
         for file in os.listdir(json_dir):
-            if file.startswith('xid') and file.endswith('.json') and clusname in file:
+            if file.startswith('xid') and file.endswith('.json') and clusname in file and 'take_2' in file:
                 print(file)
                 with open(file) as json_file:
                     datastore = json.load(json_file)
-                    self.data.append(datastore)
+                    if 'PSW' in file:
+                        self.data[0] = datastore
+                    elif 'PMW' in file:
+                        self.data[1] = datastore
+                    elif 'PLW' in file:
+                        self.data[2] = datastore
 
     def plot_pixel_x_y(self, maps):
         # fig, axs = plt.subplots(1,3)
@@ -78,9 +83,10 @@ class Xid_Model():
         w = WCS(hdul[1].header)
         with open(filename) as json_file:
             data = json.load(json_file)
+        mean, median, std = sigma_clipped_stats(hdul[1].data, sigma=3.0)
         initial_px = np.array(data['ra']) #* u.deg
         initial_py = np.array(data['dec']) #* u.deg
-        self.cat_flux = np.array(data['flux'])
+        self.cat_flux = np.array(data['flux']) * std
         # c = SkyCoord(ra, dec)
         # px, py = skycoord_to_pixel(c, w)
         c = pixel_to_skycoord(initial_px, initial_py, w)
@@ -131,6 +137,7 @@ class Xid_Model():
             fluxes = self.data[i]['sflux']
             self.fluxes.append(fluxes)
             hdul = fits.open(maps[i]['file'])
+            print(hdul.info())
             w = WCS(hdul[1].header)
             ra = np.array(self.data[i]['sra']) * u.deg
             dec = np.array(self.data[i]['sdec']) * u.deg
@@ -155,18 +162,18 @@ class Xid_Model():
                 # kern = np.asarray(kern)
                 kern = makeGaussian(x_size=x_size, y_size=y_size, fwhm =bands[i] / maps[i]['pixsize'], center=(px[j],py[j]))
                 kern = np.asarray(kern)
-                # kern = kern / kern.max()
+                kern = kern / kern.max()
                 # plt.imshow(kern)
                 # plt.show()
                 # kern = rebin(kern, (x_gen,y_gen))
                 # print(fluxes[j])
                 coefficient = fluxes[j]#fluxes[j] #/ (sqrt(pi) * bands[i] / pixsize[i]) #pi * (bands[i]/pixsize[i])**2 / (16 * log(2))#(sqrt(2*pi) * sigma / pixsize[i])
                 psf = kern * coefficient
-                new_tf = np.sum(psf)
-                A = new_tf / fluxes[j]
-                psf = psf / A
-                print('Original total flux', fluxes[j])
-                print('New total flux', np.sum(psf))
+                # new_tf = np.sum(psf)
+                # A = new_tf / fluxes[j]
+                # psf = psf / A
+                # print('Original total flux', fluxes[j])
+                # print('New total flux', np.sum(psf))
                 # if j == self.index[0]:
                 #     print('ha')
                     # plt.imshow(psf)
@@ -429,9 +436,21 @@ if __name__ == '__main__':
     # model.finding_index(maps)
     # print('starfinder map')
     # model.plot_starfinder_flux(maps)
-    model.plot_in_cat('cat_file.json', maps)
+    # model.plot_in_cat('cat_file.json', maps)
     model.plot_pixel_x_y(maps)
     model.create_psfs(maps)
-    model.find_normalization_factor(maps)
+    # model.find_normalization_factor(maps)
     models = model.mapping_psfs(maps)
     model.subtract_cat(maps, models)
+    # models = [[],[],[]]
+    # for file in os.listdir('/home/vaughan/rsz'):
+    #     if 'xid_model' in file and '.fits' in file:
+    #         hdul = fits.open(file)
+    #         data = hdul[0].data
+    #         if 'PSW' in file:
+    #             models[0] = data
+    #         elif 'PMW' in file:
+    #             models[1] = data
+    #         elif 'PLW' in file:
+    #             models[2] = data
+    # model.subtract_cat(maps, models)

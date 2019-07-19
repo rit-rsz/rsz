@@ -188,7 +188,18 @@ def get_xid(maps, cats, savemap=0, simmap=0, verbose=1, confusionerrors=1):
     #     xid[i]['x'] = xid[i]['x'][whpl]
     #     xid[i]['y'] = xid[i]['y'][whpl]
     #     xid[i]['sflux'] = xid[i]['sflux'][whpl]
-    #     xid[i]['serr'] = xid[i]['serr'][whpl]
+    #     xid[i]['serr'] = xid[i]['serr'][whpl]    # models = [[],[],[]]
+    # for file in os.listdir('/home/vaughan/rsz'):
+    #     if 'xid_model' in file and '.fits' in file:
+    #         hdul = fits.open(file)
+    #         data = hdul[0].data
+    #         if 'PSW' in file:
+    #             models[0] = data
+    #         elif 'PMW' in file:
+    #             models[1] = data
+    #         elif 'PLW' in file:
+    #             models[2] = data
+    # model.subtract_cat(maps, models)
 
           #initializing w class.
 

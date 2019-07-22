@@ -83,8 +83,25 @@ def get_xid(maps, cats, savemap=0, simmap=0, verbose=1, confusionerrors=1):
         hdul = fits.open(files[i])
         headers.append(hdul[1].header)
         primary_hdus.append(hdul[0].header)
-        data_maps.append(hdul[1].data)
-        noise_maps.append(hdul[2].data) #don't know if this is the error image or the mask image.
+        img = hdul[1].data
+        data = np.empty(img.shape)
+        for h in range(img.shape[0]):
+            for j in range(img.shape[1]):
+                if img[h,j] >= 0 or img[h,j] < 0:
+                    data[h,j] = img[h,j] * 1000
+                else:
+                    data[h,j] = np.nan
+        data_maps.append(data)
+        noise = np.empty(img.shape)
+        for h in range(img.shape[0]):
+            for j in range(img.shape[1]):
+                if data[h,j] >= 0:
+                    noise[h,j] = sqrt(data[h,j])
+                elif data[h,j] < 0:
+                    noise[h,j] = -1 * sqrt(-1 * data[h,j])
+                else:
+                    noise[h,j] = np.nan
+        noise_maps.append(noise) #don't know if this is the error image or the mask image.
         pixsizes.append(maps[i]['pixsize'])
         prf_sizes.append(get_spire_beam_fwhm(maps[i]['band']))
         pinds.append(np.arange(0,101,1) * 1.0 / pixsizes[i]) #maybe this value needs to change?
@@ -188,29 +205,29 @@ def get_xid(maps, cats, savemap=0, simmap=0, verbose=1, confusionerrors=1):
     #     xid[i]['sflux'] = xid[i]['sflux'][whpl]
     #     xid[i]['serr'] = xid[i]['serr'][whpl]
 
-    # for i in range(len(xid)):
-    #     ra = xid[i]['sra'] * u.deg
-    #     dec = xid[i]['sdec'] * u.deg
-    #     c = SkyCoord(ra, dec)
-    #     #initializing w class.
-    #     hdul = fits.open(maps[i]['file'])
-    #     w = wcs(hdul[1].header)
-    #     #converting ra/dec to pixel coords.
-    #     px, py = skycoord_to_pixel(c, w)
-    #     xid[i]['x'] = px
-    #     xid[i]['y'] = py
-    #     xid[i]['sra'] = xid[i]['sra'].tolist()
-    #     xid[i]['sdec'] = xid[i]['sdec'].tolist()
-    #     xid[i]['sflux'] = xid[i]['sflux'].tolist()
-    #     xid[i]['serr'] = xid[i]['serr'].tolist()
-    #     xid[i]['pflux'] = xid[i]['pflux'].tolist()
-    #     xid[i]['perr'] = xid[i]['perr'].tolist()
-    #     xid[i]['x'] = xid[i]['x'].tolist()
-    #     xid[i]['y'] = xid[i]['y'].tolist()
-    #
-    #     #saving to json file for further analysis.
-    #     with open('xid_a0370_take_2_%s.json' %(xid[i]['band']), 'w') as f: #code for saving output to a file.
-    #         json.dump(xid[i], f)
+    for i in range(len(xid)):
+        ra = xid[i]['sra'] * u.deg
+        dec = xid[i]['sdec'] * u.deg
+        c = SkyCoord(ra, dec)
+        #initializing w class.
+        hdul = fits.open(maps[i]['file'])
+        w = wcs(hdul[1].header)
+        #converting ra/dec to pixel coords.
+        px, py = skycoord_to_pixel(c, w)
+        xid[i]['x'] = px
+        xid[i]['y'] = py
+        xid[i]['sra'] = xid[i]['sra'].tolist()
+        xid[i]['sdec'] = xid[i]['sdec'].tolist()
+        xid[i]['sflux'] = xid[i]['sflux'].tolist()
+        xid[i]['serr'] = xid[i]['serr'].tolist()
+        xid[i]['pflux'] = xid[i]['pflux'].tolist()
+        xid[i]['perr'] = xid[i]['perr'].tolist()
+        xid[i]['x'] = xid[i]['x'].tolist()
+        xid[i]['y'] = xid[i]['y'].tolist()
+
+        #saving to json file for further analysis.
+        with open('xid_a0370_take_3_%s.json' %(xid[i]['band']), 'w') as f: #code for saving output to a file.
+            json.dump(xid[i], f)
 
     #model = image_model(x,y, sflux, maps[i]['astr']['NAXIS'][0], maps[i]['astr']['NAXIS'][1],
     #maps[i]['psf'])

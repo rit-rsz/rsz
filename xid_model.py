@@ -34,6 +34,7 @@ from astropy.wcs.utils import pixel_to_skycoord
 from astropy.stats import sigma_clipped_stats
 from photutils import datasets
 from photutils import DAOStarFinder
+from scipy.integrate import dblquad
 
 np.set_printoptions(threshold=sys.maxsize)
 
@@ -43,7 +44,7 @@ class Xid_Model():
         for file in os.listdir(json_dir):
             if file.startswith('xid') and file.endswith('.json') and clusname in file and 'take_2' in file:
                 print(file)
-                with open(file) as json_file:
+                with open(json_dir + file) as json_file:
                     datastore = json.load(json_file)
                     if 'PSW' in file:
                         self.data[0] = datastore
@@ -131,8 +132,12 @@ class Xid_Model():
         self.fluxes = []
         for i in range(len(self.data)):
         # for i in range(1):
-            print(i)
-            sigma = bands[i] / (sqrt(8 * log(2)))
+            fwhm = bands[i] / maps[i]['pixsize']
+            sigma = fwhm / (sqrt(8 * log(2)))
+            print('fwhm in arcsec', bands[i])
+            print('pixsize in arcsec / pixel', maps[i]['pixsize'])
+            print('fwhm in pixels', fwhm)
+            print('sigma', sigma)
             self.psfs.append([])
             fluxes = self.data[i]['sflux']
             self.fluxes.append(fluxes)
@@ -154,6 +159,8 @@ class Xid_Model():
             # y_gen = x_gen
             y_size = hdul[1].data.shape[0]
             x_size = hdul[1].data.shape[1]
+            A = integrate(x_size, y_size, sigma)
+            print(A[0])
             # if x_gen % 2 != 1:
             #     print('WARNING: npixx not odd, so PSF will not be centered')
             # if y_gen % 2 != 1:
@@ -166,7 +173,9 @@ class Xid_Model():
                 # kern = np.asarray(kern)
                 kern = makeGaussian(x_size=x_size, y_size=y_size, fwhm =bands[i] / maps[i]['pixsize'], center=(px[j],py[j]))
                 kern = np.asarray(kern)
-                kern = kern / kern.max()
+                # kern = kern / np.max(kern)
+                kern = kern / np.max(kern)
+                # integrate(x_size, y_size, sigma, fluxes[j])
                 # plt.imshow(kern)
                 # plt.show()
                 # kern = rebin(kern, (x_gen,y_gen))
@@ -437,29 +446,81 @@ def makeGaussian(x_size, y_size, fwhm = 3, center=None):
         x0 = center[0]
         y0 = center[1]
 
+    sigma = fwhm / 2.355
 #
-    return np.exp(-1*4*np.log(2) * ((x-x0)**2 + (y-y0)**2) / (fwhm**2))
+    return np.exp(-1 * ((x-x0)**2 + (y-y0)**2) / (2*sigma**2))
+
+def integrate(x_size, y_size, sigma):
+    x0 = x_size // 2
+    y0 = y_size // 2
+    area = dblquad(lambda x, y: np.exp(-1 * ((x-x0)**2 + (y-y0)**2) / (2*sigma**2)), 0, x_size, lambda x: 0, y_size)
+    return area
+
+def noise_map():
+    im = fits.open('/home/vaughan/rsz/fits_files/original_a0370_PSW.fits')
+    data = im[0].data
+    map = np.empty(data.shape)
+    for i in range(data.shape[0]):
+        for j in range(data.shape[1]):
+            if data[i,j] >= 0:
+                data[i,j] = data[i,j] * 1000
+                map[i,j] = sqrt(data[i,j])
+            elif data[i,j] < 0:
+                data[i,j] = data[i,j] * 1000
+                map[i,j] = -1 * sqrt(-1 * data[i,j])
+            else:
+                map[i,j] = np.nan
+
+    hdu = fits.PrimaryHDU(map)
+    hdul = fits.HDUList([hdu])
+    hdul.writeto('noise_test.fits')
 
 
+def variance_or_noise():
+    fits_file = fits.open('/data/mercado/SPIRE/hermes_clusters/a0370_PSW_nr_1.fits')
+    data = fits_file[1].data
+    mean, median, std = sigma_clipped_stats(data, sigma=3.0)
 
+def subtract_models(model1, model2):
+    residual = model1 - model2
+    hdu = fits.PrimaryHDU(residual)
+    hdul = fits.HDUList([hdu])
+    hdul.writeto('residual_image_noise.fits')
 
 if __name__ == '__main__':
     # rubiks_cube()
-    numpy_where_test()
-    g = makeGaussian(105, 105, fwhm=18)
-    plt.imshow(g)
-    plt.show()
-    maps, err = get_data('a0370')
-    model = Xid_Model('/home/vaughan/rsz/', 'a0370')
-    # model.finding_index(maps)
-    # print('starfinder map')
-    # model.plot_starfinder_flux(maps)
-    # model.plot_in_cat('cat_file.json', maps)
-    # model.plot_pixel_x_y(maps)
-    model.create_psfs(maps)
-    # model.find_normalization_factor(maps)
-    models = model.mapping_psfs(maps)
-    model.subtract_cat(maps, models)
+
+    # variance_or_noise()
+    # numpy_where_test()
+    # g = makeGaussian(105, 105, fwhm=18)
+    # plt.imshow(g)
+    # plt.show()
+    # maps, err = get_data('a0370')
+    # noise_map()
+    # model = Xid_Model('/home/vaughan/rsz/json_files/', 'a0370')
+    # # model.finding_index(maps)
+    # # print('starfinder map')
+    # # model.plot_starfinder_flux(maps)
+    # # model.plot_in_cat('cat_file.json', maps)
+    # # model.plot_pixel_x_y(maps)
+    # model.create_psfs(maps)
+    # # model.find_normalization_factor(maps)
+    # models = model.mapping_psfs(maps)
+    # model.subtract_cat(maps, models)
+
+    fits1 = fits.open('/data/mercado/SPIRE/hermes_clusters/a0370_PSW_nr_1.fits')
+    fits2 = fits.open('noise_test.fits')
+    model1 = fits1[2].data
+    for i in range(model1.shape[0]):
+        for j in range(model1.shape[1]):
+            if model1[i,j] >= 0:
+                model1[i,j] = model1[i,j] * 1000
+                # map[i,j] = sqrt(data[i,j])
+            elif model1[i,j] < 0:
+                model1[i,j] = model1[i,j] * 1000
+                # map[i,j] = -1 * sqrt(-1 * data[i,j])
+    model2 = fits2[0].data
+    subtract_models(model1, model2)
     # models = [[],[],[]]
     # for file in os.listdir('/home/vaughan/rsz'):
     #     if 'xid_model' in file and '.fits' in file:

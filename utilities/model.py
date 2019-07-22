@@ -37,7 +37,7 @@ from photutils import DAOStarFinder
 def create_model(maps, cats):
         bands = [18, 25, 36]
         gal_clusts = []
-        for i in range(len(self.data)):
+        for i in range(len(cats[i]['sflux'])):
             print('generating mask for %s at %s' % (maps[i]['name'], maps[i]['band']))
             fluxes = cats[i]['sflux']
             naxis = maps[i]['astr']['NAXIS']
@@ -50,7 +50,7 @@ def create_model(maps, cats):
             px, py = skycoord_to_pixel(c, w, 1)
             y_size = hdul[1].data.shape[0]
             x_size = hdul[1].data.shape[1]
-            for j in range(len(self.data[i]['sflux'])):
+            for j in range(len(cats[i][''])):
                 kern = makeGaussian(x_size=x_size, y_size=y_size, fwhm =bands[i] / maps[i]['pixsize'], center=(px[j],py[j]))
                 kern = np.asarray(kern)
                 kern = kern / kern.max()
@@ -81,4 +81,6 @@ def makeGaussian(x_size, y_size, fwhm = 3, center=None):
         x0 = center[0]
         y0 = center[1]
 
-    return np.exp(-1*4*np.log(2) * ((x-x0)**2 + (y-y0)**2) / (fwhm**2))
+    sigma = fwhm / 2.355
+
+    return np.exp(-1 * ((x-x0)**2 + (y-y0)**2) / (2*sigma**2))

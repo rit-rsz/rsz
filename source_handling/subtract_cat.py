@@ -45,6 +45,10 @@ def subtract_cat(maps, cat, verbose=1):
         for value in whpl:
             datasub[value] = np.nan
 
+        hdu = fits.PrimaryHDU(datasub)
+        hdul = fits.HDUList([hdu])
+        hdul.writeto(config.FITSOUT + 'xid_subtracted_%s_%s.fits' % (maps[i]['name'], maps[i]['band']))
+
      # CONTOUR,datafull,/NODATA,$
      #         TITLE='clus_subtract_cat: Signal map for ' + $
      #         (*maps[icol]).band

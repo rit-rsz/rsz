@@ -77,7 +77,7 @@ class Catsrc():
             self.nsim = np.nan #maybe this isn't what is being set.
 
         if self.verbose:
-            print('Welcome to SZ fitter v 2.0')
+            print('Welcome to SZ fitter v 1.0')
 
         if self.saveplot:
             #call to nuplot idk what to put here instead
@@ -172,7 +172,7 @@ class Catsrc():
         if not self.clusname:
             if self.verbose:
                 print('Require a string array of cluster names as input, aborting!')
-        residual_mask, err = residual_mask(maps,verbose=self.verbose)
+        residual_mask, err = clus_residual_mask(maps,verbose=self.verbose)
         if err:
             if self.verbose:
                 print('clus_residual_mask exited with error: ' + err)

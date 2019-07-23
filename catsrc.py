@@ -39,6 +39,7 @@ from subtract_cat import *
 from subtract_xcomps import *
 from get_data import *
 import config
+sys.path.append('XID_plus')
 from get_xid import *
 sys.path.append('reduc')
 from get_cats import *

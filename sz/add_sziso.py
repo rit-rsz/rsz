@@ -25,6 +25,8 @@ from config import *
 import sys
 sys.path.append('../utilities')
 from clus_convert_bolocam import *
+from clus_get_lambdas import *
+from clus_get_relsz import *
 
 
 def add_sziso(maps,yin,tin,
@@ -85,47 +87,52 @@ def add_sziso(maps,yin,tin,
     temphead.set('CTYPE1' , 'RA---TAN')
     temphead.set('CTYPE2' , 'DEC---TAN')
 
-#   This was findgen in idl. I may have to chage this to np.zeros I need to test the output in idl to confirm
     x = np.arange(naxis[0]) - 14.5
     y = np.arange(naxis[1]) - 14.5
-
+    naxis = np.array(naxis)
     rad = np.zeros((naxis[0],naxis[1]))
-    print('ended', rad)
-    exit()
 
-#   Need to figure out how to use replicate in a fashion for python
     for ix in range(naxis[1]):
-        rad[:,ix] = sqrt(replicate()) #np.tile
-
+        rad[:,ix] = (np.tile(x[ix],naxis[0])**2+y**2)**(1/2)
     '''
     Add in section to find all values in rad that are greater than 10
     Loop through nested for loops because rad is multi dimensional
     Called "outer" , use in szmap
     '''
-
+    # Outer marks the indices of the outside of the circle used to add in the sz effect
+    n = 0
+    outer = []
+    for i in range(len(rad)):
+        for j in range(len(rad)):
+            if rad[i,j] > 10:
+                outer.append(n)
+            n +=1
 #   right syntax???
-    szmap = -1 * bolocam.deconvolved_image
-    szmap = szmap - mean(szmap[outer])
+    szmap = -1 * bolocam[0]['deconvolved_image'][0]
+    szmap = (np.array(szmap)).flatten()
+    szmap = szmap - np.mean(szmap[outer])
     szmap = szmap / max(szmap)
-    print('hello')
+    '''Up until this section is working correctly'''
     for imap in range(mapsize):
 # Below are the changes to units of Jy to beam
 # calculate the surface brightness to put in each pixel at this sim step
 # Need to fix maps right now it is written as a pointer
-        nu = 3e5 / CLUS_GET_LAMBDAS((maps[imap]).band)
-        dI = 1e26*clus_get_relSZ(nu,yin,tin)
-#       print,CLUS_GET_LAMBDAS((*maps[imap]).band),dI
-#       this accounts for a conversion to surface brightness in a later step
-#       dI = dI / (1.13d0 * (60./3600.)^2 * (!DTOR)^2 * 1e9)
-        #np.tile instead of idls replicate
-        szin = repeat(dI*((1.13*(maps[imap]).widtha/3600.)^2 * \
-                    (pi/180)^2),naxis[1],naxis[2]) * szmap
+        if imap == 1:
+            nu = 3e5 / CLUS_GET_LAMBDAS((maps[imap]).band)
+            print(nu)
+            dI = 1e26*clus_get_relSZ(nu,yin,tin)
+    #       print,CLUS_GET_LAMBDAS((*maps[imap]).band),dI
+    #       this accounts for a conversion to surface brightness in a later step
+    #       dI = dI / (1.13d0 * (60./3600.)^2 * (!DTOR)^2 * 1e9)
+            #np.tile instead of idls replicate
+            szin = repeat(dI*((1.13*(maps[imap]).widtha/3600.)^2 * \
+                        (pi/180)^2),naxis[1],naxis[2]) * szmap
 
-#       Have to interpolate to SPIRE map size
-        HASTROM
+    #       Have to interpolate to SPIRE map size
+            HASTROM
 
 #       Need to then set something for maps thats back to the dictonary format
-
+    exit()
     return maps
 
 

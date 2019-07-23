@@ -14,11 +14,8 @@ from math import *
 
 CLUSDATA = '/data/mercado/SPIRE/'
 CLUSSBOX = '/data/mercado/SPIRE/sandbox/'
-<<<<<<< HEAD
 CLUSHOME = '/home/mercado/bitten/SPIRE/'
-=======
 FITSOUT = 'fits_images/'
->>>>>>> 6e5f6212899da9188b8bc54a38bc348f341d2f4d
 
 calfac  = (pi/180.0)**2 * (1/3600.0)**2 * (pi / (4.0 * log(2.0))) * (1e6)
 JY2MJy = 1e6 # Janskys to Mega Janskys

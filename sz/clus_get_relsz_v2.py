@@ -22,7 +22,8 @@
 # Currently this is in a rough state, while I am trying to interperate the idl script
 import scipy.io
 import numpy as np
-import sys,os,subprocess
+import sys,os
+from subprocess import check_output
 sys.path.append('../utilities')
 from config import * #(this line will give me access to all directory variables)
 from math import *
@@ -67,11 +68,10 @@ def sz_wrapper(nu,y,te=10.0, vpec=0.0, ngrid=100):
              '.txt'] #filename extension
             np.savetxt('../lookup/szparams.txt',sz_params,"%s",newline='\n')
 
-        child = subprocess.Popen(['/usr/local/bin/run_SZpack CNSN /home/butler/rsz/lookup/szparams.txt'],shell=True)
-        child.communicate()[0]
+        # child = subprocess.Popen(['/usr/local/bin/run_SZpack CNSN /home/butler/rsz/lookup/szparams.txt'],stdout=subprocess.PIPE)
+        # out,err = child.communicate()
+        out = check_output(['/usr/local/bin/run_SZpack','CNSN','/home/butler/rsz/lookup/szparams.txt'])
 
-        # xout,JofXout = np.load('../lookup/SZ_CNSN_basis.npy',unpack=True)
-        # xout,JofXout = np.loadtxt('/home/butler/rsz/lookup/SZ_CNSN_basis.dat')
         file = open('/home/butler/rsz/lookup/SZ_CNSN_basis.dat')
         output = [x.strip('\n').split(' ') for x in file.readlines()]
         xout = []
@@ -81,17 +81,15 @@ def sz_wrapper(nu,y,te=10.0, vpec=0.0, ngrid=100):
             JofXout.append(float(output[i][1]))
         print(xout[-1],JofXout[-1])
 
-        # READCOL,'lookup/SZ_CNSN_basis.szp',FORMAT='D,D',COMMENT='#',$
-               # xout,JofXout,/SILENT
-
         thisx = nu * HztoGHz * h / (k_B * T_0)
+        print(thisx)
         I0 = 2 * (k_B * T_0)**3 / (h * c)**2
 
         # bigJ = INTERPOL(JofXout,xout,thisx)
-
-        bigJ = interpolate.interp2d(xout,JofXout,thisx)
-        exit()
-        deltaI = I0 * bigJ
+        bigJ = interpolate.interp1d(xout,JofXout, kind='linear')
+        act_bigJ = bigJ(thisx)
+        deltaI = I0 * act_bigJ
+        print(act_bigJ,deltaI)
 
         return deltaI, None
 
@@ -99,4 +97,4 @@ def sz_wrapper(nu,y,te=10.0, vpec=0.0, ngrid=100):
 
 ########################################################################################################################
 if __name__ == '__main__':
-    sz_wrapper(0,yin,10.0,0.0,100)
+    sz_wrapper(600.0,yin,10.0,0.0,100)

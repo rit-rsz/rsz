@@ -11,6 +11,7 @@
 #
 # OUTPUTS :
 # REVISION HISTORY :
+#   Victoria Butler - 7/19 - edits to calfac for unit conversion
 ################################################################################
 import scipy.io
 import numpy as np
@@ -57,7 +58,7 @@ def get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
                     hlsfiles.append(hlsdir + x)
                     hlscount += 1
 
-        snapdir = config.CLUSDATA + 'snapshot_clusters'
+        snapdir = config.CLUSDATA + 'snapshot_clusters/'
         snapfiles = []
         snapcount = 0
         for x in os.listdir(snapdir):
@@ -131,7 +132,7 @@ def get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
 ##################################################################################################
 ##################################################################################################
 
-def read_file(file,col,clusname,verbose=0):
+def read_file(file,band,clusname,verbose=0):
     # Should this calfac be listed as a self.calfac or not?
     '''
     Calfac has been added to config.py as a constant.
@@ -163,7 +164,7 @@ def read_file(file,col,clusname,verbose=0):
                   mean([abs(map.header['CD1_1']+map.header['CD2_1']), \
                         abs(map.header['CD2_1'] + map.header['CD2_2'])])
 
-    psf = get_spire_beam(pixsize=pixsize, band=col)
+    psf = get_spire_beam(pixsize=pixsize, band=band)
     #psf = 4 #for xid test only...
     widtha = get_spire_beam_fwhm(band) #arcsecs (sigma of gaussian)
     width = widtha / (sqrt(8 * log(2)) * pixsize) # width in pixels

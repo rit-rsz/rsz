@@ -44,7 +44,7 @@ def sz_wrapper(nu,y,te=10.0, vpec=0.0, ngrid=100):
         HztoGHz = 1.0e9                     #Hz -> GHz
         vpecp = vpec * 1e3 / c
 
-        if os.path.isfile('../lookup/szparams.txt') :
+        if os.path.isfile('/home/mercado/rsz/lookup/szparams.txt') :
             pass
         else :
             sz_params = [
@@ -66,13 +66,13 @@ def sz_wrapper(nu,y,te=10.0, vpec=0.0, ngrid=100):
              ' ', # space
              '/home/butler/rsz/lookup', # path for Output
              '.txt'] #filename extension
-            np.savetxt('../lookup/szparams.txt',sz_params,"%s",newline='\n')
+            np.savetxt('/home/mercado/rsz/lookup/szparams.txt',sz_params,"%s",newline='\n')
 
         # child = subprocess.Popen(['/usr/local/bin/run_SZpack CNSN /home/butler/rsz/lookup/szparams.txt'],stdout=subprocess.PIPE)
         # out,err = child.communicate()
-        out = check_output(['/usr/local/bin/run_SZpack','CNSN','/home/butler/rsz/lookup/szparams.txt'])
+        out = check_output(['/usr/local/bin/run_SZpack','CNSN','/home/mercado/rsz/lookup/szparams.txt'])
 
-        file = open('/home/butler/rsz/lookup/SZ_CNSN_basis.dat')
+        file = open('/home/mercado/rsz/lookup/SZ_CNSN_basis.dat')
         output = [x.strip('\n').split(' ') for x in file.readlines()]
         xout = []
         JofXout = []

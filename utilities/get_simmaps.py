@@ -1,18 +1,17 @@
 ################################################################################
 # NAME : get_simmaps.py
 # DATE STARTED : June 18, 2019
-# AUTHORS : Benjamin Vaughan
+# AUTHORS : Benjamin Vaughan & Dale Mercado
 # PURPOSE : Fetches the simmaps
 # EXPLANATION :
 # CALLING SEQUENCE :
 # INPUTS : clusname - name of the cluster
 #         nsim - name of the sim number
-#         simflag - 1 = do something
-#                   0 = do something else
-#         sb      - 1 = do something
-#                 - 0 = do something else
-#         xc      - 1 = do something
-#                 - 0 = do something else
+#         simflag - 0 not using sims
+#                   1 100 generation sims CLuster_simulation
+#                   2 200 generation sims Benthermin_simulations
+#         sb        Flag for surface Brightness
+#         xc        Flag for Cross Cleaned
 #
 #
 # OUTPUTS :
@@ -97,7 +96,7 @@ def get_simmaps(clusname, nsim, simflag=1, sb=0, xc=0, verbose=0, maps = None):
                    'pixsize' : map.pixsize[0],
                    'psf' : map.psf[0],
                    'width' : map.width[0],
-                   'withda' : map.widtha[0],
+                   'widtha' : map.widtha[0],
                    'calfac' : map.calfac[0],
                    'jy2mjy' : map.jy2mjy[0]}
         new_maps.append(new_map)

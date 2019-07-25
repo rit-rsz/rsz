@@ -43,7 +43,7 @@ class Xid_Model():
     def __init__(self, json_dir, clusname):
         self.data = [[],[],[]]
         for file in os.listdir(json_dir):
-            if file.startswith('xid') and file.endswith('.json') and clusname in file and 'PSW' in file and 'take_3' not in file:
+            if file.startswith('xid') and file.endswith('.json') and clusname in file and 'PSW' in file and 'take_2' in file:
                 print(file)
                 with open(json_dir + file) as json_file:
                     datastore = json.load(json_file)
@@ -269,8 +269,8 @@ class Xid_Model():
         fwhm = np.divide(bands, pixsize)
         for i in range(1):
             # self.flux.append([])
-            hdul = fits.open('/data/mercado/SPIRE/hermes_clusters/a2218_PSW_nr_1.fits')
-            print(maps[1]['file'], 'HE SCREAM!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!11')
+            hdul = fits.open('/data/mercado/SPIRE/hermes_clusters/a0370_PSW_nr_1.fits')
+            print(maps[0]['file'], 'HE SCREAM!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!11')
             data = hdul[1].data
             p, f, std = self.starfinder(data, fwhm[i])
             x = p[0]
@@ -291,7 +291,7 @@ class Xid_Model():
             # plt.show()
 
     def plot_IRAFstarfinder(self, maps):
-        data = fits.open(maps[1]['file'])[1].data
+        data = fits.open(maps[0]['file'])[1].data
         print(maps[1]['file'])
         mean, mediam, std = sigma_clipped_stats(data, sigma=3.0)
         starfinder = IRAFStarFinder(threshold=.001*std, fwhm=3.0)
@@ -343,10 +343,28 @@ class Xid_Model():
         # \n
 
         #HeDam 1 data
-        HeDam1_data = np.load('a2218_250.npy')
-        HeDam1_RA = HeDam1_data[0]
-        HeDam1_Dec = HeDam1_data[1]
-        HeDam1_Flux = HeDam1_data[2]
+        f_obj = open('cesam_all_scat250_dr2_catalog_1564065377.csv')
+
+        HeDam1_RA = []
+        HeDam1_Dec = []
+        HeDam1_Flux = []
+        for line in f_obj:
+            line = line.split(',')
+            if line[2] == 'RA':
+                pass
+            else:
+                HeDam1_RA.append(float(line[2]))
+                HeDam1_Dec.append(float(line[3]))
+                HeDam1_Flux.append(float(line[4]))
+
+        HeDam1_RA = np.asarray(HeDam1_RA)
+        HeDam1_Dec = np.asarray(HeDam1_Dec)
+        HeDam1_Flux = np.asarray(HeDam1_Flux)
+
+        # HeDam1_data = np.load('a2218_250.npy')
+        # HeDam1_RA = HeDam1_data[0]
+        # HeDam1_Dec = HeDam1_data[1]
+        # HeDam1_Flux = HeDam1_data[2]
         # HeDam1 = fits.open('/home/vaughan/rsz/fits_files/CS-Abell-370_SCAT250_DR2.fits')
         # HeDam1_head = HeDam1[1].header
         # HeDam1_data = HeDam1[1].data
@@ -387,7 +405,7 @@ class Xid_Model():
         XID_RA = XID_data['sra'] * u.deg
         XID_Dec = XID_data['sdec'] * u.deg
         XID_Flux = XID_data['sflux']
-        XID_head = fits.open('/data/mercado/SPIRE/hermes_clusters/a2218_PSW_nr_1.fits')[1].header
+        XID_head = fits.open('/data/mercado/SPIRE/hermes_clusters/a0370_PSW_nr_1.fits')[1].header
         w = WCS(XID_head)
         c = SkyCoord(XID_RA, XID_Dec)
         px, py = skycoord_to_pixel(c, w, 1)
@@ -482,7 +500,8 @@ class Xid_Model():
 
         print(x1_ind)
         print(x3_ind)
-        print(x4_ind)
+        print(x4_ind)        print(':)', len(HeDam1_RA))
+
 
         HeDam1_Flux = HeDam1_Flux[H1_ind] / 1000
         sf_f = sf_f[sf_ind]
@@ -627,20 +646,20 @@ if __name__ == '__main__':
     # g = makeGaussian(105, 105, fwhm=18)
     # plt.imshow(g)
     # plt.show()
-    maps, err = get_data('a2218')
-    print(maps[1]['file'])
-    # # noise_map()
-    model = Xid_Model('/home/vaughan/rsz/', 'a2218')
+    maps, err = get_data('a0370')
+    print(maps[0]['file'])
+    # # # noise_map()
+    model = Xid_Model('/home/vaughan/rsz/json_files/', 'a0370')
     model.plot_IRAFstarfinder(maps)
-    # # # model.finding_index(maps)
-    # # # print('starfinder map')
+    # # # # model.finding_index(maps)
+    # # # # print('starfinder map')
     model.plot_starfinder_flux(maps)
-    # # # model.plot_in_cat('cat_file.json', maps)
-    # model.plot_pixel_x_y(maps)
-    model.create_psfs(maps)
-    # # # model.find_normalization_factor(maps)
-    models = model.mapping_psfs(maps)
-    model.subtract_cat(maps, models)
+    # # # # model.plot_in_cat('cat_file.json', maps)
+    # # model.plot_pixel_x_y(maps)
+    # model.create_psfs(maps)
+    # # # # model.find_normalization_factor(maps)
+    # models = model.mapping_psfs(maps)
+    # model.subtract_cat(maps, models)
     model.create_PSW_csv()
 
     # fits1 = fits.open('/home/vaughan/rsz/fits_files/idl_subtracted_a0370_PSW.fits')

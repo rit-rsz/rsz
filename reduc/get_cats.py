@@ -425,9 +425,10 @@ def make_psw_src_cat(clusname, resolution, nsim, s2n=3, savecat=0, savemap=0, si
             return None, err
 
     for i in range(len(maps)):
-        if 'PSW' in maps[i]['band']:
+        if 'PSW' in maps[i]['file']:
             index = i
 
+    print(maps[index]['file'])
     dataPSW = maps[index]['signal'].data
     errPSW = maps[index]['error']
     headPSW = maps[index]['shead']
@@ -436,7 +437,8 @@ def make_psw_src_cat(clusname, resolution, nsim, s2n=3, savecat=0, savemap=0, si
     beamFWHM = maps[index]['widtha'] #arcsec
     pixsize = maps[index]['pixsize'] #arcsec/pixel
 
-
+    print(beamFWHM)
+    print(pixsize)
     header = maps[index]['shead']
     wcs = WCS(header)
     #Now convert FWHM from arcsec to pixel
@@ -447,6 +449,7 @@ def make_psw_src_cat(clusname, resolution, nsim, s2n=3, savecat=0, savemap=0, si
 
     positions, fluxes = starfinder(dataPSW, fwhm)
 
+
     apertures = CircularAperture(positions, r=.3)
     plt.imshow(dataPSW, origin='lower')
     apertures.plot(color='blue', lw=1.5, alpha=0.5)
@@ -455,6 +458,8 @@ def make_psw_src_cat(clusname, resolution, nsim, s2n=3, savecat=0, savemap=0, si
     # plt.show()
     x = positions[0]
     y = positions[1]
+
+    print(len(x))
     # plt.scatter(x, y)
     # plt.show()
 
@@ -742,7 +747,8 @@ def starfinder(data, fwhm):
     # Determine statistics for the starfinder application to utilize
     mean, median, std = sigma_clipped_stats(data, sigma=3.0)
 
-
+    print(std)
+    print(fwhm)
     findstars = DAOStarFinder(fwhm=fwhm, threshold=1.*std)
     sources = findstars(data - median)
     for col in sources.colnames:

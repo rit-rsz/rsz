@@ -31,6 +31,7 @@ def get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
             verbose = 1, version = '1', manidentifier=None):
     # place holders for the if statements to work until I add them to the input for get data
     # This will happen when the script is fully functional
+    print('clus_get_data')
     errmsg = False
     if not bolocam:
         cols = ['PSW','PMW','PLW']
@@ -125,8 +126,33 @@ def get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
                 if verbose:
                     print(errmsg)
             maps.append(read_file(files[counter-1], cols[ifile], clusname, verbose=verbose))
+            print('maps')
         else:
                 maps[ifile] = np.empty(clus_read_bolocam(clusname,verbose=verbose)) #args need to be filled in bolocam one
+
+    print('rubbuh')
+
+    for i in range(len(maps)):
+        if 'PSW' in maps[i]['band']:
+            new_band = maps[0]['band']
+            maps[0] = holder
+
+    if new_band == 'PMW':
+        holder2 = maps[1]
+        maps[1] = holder
+    elif new_band == 'PMW':
+        holder2 = maps[2]
+        maps[2] = holder
+
+    if holder2['band'] == 'PLW':
+        maps[2] = holder2
+    elif holder2['band'] == 'PMW':
+        maps[1] = holder2
+
+    for i in range(len(maps)):
+        print('TESTING ------------------------------------------------------')
+        print(maps[i]['band'])
+
     return maps, errmsg
 
 ##################################################################################################

@@ -39,12 +39,13 @@ from subtract_cat import *
 from subtract_xcomps import *
 from get_data import *
 import config
-sys.path.append('XID_plus')
 from get_xid import *
 sys.path.append('reduc')
 from get_cats import *
 sys.path.append('sz')
-from add_sziso import *
+
+print(sys.path)
+# from add_sziso import *
 # def catsrc(clusname,saveplots,cattype, savecat,savemap,maketf,simmap,nsim,s2n,yin,tin,verbose,success,errmsg):
 class Catsrc():
 
@@ -108,6 +109,7 @@ class Catsrc():
 
         if not self.simmap:
             maps, err = get_data(self.clusname,verbose=self.verbose)
+            print('getting my data!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
             if err:
                 if self.verbose:
                     print('clus_get_data exited with error: ' + err)
@@ -118,14 +120,12 @@ class Catsrc():
                 if self.verbose:
                     print('clus_get_simmaps exited with error: ' + err)
                 exit()
-            print(maps[0]['name'])
             maps, err = add_sziso(maps,yin=self.yin, tin=self.tin,verbose=self.verbose)
             if err:
                 if self.verbose:
                     print('clus_add_sziso exited with error: '+ err)
                 exit()
         ncols = len(maps)
-        print(maps)
         if self.verbose:
             print('Fetching transfer functions')
         # ignore for now as this is only like a 2% correction and we are way off
@@ -266,7 +266,11 @@ class Catsrc():
 
 
 if __name__ == '__main__':
+<<<<<<< Updated upstream
     catsrc = Catsrc('a0370', verbose=1,nsim=200,simmap=2,cattype='PSW')
+=======
+    catsrc = Catsrc('a2218', verbose=1, cattype='PSW')
+>>>>>>> Stashed changes
         # SAVEPLOTS=saveplots,\
         # CATTYPE=cattype,\
         # SAVECAT=savecat,\

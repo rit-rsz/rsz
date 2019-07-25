@@ -84,24 +84,24 @@ def get_xid(maps, cats, savemap=0, simmap=0, verbose=1, confusionerrors=1):
         headers.append(hdul[1].header)
         primary_hdus.append(hdul[0].header)
         img = hdul[1].data
-        data = np.empty(img.shape)
-        for h in range(img.shape[0]):
-            for j in range(img.shape[1]):
-                if img[h,j] >= 0 or img[h,j] < 0:
-                    data[h,j] = img[h,j] * 1000
-                else:
-                    data[h,j] = np.nan
-        data_maps.append(data)
-        noise = np.empty(img.shape)
-        for h in range(img.shape[0]):
-            for j in range(img.shape[1]):
-                if data[h,j] >= 0:
-                    noise[h,j] = sqrt(data[h,j])
-                elif data[h,j] < 0:
-                    noise[h,j] = -1 * sqrt(-1 * data[h,j])
-                else:
-                    noise[h,j] = np.nan
-        noise_maps.append(noise) #don't know if this is the error image or the mask image.
+        # data = np.empty(img.shape)
+        # for h in range(img.shape[0]):
+        #     for j in range(img.shape[1]):
+        #         if img[h,j] >= 0 or img[h,j] < 0:
+        #             data[h,j] = img[h,j] * 1000
+        #         else:
+        #             data[h,j] = np.nan
+        data_maps.append(img)
+        # noise = np.empty(img.shape)
+        # for h in range(img.shape[0]):
+        #     for j in range(img.shape[1]):
+        #         if data[h,j] >= 0:
+        #             noise[h,j] = sqrt(data[h,j])
+        #         elif data[h,j] < 0:
+        #             noise[h,j] = -1 * sqrt(-1 * data[h,j])
+        #         else:
+        #             noise[h,j] = np.nan
+        noise_maps.append(hdul[2].data) #don't know if this is the error image or the mask image.
         pixsizes.append(maps[i]['pixsize'])
         prf_sizes.append(get_spire_beam_fwhm(maps[i]['band']))
         pinds.append(np.arange(0,101,1) * 1.0 / pixsizes[i]) #maybe this value needs to change?
@@ -142,7 +142,7 @@ def get_xid(maps, cats, savemap=0, simmap=0, verbose=1, confusionerrors=1):
     spire_cat = cat.create_SPIRE_cat(posterior, priors[0], priors[1], priors[2])
 
 
-    spire_cat.writeto('xid_model_2_%s.fits' % (maps[0]['name']))
+    # spire_cat.writeto('xid_model_2_%s.fits' % (maps[0]['name']))
 
     xid_data = spire_cat[1].data
     xid = []
@@ -184,10 +184,10 @@ def get_xid(maps, cats, savemap=0, simmap=0, verbose=1, confusionerrors=1):
     xid.append(xid2)
     xid.append(xid3)
 
-    models = create_model(maps, xid)
+    # models = create_model(maps, xid)
 
-    for i in range(len(xid)):
-        xid[i]['model'] = models[i]
+    # for i in range(len(xid)):
+    #     xid[i]['model'] = models[i]
 
     # # only look at data with a flux lower than 0.0
     # for i in range(len(xid)):
@@ -226,7 +226,7 @@ def get_xid(maps, cats, savemap=0, simmap=0, verbose=1, confusionerrors=1):
         xid[i]['y'] = xid[i]['y'].tolist()
 
         #saving to json file for further analysis.
-        with open('xid_a0370_take_3_%s.json' %(xid[i]['band']), 'w') as f: #code for saving output to a file.
+        with open('xid_a2218_%s.json' %(xid[i]['band']), 'w') as f: #code for saving output to a file.
             json.dump(xid[i], f)
 
     #model = image_model(x,y, sflux, maps[i]['astr']['NAXIS'][0], maps[i]['astr']['NAXIS'][1],

@@ -266,11 +266,7 @@ class Catsrc():
 
 
 if __name__ == '__main__':
-<<<<<<< Updated upstream
-    catsrc = Catsrc('a0370', verbose=1,nsim=200,simmap=2,cattype='PSW')
-=======
-    catsrc = Catsrc('a2218', verbose=1, cattype='PSW')
->>>>>>> Stashed changes
+    catsrc = Catsrc('a0370', verbose=1, cattype='PSW')
         # SAVEPLOTS=saveplots,\
         # CATTYPE=cattype,\
         # SAVECAT=savecat,\

@@ -53,6 +53,7 @@ def xid_test(maps):
         header2 = hdul[0].header #primary hdu
         data = hdul[1].data #convert to mJy, do we need to do this conversion? #this is map of data
         data2 = hdul[3].data  #convert to mJy #this is a noise map I guess? could be error or mask not sure.
+        print(data.shape)
         hdul.close()
         headers.append(header)
         datas.append(data)
@@ -125,7 +126,13 @@ def xid_test(maps):
         #get_pointing_matrix(bkg=True) if bkg = True bkg is fitted to all pixels, else only fitted where prior souces contribute.
         #priors[i].upper_lim_map() #updates the flux upper limit to abs(bkg) + 2*sigma_bkg + max(D) where max(D) is the maximum value of pixels the source contributes to.
 
-    fit = SPIRE.all_bands(priors[0], priors[1], priors[2], iter=10)
+
+
+    print('%s sources' % priors[0].nsrc)
+    print('using %s %s %s' % (priors[0].snpix, priors[1].snpix, priors[2].snpix))
+
+
+    fit = SPIRE.all_bands(priors[0], priors[1], priors[2], iter=1000)
     posterior = xidplus.posterior_stan(fit,[priors[0],priors[1],priors[2]])
 
     spire_cat = cat.create_SPIRE_cat(posterior, priors[0], priors[1], priors[2])

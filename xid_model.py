@@ -37,13 +37,15 @@ from photutils import DAOStarFinder
 from scipy.integrate import dblquad
 from photutils import IRAFStarFinder
 from photutils import find_peaks
+from photutils import detect_threshold
+
 np.set_printoptions(threshold=sys.maxsize)
 
 class Xid_Model():
     def __init__(self, json_dir, clusname):
         self.data = [[],[],[]]
         for file in os.listdir(json_dir):
-            if file.startswith('xid') and file.endswith('.json') and clusname in file and 'PSW' in file and 'take_3' not in file:
+            if file.startswith('xid') and file.endswith('.json') and clusname in file and 'PSW' in file and 'take_2' in file:
                 print(file)
                 with open(json_dir + file) as json_file:
                     datastore = json.load(json_file)
@@ -117,39 +119,273 @@ class Xid_Model():
     def create_psfs(self, maps):
         self.psfs = []
         bands = [18, 36, 25]
-        # pixsize = [6, 25/3, 12]
+        pixsize = [6, 25/3, 12]
         # self.fluxes = []
-        # for i in range(3):
+        for i in range(3):
+            print(maps[i]['file'])
+            print(maps[i]['band'])
         for i in range(1):
             fwhm = bands[i] / maps[i]['pixsize']
             sigma = fwhm / (sqrt(8 * log(2)))
-            print('fwhm in arcsec', bands[i])
-            print('pixsize in arcsec / pixel', maps[i]['pixsize'])
-            print('fwhm in pixels', fwhm)
-            print('sigma', sigma)
-            self.psfs.append([])
             fluxes = self.data[i]['sflux']
-            hdul = fits.open(maps[1]['file'])
-            w = WCS(hdul[1].header)
-            print(self.data[i]['sra'])
-            ra = np.array(self.data[i]['sra']) * u.deg
-            print(ra)
-            dec = np.array(self.data[i]['sdec']) * u.deg
-            c = SkyCoord(ra, dec)
-            px, py = skycoord_to_pixel(c, w, 1)
+            hdul = fits.open('/data/mercado/SPIRE/hermes_clusters/a0370_PSW_nr_1.fits')
+            print(maps[0]['band'], maps[0]['file'], maps[0]['name'])
+            w = WCS(maps[0]['shead'])
+            print(maps[0]['file'])
+            raa = np.array(self.data[i]['sra']) * u.deg
+            # print(ra)
+            deca = np.array(self.data[i]['sdec']) * u.deg
+            ra = self.h_ra
+            dec = self.h_d
+            # for j in range(len(ra)):
+            #     ra[j] = ra[j] - 38
+            # ra = ra * 3600 / maps[i]['pixsize']#* u.deg
+            # for j in range(len(dec)):
+            #     dec[j] = dec[j] + 2
+            # dec = dec * 3600 / maps[i]['pixsize']#* u.deg
+
+            # plt.scatter(ra, dec, c=self.h_f, alpha=0.5)
+            # plt.show()
+            # c = SkyCoord(raa, deca)
+            # px, py = skycoord_to_pixel(c, w, 1)
+            # plt.scatter(px, py)
+            # plt.show()
             print(bands[1], maps[1]['file'])
+
+            map_data = hdul[1].data
+
+            raa = ra * u.deg
+            deca = dec * u.deg
+            c = SkyCoord(raa, deca)
+            px, py = skycoord_to_pixel(c, w, origin=1)
+            plt.scatter(px, py, c=self.h_f, alpha=0.5)
+            plt.show()
+
+
+            origin = [1,1]
+            origin_c = pixel_to_skycoord(origin[0], origin[1], w, origin=1)
+            origin_a = self.convert_to_decimal(str(origin_c.ra))
+            origin_d = self.convert_to_decimal(str(origin_c.dec))
+
+            # plt.scatter(origin_a, origin_d, color='red')
+
+
+            # origin = [263,1]
+            # origin_c = pixel_to_skycoord(origin[0], origin[1], w, origin=1)
+            # origin_a = self.convert_to_decimal(str(origin_c.ra))
+            # origin_d = self.convert_to_decimal(str(origin_c.dec))
+            #
+            # plt.scatter(origin_a, origin_d, color='green')
+            #
+            # origin = [1, 243]
+            # origin_c = pixel_to_skycoord(origin[0], origin[1], w, origin=1)
+            # origin_a = self.convert_to_decimal(str(origin_c.ra))
+            # origin_d = self.convert_to_decimal(str(origin_c.dec))
+            #
+            # plt.scatter(origin_a, origin_d, color='orange')
+            #
+            # origin = [263,243]
+            # origin_c = pixel_to_skycoord(origin[0], origin[1], w, origin=1)
+            # origin_a = self.convert_to_decimal(str(origin_c.ra))
+            # origin_d = self.convert_to_decimal(str(origin_c.dec))
+            #
+            # plt.scatter(origin_a, origin_d, color='yellow')
+            #
+            # plt.scatter(ra, dec, color='blue')
+            # plt.show()
+
+            print('HAHAHa')
+            for j in range(len(ra)):
+                ra[j] = ra[j] - origin_a
+                dec[j] = dec[j] - origin_d
+                if dec[j] < 0:
+                    dec[j] *= -1
+                if ra[j] < 0:
+                    ra[j] *= -1
+                ra[j] = ra[j] * 600
+                dec[j] = dec[j] * 600
+
+            # sf_x = self.sf_x[0:478]
+            # sf_y = self.sf_y[0:478]
+            # sf_f = self.sf_f[0:478]
+            # print(len(sf_f))
+
+            plt.scatter(self.sf_x, self.sf_y, c=self.sf_f, alpha=0.5)
+            plt.show()
+
+            plt.scatter(ra, dec, c=self.h_f, alpha=0.5)
+            plt.show()
+
+            print(len(self.sf_x) * len(ra))
+            new_r = []
+            new_x = []
+            new_d = []
+            new_y = []
+            new_h_f = []
+            new_s_f = []
+            for j in range(len(ra)):
+                for k in range(len(self.sf_x)):
+                    plus_offset = self.sf_x[k] + 1
+                    minus_offset = self.sf_x[k] - 1
+                    if ra[j] >= plus_offset and ra[j] <= minus_offset:
+                        new_r.append(ra[j])
+                        new_x.append(self.sf_x[k])
+                        new_d.append(dec[j])
+                        new_y.append(self.sf_y[k])
+                        new_h_f.append(self.h_f[j])
+                        new_s_f.append(self.sf_f[k])
+
+
+            print('PLOTTING NEW STUFF', len(new_r))
+            plt.scatter(new_r, new_d, c=new_h_f, alpha=0.5)
+            plt.show()
+
+            plt.scatter(new_x, new_y, c=new_s_f, alpha=0.5)
+            plt.show()
+
+
+            # plt.scatter(ra, dec, c=self.h_f, alpha=0.5)
+            # plt.show()
+            #
+            #
+            #
+            # plt.scatter(ra, dec, c=self.h_f, alpha=0.5)
+            # plt.show()
+            # plt.imshow(map_data, origin='lower')
+            # # apertures = CircularAperture((ra,dec), r=1)
+            # # apertures.plot()
+            # plt.show()
+            #
+            # plt.scatter(ra, dec, c=self.h_f, alpha=0.5)
+            # plt.show()
             # fluxes = np.array(fluxes)
             y_size = hdul[1].data.shape[0]
             x_size = hdul[1].data.shape[1]
+
+            new_map = np.zeros((y_size, x_size))
+            for j in range(len(self.sf_x)):
+                if np.isnan(self.sf_f[j]):
+                    pass
+                else:
+                    kern = makeGaussian(x_size, y_size, fwhm = 3, center=(self.sf_x[j], self.sf_y[j]))
+                    # kern = np.asarray(kern)
+                    # plt.imshow(kern)
+                    # plt.show()
+                    if np.max(kern) == 0:
+                        pass
+                    else:
+                        # print(np.max(kern))
+                        # print(self.h_f[j])
+                        kern = kern / np.max(kern)
+                        # plt.imshow(kern)
+                        # plt.show()
+                        coefficient = self.sf_f[j]
+                        psf = kern * coefficient
+                        # plt.imshow(psf)
+                        # plt.show()
+                        new_map = new_map + psf
+            # plt.imshow(new_map, origin='lower')
+            # plt.show()
+                    # self.psfs.append(psf)
+
+
+            hdu = fits.PrimaryHDU(new_map, hdul[1].header)
+            hdul2 = fits.HDUList([hdu])
+            hdul2.writeto('photutils_t_mask_%s_%s.fits' % (maps[1]['name'], 'PSW'))
+            subtracted = map_data - new_map
+            # plt.imshow(subtracted)
+            # plt.show()
+            hdu = fits.PrimaryHDU(subtracted, hdul[1].header)
+            hdul = fits.HDUList([hdu])
+            hdul.writeto('photutils_t_subtracted_%s_%s.fits' % (maps[1]['name'], 'PSW'))
+            """
+            print(map_data[171, 148])
+            for j in range(1,x_size+1):
+                for k in range(1, y_size+1):
+                    p_coords.append([j,k, map_data[k-1, j-1]])
+            print(len(p_coords), map_data.shape)
+            p_coords = np.asarray(p_coords)
+            plt.scatter(p_coords[:,0], p_coords[:,1], c=p_coords[:,2])
+            plt.show()
+            f = p_coords[:,2]
+            a = []
+            d = []
+            ha = []
+            he = []
+            for j in range(p_coords.shape[0]):
+                c = pixel_to_skycoord(p_coords[j][0], p_coords[j][1], w, origin=1)
+                asc = self.convert_to_decimal(str(c.ra))
+                de = self.convert_to_decimal(str(c.dec))
+                ha.append(asc)
+                he.append(de + 1)
+                a.append(asc - 39)
+                d.append(de + 2)
+
+
+            f = np.asarray(f)
+            print(f.shape)
+            ind = np.isnan(f)
+            new_f = f[ind]
+            print(new_f.shape)
+
+            print(np.max(np.asarray(a)))
+            print(np.max(np.asarray(d)), print(np.min(np.asarray(d))))
+            a = np.asarray(a) * 3600 / maps[i]['pixsize']
+            d = np.asarray(d) * 3600 / maps[i]['pixsize']
+
+            print(np.max(a), np.min(a))
+            print(np.max(d), np.min(d))
+            print('original')
+            plt.scatter(a, d, c=p_coords[:,2], alpha=0.5)
+            plt.show()
+            print('hedam')
+            plt.scatter(ra, dec, c=self.h_f)
+            plt.show()
+            print('both')
+            plt.scatter(a, d, c=p_coords[:,2])
+            plt.scatter(ra, dec, c=self.h_f)
+            plt.show()
+            plt.show()
+            plt.scatter(ha, he, c=p_coords[:,2], alpha=0.5)
+            plt.show()
+            # plt.savefig('scatter_plot for cluster')
+            print('why am i doing this lmao')
             A = integrate(x_size, y_size, sigma)[0]
-            # print(A[0])
-            for j in range(len(fluxes)):
-                kern = makeGaussian(x_size=x_size, y_size=y_size, fwhm =bands[i] / maps[i]['pixsize'], center=(px[j], py[j]))
-                kern = np.asarray(kern)
-                kern = kern / np.max(kern)
-                coefficient = fluxes[j]
-                psf = kern * coefficient
-                self.psfs[i].append(psf)
+            map = np.zeros((int(np.max(a))+40, int(np.max(d))+40))
+            for j in range(len(f)):
+                if np.isnan(f[j]):
+                    pass
+                else:
+                    g = makeGaussian(int(np.max(d))+40, int(np.max(a))+40, .3, center=(a[j],d[j]))
+                    if np.max == 0:
+                        g = g * f[j] / np.max(g)
+                        map = map + g
+            plt.savefig('recreation of cluster')
+            plt.imshow(map)
+            plt.show()
+
+            hdu = fits.PrimaryHDU(map, hdul[1].header)
+            hdul = fits.HDUList([hdu])
+            hdul.writeto('original_image_%s_%s' % (maps[1]['name'], 'PSW'))
+
+            new_map = np.zeros((int(np.max(a))+40, int(np.max(d))+40))
+            plt.imshow(new_map)
+            plt.show()
+
+            plt.imshow(new_map)
+            plt.show()
+
+            """
+    def convert_to_decimal(self, num):
+        num = num.split('d')
+        first = float(num[0])
+        num = num[1].split('m')
+        second = float(num[0]) / 60
+        num = num[1].split('s')
+        third = float(num[0]) / 3600
+        if first < 0:
+            return first - second - third
+        return first + second + third
 
 
     def mapping_psfs(self, maps):
@@ -157,11 +393,10 @@ class Xid_Model():
         print('generating mask')
         for i in range(1):
             print('Starting on %s for %s elements' % (maps[1]['band'], len(self.psfs[i])))
-            naxis = maps[1]['astr']['NAXIS']
+            naxis = maps[0]['astr']['NAXIS']
             print(naxis)
-            print(maps[1]['signal'].shape)
+            print(maps[0]['signal'].shape)
             gal_clust = np.zeros( naxis)
-            print(maps[1]['file'])
             hdul = fits.open(maps[i]['file'])
             w = WCS(hdul[1].header)
             ra = np.array(self.data[i]['sra']) * u.deg
@@ -172,13 +407,14 @@ class Xid_Model():
             hdu = fits.PrimaryHDU(maps[i]['signal'].data)
             hdu = fits.HDUList([hdu])
             for j in range(len(self.psfs[i])):
-                psf_shape = np.asarray(self.psfs[i][j]).shape
-                gal_clust = gal_clust + self.psfs[i][j]
+                gal_clust = gal_clust + self.psfs[j]
             gal_clusts.append(gal_clust)
             hdu = fits.PrimaryHDU(gal_clust, hdul[1].header)
             hdul = fits.HDUList([hdu])
-            hdul.writeto('starfinder_total_mask_%s_%s.fits' % (maps[1]['name'], maps[1]['band']))
-            print('finished generating mask for %s' % (maps[1]['band']))
+            plt.imshow(gal_clust)
+            plt.show()
+            hdul.writeto('HeDam_mask_%s_%s.fits' % (maps[1]['name'], 'PSW'))
+            print('finished generating mask for %s' % ('PSW'))
 
         return gal_clusts
 
@@ -250,6 +486,7 @@ class Xid_Model():
         mean, median, std = sigma_clipped_stats(data, sigma=3.0)
         print(std) #0.004261477072239812
         findstars = DAOStarFinder(fwhm=fwhm, threshold=1.*std)
+        print(vars(findstars))
         sources = findstars(data)
         for col in sources.colnames:
             sources[col].info.format = '%.8g'  # for consistent table output
@@ -264,18 +501,24 @@ class Xid_Model():
 
     def plot_starfinder_flux(self, maps):
         self.flux = []
-        bands = [25, 25, 36]
+        bands = [18, 25, 36]
         pixsize = [6, 25/3, 12]
         fwhm = np.divide(bands, pixsize)
         for i in range(1):
             # self.flux.append([])
-            hdul = fits.open('/data/mercado/SPIRE/hermes_clusters/a2218_PSW_nr_1.fits')
-            print(maps[1]['file'], 'HE SCREAM!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!11')
+            hdul = fits.open('/data/mercado/SPIRE/hermes_clusters/a0370_PSW_nr_1.fits')
             data = hdul[1].data
             p, f, std = self.starfinder(data, fwhm[i])
             x = p[0]
             y = p[1]
-            f = f * 1. * std
+            f = np.asarray(f)
+            threshold = detect_threshold(data, 11)
+            plt.imshow(threshold)
+            plt.show()
+            print(threshold[0][0])
+            print(np.max(f))
+            f = f * 1. * 0.007341031409453509
+            print(np.max(f))
             apertures = CircularAperture((x,y), r=1)
             plt.imshow(data, origin='lower')
             apertures.plot()
@@ -284,14 +527,14 @@ class Xid_Model():
             plot = plt.scatter(x, y, c=f, alpha=0.5)
             colorbar = plt.colorbar()
             colorbar.set_label('Flux')
-            self.sf_flux = f
+            self.sf_f = f
             self.sf_x = x
             self.sf_y = y
             print('Length from starfinder', len(self.sf_x))
             # plt.show()
 
     def plot_IRAFstarfinder(self, maps):
-        data = fits.open(maps[1]['file'])[1].data
+        data = fits.open(maps[0]['file'])[1].data
         print(maps[1]['file'])
         mean, mediam, std = sigma_clipped_stats(data, sigma=3.0)
         starfinder = IRAFStarFinder(threshold=.001*std, fwhm=3.0)
@@ -302,7 +545,7 @@ class Xid_Model():
         positions = (table['x_peak'], table['y_peak'])
         fluxes = table['peak_value']
         print(len(fluxes))
-        plt.scatter(positions[0], positions[1], c=fluxes, alpha=0.5)
+        # plt.scatter(positions[0], positions[1], c=fluxes, alpha=0.5)
         colorbar = plt.colorbar()
         # plt.show()
         print('length of find_peaks', len(fluxes))
@@ -343,10 +586,36 @@ class Xid_Model():
         # \n
 
         #HeDam 1 data
-        HeDam1_data = np.load('a2218_250.npy')
-        HeDam1_RA = HeDam1_data[0]
-        HeDam1_Dec = HeDam1_data[1]
-        HeDam1_Flux = HeDam1_data[2]
+        f_obj = open('cesam_all_scat250_dr2_catalog_1564070116.csv')
+
+        HeDam1_RA = []
+        HeDam1_Dec = []
+        HeDam1_Flux = []
+        for line in f_obj:
+            line = line.split(',')
+            if line[2] == 'RA':
+                pass
+            else:
+                HeDam1_RA.append(float(line[2]))
+                HeDam1_Dec.append(float(line[3]))
+                HeDam1_Flux.append(float(line[4]))
+
+        HeDam1_RA = np.asarray(HeDam1_RA)
+        HeDam1_Dec = np.asarray(HeDam1_Dec)
+        HeDam1_Flux = np.asarray(HeDam1_Flux)
+
+        self.h_f = HeDam1_Flux / 1000
+        self.h_ra = HeDam1_RA
+        self.h_d = HeDam1_Dec
+
+        # plt.scatter(self.h_ra, self.h_d, c=self.h_f, alpha=0.5)
+        # plt.show()
+
+        """
+        # HeDam1_data = np.load('a2218_250.npy')
+        # HeDam1_RA = HeDam1_data[0]
+        # HeDam1_Dec = HeDam1_data[1]
+        # HeDam1_Flux = HeDam1_data[2]
         # HeDam1 = fits.open('/home/vaughan/rsz/fits_files/CS-Abell-370_SCAT250_DR2.fits')
         # HeDam1_head = HeDam1[1].header
         # HeDam1_data = HeDam1[1].data
@@ -387,7 +656,7 @@ class Xid_Model():
         XID_RA = XID_data['sra'] * u.deg
         XID_Dec = XID_data['sdec'] * u.deg
         XID_Flux = XID_data['sflux']
-        XID_head = fits.open('/data/mercado/SPIRE/hermes_clusters/a2218_PSW_nr_1.fits')[1].header
+        XID_head = fits.open('/data/mercado/SPIRE/hermes_clusters/a0370_PSW_nr_1.fits')[1].header
         w = WCS(XID_head)
         c = SkyCoord(XID_RA, XID_Dec)
         px, py = skycoord_to_pixel(c, w, 1)
@@ -471,7 +740,7 @@ class Xid_Model():
 
         percent_err = abs(n_XID_f - n_HeDam1_f) / n_HeDam1_f
         mean = np.mean(percent_err) * 100
-        """
+
         print('h1')
         x1_ind, H1_ind = self.index_finder(XID_RA, XID_Dec, HeDam1_RA, HeDam1_Dec, min_ra, min_dec)
         print('sf')
@@ -482,14 +751,14 @@ class Xid_Model():
 
         print(x1_ind)
         print(x3_ind)
-        print(x4_ind)
+        print(x4_ind)        print(':)', len(HeDam1_RA))
+
 
         HeDam1_Flux = HeDam1_Flux[H1_ind] / 1000
         sf_f = sf_f[sf_ind]
         peak_f = peak_f[peak_ind]
         XID_Flux = np.asarray(XID_Flux)[x1_ind]
 
-        """
 
         f_obj = open('flux_catalog.txt', 'w')
 
@@ -501,8 +770,7 @@ class Xid_Model():
             str =   '%s              %.5f       %.5f       %.5f          %.5f        %.5f        %.5f  \n' % (i, px[i], py[i], HeDam1_Flux[i], XID_Flux[i],  sf_f[i], peak_f[i])
             f_obj.write(str)
         f_obj.close()
-
-
+        """
 
     def index_finder(self, XID_RA, XID_Dec, other_RA, other_dec, x_off, y_off):
         other_index = []
@@ -546,14 +814,6 @@ def numpy_where_test():
     index = np.where(arr == 67)
     print(index)
     print(index[0], index[1])
-#
-# def rotate_origin_only(xy, radians):
-#     """Only rotate a point around the origin (0, 0)."""
-#     x, y = xy
-#     xx = x * math.cos(radians) + y * math.sin(radians)
-#     yy = -x * math.sin(radians) + y * math.cos(radians)
-#
-# return xx, yy
 
 def make_gaussian(sigma, size, x_mean, y_mean):
     pass
@@ -607,55 +867,138 @@ def noise_map():
     hdul = fits.HDUList([hdu])
     hdul.writeto('noise_test.fits')
 
-
 def variance_or_noise():
     fits_file = fits.open('/data/mercado/SPIRE/hermes_clusters/a0370_PSW_nr_1.fits')
     data = fits_file[1].data
     mean, median, std = sigma_clipped_stats(data, sigma=3.0)
 
+def view_test_image():
+    file = '/home/vaughan/XID_plus/test_files/cosmos_itermap_lacey_07012015_simulated_observation_w_noise_PSW_hipe.fits.gz'
+    hdul = fits.open(file)
+    map = hdul[1].data
+    noise = hdul[2].data
+
+
+    sigma = 3
+    mean, median, std = sigma_clipped_stats(map, sigma=sigma)
+ 
+    print(std)
+ 
+
+    plt.imshow(map)
+    plt.show()
+  
+    plt.imshow(noise)
+    plt.show()
+
+   
+    hdul = fits.open('/data/mercado/SPIRE/hermes_clusters/a0370_PSW_nr_1.fits')
+
+    map = hdul[1].data
+    noise = hdul[2].data
+
+    plt.imshow(map)
+    plt.show()
+
+    plt.imshow(noise)
+    plt.show()
+
+
+
 def subtract_models(model1, model2):
     residual = model1 - model2
+    for i in range(residual.shape[0]):
+        for j in range(residual.shape[1]):
+            if residual[i,j] < 0.00000000009:
+                residual[i,j] = 0
+    p, f, std = model.starfinder(residual, 3)
+    x = p[0]
+    y = p[1]
+
+    for i in range(len(x)):
+        x[i] = round(x[i])
+        y[i] = round(y[i])
+    # f = f * 1. * std
+    apertures = CircularAperture((x,y), r=1)
+    plt.imshow(residual, origin='lower')
+    apertures.plot()
+    plt.show()
+    peak_fluxes = []
+    highest = residual[136,110]
+    lowest = 0
+    for i in range(len(x)):
+        peak_fluxes.append(residual[int(y[i]), int(x[i])])
+        if residual[int(y[i]), int(x[i])] >= lowest:
+            max = residual[int(y[i]), int(x[i])]
+            lowest = max
+            print(x[i]+1, y[i]+1, max)
+            # print(x[i], y[i])
+    # print(peak_fluxes)
+    print(len(peak_fluxes))
+    peak_fluxes = np.asarray(peak_fluxes)
+    ind = np.where(peak_fluxes == np.max(peak_fluxes))
+    peak_fluxes = np.delete(peak_fluxes, ind)
+    x = np.delete(x, ind)
+    y = np.delete(y, ind)
+    ind = np.where(peak_fluxes == np.max(peak_fluxes))
+    peak_fluxes = np.delete(peak_fluxes, ind)
+    x = np.delete(x, ind)
+    y = np.delete(y, ind)
+
+    print(np.max(peak_fluxes), np.min(peak_fluxes), np.mean(peak_fluxes))
+    plt.scatter(x, y, c=peak_fluxes, alpha=0.5)
+    colorbar = plt.colorbar()
+    colorbar.set_label('Difference in Flux')
+    plt.show()
+    # return peak_fluxes, x, y
+    # print(np.max(peak_fluxes))
+    # print(np.where(peak_fluxes == np.max(peak_fluxes)))
     hdu = fits.PrimaryHDU(residual)
     hdul = fits.HDUList([hdu])
-    hdul.writeto('idl-findpeaks.fits')
+    hdul.writeto('photutils-HeDam_mask_new_t.fits')
 
 if __name__ == '__main__':
     # rubiks_cube()
-
+    view_test_image()
+    g = makeGaussian(120, 120, .3, center=(3,3))
+    # plt.imshow(g)
+    # plt.show()
     # variance_or_noise()
     # numpy_where_test()
     # g = makeGaussian(105, 105, fwhm=18)
     # plt.imshow(g)
     # plt.show()
-    maps, err = get_data('a2218')
-    print(maps[1]['file'])
-    # # noise_map()
-    model = Xid_Model('/home/vaughan/rsz/', 'a2218')
-    model.plot_IRAFstarfinder(maps)
-    # # # model.finding_index(maps)
-    # # # print('starfinder map')
-    model.plot_starfinder_flux(maps)
-    # # # model.plot_in_cat('cat_file.json', maps)
-    # model.plot_pixel_x_y(maps)
-    model.create_psfs(maps)
-    # # # model.find_normalization_factor(maps)
-    models = model.mapping_psfs(maps)
-    model.subtract_cat(maps, models)
-    model.create_PSW_csv()
+    maps, err = get_data('a0370')
+    # print(maps[0]['file'])
+    # # # # noise_map()
+    model = Xid_Model('/home/vaughan/rsz/json_files/', 'a0370')
 
-    # fits1 = fits.open('/home/vaughan/rsz/fits_files/idl_subtracted_a0370_PSW.fits')
-    # fits2 = fits.open('starfinder_total_subtracted_a0370_PSW.fits')
-    # model1 = fits1[0].data
-    # # for i in range(model1.shape[0]):
-    # #     for j in range(model1.shape[1]):
-    # #         if model1[i,j] >= 0:
-    # #             model1[i,j] = model1[i,j] / 1000
-    # #             # map[i,j] = sqrt(data[i,j])
-    # #         elif model1[i,j] < 0:
-    # #             model1[i,j] = model1[i,j] / 1000
-    #             # map[i,j] = -1 * sqrt(-1 * data[i,j])
-    # model2 = fits2[0].data
-    # subtract_models(model1, model2)
+
+    # model.plot_IRAFstarfinder(maps)
+    # # # # model.finding_index(maps)
+    # # # # print('starfinder map')
+    # model.plot_starfinder_flux(maps)
+    # # # # model.plot_in_cat('cat_file.json', maps)
+    model.create_PSW_csv()
+    # # model.plot_pixel_x_y(maps)
+    # model.create_psfs(maps)
+    # # # # model.find_normalization_factor(maps)
+    # model = model.mapping_psfs(maps)
+    # model.subtract_cat(maps, models)
+    fits1 = fits.open('photutils_t_mask_a0370_PSW.fits')
+    fits2 = fits.open('HeDam_mask_a0370_PSW.fits')
+    model1 = fits1[0].data
+    for i in range(model1.shape[0]):
+        for j in range(model1.shape[1]):
+            if model1[i,j] >= 0:
+                model1[i,j] = model1[i,j] / 1000
+                # map[i,j] = sqrt(data[i,j])
+            elif model1[i,j] < 0:
+                model1[i,j] = model1[i,j] / 1000
+                map[i,j] = -1 * sqrt(-1 * data[i,j])
+    model2 = fits2[0].data
+    f, x, y = subtract_models(model1, model2)
+
     # # models = [[],[],[]]
     # for file in os.listdir('/home/vaughan/rsz'):
     #     if 'xid_model' in file and '.fits' in file:

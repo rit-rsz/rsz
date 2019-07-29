@@ -267,7 +267,11 @@ class Catsrc():
 
 
 if __name__ == '__main__':
-    catsrc = Catsrc('a2218', verbose=1, cattype='PSW')
+<<<<<<< HEAD:catsrc.py
+    catsrc = Catsrc('a0370', verbose=1,nsim=200,simmap=2,cattype='PSW')
+=======
+    catsrc = Catsrc('a0370', verbose=1, cattype='PSW')
+>>>>>>> e8ad6d1969557f32015df07067494a22d83fadb5:clus_catsrc.py
         # SAVEPLOTS=saveplots,\
         # CATTYPE=cattype,\
         # SAVECAT=savecat,\

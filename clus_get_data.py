@@ -22,9 +22,9 @@ import os
 import sys
 #import pyfits
 sys.path.append('../rsz/utilities')
-from get_spire_beam import *
-from get_spire_beam_fwhm import *
-import config
+from clus_get_spire_beam import *
+from clus_get_spire_beam_fwhm import *
+import clus_config as config
 
 def get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
             verbose = 1, version = '1', manidentifier=None):

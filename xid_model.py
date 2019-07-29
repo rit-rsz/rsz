@@ -19,7 +19,7 @@ sys.path.append('../source_handling')
 print(sys.path)
 import numpy as np
 import os
-from get_data import get_data
+from clus_get_data import get_data
 from astropy.wcs import WCS
 from astropy.wcs.utils import skycoord_to_pixel
 from astropy import units as u
@@ -125,18 +125,17 @@ class Xid_Model():
             print(maps[i]['file'])
             print(maps[i]['band'])
         for i in range(1):
+            i = 1
             fwhm = bands[i] / maps[i]['pixsize']
             sigma = fwhm / (sqrt(8 * log(2)))
-            fluxes = self.data[i]['sflux']
-            hdul = fits.open('/data/mercado/SPIRE/hermes_clusters/a0370_PSW_nr_1.fits')
-            print(maps[0]['band'], maps[0]['file'], maps[0]['name'])
-            w = WCS(maps[0]['shead'])
-            print(maps[0]['file'])
-            raa = np.array(self.data[i]['sra']) * u.deg
-            # print(ra)
-            deca = np.array(self.data[i]['sdec']) * u.deg
-            ra = self.h_ra
-            dec = self.h_d
+            # fluxes = self.data[i]['sflux']
+            hdul = fits.open('/data/mercado/SPIRE/hermes_clusters/a0370_PMW_nr_1.fits')
+            w = WCS(maps[1]['shead'])
+            # raa = np.array(self.data[i]['sra']) * u.deg
+            # # print(ra)
+            # deca = np.array(self.data[i]['sdec']) * u.deg
+            ra = self.h_ra # * u.deg
+            dec = self.h_d #* u.deg
             # for j in range(len(ra)):
             #     ra[j] = ra[j] - 38
             # ra = ra * 3600 / maps[i]['pixsize']#* u.deg
@@ -150,16 +149,16 @@ class Xid_Model():
             # px, py = skycoord_to_pixel(c, w, 1)
             # plt.scatter(px, py)
             # plt.show()
-            print(bands[1], maps[1]['file'])
+            # print(bands[1], maps[1]['file'])
 
             map_data = hdul[1].data
 
-            raa = ra * u.deg
-            deca = dec * u.deg
-            c = SkyCoord(raa, deca)
-            px, py = skycoord_to_pixel(c, w, origin=1)
-            plt.scatter(px, py, c=self.h_f, alpha=0.5)
-            plt.show()
+            # raa = ra * u.deg
+            # deca = dec * u.deg
+            # c = SkyCoord(raa, deca)
+            # px, py = skycoord_to_pixel(c, w, origin=1)
+            # plt.scatter(px, py, c=self.h_f, alpha=0.5)
+            # plt.show()
 
 
             origin = [1,1]
@@ -167,6 +166,9 @@ class Xid_Model():
             origin_a = self.convert_to_decimal(str(origin_c.ra))
             origin_d = self.convert_to_decimal(str(origin_c.dec))
 
+            # c = SkyCoord(ra, dec)
+            #
+            # px, py = skycoord_to_pixel(c, w, origin=1)
             # plt.scatter(origin_a, origin_d, color='red')
 
 
@@ -202,46 +204,46 @@ class Xid_Model():
                     dec[j] *= -1
                 if ra[j] < 0:
                     ra[j] *= -1
-                ra[j] = ra[j] * 600
-                dec[j] = dec[j] * 600
+                ra[j] = ra[j] * 3600 / pixsize[1]
+                dec[j] = dec[j] * 3600 / pixsize[1]
 
             # sf_x = self.sf_x[0:478]
             # sf_y = self.sf_y[0:478]
             # sf_f = self.sf_f[0:478]
             # print(len(sf_f))
 
-            plt.scatter(self.sf_x, self.sf_y, c=self.sf_f, alpha=0.5)
-            plt.show()
+            # plt.scatter(self.sf_x, self.sf_y, c=self.sf_f, alpha=0.5)
+            # plt.show()
+            #
+            # plt.scatter(ra, dec, c=self.h_f, alpha=0.5)
+            # plt.show()
 
-            plt.scatter(ra, dec, c=self.h_f, alpha=0.5)
-            plt.show()
-
-            print(len(self.sf_x) * len(ra))
-            new_r = []
-            new_x = []
-            new_d = []
-            new_y = []
-            new_h_f = []
-            new_s_f = []
-            for j in range(len(ra)):
-                for k in range(len(self.sf_x)):
-                    plus_offset = self.sf_x[k] + 1
-                    minus_offset = self.sf_x[k] - 1
-                    if ra[j] >= plus_offset and ra[j] <= minus_offset:
-                        new_r.append(ra[j])
-                        new_x.append(self.sf_x[k])
-                        new_d.append(dec[j])
-                        new_y.append(self.sf_y[k])
-                        new_h_f.append(self.h_f[j])
-                        new_s_f.append(self.sf_f[k])
+            # print(len(self.sf_x) * len(ra))
+            # new_r = []
+            # new_x = []
+            # new_d = []
+            # new_y = []
+            # new_h_f = []
+            # new_s_f = []
+            # for j in range(len(ra)):
+            #     for k in range(len(self.sf_x)):
+            #         plus_offset = self.sf_x[k] + 1
+            #         minus_offset = self.sf_x[k] - 1
+            #         if ra[j] >= plus_offset and ra[j] <= minus_offset:
+            #             new_r.append(ra[j])
+            #             new_x.append(self.sf_x[k])
+            #             new_d.append(dec[j])
+            #             new_y.append(self.sf_y[k])
+            #             new_h_f.append(self.h_f[j])
+            #             new_s_f.append(self.sf_f[k])
 
 
-            print('PLOTTING NEW STUFF', len(new_r))
-            plt.scatter(new_r, new_d, c=new_h_f, alpha=0.5)
-            plt.show()
-
-            plt.scatter(new_x, new_y, c=new_s_f, alpha=0.5)
-            plt.show()
+            # print('PLOTTING NEW STUFF', len(new_r))
+            # plt.scatter(new_r, new_d, c=new_h_f, alpha=0.5)
+            # plt.show()
+            #
+            # plt.scatter(new_x, new_y, c=new_s_f, alpha=0.5)
+            # plt.show()
 
 
             # plt.scatter(ra, dec, c=self.h_f, alpha=0.5)
@@ -263,11 +265,11 @@ class Xid_Model():
             x_size = hdul[1].data.shape[1]
 
             new_map = np.zeros((y_size, x_size))
-            for j in range(len(self.sf_x)):
-                if np.isnan(self.sf_f[j]):
+            for j in range(len(self.h_f)):
+                if np.isnan(self.h_f[j]):
                     pass
                 else:
-                    kern = makeGaussian(x_size, y_size, fwhm = 3, center=(self.sf_x[j], self.sf_y[j]))
+                    kern = makeGaussian(x_size, y_size, fwhm = fwhm, center=(ra[j], dec[j]))
                     # kern = np.asarray(kern)
                     # plt.imshow(kern)
                     # plt.show()
@@ -279,7 +281,7 @@ class Xid_Model():
                         kern = kern / np.max(kern)
                         # plt.imshow(kern)
                         # plt.show()
-                        coefficient = self.sf_f[j]
+                        coefficient = self.h_f[j]
                         psf = kern * coefficient
                         # plt.imshow(psf)
                         # plt.show()
@@ -291,13 +293,13 @@ class Xid_Model():
 
             hdu = fits.PrimaryHDU(new_map, hdul[1].header)
             hdul2 = fits.HDUList([hdu])
-            hdul2.writeto('photutils_t_mask_%s_%s.fits' % (maps[1]['name'], 'PSW'))
+            hdul2.writeto('HeDam_model_%s_%s.fits' % (maps[1]['name'], '350'))
             subtracted = map_data - new_map
             # plt.imshow(subtracted)
             # plt.show()
             hdu = fits.PrimaryHDU(subtracted, hdul[1].header)
             hdul = fits.HDUList([hdu])
-            hdul.writeto('photutils_t_subtracted_%s_%s.fits' % (maps[1]['name'], 'PSW'))
+            hdul.writeto('HeDam_subtracted_%s_%s.fits' % (maps[1]['name'], '350'))
             """
             print(map_data[171, 148])
             for j in range(1,x_size+1):
@@ -586,7 +588,7 @@ class Xid_Model():
         # \n
 
         #HeDam 1 data
-        f_obj = open('cesam_all_scat250_dr2_catalog_1564070116.csv')
+        f_obj = open('a0370_350_cat.csv')
 
         HeDam1_RA = []
         HeDam1_Dec = []
@@ -881,17 +883,17 @@ def view_test_image():
 
     sigma = 3
     mean, median, std = sigma_clipped_stats(map, sigma=sigma)
- 
+
     print(std)
- 
+
 
     plt.imshow(map)
     plt.show()
-  
+
     plt.imshow(noise)
     plt.show()
 
-   
+
     hdul = fits.open('/data/mercado/SPIRE/hermes_clusters/a0370_PSW_nr_1.fits')
 
     map = hdul[1].data
@@ -959,7 +961,7 @@ def subtract_models(model1, model2):
 
 if __name__ == '__main__':
     # rubiks_cube()
-    view_test_image()
+    # view_test_image()
     g = makeGaussian(120, 120, .3, center=(3,3))
     # plt.imshow(g)
     # plt.show()
@@ -981,10 +983,10 @@ if __name__ == '__main__':
     # # # # model.plot_in_cat('cat_file.json', maps)
     model.create_PSW_csv()
     # # model.plot_pixel_x_y(maps)
-    # model.create_psfs(maps)
+    model.create_psfs(maps)
     # # # # model.find_normalization_factor(maps)
     # model = model.mapping_psfs(maps)
-    # model.subtract_cat(maps, models)
+    model.subtract_cat(maps, models)
     fits1 = fits.open('photutils_t_mask_a0370_PSW.fits')
     fits2 = fits.open('HeDam_mask_a0370_PSW.fits')
     model1 = fits1[0].data

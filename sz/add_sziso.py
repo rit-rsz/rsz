@@ -14,13 +14,8 @@
 ################################################################################
 import scipy.io
 import numpy as np
-# from config import * #(this line will give me access to all directory variables)
-import matplotlib.pyplot as plt
 from math import *
-from astropy.io import fits
 import os
-# import sys
-# sys.path.append('../')
 import sys
 sys.path.append('../utilities')
 from clus_convert_bolocam import *
@@ -28,17 +23,21 @@ from clus_get_lambdas import *
 from config import *
 sys.path.append('../sz')
 from clus_get_relsz_v2 import *
+from astropy.io import fits
 from astropy.wcs import WCS
 from astropy import units as u
+from FITS_tools.hcongrid import hcongrid , hastrom
+from FITS_tools.hcongrid import hcongrid_hdu
+from FITS_tools.load_header import load_header
 
 
 
 def add_sziso(maps,yin,tin,
               verbose = 0):
     errmsg = False
+
 #   Now the bolocam data is in the SPIRE format
 #   we can do a loop over the map adding in the false sz signal
-    #This code currently doesnt work
 
     mapsize = len(maps)
 
@@ -48,48 +47,40 @@ def add_sziso(maps,yin,tin,
     data_file = str('bolocam/data/' + maps[0]['name'] + '.sav')
     data_dict = scipy.io.readsav(CLUSDATA + data_file,python_dict = True)
     cluster_struct = list(data_dict.values())
-    # Since the bolocam data is in a slightly differnt format we need to convert it to
-    # the same format as the hermes data
+
     bolocam,err = clus_convert_bolocam(cluster_struct,verbose=verbose)
 
-    # See how to incorporate this error message
-    # if not ccb_sucess:
-    #     errmsg = str('clus_convert_bolocam exited with error: ' + ccb_errmsg)
-    #     if verbose:
-    #         return None, errmsg
-            # Has a go to the err handerler right here in idl
+    if err:
+        errmsg = str('clus_convert_bolocam exited with error: ' + err)
+        if verbose:
+            print(errmsg)
+        return None, errmsg
 
-#   Set this to the size of bolocam.deconvolved image
-    sziso = fits.PrimaryHDU()
+
     naxis = bolocam[0]['deconvolved_image'][0].shape
-    # print('naxis =',naxis)
-    # exit()
-#   MKHDR replacement
-    # sziso.header = bolocam[0]['deconvolved_image']
+
+    # Set this to the size of bolocam.deconvolved image
+    sziso = fits.PrimaryHDU()
     temphead = sziso.header
+
 #   Need to ask what this does
     crpix1 = int(naxis[0] / 2)
     crpix2 = int(naxis[1] / 2)
 
 #   this needs to be put into a temptemphead for the bolocam stuff
-#   What is the mapts eleent thats getting used instead
-#   use astropy to append to FITS temphead, i.e. hdr.append('CRVAL1')
-    # temphead.append('CRVAl1', 'CRVAL2', 'CRPIX1', 'CRPIX2', 'CD1_1', 'CD1_2', 'CD2_1', 'CD2_2',
-    #                 'EPOCH', 'EQUINOX', 'CTYPE1', 'CTYPE2')
-    print('bolo data',-bolocam[0]['deconvolved_image_resolution_arcmin'][0])
+#   What is the mapts element thats getting used instead
     temphead.set('CRVAL1' , bolocam[0]['deconvolved_image_ra_j2000_deg'][0][crpix1,crpix2])
     temphead.set('CRVAL2' , bolocam[0]['deconvolved_image_dec_j2000_deg'][0][crpix1,crpix2])
     temphead.set('CRPIX1' , crpix1)
     temphead.set('CRPIX2' , crpix2)
-    # Why is this one negative???
     temphead.set('CD1_1' , -bolocam[0]['deconvolved_image_resolution_arcmin'][0] / 60.0)
     temphead.set('CD1_2' , 0)
     temphead.set('CD2_1' ,  0)
     temphead.set('CD2_2' , bolocam[0]['deconvolved_image_resolution_arcmin'][0] / 60.0)
-    temphead.set('EPOCH' , 2000.00)
-    temphead.set('EQUINOX' , 2000.00)
-    temphead.set('CTYPE1' , 'RA---TAN')
-    temphead.set('CTYPE2' , 'DEC---TAN')
+    temphead.set('EPOCH' , 2000)
+    temphead.set('EQUINOX' , 2000)
+    # temphead.set('CTYPE1' , 'RA---TAN')
+    # temphead.set('CTYPE2' , 'DEC--TAN')
 
     x = np.arange(naxis[0]) - 14.5
     y = np.arange(naxis[1]) - 14.5
@@ -118,11 +109,13 @@ def add_sziso(maps,yin,tin,
     szmap = szmap - np.mean(szmap[outer])
     szmap = szmap / max(szmap)
 
+
     for imap in range(mapsize):
 # Below are the changes to units of Jy to beam
 # calculate the surface brightness to put in each pixel at this sim step
 # Need to fix maps right now it is written as a pointer
         # Only on the PLW Band
+
         if imap == 2:
             # This is the work around until the config is fixed
             yin_coeff = [2.50,1.91,2.26,3.99,1.36,2.42,1.59,1.90,3.99]
@@ -137,12 +130,6 @@ def add_sziso(maps,yin,tin,
                     new_errmsg = 'Clus_get_relSZ exited with error'+errmsg
                 return None, new_errmsg
             dI = dI_raw * 1e26
-    #       print,CLUS_GET_LAMBDAS((*maps[imap]).band),dI
-    #       this accounts for a conversion to surface brightness in a later step
-    #       dI = dI / (1.13d0 * (60./3600.)^2 * (!DTOR)^2 * 1e9)
-            #np.tile instead of idls replicate
-            # print(maps[imap]['widtha'])
-            # print(dI)
             '''Up until this section is working correctly'''
             '''Can Probably still use tile, after the test with zeros it was show the error wa with
                 incorporating the mulitplication to szmap. szmap is I think a much larger size and
@@ -156,25 +143,44 @@ def add_sziso(maps,yin,tin,
             # using hcongrid from astropy to replace HASTROM
             '''Need to writefits szin inorder to use this function'''
             hdu = fits.PrimaryHDU(szin,temphead)
+            hdu.writeto('sim_sz.fits')
             # hdu.header = temphead
-            print(hdu.header['CRVAL1'])
+            # check = WCS(hdu.header)
+            # print(check)
+            # exit()
+            x = load_header(str(maps[imap]['shead']))
+            hdx = fits.PrimaryHDU(maps[imap]['signal'],x)
+            # print(hdx.header)
+            # szinp = hastrom(hdu.data,hdu.header,hdx.header)
+            szinp = hcongrid(hdu.data,hdu.header,hdx.header)
+            # if szinp.any() > 0:
+            #     print('success')
+            # else:
+            #     print('No values > 0')
+            z = fits.PrimaryHDU(szinp,hdx.header)
+            z.writeto('hcongridtest.fits')
+            print(hdu.header)
+            szinp.writeto('hcongridtest.fits')
+            print('*******************',szinp)
             exit()
             # hdul = fits.HDUList([hdu])
             # Use for debugging
             # hdul.writeto('new1.fits')
-            w = WCS(hdu.header)
+            # w = WCS(hdu.header)
             # ra = np.array(cats[i]['sra']) * u.deg
             # dec = np.array(hdu) * u.deg
-            c = SkyCoord(hdu.header['CRVAL1'],hdu.header['CRVAL2'])
-            px, py = skycoord_to_pixel(c, w, 1)
-            wc = w.all_world2pix(temphead['CRVAL1'],temphead['CRVAL2'])
-            print(wc)
-            exit()
-            szin.writeto('add_sz_%s.fits' % (maps[imap]['name']))
-            w = WCS('add_sz_%s.fits' % (maps[imap]['name']))
-            szinp = w.world2pix(naxis[0],naxis[1])
-            print(szinp)
-            exit()
+            # c = SkyCoord(hdu.header['CRVAL1'],hdu.header['CRVAL2'])
+            # px, py = skycoord_to_pixel(c, w, 1)
+            # wc = w.all_world2pix(temphead['CRVAL1'],temphead['CRVAL2'])
+            # print(wc)
+            # exit()
+            # szin.writeto('add_sz_%s.fits' % (maps[imap]['name']))
+            # w = WCS('add_sz_%s.fits' % (maps[imap]['name']))
+            # szinp = w.world2pix(naxis[0],naxis[1])
+            # print(szinp)
+            # exit()
+
+
             maps[imap]['signal'] = maps[imap]['signal'] + szinp
 
 

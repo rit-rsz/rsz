@@ -43,8 +43,9 @@ from get_xid import *
 sys.path.append('reduc')
 from get_cats import *
 sys.path.append('sz')
+from add_sziso import *
 
-print(sys.path)
+# print(sys.path)
 # from add_sziso import *
 # def catsrc(clusname,saveplots,cattype, savecat,savemap,maketf,simmap,nsim,s2n,yin,tin,verbose,success,errmsg):
 class Catsrc():
@@ -266,11 +267,7 @@ class Catsrc():
 
 
 if __name__ == '__main__':
-<<<<<<< Updated upstream
     catsrc = Catsrc('a0370', verbose=1,nsim=200,simmap=2,cattype='PSW')
-=======
-    catsrc = Catsrc('a2218', verbose=1, cattype='PSW')
->>>>>>> Stashed changes
         # SAVEPLOTS=saveplots,\
         # CATTYPE=cattype,\
         # SAVECAT=savecat,\

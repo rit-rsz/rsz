@@ -19,7 +19,7 @@ sys.path.append('../source_handling')
 print(sys.path)
 import numpy as np
 import os
-from get_data import get_data
+from clus_get_data import get_data
 from astropy.wcs import WCS
 from astropy.wcs.utils import skycoord_to_pixel
 from astropy import units as u
@@ -126,13 +126,11 @@ class Xid_Model():
             print(maps[i]['band'])
         for i in range(1):
             i = 1
-            fwhm = bands[2] / maps[2]['pixsize']
-            print(maps[2]['file'], '!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!11')
-            print(maps[2]['pixsize'])
+            fwhm = bands[i] / maps[i]['pixsize']
             sigma = fwhm / (sqrt(8 * log(2)))
             # fluxes = self.data[i]['sflux']
-            hdul = fits.open('/data/mercado/SPIRE/hermes_clusters/a0370_PSW_nr_1.fits')
-            w = WCS(maps[0]['shead'])
+            hdul = fits.open('/data/mercado/SPIRE/hermes_clusters/a0370_PMW_nr_1.fits')
+            w = WCS(maps[1]['shead'])
             # raa = np.array(self.data[i]['sra']) * u.deg
             # # print(ra)
             # deca = np.array(self.data[i]['sdec']) * u.deg
@@ -168,8 +166,6 @@ class Xid_Model():
             origin_a = self.convert_to_decimal(str(origin_c.ra))
             origin_d = self.convert_to_decimal(str(origin_c.dec))
 
-            print(origin_a)
-            print(origin_d)
             # c = SkyCoord(ra, dec)
             #
             # px, py = skycoord_to_pixel(c, w, origin=1)
@@ -200,8 +196,6 @@ class Xid_Model():
             # plt.scatter(ra, dec, color='blue')
             # plt.show()
 
-            max_ra = np.max(ra)
-            max_dec = np.max(dec)
             print('HAHAHa')
             for j in range(len(ra)):
                 ra[j] = ra[j] - origin_a
@@ -210,8 +204,6 @@ class Xid_Model():
                     dec[j] *= -1
                 if ra[j] < 0:
                     ra[j] *= -1
-                ra[j] = ra[j] * 600
-                dec[j] = dec[j] * 600
 
             print(np.max(ra), np.min(ra))
             print(np.max(dec), np.min(dec))
@@ -223,6 +215,9 @@ class Xid_Model():
 
             plt.imshow(hdul[1].data)
             plt.show()
+                ra[j] = ra[j] * 3600 / pixsize[1]
+                dec[j] = dec[j] * 3600 / pixsize[1]
+
             # sf_x = self.sf_x[0:478]
             # sf_y = self.sf_y[0:478]
             # sf_f = self.sf_f[0:478]
@@ -313,11 +308,15 @@ class Xid_Model():
             plt.show()
             plt.imshow(hdul[1].data)
             plt.show()
+            # plt.imshow(new_map, origin='lower')
+            # plt.show()
+                    # self.psfs.append(psf)
 
 
             hdu = fits.PrimaryHDU(new_map, hdul[1].header)
             hdul2 = fits.HDUList([hdu])
             hdul2.writeto('HeDam_model_%s_%s.fits' % (maps[0]['name'], '250'))
+            hdul2.writeto('HeDam_model_%s_%s.fits' % (maps[1]['name'], '350'))
             subtracted = map_data - new_map
             # plt.imshow(subtracted)
             # plt.show()
@@ -612,7 +611,7 @@ class Xid_Model():
         # \n
 
         #HeDam 1 data
-        f_obj = open('a0370_250_cat.csv')
+        f_obj = open('a0370_350_cat.csv')
 
         HeDam1_RA = []
         HeDam1_Dec = []

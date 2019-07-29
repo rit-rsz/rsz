@@ -40,7 +40,7 @@ from astropy.wcs.utils import skycoord_to_pixel
 import json
 from astropy.coordinates import SkyCoord
 from astropy import units as u
-
+import pymoc
 
 def get_xid(maps, cats, savemap=0, simmap=0, verbose=1, confusionerrors=1):
     err = False
@@ -65,6 +65,10 @@ def get_xid(maps, cats, savemap=0, simmap=0, verbose=1, confusionerrors=1):
     inra = np.array(cats['ra'])
     indec = np.array(cats['dec'])
 
+    ra = inra * u.deg
+    dec = indec * u.deg
+    c = SkyCoord(ra,dec, unit='deg')
+
     print(inra)
     #initializing data containers.
     pinds = []
@@ -78,6 +82,10 @@ def get_xid(maps, cats, savemap=0, simmap=0, verbose=1, confusionerrors=1):
     priors = []
     prfs = []
     for i in range(len(maps)):
+        ps = maps[i]['pixsize']
+        size = ps 
+        print(size, 'scream!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+        moc = pymoc.util.catalog.catalog_to_moc(c, size, 15)
         #getting data from the fits files
         files.append(maps[i]['file'])
         hdul = fits.open(files[i])
@@ -105,9 +113,8 @@ def get_xid(maps, cats, savemap=0, simmap=0, verbose=1, confusionerrors=1):
         pixsizes.append(maps[i]['pixsize'])
         prf_sizes.append(get_spire_beam_fwhm(maps[i]['band']))
         pinds.append(np.arange(0,101,1) * 1.0 / pixsizes[i]) #maybe this value needs to change?
-
         #setting up priors
-        prior = xidplus.prior(data_maps[i], noise_maps[i], primary_hdus[i], headers[i])
+        prior = xidplus.prior(data_maps[i], noise_maps[i], primary_hdus[i], headers[i], moc=moc)
         prior.prior_cat(inra, indec, catfile)
         prior.prior_bkg(-5.0, 5)
 
@@ -124,7 +131,11 @@ def get_xid(maps, cats, savemap=0, simmap=0, verbose=1, confusionerrors=1):
         #appending prior to priors list.
         priors.append(prior)
 
-    fit = SPIRE.all_bands(priors[0], priors[1], priors[2], iter=1000) #number of iterations should be at least 100 just set lower for testing.
+    print('fitting %s sources' % (priors[0].nsrc))
+    print('using %s %s %s pixels' % (priors[0].snpix, priors[1].snpix, priors[2].snpix))
+
+
+    fit = SPIRE.all_bands(priors[0], priors[1], priors[2], iter=300) #number of iterations should be at least 100 just set lower for testing.
     posterior = xidplus.posterior_stan(fit,[priors[0],priors[1],priors[2]])
 
     # figs, fig = xidplus.plots.plot_Bayes_pval_map(priors, posterior)
@@ -226,7 +237,7 @@ def get_xid(maps, cats, savemap=0, simmap=0, verbose=1, confusionerrors=1):
         xid[i]['y'] = xid[i]['y'].tolist()
 
         #saving to json file for further analysis.
-        with open('xid_a2218_%s.json' %(xid[i]['band']), 'w') as f: #code for saving output to a file.
+        with open('xid_a0370_take_4_%s.json' %(xid[i]['band']), 'w') as f: #code for saving output to a file.
             json.dump(xid[i], f)
 
     #model = image_model(x,y, sflux, maps[i]['astr']['NAXIS'][0], maps[i]['astr']['NAXIS'][1],

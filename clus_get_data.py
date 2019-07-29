@@ -3,7 +3,7 @@
 # NAME : get_data.py
 # DATE STARTED : June 11, 2019
 # AUTHORS : Dale Mercado & Benjamin Vaughan
-# PURPOSE : This is where the map data is retrieved from various cluster catalogs
+# PURPOSE : This is where the data is retevied
 # EXPLANATION :
 # CALLING SEQUENCE :
 # INPUTS :
@@ -11,7 +11,6 @@
 #
 # OUTPUTS :
 # REVISION HISTORY :
-#   Victoria Butler - 7/19 - edits to calfac for unit conversion
 ################################################################################
 import scipy.io
 import numpy as np
@@ -23,15 +22,14 @@ import os
 import sys
 #import pyfits
 sys.path.append('../rsz/utilities')
-from get_spire_beam import *
-from get_spire_beam_fwhm import *
-import config
+from clus_get_spire_beam import *
+from clus_get_spire_beam_fwhm import *
+import clus_config as config
 
 def get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
             verbose = 1, version = '1', manidentifier=None):
     # place holders for the if statements to work until I add them to the input for get data
     # This will happen when the script is fully functional
-    print('clus_get_data')
     errmsg = False
     if not bolocam:
         cols = ['PSW','PMW','PLW']
@@ -59,7 +57,7 @@ def get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
                     hlsfiles.append(hlsdir + x)
                     hlscount += 1
 
-        snapdir = config.CLUSDATA + 'snapshot_clusters/'
+        snapdir = config.CLUSDATA + 'snapshot_clusters'
         snapfiles = []
         snapcount = 0
         for x in os.listdir(snapdir):
@@ -117,54 +115,25 @@ def get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
 #   Need to tweek the syntax of this for loop
     counter = 0
     for ifile in range(nfiles):
-        if ifile < 3: # I feel like this is supposed to be ifile <= 3 :
-            if any(col in files[ifile] for col in cols): # checks if name of band is in the filename
-                continue
-
+        count = []
+        if ifile < 3:
+            if any(col in files[ifile] for col in cols):
+                counter += 1
             else:
                 errmsg = 'Problem finding ' + cols[ifile] + ' file.'
                 if verbose:
                     print(errmsg)
             maps.append(read_file(files[counter-1], cols[ifile], clusname, verbose=verbose))
-            print('maps')
         else:
                 maps[ifile] = np.empty(clus_read_bolocam(clusname,verbose=verbose)) #args need to be filled in bolocam one
-
-    print('rubbuh')
-
-    for i in range(len(maps)):
-        if 'PSW' in maps[i]['band']:
-            new_band = maps[0]['band']
-            maps[0] = holder
-
-    if new_band == 'PMW':
-        holder2 = maps[1]
-        maps[1] = holder
-    elif new_band == 'PMW':
-        holder2 = maps[2]
-        maps[2] = holder
-
-    if holder2['band'] == 'PLW':
-        maps[2] = holder2
-    elif holder2['band'] == 'PMW':
-        maps[1] = holder2
-
-    for i in range(len(maps)):
-        print('TESTING ------------------------------------------------------')
-        print(maps[i]['band'])
-
     return maps, errmsg
 
 ##################################################################################################
 ##################################################################################################
 
-def read_file(file,band,clusname,verbose=0):
+def read_file(file,col,clusname,verbose=0):
     # Should this calfac be listed as a self.calfac or not?
-    '''
-    Calfac has been added to config.py as a constant.
-    This is the first place it is created a used.
-    '''
-    # calfac = (pi/180.0) * (1/3600.0)**2 * (pi / (4.0 * log(2.0))) * (1e6)
+    calfac = (pi/180.0) * (1/3600.0)**2 * (pi / (4.0 * log(2.0))) * (1e6)
     # This will ultimatly be in the list of constants
     # The rest of the scrpit involves idl_libs stuff that
     # will get grabbed from astropy
@@ -190,16 +159,14 @@ def read_file(file,band,clusname,verbose=0):
                   mean([abs(map.header['CD1_1']+map.header['CD2_1']), \
                         abs(map.header['CD2_1'] + map.header['CD2_2'])])
 
-    psf = get_spire_beam(pixsize=pixsize, band=band)
+    psf = get_spire_beam(pixsize=pixsize, band=col)
     #psf = 4 #for xid test only...
-    widtha = get_spire_beam_fwhm(band) #arcsecs (sigma of gaussian)
-    width = widtha / (sqrt(8 * log(2)) * pixsize) # width in pixels
-    calfac = 1 / (config.calfac * (get_spire_beam_fwhm(band))**2)
+    widtha = get_spire_beam_fwhm(col)
+    width = (widtha / sqrt(8 * log(2)) * pixsize)
+#   We wouldnt be able to put this one in calfac since it is determined by the source called
+    calfac = 1 / (calfac * (get_spire_beam_fwhm(col))**2)
 #   This should be defined in the catsrsc file
-    '''
-    This was moved to config.py
-    '''
-    # JY2MJy = 1e6
+    JY2MJy = 1e6
 
 
 #   Gets header information from a fits image. Astropy should be able to do this
@@ -273,7 +240,7 @@ def read_file(file,band,clusname,verbose=0):
           'width':width, #check
           'widtha':widtha, #check
           'calfac':calfac, #check
-          'JY2MJy':config.JY2MJy} #check
+          'JY2MJy':JY2MJy} #check
     return maps
 
 

@@ -483,6 +483,9 @@ def make_psw_src_cat(clusname, resolution, nsim, s2n=3, savecat=0, savemap=0, si
         a.append(float(split_coords[0]))
         d.append(float(split_coords[1]))
 
+    plt.scatter(a, d)
+    plt.show()
+
     # fluxes = np.array(fluxes)
     # a = np.array(a)
     # d = np.array(d)

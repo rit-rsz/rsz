@@ -30,6 +30,7 @@ from math import *
 from astropy.io import fits
 from scipy.interpolate import interp1d
 from scipy import interpolate
+import matplotlib.pyplot as plt
 
 ##########################################################################################################
 def sz_wrapper(nu,y,te=10.0, vpec=0.0, ngrid=100):
@@ -41,7 +42,7 @@ def sz_wrapper(nu,y,te=10.0, vpec=0.0, ngrid=100):
         k_B     = 1.3806503e-23           #Boltzmann constant, J/K
         h       = 6.626068e-34            #Planck constant, J s
         c       = 2.99792458e8            #m/s
-        HztoGHz = 1.0e9                     #Hz -> GHz
+        GHztoHz = 1.0e9                     #GHz -> Hz
         vpecp = vpec * 1e3 / c
 
         if os.path.isfile('/home/mercado/rsz/lookup/szparams.txt') :
@@ -64,32 +65,55 @@ def sz_wrapper(nu,y,te=10.0, vpec=0.0, ngrid=100):
              '2', # beta order
              '1e-4', # accuracy of numerical int
              ' ', # space
-             '/home/butler/rsz/lookup', # path for Output
+             '../lookup', # path for Output
              '.txt'] #filename extension
-            np.savetxt('/home/mercado/rsz/lookup/szparams.txt',sz_params,"%s",newline='\n')
 
-        # child = subprocess.Popen(['/usr/local/bin/run_SZpack CNSN /home/butler/rsz/lookup/szparams.txt'],stdout=subprocess.PIPE)
-        # out,err = child.communicate()
-        out = check_output(['/usr/local/bin/run_SZpack','CNSN','/home/mercado/rsz/lookup/szparams.txt'])
+            np.savetxt('../lookup/szparams.txt',sz_params,"%s",newline='\n')
 
-        file = open('/home/mercado/rsz/lookup/SZ_CNSN_basis.dat')
-        output = [x.strip('\n').split(' ') for x in file.readlines()]
+        out = check_output(['/usr/local/bin/run_SZpack','CNSN','/home/butler/rsz/lookup/szparams.txt'])
+        output = out.decode("utf-8")
+        output = output[output.index('x=')-1:]
+        output = output.split('\n')
+
         xout = []
         JofXout = []
-        for i in range(len(output)):
-            xout.append(float(output[i][0]))
-            JofXout.append(float(output[i][1]))
-        print(xout[-1],JofXout[-1])
+        last = []
+        for line in range(len(output)-1):
+            vals = output[line].strip(' x=').split(' ')
+            vals = [float(i) for i in vals]
+            xout.append(vals[0])
+            JofXout.append(vals[1])
+            last.append(vals[2])
+        # print(JofXout)
+        # file = open('/home/butler/rsz/lookup/SZ_CNSN_basis.dat')
+        # output = [x.strip('\n').split(' ') for x in file.readlines()]
+        # xout = []
+        # JofXout = []
+        # for i in range(len(output)):
+        #     xout.append(float(output[i][0]))
+        #     JofXout.append(float(output[i][1]))
+        # print(xout[-1],JofXout[-1])
 
-        thisx = nu * HztoGHz * h / (k_B * T_0)
+        thisx = nu * GHztoHz * h / (k_B * T_0) # dimensionless
         print(thisx)
         I0 = 2 * (k_B * T_0)**3 / (h * c)**2
-
-        # bigJ = INTERPOL(JofXout,xout,thisx)
+        print('I0',I0)
+        newx = nu * GHztoHz * h / (k_B * T_0 * 10e-9)
         bigJ = interpolate.interp1d(xout,JofXout, kind='linear')
         act_bigJ = bigJ(thisx)
-        deltaI = I0 * act_bigJ
-        print(act_bigJ,deltaI)
+        deltaI = I0 * act_bigJ # f(x)*y*I_0
+        # print(act_bigJ,deltaI)
+        # print(thisx,act_bigJ)
+        # print(deltaI * (1e26 / 1.13) * ((3600*180)/(pi*36))**2 / 1e6)
+        fudge = ((2 * thisx**2 * (nu*GHztoHz)**2 * k_B) / c**2) * ((exp(thisx)/(exp(thisx) - 1)**2))/I0
+        JofXout = [x / fudge for x in JofXout]
+        print(JofXout[0])
+        print(fudge)
+        plt.plot(xout,last,label='mystery array')
+        plt.plot(xout,JofXout,label='original spectrum')
+        # plt.scatter(thisx,act_bigJ,c='red')
+        plt.legend()
+        plt.show()
 
         return deltaI, None
 

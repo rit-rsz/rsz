@@ -120,23 +120,25 @@ def add_sziso(maps,yin,tin,
             # This is the work around until the config is fixed
             yin_coeff = [2.50,1.91,2.26,3.99,1.36,2.42,1.59,1.90,3.99]
             yin = [x*1e-4 for x in yin_coeff]
-
             tin = [7.2,10.1,7.7,9.8,4.5,8.6,7.8,5.5,10.9]
             nu = 3e5 / clus_get_lambdas((maps[imap]['band']))
             # Change name from sz_wrapper to name of file
-            dI_raw,errmsg = sz_wrapper(nu,y=yin) #te=tin
+            dI,errmsg = clus_get_relsz(nu,y=yin,t=tin,vpec=0.0) # dI = [MJy/sr]
             if errmsg:
                 if verbose:
                     new_errmsg = 'Clus_get_relSZ exited with error'+errmsg
                 return None, new_errmsg
-            dI = dI_raw * 1e26
             '''Up until this section is working correctly'''
             '''Can Probably still use tile, after the test with zeros it was show the error wa with
                 incorporating the mulitplication to szmap. szmap is I think a much larger size and
                 it is having a hard time combineig the two'''
-            dI_converted = dI*((1.13*(maps[imap]['widtha'])/3600.)**2 * (pi/180)**2)
+
+            ''' This was necessary using old units for run_SZpack output '''
+            # dI_converted = dI*((1.13*(maps[imap]['widtha'])/3600.)**2 * (pi/180)**2)
+            ###########################################################################
+
             # szin = (np.tile(x,(naxis[0],naxis[1]))) * szmap
-            szin = dI_converted * szmap
+            szin = dI * szmap
             szin = np.reshape(szin,(naxis[0],naxis[1]))
 
     #       Have to interpolate to SPIRE map size

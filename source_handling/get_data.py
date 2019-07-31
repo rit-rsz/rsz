@@ -153,6 +153,9 @@ def get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
         print('TESTING ------------------------------------------------------')
         print(maps[i]['band'])
 
+    z = fits.PrimaryHDU(maps[0]['signal'],maps[0]['shead'])
+    z.writeto('mapdata.fits')
+    exit()
     return maps, errmsg
 
 ##################################################################################################

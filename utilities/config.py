@@ -15,6 +15,7 @@ from math import *
 CLUSDATA = '/data/mercado/SPIRE/'
 CLUSSBOX = '/data/mercado/SPIRE/sandbox/'
 CLUSHOME = '/home/mercado/bitten/SPIRE/'
+HOME = '/home/butler/rsz/'
 FITSOUT = 'fits_images/'
 
 calfac  = (pi/180.0)**2 * (1/3600.0)**2 * (pi / (4.0 * log(2.0))) * (1e6)

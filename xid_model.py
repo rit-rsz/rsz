@@ -19,7 +19,7 @@ sys.path.append('../source_handling')
 print(sys.path)
 import numpy as np
 import os
-from clus_get_data import get_data
+from get_data import get_data
 from astropy.wcs import WCS
 from astropy.wcs.utils import skycoord_to_pixel
 from astropy import units as u
@@ -45,7 +45,7 @@ class Xid_Model():
     def __init__(self, json_dir, clusname):
         self.data = [[],[],[]]
         for file in os.listdir(json_dir):
-            if file.startswith('xid') and file.endswith('.json') and clusname in file and 'PSW' in file and 'take_2' in file:
+            if file.startswith('xid') and file.endswith('.json') and clusname in file and 'take_6' in file:
                 print(file)
                 with open(json_dir + file) as json_file:
                     datastore = json.load(json_file)
@@ -124,18 +124,24 @@ class Xid_Model():
         for i in range(3):
             print(maps[i]['file'])
             print(maps[i]['band'])
-        for i in range(1):
-            i = 1
+        for i in range(3):
             fwhm = bands[i] / maps[i]['pixsize']
             sigma = fwhm / (sqrt(8 * log(2)))
-            # fluxes = self.data[i]['sflux']
-            hdul = fits.open('/data/mercado/SPIRE/hermes_clusters/a0370_PMW_nr_1.fits')
-            w = WCS(maps[1]['shead'])
-            # raa = np.array(self.data[i]['sra']) * u.deg
-            # # print(ra)
-            # deca = np.array(self.data[i]['sdec']) * u.deg
-            ra = self.h_ra # * u.deg
-            dec = self.h_d #* u.deg
+            fluxes = self.data[i]['sflux']
+            hdul = fits.open(maps[i]['file'])
+            w = WCS(hdul[1].header)
+            ra = np.array(self.data[i]['sra']) * u.deg
+            dec = np.array(self.data[i]['sdec']) * u.deg
+            c = SkyCoord(ra, dec)
+            px, py = skycoord_to_pixel(c, w, origin=1)
+
+            plt.scatter(px, py)
+            plt.show()
+
+
+            print(len(px))
+            # ra = self.h_ra # * u.deg
+            # dec = self.h_d #* u.deg
             # for j in range(len(ra)):
             #     ra[j] = ra[j] - 38
             # ra = ra * 3600 / maps[i]['pixsize']#* u.deg
@@ -161,10 +167,10 @@ class Xid_Model():
             # plt.show()
 
 
-            origin = [1,1]
-            origin_c = pixel_to_skycoord(origin[0], origin[1], w, origin=1)
-            origin_a = self.convert_to_decimal(str(origin_c.ra))
-            origin_d = self.convert_to_decimal(str(origin_c.dec))
+            # origin = [1,1]
+            # origin_c = pixel_to_skycoord(origin[0], origin[1], w, origin=1)
+            # origin_a = self.convert_to_decimal(str(origin_c.ra))
+            # origin_d = self.convert_to_decimal(str(origin_c.dec))
 
             # c = SkyCoord(ra, dec)
             #
@@ -196,27 +202,27 @@ class Xid_Model():
             # plt.scatter(ra, dec, color='blue')
             # plt.show()
 
-            print('HAHAHa')
-            for j in range(len(ra)):
-                ra[j] = ra[j] - origin_a
-                dec[j] = dec[j] - origin_d
-                if dec[j] < 0:
-                    dec[j] *= -1
-                if ra[j] < 0:
-                    ra[j] *= -1
-
-            print(np.max(ra), np.min(ra))
-            print(np.max(dec), np.min(dec))
-
-            print(hdul[1].data.shape)
-
-            plt.scatter(ra, dec, c=self.h_f)
-            plt.show()
-
-            plt.imshow(hdul[1].data)
-            plt.show()
-                ra[j] = ra[j] * 3600 / pixsize[1]
-                dec[j] = dec[j] * 3600 / pixsize[1]
+            # print('HAHAHa')
+            # for j in range(len(ra)):
+            #     ra[j] = ra[j] - origin_a
+            #     dec[j] = dec[j] - origin_d
+            #     if dec[j] < 0:
+            #         dec[j] *= -1
+            #     if ra[j] < 0:
+            #         ra[j] *= -1
+            #
+            # print(np.max(ra), np.min(ra))
+            # print(np.max(dec), np.min(dec))
+            #
+            # print(hdul[1].data.shape)
+            #
+            # plt.scatter(ra, dec, c=self.h_f)
+            # plt.show()
+            #
+            # plt.imshow(hdul[1].data)
+            # plt.show()
+            #     ra[j] = ra[j] * 3600 / pixsize[1]
+            #     dec[j] = dec[j] * 3600 / pixsize[1]
 
             # sf_x = self.sf_x[0:478]
             # sf_y = self.sf_y[0:478]
@@ -276,11 +282,11 @@ class Xid_Model():
             x_size = hdul[1].data.shape[1]
 
             new_map = np.zeros((y_size, x_size))
-            for j in range(len(self.h_f)):
-                if np.isnan(self.h_f[j]):
+            for j in range(len(fluxes)):
+                if np.isnan(fluxes[j]):
                     pass
                 else:
-                    kern = makeGaussian(x_size, y_size, fwhm = 3 , center=(ra[j], dec[j]))
+                    kern = makeGaussian(x_size, y_size, fwhm = 3 , center=(px[j], py[j]))
                     # kern = np.asarray(kern)
                     # plt.imshow(kern)
                     # plt.show()
@@ -292,14 +298,14 @@ class Xid_Model():
                         kern = kern / np.max(kern)
                         # plt.imshow(kern)
                         # plt.show()
-                        coefficient = self.h_f[j]
+                        coefficient = fluxes[j]
                         psf = kern * coefficient
                         # plt.imshow(psf)
                         # plt.show()
                         new_map = new_map + psf
-            kern = makeGaussian(x_size, y_size, fwhm=3, center=(111-1, 137-1))
-            kern = kern / np.max(kern)
-            psf = kern * .115
+            # kern = makeGaussian(x_size, y_size, fwhm=3, center=(111-1, 137-1))
+            # kern = kern / np.max(kern)
+            # psf = kern * .115
             new_map = new_map + psf
             # plt.imshow(new_map, origin='lower')
             # plt.show()
@@ -315,14 +321,14 @@ class Xid_Model():
 
             hdu = fits.PrimaryHDU(new_map, hdul[1].header)
             hdul2 = fits.HDUList([hdu])
-            hdul2.writeto('HeDam_model_%s_%s.fits' % (maps[0]['name'], '250'))
-            hdul2.writeto('HeDam_model_%s_%s.fits' % (maps[1]['name'], '350'))
+            hdul2.writeto('xid_6_model_%s_%s.fits' % (maps[0]['name'], maps[i]['band']))
+            # hdul2.writeto('HeDam_model_%s_%s.fits' % (maps[1]['name'], '350'))
             subtracted = map_data - new_map
             # plt.imshow(subtracted)
             # plt.show()
             hdu = fits.PrimaryHDU(subtracted, hdul[1].header)
             hdul = fits.HDUList([hdu])
-            hdul.writeto('HeDam_subtracted_%s_%s.fits' % (maps[0]['name'], '250'))
+            hdul.writeto('xid_6_subtracted_%s_%s.fits' % (maps[0]['name'], maps[i]['band']))
             """
             print(map_data[171, 148])
             for j in range(1,x_size+1):
@@ -996,7 +1002,7 @@ if __name__ == '__main__':
     maps, err = get_data('a0370')
     # print(maps[0]['file'])
     # # # # noise_map()
-    model = Xid_Model('/home/vaughan/rsz/json_files/', 'a0370')
+    model = Xid_Model('/home/vaughan/rsz/', 'a0370')
 
 
     # model.plot_IRAFstarfinder(maps)

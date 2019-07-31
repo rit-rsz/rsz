@@ -152,6 +152,8 @@ class Catsrc():
             exit()
         if self.verbose:
             print('Band merging catalogs')
+        for i in range(len(maps)):
+            print(maps[i]['file'])
         xid, err = get_xid(maps, cat, savemap=self.savemap, simmap=self.simmap, verbose=self.verbose)
         if err:
             if self.verbose:

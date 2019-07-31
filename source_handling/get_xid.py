@@ -82,10 +82,14 @@ def get_xid(maps, cats, savemap=0, simmap=0, verbose=1, confusionerrors=1):
     priors = []
     prfs = []
     for i in range(len(maps)):
-        ps = maps[i]['pixsize']
-        size = ps 
-        print(size, 'scream!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-        moc = pymoc.util.catalog.catalog_to_moc(c, size, 15)
+
+        bands = [18, 25, 36]
+        fwhm = bands[i] / maps[i]['pixsize']
+        print(fwhm)
+        # ps = maps[i]['pixsize']
+        # size = ps
+        # print(size, 'scream!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+        # moc = pymoc.util.catalog.catalog_to_moc(c, size, 15)
         #getting data from the fits files
         files.append(maps[i]['file'])
         hdul = fits.open(files[i])
@@ -113,13 +117,15 @@ def get_xid(maps, cats, savemap=0, simmap=0, verbose=1, confusionerrors=1):
         pixsizes.append(maps[i]['pixsize'])
         prf_sizes.append(get_spire_beam_fwhm(maps[i]['band']))
         pinds.append(np.arange(0,101,1) * 1.0 / pixsizes[i]) #maybe this value needs to change?
+        print(maps[i]['file'])
+        print(pixsizes[i])
         #setting up priors
-        prior = xidplus.prior(data_maps[i], noise_maps[i], primary_hdus[i], headers[i], moc=moc)
+        prior = xidplus.prior(data_maps[i], noise_maps[i], primary_hdus[i], headers[i])
         prior.prior_cat(inra, indec, catfile)
         prior.prior_bkg(-5.0, 5)
 
         #setting up prfs.
-        prf = Gaussian2DKernel(prf_sizes[i] / 2.355, x_size=101, y_size = 101) #maybe x_size and y_size need to change.
+        prf = Gaussian2DKernel(3, x_size=101, y_size = 101) #maybe x_size and y_size need to change.
         prf.normalize(mode='peak')
         prfs.append(prf.array)
 
@@ -135,7 +141,7 @@ def get_xid(maps, cats, savemap=0, simmap=0, verbose=1, confusionerrors=1):
     print('using %s %s %s pixels' % (priors[0].snpix, priors[1].snpix, priors[2].snpix))
 
 
-    fit = SPIRE.all_bands(priors[0], priors[1], priors[2], iter=300) #number of iterations should be at least 100 just set lower for testing.
+    fit = SPIRE.all_bands(priors[0], priors[1], priors[2], iter=1000) #number of iterations should be at least 100 just set lower for testing.
     posterior = xidplus.posterior_stan(fit,[priors[0],priors[1],priors[2]])
 
     # figs, fig = xidplus.plots.plot_Bayes_pval_map(priors, posterior)
@@ -237,7 +243,7 @@ def get_xid(maps, cats, savemap=0, simmap=0, verbose=1, confusionerrors=1):
         xid[i]['y'] = xid[i]['y'].tolist()
 
         #saving to json file for further analysis.
-        with open('xid_a0370_take_4_%s.json' %(xid[i]['band']), 'w') as f: #code for saving output to a file.
+        with open('xid_a0370_take_7_%s.json' %(xid[i]['band']), 'w') as f: #code for saving output to a file.
             json.dump(xid[i], f)
 
     #model = image_model(x,y, sflux, maps[i]['astr']['NAXIS'][0], maps[i]['astr']['NAXIS'][1],

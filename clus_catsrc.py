@@ -30,7 +30,7 @@ import sys
 from clus_sz_template import *
 sys.path.append('utilities')
 from config import * #(this line will give me access to all directory variables)
-from clus_get_tfs import *
+from get_tfs import *
 from get_clusparams import *
 from get_simmaps import *
 # from clus_convert_bolocam import *

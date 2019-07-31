@@ -204,6 +204,17 @@ class Xid_Model():
                     dec[j] *= -1
                 if ra[j] < 0:
                     ra[j] *= -1
+
+            print(np.max(ra), np.min(ra))
+            print(np.max(dec), np.min(dec))
+
+            print(hdul[1].data.shape)
+
+            plt.scatter(ra, dec, c=self.h_f)
+            plt.show()
+
+            plt.imshow(hdul[1].data)
+            plt.show()
                 ra[j] = ra[j] * 3600 / pixsize[1]
                 dec[j] = dec[j] * 3600 / pixsize[1]
 
@@ -269,7 +280,7 @@ class Xid_Model():
                 if np.isnan(self.h_f[j]):
                     pass
                 else:
-                    kern = makeGaussian(x_size, y_size, fwhm = fwhm, center=(ra[j], dec[j]))
+                    kern = makeGaussian(x_size, y_size, fwhm = 3 , center=(ra[j], dec[j]))
                     # kern = np.asarray(kern)
                     # plt.imshow(kern)
                     # plt.show()
@@ -286,6 +297,17 @@ class Xid_Model():
                         # plt.imshow(psf)
                         # plt.show()
                         new_map = new_map + psf
+            kern = makeGaussian(x_size, y_size, fwhm=3, center=(111-1, 137-1))
+            kern = kern / np.max(kern)
+            psf = kern * .115
+            new_map = new_map + psf
+            # plt.imshow(new_map, origin='lower')
+            # plt.show()
+                    # self.psfs.append(psf)
+            plt.imshow(new_map)
+            plt.show()
+            plt.imshow(hdul[1].data)
+            plt.show()
             # plt.imshow(new_map, origin='lower')
             # plt.show()
                     # self.psfs.append(psf)
@@ -293,13 +315,14 @@ class Xid_Model():
 
             hdu = fits.PrimaryHDU(new_map, hdul[1].header)
             hdul2 = fits.HDUList([hdu])
+            hdul2.writeto('HeDam_model_%s_%s.fits' % (maps[0]['name'], '250'))
             hdul2.writeto('HeDam_model_%s_%s.fits' % (maps[1]['name'], '350'))
             subtracted = map_data - new_map
             # plt.imshow(subtracted)
             # plt.show()
             hdu = fits.PrimaryHDU(subtracted, hdul[1].header)
             hdul = fits.HDUList([hdu])
-            hdul.writeto('HeDam_subtracted_%s_%s.fits' % (maps[1]['name'], '350'))
+            hdul.writeto('HeDam_subtracted_%s_%s.fits' % (maps[0]['name'], '250'))
             """
             print(map_data[171, 148])
             for j in range(1,x_size+1):

@@ -142,8 +142,8 @@ def add_sziso(maps,yin,tin,
     #       Have to interpolate to SPIRE map size
             # using hcongrid from astropy to replace HASTROM
             '''Need to writefits szin inorder to use this function'''
-            hdu = fits.PrimaryHDU(szin,temphead)
-            hdu.writeto('sim_sz.fits')
+            hdu = fits.PrimaryHDU(maps[0]['signal'],temphead)
+            hdu.writeto('sim1_sz.fits')
             # hdu.header = temphead
             # check = WCS(hdu.header)
             # print(check)

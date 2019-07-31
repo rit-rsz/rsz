@@ -53,7 +53,7 @@ import scipy.signal
 import os
 # from astropy.modeling import models, fitting
 from astropy.convolution import Gaussian2DKernel, Gaussian1DKernel
-from clus_get_spire_beam_fwhm import *
+from get_spire_beam_fwhm import *
 
 
 # !!! This file is currently in an unworking state

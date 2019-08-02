@@ -45,7 +45,7 @@ class Xid_Model():
     def __init__(self, json_dir, clusname):
         self.data = [[],[],[]]
         for file in os.listdir(json_dir):
-            if file.startswith('xid') and file.endswith('.json') and clusname in file and 'take_6' in file:
+            if file.startswith('xid') and file.endswith('.json') and clusname in file and 'take_2' in file:
                 print(file)
                 with open(json_dir + file) as json_file:
                     datastore = json.load(json_file)
@@ -321,14 +321,14 @@ class Xid_Model():
 
             hdu = fits.PrimaryHDU(new_map, hdul[1].header)
             hdul2 = fits.HDUList([hdu])
-            hdul2.writeto('xid_6_model_%s_%s.fits' % (maps[0]['name'], maps[i]['band']))
+            hdul2.writeto('xid_2_model_%s_%s.fits' % (maps[0]['name'], maps[i]['band']))
             # hdul2.writeto('HeDam_model_%s_%s.fits' % (maps[1]['name'], '350'))
             subtracted = map_data - new_map
             # plt.imshow(subtracted)
             # plt.show()
             hdu = fits.PrimaryHDU(subtracted, hdul[1].header)
             hdul = fits.HDUList([hdu])
-            hdul.writeto('xid_6_subtracted_%s_%s.fits' % (maps[0]['name'], maps[i]['band']))
+            hdul.writeto('xid_2_subtracted_%s_%s.fits' % (maps[0]['name'], maps[i]['band']))
             """
             print(map_data[171, 148])
             for j in range(1,x_size+1):
@@ -1002,7 +1002,7 @@ if __name__ == '__main__':
     maps, err = get_data('a0370')
     # print(maps[0]['file'])
     # # # # noise_map()
-    model = Xid_Model('/home/vaughan/rsz/', 'a0370')
+    model = Xid_Model('/home/vaughan/rsz/json_files/', 'a0370')
 
 
     # model.plot_IRAFstarfinder(maps)

@@ -43,7 +43,7 @@ from get_xid import *
 sys.path.append('reduc')
 from get_cats import *
 sys.path.append('sz')
-from add_sziso import *
+# from add_sziso import *
 
 # print(sys.path)
 # from add_sziso import *
@@ -269,7 +269,7 @@ class Catsrc():
 
 
 if __name__ == '__main__':
-    catsrc = Catsrc('a0370', verbose=1, cattype='PSW')
+    catsrc = Catsrc('macs0717', verbose=1, cattype='PSW')
         # SAVEPLOTS=saveplots,\
         # CATTYPE=cattype,\
         # SAVECAT=savecat,\

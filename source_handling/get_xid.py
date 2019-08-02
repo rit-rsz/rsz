@@ -125,7 +125,7 @@ def get_xid(maps, cats, savemap=0, simmap=0, verbose=1, confusionerrors=1):
         prior.prior_bkg(-5.0, 5)
 
         #setting up prfs.
-        prf = Gaussian2DKernel(3, x_size=101, y_size = 101) #maybe x_size and y_size need to change.
+        prf = Gaussian2DKernel(bands[i], x_size=101, y_size = 101) #maybe x_size and y_size need to change.
         prf.normalize(mode='peak')
         prfs.append(prf.array)
 
@@ -243,7 +243,7 @@ def get_xid(maps, cats, savemap=0, simmap=0, verbose=1, confusionerrors=1):
         xid[i]['y'] = xid[i]['y'].tolist()
 
         #saving to json file for further analysis.
-        with open('xid_a0370_take_7_%s.json' %(xid[i]['band']), 'w') as f: #code for saving output to a file.
+        with open('xid_macs0717_take_8_%s.json' %(xid[i]['band']), 'w') as f: #code for saving output to a file.
             json.dump(xid[i], f)
 
     #model = image_model(x,y, sflux, maps[i]['astr']['NAXIS'][0], maps[i]['astr']['NAXIS'][1],

@@ -202,15 +202,15 @@ def read_file(file,band,clusname,verbose=0):
     flag = hdul[4]
 
     if 'CDELT1' in map.header.keys():
-        pixsize = 3600 * mean([abs(map[0].header['CDELT1'],abs(map[0].header['CDELT2']))])
-        map[0].header['cd_1'] = map[0].header['CDELT1']
-        map[0].header['cd_2'] = 0
-        map[0].header['cd_1'] = 0
-        map[0].header['cd_2'] = map[0].header['CDELT2']
-        err[0].header['cd_1'] = err[0].header['CDELT1']
-        err[0].header['cd_2'] = 0
-        err[0].header['cd_1'] = 0
-        err[0].header['cd_2'] = err[0].header['CDELT2']
+        pixsize = 3600 * mean([abs(map.header['CDELT1']),abs(map.header['CDELT2'])])
+        map.header['cd_1'] = map.header['CDELT1']
+        map.header['cd_2'] = 0
+        map.header['cd_1'] = 0
+        map.header['cd_2'] = map.header['CDELT2']
+        # err.header['cd_1'] = err.header['CDELT1']
+        # err.header['cd_2'] = 0
+        # err.header['cd_1'] = 0
+        # err.header['cd_2'] = err.header['CDELT2']
 
     else:
         pixsize = 3600 * \

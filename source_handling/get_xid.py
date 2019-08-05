@@ -82,50 +82,31 @@ def get_xid(maps, cats, savemap=0, simmap=0, verbose=1, confusionerrors=1):
     priors = []
     prfs = []
     for i in range(len(maps)):
-
         bands = [18, 25, 36]
         fwhm = bands[i] / maps[i]['pixsize']
-        print(fwhm)
-        # ps = maps[i]['pixsize']
-        # size = ps
-        # print(size, 'scream!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-        # moc = pymoc.util.catalog.catalog_to_moc(c, size, 15)
+        pixs = maps[i]['pixsize']
+        size = pixs * 5
+        moc = pymoc.util.catalog.catalog_to_moc(c, size, 15)
         #getting data from the fits files
         files.append(maps[i]['file'])
         hdul = fits.open(files[i])
         headers.append(hdul[1].header)
         primary_hdus.append(hdul[0].header)
         img = hdul[1].data
-        # data = np.empty(img.shape)
-        # for h in range(img.shape[0]):
-        #     for j in range(img.shape[1]):
-        #         if img[h,j] >= 0 or img[h,j] < 0:
-        #             data[h,j] = img[h,j] * 1000
-        #         else:
-        #             data[h,j] = np.nan
         data_maps.append(img)
-        # noise = np.empty(img.shape)
-        # for h in range(img.shape[0]):
-        #     for j in range(img.shape[1]):
-        #         if data[h,j] >= 0:
-        #             noise[h,j] = sqrt(data[h,j])
-        #         elif data[h,j] < 0:
-        #             noise[h,j] = -1 * sqrt(-1 * data[h,j])
-        #         else:
-        #             noise[h,j] = np.nan
-        noise_maps.append(hdul[2].data) #don't know if this is the error image or the mask image.
+        noise_maps.append(hdul[2].data)
         pixsizes.append(maps[i]['pixsize'])
         prf_sizes.append(get_spire_beam_fwhm(maps[i]['band']))
-        pinds.append(np.arange(0,101,1) * 1.0 / pixsizes[i]) #maybe this value needs to change?
+        pinds.append(np.arange(0,101,1) * 1.0 / pixsizes[i])
         print(maps[i]['file'])
         print(pixsizes[i])
         #setting up priors
-        prior = xidplus.prior(data_maps[i], noise_maps[i], primary_hdus[i], headers[i])
-        prior.prior_cat(inra, indec, catfile)
+        prior = xidplus.prior(data_maps[i], noise_maps[i], primary_hdus[i], headers[i], moc=moc)
+        prior.prior_cat(inra, indec, catfile, moc=moc)
         prior.prior_bkg(-5.0, 5)
 
         #setting up prfs.
-        prf = Gaussian2DKernel(bands[i], x_size=101, y_size = 101) #maybe x_size and y_size need to change.
+        prf = Gaussian2DKernel(fwhm / 2.355, x_size=101, y_size = 101) #maybe x_size and y_size need to change.
         prf.normalize(mode='peak')
         prfs.append(prf.array)
 
@@ -243,7 +224,7 @@ def get_xid(maps, cats, savemap=0, simmap=0, verbose=1, confusionerrors=1):
         xid[i]['y'] = xid[i]['y'].tolist()
 
         #saving to json file for further analysis.
-        with open('xid_macs0717_take_8_%s.json' %(xid[i]['band']), 'w') as f: #code for saving output to a file.
+        with open('xid_a0370_take_8_%s.json' %(xid[i]['band']), 'w') as f: #code for saving output to a file.
             json.dump(xid[i], f)
 
     #model = image_model(x,y, sflux, maps[i]['astr']['NAXIS'][0], maps[i]['astr']['NAXIS'][1],

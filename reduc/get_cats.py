@@ -452,7 +452,7 @@ def make_psw_src_cat(clusname, resolution, nsim, s2n=3, savecat=0, savemap=0, si
 
     apertures = CircularAperture(positions, r=.3)
     plt.imshow(dataPSW, origin='lower')
-    apertures.plot(color='blue', lw=1.5, alpha=0.5)
+    apertures.plot(color='red', lw=1.5, alpha=0.5)
     plt.show()
     # plt.imshow(dataPSW)
     # plt.show()

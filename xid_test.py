@@ -31,6 +31,7 @@ from astropy.coordinates import SkyCoord
 from astropy.convolution import Gaussian2DKernel
 from xidplus.stan_fit import SPIRE
 from astropy.wcs import WCS as wcs
+import json
 
 def xid_test(maps):
     mJy2Jy = 1000.0
@@ -132,12 +133,12 @@ def xid_test(maps):
     print('using %s %s %s' % (priors[0].snpix, priors[1].snpix, priors[2].snpix))
 
 
-    fit = SPIRE.all_bands(priors[0], priors[1], priors[2], iter=1000)
+    fit = SPIRE.all_bands(priors[0], priors[1], priors[2], iter=300)
     posterior = xidplus.posterior_stan(fit,[priors[0],priors[1],priors[2]])
 
     spire_cat = cat.create_SPIRE_cat(posterior, priors[0], priors[1], priors[2])
-    print(fit)
-    print(spire_cat.info())
+    # print(fit)
+    # print(spire_cat.info())
 
 
 
@@ -148,30 +149,38 @@ def xid_test(maps):
     ra = spire_cat[1].data.field('RA')
     dec = spire_cat[1].data.field('DEC')
 
-    x, y = w.all_pix2world(ra, dec, 1.0)
+    dict = {'sra' : ra.tolist(),
+            'sdec' : dec.tolist(),
+            'sflux' : spire_cat[1].data.field('F_SPIRE_250').tolist()}
 
-    ra, dec = w.all_world2pix(x, y, 1.0)
+    with open('xid_test_300.json', 'w') as f:
+        json.dump(dict, f)
 
-    print('ra', ra,'dec', dec)
-    print(len(inra))
-    print(len(indec))
-    print(len(ra))
-    print(len(dec))
+
+    # x, y = w.all_pix2world(ra, dec, 1.0)
+    #
+    # ra, dec = w.all_world2pix(x, y, 1.0)
+
+    # print('ra', ra,'dec', dec)
+    # print(len(inra))
+    # print(len(indec))
+    # print(len(ra))
+    # print(len(dec))
 
     # plt.scatter(x,y)
     # plt.show()
 
     #
-    figs, fig = xidplus.plots.plot_Bayes_pval_map(priors, posterior)
-    # # print(type(figs)) #figs is list.
-    # # print(figs) #fig is matplotlib.figure.figure object.
-    # # print(type(fig))
-    cols = ['PSW', 'PMW', 'PLW']
-    counter = 0
-    for figure in figs:
-        figure.save('xid_%s.png' %(cols[counter]))
-        counter += 1
-    # # plt.plot(figs)
+    # figs, fig = xidplus.plots.plot_Bayes_pval_map(priors, posterior)
+    # # # print(type(figs)) #figs is list.
+    # # # print(figs) #fig is matplotlib.figure.figure object.
+    # # # print(type(fig))
+    # cols = ['PSW', 'PMW', 'PLW']
+    # counter = 0
+    # for figure in figs:
+    #     figure.save('xid_%s.png' %(cols[counter]))
+    #     counter += 1
+    # # # plt.plot(figs)
     # # print(fit.summary('src_f')['summary'])
     # #fits the three spire bands.
     # #SPIRE.all_bands(spire1, spire2, spire3, chains, iter)

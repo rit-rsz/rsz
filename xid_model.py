@@ -38,6 +38,9 @@ from scipy.integrate import dblquad
 from photutils import IRAFStarFinder
 from photutils import find_peaks
 from photutils import detect_threshold
+from FITS_tools.hcongrid import hcongrid
+
+
 
 np.set_printoptions(threshold=sys.maxsize)
 
@@ -45,7 +48,7 @@ class Xid_Model():
     def __init__(self, json_dir, clusname):
         self.data = [[],[],[]]
         for file in os.listdir(json_dir):
-            if file.startswith('xid') and file.endswith('.json') and clusname in file and 'take_2' in file:
+            if file.startswith('xid') and file.endswith('.json') and clusname in file and 'take_8' in file:
                 print(file)
                 with open(json_dir + file) as json_file:
                     datastore = json.load(json_file)
@@ -58,8 +61,8 @@ class Xid_Model():
 
     def plot_pixel_x_y(self, maps):
         # fig, axs = plt.subplots(1,3)
-        for i in range(1):
-            hdul = fits.open(maps[1]['file'])
+        for i in range(3):
+            hdul = fits.open(maps[i]['file'])
             w = WCS(hdul[1].header)
             ra = np.array(self.data[i]['sra']) * u.deg
             dec = np.array(self.data[i]['sdec']) * u.deg
@@ -67,8 +70,9 @@ class Xid_Model():
             c = SkyCoord(ra, dec)
             px, py = skycoord_to_pixel(c, w)
             plot = plt.scatter(px, py, c=self.flux, alpha=0.5)
-            colorbar = plt.colorbar()
-            colorbar.set_label('Flux')
+            plt.show()
+            # colorbar = plt.colorbar()
+            # colorbar.set_label('Flux')
             plt.title('XID_output_catalog_for_%s_%s' % (maps[0]['name'],maps[0]['band']))
             # axs[i].scatter(px, py, c=flux, alpha=0.5)
             # axs[i].set_title('posterior_model_%s_%s' % (maps[i]['name'], maps[i]['band']))
@@ -327,8 +331,8 @@ class Xid_Model():
             # plt.imshow(subtracted)
             # plt.show()
             hdu = fits.PrimaryHDU(subtracted, hdul[1].header)
-            hdul = fits.HDUList([hdu])
-            hdul.writeto('xid_2_subtracted_%s_%s.fits' % (maps[0]['name'], maps[i]['band']))
+            hdul3 = fits.HDUList([hdu])
+            hdul3.writeto('xid_2_subtracted_%s_%s.fits' % (maps[0]['name'], maps[i]['band']))
             """
             print(map_data[171, 148])
             for j in range(1,x_size+1):
@@ -988,7 +992,97 @@ def subtract_models(model1, model2):
     hdul = fits.HDUList([hdu])
     hdul.writeto('photutils-HeDam_mask_new_t.fits')
 
+def comp_300_1000():
+    with open('xid_test_300.json') as f:
+        data_300 = json.load(f)
+    with open('xid_test.json') as f:
+        data_1000 = json.load(f)
+
+    print(len(data_300['sflux']))
+    print(len(data_1000['sflux']))
+
+    f_obj = open('flux_comparison.txt', 'w')
+    f_obj.write('1000 iterations     300 iterations \n')
+
+    for i in range(len(data_300['sflux'])):
+        line = '%.5f                %.5f \n' % (data_1000['sflux'][i], data_300['sflux'][i])
+        f_obj.write(line)
+    f_obj.close()
+
+def making_composite_image(maps):
+    l = fits.open(maps[0]['file'])
+    d_250 = l[1].data
+    h_250 = l[1].header
+    plt.imshow(d_250, origin='lower', cmap='Reds')
+    plt.show()
+    l = fits.open(maps[1]['file'])
+    d_350 = l[1].data
+    h_350 = l[1].header
+    d_350 = hcongrid(d_350, h_350, h_250)
+    plt.imshow(d_350, origin='lower', cmap='Blues')
+    plt.show()
+    l = fits.open(maps[2]['file'])
+    d_500 = l[1].data
+    h_500 = l[1].header
+    d_500 = hcongrid(d_500, h_500, h_250)
+    plt.imshow(d_500, origin='lower', cmap='Greens')
+    plt.show()
+
+    for i in range(d_250.shape[0]):
+        for j in range(d_250.shape[1]):
+            if np.isnan(d_250[i,j]) == True:
+                d_250[i,j] = 0
+            if np.isnan(d_350[i,j]) == True:
+                d_350[i,j] = 0
+            if np.isnan(d_500[i,j]) == True:
+                d_500[i,j] = 0
+
+    max_arr = np.array([np.max(d_500), np.max(d_350), np.max(d_250)])
+    true_max = np.max(max_arr)
+
+    print('t_max', true_max)
+
+    for i in range(d_250.shape[0]):
+        for j in range(d_250.shape[1]):
+            if np.isnan(d_250[i,j]) == True:
+                d_250[i,j] = 0
+            d_250[i,j] = d_250[i,j] / true_max
+            if np.isnan(d_350[i,j]) == True:
+                d_350[i,j] = 0
+            d_350[i,j] = d_350[i,j] / true_max
+            if np.isnan(d_500[i,j]) == True:
+                d_500[i,j] = 0
+            d_500[i,j] = d_500[i,j] / true_max
+
+
+
+
+    map_0 = np.zeros((d_250.shape))
+    map_1 = np.tile(1, (d_250.shape))
+
+    bkg = np.dstack((map_1, map_1, map_1))
+    im_250 = np.dstack((map_0, map_1, map_0, d_250))
+    im_350 = np.dstack((map_0, map_0, map_1, d_350))
+    im_500 = np.dstack((map_1, map_0, map_0, d_500))
+
+    im_test = np.dstack((map_0, map_1, map_0))
+    plt.imshow(im_test)
+    plt.show()
+
+    print(np.max(d_250))
+    print(np.max(d_350))
+    print(np.max(d_500))
+
+    plt.imshow(bkg, origin='lower')
+    plt.imshow(im_250, origin='lower')
+    plt.imshow(im_350, origin='lower')
+    plt.imshow(im_500, origin='lower')
+    plt.show()
+
+
+
 if __name__ == '__main__':
+    print('done comparing')
     # rubiks_cube()
     # view_test_image()
     g = makeGaussian(120, 120, .3, center=(3,3))
@@ -999,10 +1093,11 @@ if __name__ == '__main__':
     # g = makeGaussian(105, 105, fwhm=18)
     # plt.imshow(g)
     # plt.show()
-    maps, err = get_data('a0370')
+    maps, err = get_data('macs0717')
     # print(maps[0]['file'])
+    making_composite_image(maps)
     # # # # noise_map()
-    model = Xid_Model('/home/vaughan/rsz/json_files/', 'a0370')
+    model = Xid_Model('/home/vaughan/rsz/json_files/', 'macs0717')
 
 
     # model.plot_IRAFstarfinder(maps)
@@ -1010,8 +1105,8 @@ if __name__ == '__main__':
     # # # # print('starfinder map')
     # model.plot_starfinder_flux(maps)
     # # # # model.plot_in_cat('cat_file.json', maps)
-    model.create_PSW_csv()
-    # # model.plot_pixel_x_y(maps)
+    # model.create_PSW_csv()
+    model.plot_pixel_x_y(maps)
     model.create_psfs(maps)
     # # # # model.find_normalization_factor(maps)
     # model = model.mapping_psfs(maps)

@@ -325,14 +325,14 @@ class Xid_Model():
 
             hdu = fits.PrimaryHDU(new_map, hdul[1].header)
             hdul2 = fits.HDUList([hdu])
-            hdul2.writeto('xid_2_model_%s_%s.fits' % (maps[0]['name'], maps[i]['band']))
+            hdul2.writeto('xid_8_model_%s_%s.fits' % (maps[0]['name'], maps[i]['band']))
             # hdul2.writeto('HeDam_model_%s_%s.fits' % (maps[1]['name'], '350'))
             subtracted = map_data - new_map
             # plt.imshow(subtracted)
             # plt.show()
             hdu = fits.PrimaryHDU(subtracted, hdul[1].header)
             hdul3 = fits.HDUList([hdu])
-            hdul3.writeto('xid_2_subtracted_%s_%s.fits' % (maps[0]['name'], maps[i]['band']))
+            hdul3.writeto('xid_8_subtracted_%s_%s.fits' % (maps[0]['name'], maps[i]['band']))
             """
             print(map_data[171, 148])
             for j in range(1,x_size+1):
@@ -1093,11 +1093,11 @@ if __name__ == '__main__':
     # g = makeGaussian(105, 105, fwhm=18)
     # plt.imshow(g)
     # plt.show()
-    maps, err = get_data('macs0717')
+    maps, err = get_data('a0370')
     # print(maps[0]['file'])
-    making_composite_image(maps)
+    # making_composite_image(maps)
     # # # # noise_map()
-    model = Xid_Model('/home/vaughan/rsz/json_files/', 'macs0717')
+    model = Xid_Model('/home/vaughan/rsz/json_files/', 'a0370')
 
 
     # model.plot_IRAFstarfinder(maps)

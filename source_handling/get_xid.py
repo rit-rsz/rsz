@@ -41,6 +41,7 @@ import json
 from astropy.coordinates import SkyCoord
 from astropy import units as u
 import pymoc
+import matplotlib.pyplot as plt
 
 def get_xid(maps, cats, savemap=0, simmap=0, verbose=1, confusionerrors=1):
     err = False
@@ -68,6 +69,9 @@ def get_xid(maps, cats, savemap=0, simmap=0, verbose=1, confusionerrors=1):
     ra = inra * u.deg
     dec = indec * u.deg
     c = SkyCoord(ra,dec, unit='deg')
+    plt.scatter(ra, dec, c=cats['flux'], alpha=0.5)
+    plt.show()
+
 
     print(inra)
     #initializing data containers.
@@ -106,7 +110,7 @@ def get_xid(maps, cats, savemap=0, simmap=0, verbose=1, confusionerrors=1):
         prior.prior_bkg(-5.0, 5)
 
         #setting up prfs.
-        prf = Gaussian2DKernel(fwhm / 2.355, x_size=101, y_size = 101) #maybe x_size and y_size need to change.
+        prf = Gaussian2DKernel(bands[i] / 2.355, x_size=101, y_size = 101) #maybe x_size and y_size need to change.
         prf.normalize(mode='peak')
         prfs.append(prf.array)
 
@@ -224,7 +228,7 @@ def get_xid(maps, cats, savemap=0, simmap=0, verbose=1, confusionerrors=1):
         xid[i]['y'] = xid[i]['y'].tolist()
 
         #saving to json file for further analysis.
-        with open('xid_a0370_take_8_%s.json' %(xid[i]['band']), 'w') as f: #code for saving output to a file.
+        with open('xid_a0370_take_9_%s.json' %(xid[i]['band']), 'w') as f: #code for saving output to a file.
             json.dump(xid[i], f)
 
     #model = image_model(x,y, sflux, maps[i]['astr']['NAXIS'][0], maps[i]['astr']['NAXIS'][1],

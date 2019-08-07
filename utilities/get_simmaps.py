@@ -82,23 +82,44 @@ def get_simmaps(clusname, nsim, simflag=1, sb=0, xc=0, verbose=0, maps = None):
     new_maps = []
     for map in maps:
         # print(map.dtype.names)
-        print(type(map.shead[0]))
         # print(map.shead[0])
         # print(map.shead[0].CD1_1)
-        print(map.shead[0])
-        print(map.shead[0].shape)
         head = fits.Header()
         map.shead[0] = map.shead[0].astype(str)
         for i in range(map.shead[0].shape[0]):
             line = map.shead[0][i]
             split_line = line.split('=')
-            print(split_line)
             key = split_line[0]
             if len(split_line) == 2:
                 split_line = split_line[1].split('/')
                 value = split_line[0]
                 comment = split_line[1]
-                head.set(key, value, comment)  
+                head.set(key, value, comment)
+        map.ehead[0] = map.ehead[0].astype(str)
+        ehead = fits.Header()
+        for i in range(map.ehead[0].shape[0]):
+            line = map.ehead[0][i]
+            split_line = line.split('=')
+            key = split_line[0]
+            if len(split_line) == 2:
+                split_line = split_line[1].split('/')
+                value = split_line[0]
+                comment = split_line[1]
+                ehead.set(key, value, comment)
+        astr = fits.Header()
+        # print(map.astr[0])
+        # map.astr[0] = map.astr[0].astype(str)
+        # for i in range(map.astr[0].shape[0]):
+        #     line = map.astr[0][i]
+        #     split_line = line.split('=')
+        #     print(split_line)
+        #     key = split_line[0]
+        #     if len(split_line) == 2:
+        #         split_line = split_line[1].split('/')
+        #         value = split_line[0]
+        #         comment = split_line[1]
+        #         astr.set(key, value, comment)
+
         new_map = {'name' : map['name'].astype(str)[0],
                    'file' : map['file'][0].astype(str),
                    'band' : map.band.astype(str)[0],
@@ -108,14 +129,14 @@ def get_simmaps(clusname, nsim, simflag=1, sb=0, xc=0, verbose=0, maps = None):
                    'error' : map.error[0],
                    'mask' : map.mask[0],
                    'shead' : head,
-                   'ehead' : map.ehead[0],
+                   'ehead' : ehead,
                    'astr' : map.astr[0],
-                   'pixsize' : map.pixsize[0],
-                   'psf' : map.psf[0],
-                   'width' : map.width[0],
-                   'widtha' : map.widtha[0],
-                   'calfac' : map.calfac[0],
-                   'jy2mjy' : map.jy2mjy[0]}
+                   'pixsize' : map.pixsize[0].astype(float),
+                   'psf' : map.psf[0].astype(float),
+                   'width' : map.width[0].astype(float),
+                   'widtha' : map.widtha[0].astype(float),
+                   'calfac' : map.calfac[0].astype(float),
+                   'jy2mjy' : map.jy2mjy[0].astype(float)}
         new_maps.append(new_map)
     return new_maps ,None
 

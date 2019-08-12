@@ -23,8 +23,8 @@ import os
 import sys
 #import pyfits
 sys.path.append('../rsz/utilities')
-from clus_get_spire_beam import *
-from clus_get_spire_beam_fwhm import *
+from get_spire_beam import *
+from get_spire_beam_fwhm import *
 import config
 
 def get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
@@ -50,6 +50,7 @@ def get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
                 if resolution in x and version in x:
                     hermfiles.append(hermdir + x) #this SHOULD work
                     hermcount += 1
+
         hlsdir = config.CLUSDATA + 'hls_clusters/'
         hlsfiles = []
         hlscount = 0
@@ -114,48 +115,71 @@ def get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
 #   nfiles = 3 I assume that accounts for the three null pointers being populated
     maps = []
 
+
 #   Need to tweek the syntax of this for loop
     counter = 0
     for ifile in range(nfiles):
         if ifile < 3: # I feel like this is supposed to be ifile <= 3 :
             if any(col in files[ifile] for col in cols): # checks if name of band is in the filename
-                continue
-
+                maps.append(read_file(files[ifile], cols[ifile], clusname, verbose=verbose))
             else:
                 errmsg = 'Problem finding ' + cols[ifile] + ' file.'
                 if verbose:
                     print(errmsg)
-            maps.append(read_file(files[counter-1], cols[ifile], clusname, verbose=verbose))
-            print('maps')
         else:
                 maps[ifile] = np.empty(clus_read_bolocam(clusname,verbose=verbose)) #args need to be filled in bolocam one
 
     print('rubbuh')
+    print(maps)
 
+    new_file = 'None'
+
+    print(len(maps))
     for i in range(len(maps)):
-        if 'PSW' in maps[i]['band']:
-            new_band = maps[0]['band']
-            maps[0] = holder
+        print(maps[i]['file'])
+        if 'PSW' in maps[i]['file'] and i != 0:
+            new_file = maps[0]['file']
+            holder = maps[0]
+            maps[0] = maps[i]
+            maps[0]['band'] = 'PSW'
 
-    if new_band == 'PMW':
+
+    if 'PMW' in new_file:
         holder2 = maps[1]
         maps[1] = holder
-    elif new_band == 'PMW':
+        maps[1]['band'] = 'PMW'
+        new_file = holder2['file']
+
+    elif 'PLW' in new_file:
         holder2 = maps[2]
         maps[2] = holder
+        maps[2]['band'] = 'PLW'
+        new_file = holder2['file']
 
-    if holder2['band'] == 'PLW':
+    if 'PLW' in new_file:
         maps[2] = holder2
-    elif holder2['band'] == 'PMW':
+        maps[2]['band'] = 'PLW'
+
+
+    elif 'PMW' in new_file:
         maps[1] = holder2
+        maps[1]['band'] = 'PMW'
+
+    for i in range(len(maps)):
+        if 'PMW' in maps[i]['file']:
+            new_file = maps[1]['file']
+            holder = maps[1]
+            maps[1] = maps[i]
+            maps[1]['band'] = 'PMW'
+
+    if 'PLW' in new_file:
+        maps[2] = holder
+        maps[2]['band'] = 'PLW'
 
     for i in range(len(maps)):
         print('TESTING ------------------------------------------------------')
-        print(maps[i]['band'])
+        print(maps[i]['file'])
 
-    z = fits.PrimaryHDU(maps[0]['signal'],maps[0]['shead'])
-    z.writeto('mapdata.fits')
-    exit()
     return maps, errmsg
 
 ##################################################################################################
@@ -178,15 +202,15 @@ def read_file(file,band,clusname,verbose=0):
     flag = hdul[4]
 
     if 'CDELT1' in map.header.keys():
-        pixsize = 3600 * mean([abs(map[0].header['CDELT1'],abs(map[0].header['CDELT2']))])
-        map[0].header['cd_1'] = map[0].header['CDELT1']
-        map[0].header['cd_2'] = 0
-        map[0].header['cd_1'] = 0
-        map[0].header['cd_2'] = map[0].header['CDELT2']
-        err[0].header['cd_1'] = err[0].header['CDELT1']
-        err[0].header['cd_2'] = 0
-        err[0].header['cd_1'] = 0
-        err[0].header['cd_2'] = err[0].header['CDELT2']
+        pixsize = 3600 * mean([abs(map.header['CDELT1']),abs(map.header['CDELT2'])])
+        map.header['cd_1'] = map.header['CDELT1']
+        map.header['cd_2'] = 0
+        map.header['cd_1'] = 0
+        map.header['cd_2'] = map.header['CDELT2']
+        # err.header['cd_1'] = err.header['CDELT1']
+        # err.header['cd_2'] = 0
+        # err.header['cd_1'] = 0
+        # err.header['cd_2'] = err.header['CDELT2']
 
     else:
         pixsize = 3600 * \
@@ -260,7 +284,7 @@ def read_file(file,band,clusname,verbose=0):
 
     maps = {'name':clusname, #check
           'file':file, #check
-          'band':col, #check
+          'band':band, #check
           'signal':map, #check
           'srcrm':srcrm, #check
           'xclean':xclean, #check

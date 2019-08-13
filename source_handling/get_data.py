@@ -22,7 +22,7 @@ from astropy.io import fits
 import os
 import sys
 #import pyfits
-sys.path.append('../rsz/utilities')
+sys.path.append('../utilities')
 from get_spire_beam import *
 from get_spire_beam_fwhm import *
 import config
@@ -129,9 +129,6 @@ def get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
         else:
                 maps[ifile] = np.empty(clus_read_bolocam(clusname,verbose=verbose)) #args need to be filled in bolocam one
 
-    print('rubbuh')
-    print(maps)
-
     new_file = 'None'
 
     print(len(maps))
@@ -179,6 +176,9 @@ def get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
     for i in range(len(maps)):
         print('TESTING ------------------------------------------------------')
         print(maps[i]['file'])
+ 
+    print(len(maps), 'length after the file checking')
+    print(len(maps[0]), 'length after the file checking')
 
     return maps, errmsg
 

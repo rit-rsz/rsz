@@ -39,9 +39,9 @@ def subtract_cat(maps, cat, verbose=1):
             datasub[value] = maps[i]['signal'].data[value] - cat[i]['signal'].data[value] # we used cat[i]['signal'].data to test but we should really be using cat[i]['model'] in the actual version.
         datafull = maps[i]['signal'].data
 
-        print(np.max(datasub), np.min(datasub))
-        plt.imshow(datasub)
-        plt.show()
+        # print(np.max(datasub), np.min(datasub))
+        # plt.imshow(datasub)
+        # plt.show()
 
         whpl = []
         for j in range(maps[i]['mask'].shape[0]):
@@ -68,5 +68,5 @@ def subtract_cat(maps, cat, verbose=1):
     return maps, err
 
 if __name__ == "__main__":
-    maps, err = get_data('a0370')
+    maps, err = get_data('rxj1347')
     maps = subtract_cat(maps, maps)

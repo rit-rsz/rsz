@@ -26,6 +26,7 @@ sys.path.append('../utilities')
 from get_spire_beam import *
 from get_spire_beam_fwhm import *
 import config
+import matplotlib.pyplot as plt
 
 def get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
             verbose = 1, version = '1', manidentifier=None):
@@ -176,9 +177,10 @@ def get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
     for i in range(len(maps)):
         print('TESTING ------------------------------------------------------')
         print(maps[i]['file'])
- 
+
     print(len(maps), 'length after the file checking')
     print(len(maps[0]), 'length after the file checking')
+
 
     return maps, errmsg
 

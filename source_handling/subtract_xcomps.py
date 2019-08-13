@@ -2,7 +2,7 @@
 # NAME : subtract_xcomps.py
 # DATE STARTED : June 21, 2019
 # AUTHORS : Benjamin Vaughan
-# PURPOSE : 
+# PURPOSE :
 # EXPLANATION :
 # CALLING SEQUENCE :
 # INPUTS :
@@ -103,6 +103,7 @@ def subtract_xcomps(maps, simflag=0, verbose=1):
 
     for i in range(maps[0]['xclean'].shape[0]):
         for j in range(maps[0]['xclean'].shape[1]):
-            maps[0]['xclean'][i,j] = maps[0]['xclean'][i,j] - mean(maps[0]['xclean']) # this is questionable for a 2d array.
-
+            maps[0]['xclean'][i,j] = maps[0]['xclean'][i,j] - mean(maps[0]['xclean'])
     return maps, err
+
+if __name__ == '__main__':

@@ -174,13 +174,6 @@ def get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
         maps[2] = holder
         maps[2]['band'] = 'PLW'
 
-    for i in range(len(maps)):
-        print('TESTING ------------------------------------------------------')
-        print(maps[i]['file'])
-
-    print(len(maps), 'length after the file checking')
-    print(len(maps[0]), 'length after the file checking')
-
 
     return maps, errmsg
 

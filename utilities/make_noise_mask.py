@@ -33,8 +33,8 @@ def make_noise_mask(maps, col):
     #
     # plt.imshow(img, vmin=0.002, vmax=0.005)
     # plt.show()
-    plt.imshow(maps[col]['mask'])
-    plt.show()
+    # plt.imshow(maps[col]['mask'])
+    # plt.show()
     stddev = 24 / 2.355
     kernel = Gaussian2DKernel(x_stddev=stddev)
     fixed_image = interpolate_replace_nans(img, kernel)
@@ -53,5 +53,5 @@ def make_noise_mask(maps, col):
 if __name__ == '__main__':
     maps, err = get_data('a2218')
     mask = make_noise_mask(maps, 0)
-    plt.imshow(mask)
-    plt.show()
+    # plt.imshow(mask)
+    # plt.show()

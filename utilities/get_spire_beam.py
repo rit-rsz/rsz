@@ -56,9 +56,6 @@ from astropy.convolution import Gaussian2DKernel, Gaussian1DKernel
 from get_spire_beam_fwhm import *
 
 
-# !!! This file is currently in an unworking state
-# !!! The Gaussian Model needs to be fixed before this code can work
-
 
 def get_spire_beam(band=None, pixsize=0,npixx=0, npixy=0,
                    xcent=0, ycent=0,bolometer=0, fwhm='',

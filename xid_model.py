@@ -48,7 +48,7 @@ class Xid_Model():
     def __init__(self, json_dir, clusname):
         self.data = [[],[],[]]
         for file in os.listdir(json_dir):
-            if file.startswith('xid') and file.endswith('.json') and clusname in file and 'take_8' in file:
+            if file.startswith('xid') and file.endswith('.json') and clusname in file and 'take_9' in file:
                 print(file)
                 with open(json_dir + file) as json_file:
                     datastore = json.load(json_file)
@@ -325,14 +325,14 @@ class Xid_Model():
 
             hdu = fits.PrimaryHDU(new_map, hdul[1].header)
             hdul2 = fits.HDUList([hdu])
-            hdul2.writeto('xid_8_model_%s_%s.fits' % (maps[0]['name'], maps[i]['band']))
+            hdul2.writeto('xid_9_model_%s_%s.fits' % (maps[0]['name'], maps[i]['band']))
             # hdul2.writeto('HeDam_model_%s_%s.fits' % (maps[1]['name'], '350'))
             subtracted = map_data - new_map
             # plt.imshow(subtracted)
             # plt.show()
             hdu = fits.PrimaryHDU(subtracted, hdul[1].header)
             hdul3 = fits.HDUList([hdu])
-            hdul3.writeto('xid_8_subtracted_%s_%s.fits' % (maps[0]['name'], maps[i]['band']))
+            hdul3.writeto('xid_9_subtracted_%s_%s.fits' % (maps[0]['name'], maps[i]['band']))
             """
             print(map_data[171, 148])
             for j in range(1,x_size+1):
@@ -1046,14 +1046,13 @@ def making_composite_image(maps):
         for j in range(d_250.shape[1]):
             if np.isnan(d_250[i,j]) == True:
                 d_250[i,j] = 0
-            d_250[i,j] = d_250[i,j] / true_max
+            d_250[i,j] = d_250[i,j] / max_arr[0]
             if np.isnan(d_350[i,j]) == True:
                 d_350[i,j] = 0
-            d_350[i,j] = d_350[i,j] / true_max
+            d_350[i,j] = d_350[i,j] / max_arr[1]
             if np.isnan(d_500[i,j]) == True:
                 d_500[i,j] = 0
-            d_500[i,j] = d_500[i,j] / true_max
-
+            d_500[i,j] = d_500[i,j] / max_arr[2]
 
 
 
@@ -1093,11 +1092,11 @@ if __name__ == '__main__':
     # g = makeGaussian(105, 105, fwhm=18)
     # plt.imshow(g)
     # plt.show()
-    maps, err = get_data('a0370')
+    maps, err = get_data('macs0717')
     # print(maps[0]['file'])
-    # making_composite_image(maps)
+    making_composite_image(maps)
     # # # # noise_map()
-    model = Xid_Model('/home/vaughan/rsz/json_files/', 'a0370')
+    model = Xid_Model('/home/vaughan/rsz/', 'a0370')
 
 
     # model.plot_IRAFstarfinder(maps)

@@ -30,7 +30,7 @@ def make_noise_mask(maps, col):
     """
 
     mapsize = maps[col]['error'].data.shape
-    img = maps[col]['error'].datas
+    img = maps[col]['error'].data
     stddev = 24 / 2.355
     kernel = makeGaussian(1, 1, fwhm= 24)
     fixed_image = interpolate_replace_nans(img, kernel)

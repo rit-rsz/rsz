@@ -24,7 +24,7 @@ from get_data import get_data
 from get_clusparams import get_clus_params
 from astropy.wcs.utils import skycoord_to_pixel
 import config
-from FITS_tools.load_header import load_header
+# from FITS_tools.load_header import load_header
 import matplotlib.pyplot as plt
 import matplotlib
 matplotlib.use('TkAgg')
@@ -41,6 +41,7 @@ def compute_rings(maps, params, binwidth, superplot=1, verbose=1, noconfusion=No
         confusionnoise = np.array([x*0.001 for x in ar])
 
     # create bins for different metrics (mid,flux,err,rad,hit,max)
+    radave = []
     for m in range(ncols):
         if verbose:
             print('Average for ' + maps[m]['band'])
@@ -125,11 +126,11 @@ def compute_rings(maps, params, binwidth, superplot=1, verbose=1, noconfusion=No
 
 
         # save new bin data to dictionary & return to fitsz
-        radave = [None]*ncols
-        radave[m] = {'band' : maps[m]['band'],
+        dict = {'band' : maps[m]['band'],
                      'midbin' : midbinp,
                      'fluxbin' : fluxbin,
                      'errbin' : errbin}
+        radave.append(dict)
         if superplot:
             plt.plot(radave[m]['midbin'],radave[m]['fluxbin'])
             plt.title('Clus Compute Rings: Radial Averages for %s' %(maps[m]['band']))

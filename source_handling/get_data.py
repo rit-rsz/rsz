@@ -238,11 +238,6 @@ def read_file(file,band,clusname,verbose=0):
         cd12 = map.header['CD1_2']
         cd21 = map.header['CD2_1']
         cd22 = map.header['CD2_2']
-        pv1_1 = map.header['PV1_0']
-        pv1_2 = map.header['PV1_1']
-        pv1_3 = map.header['PV1_2']
-        pv1_4 = map.header['PV1_3']
-        pv1_5 = map.header['PV1_4']
     except KeyError:
         pass # i don't like the way this is coded probably have to change it later
     for keys in map.header.keys():
@@ -266,9 +261,6 @@ def read_file(file,band,clusname,verbose=0):
             astr.update({keys : map.header[keys]})
         if 'LATPOLE' in keys:
             astr.update({keys : map.header[keys]})
-        if 'PV1_0' in keys:
-            x = np.array([pv1_1, pv1_2, pv1_3, pv1_4, pv1_5])
-            astr.update({keys : x})
 
 
     head = map.header

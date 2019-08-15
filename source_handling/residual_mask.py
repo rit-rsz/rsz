@@ -19,6 +19,7 @@ sys.path.append('../utilities')
 from get_data import *
 import numpy as np
 from writefits import *
+import matplotlib.pyplot as plt
 
 def residual_mask(maps, pswonly=0, verbose=1):
     err = False
@@ -37,11 +38,11 @@ def residual_mask(maps, pswonly=0, verbose=1):
             for k in range(srcrm.shape[1]):
                 snmap[j,k] = srcrm[j,k] / error[j,k]
         #find s/n pixels > 8
-        whpl = []
-        for j in range(snmap.shape[0]):
-            for k in range(snmap.shape[1]):
-                if abs(snmap[j,k]) >= 3:
-                    whpl.append([j,k])
+        # whpl = []
+        # for j in range(snmap.shape[0]):
+        #     for k in range(snmap.shape[1]):
+        #         if abs(snmap[j,k]) >= 3:
+        #             whpl.append([j,k])
 
 
 
@@ -50,12 +51,10 @@ def residual_mask(maps, pswonly=0, verbose=1):
         #then it gives a call to contour...
         #and finally make an image I can look at
 
-        print('snmap = ',snmap[150,150])
-        plt.imshow(error, interpolation='none', origin='lower')
-        plt.colorbar()
-        plt.xlabel('x [pixels]')
-        plt.ylabel('y [pixels]')
+        plt.imshow(snmap)
         plt.show()
+
+
 
         # contoured = plt.contour(snmap) #maybe this can be a replacement? what does tvimage do in the idl version.
         # p.clabel(contoured, inline=True)
@@ -74,5 +73,11 @@ def residual_mask(maps, pswonly=0, verbose=1):
 
 
 if __name__ == '__main__':
-    maps, err = get_data('rxj1347')
+    psw = fits.open('../fits_files/xid_9_subtracted_a0370_PSW.fits')
+    pmw = fits.open('../fits_files/xid_9_subtracted_a0370_PMW.fits')
+    plw = fits.open('../fits_files/xid_9_subtracted_a0370_PLW.fits')
+    maps, err = get_data('a0370')
+    maps[0]['srcrm'] = psw[0].data
+    maps[1]['srcrm'] = pmw[0].data
+    maps[2]['srcrm'] = plw[0].data
     mask, err = residual_mask(maps)

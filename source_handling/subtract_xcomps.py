@@ -27,10 +27,7 @@ from scipy.stats import linregress
 from writefits import *
 
 def subtract_xcomps(maps, simflag=0, verbose=1):
-
-
     ncols = len(maps)
-
     if maps[0]['band'] != 'PSW':
         err = 'first element of map structure is not PSW, aborting.'
         if verbose:
@@ -46,6 +43,9 @@ def subtract_xcomps(maps, simflag=0, verbose=1):
         # kern = np.array(kern)
         inmap = maps[0]['srcrm']
         # print(inmap.shape, kern.shape)
+        print(inmap.shape)
+        # inmap = convolve(inmap, kern)
+        print(inmap.shape)
         maps[0]['xclean'] = maps[0]['srcrm']
         # whpl = []
         # whnan = []
@@ -151,6 +151,27 @@ def subtract_xcomps(maps, simflag=0, verbose=1):
     #         maps[0]['xclean'][i,j] = maps[0]['xclean'][i,j] - mean(maps[0]['xclean'])
     return maps, err
 
+# def makeGaussian(x_size, y_size, fwhm = 3, center=None):
+#     """ Make a square gaussian kernel.
+#
+#     size is the length of a side of the square
+#     fwhm is full-width-half-maximum, which
+#     can be thought of as an effective radius.
+#     """
+#
+#     sigma = fwhm / 2.355
+#     x = np.arange(0, x_size, 1, float)
+#     y = np.arange(0, y_size, 1, float)
+#     y = y[:,np.newaxis]
+#
+#     if center is None:
+#         x0 = x_size // 2
+#         y0 = y_size // 2
+#     else:
+#         x0 = center[0]
+#         y0 = center[1]
+#
+#     sigma = fwhm / 2.355
 
 
 if __name__ == '__main__':

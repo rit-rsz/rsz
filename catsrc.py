@@ -110,7 +110,7 @@ class Catsrc():
 
         if not self.simmap:
             maps, err = get_data(self.clusname,verbose=self.verbose)
-            print('getting my data!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+            print('getting my data!')
             if err:
                 if self.verbose:
                     print('clus_get_data exited with error: ' + err)

@@ -111,18 +111,14 @@ def get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
     if bolocam:
         nfiles = nfiles +1
 
-
-#   This is maps as the ptr array<NullPointer><NullPointer><NullPointer>
-#   nfiles = 3 I assume that accounts for the three null pointers being populated
     maps = []
 
-
 #   Need to tweek the syntax of this for loop
-    counter = 0
     for ifile in range(nfiles):
         if ifile < 3: # I feel like this is supposed to be ifile <= 3 :
             if any(col in files[ifile] for col in cols): # checks if name of band is in the filename
                 maps.append(read_file(files[ifile], cols[ifile], clusname, verbose=verbose))
+
             else:
                 errmsg = 'Problem finding ' + cols[ifile] + ' file.'
                 if verbose:

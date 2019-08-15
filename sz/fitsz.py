@@ -2,7 +2,7 @@
 # NAME : fitsz.py
 # DATE STARTED : June 24, 2019
 # AUTHORS : Benjamin Vaughan
-# PURPOSE : 
+# PURPOSE :
 # EXPLANATION :
 # CALLING SEQUENCE :
 # INPUTS :
@@ -13,8 +13,9 @@
 ################################################################################
 
 def fitsz(radave, params, beam=None, maxlim=3600, minlim=0, noweight=1, superplot=0, verbose=1):
-    ncols = len(radave)
 
+    # init params
+    ncols = len(radave)
     increment = np.empty(ncols)
     offsets = np.empty(ncols)
     fit = np.empty(2, ncols)

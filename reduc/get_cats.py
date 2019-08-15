@@ -33,7 +33,7 @@ import matplotlib.pyplot as plt
 sys.path.append('../source_handling')
 from get_data import *
 
-def get_cats(clusname, cattype, maps, nsim, simmap=0, s2n=3, resolution='fr', verbose=1, savecat=0, savemap=0,):
+def get_cats(clusname, cattype, maps, nsim, simmap=0, s2n=3, resolution='fr', verbose=1, savecat=0, savemap=0):
     '''
     Purpose : to collect the catalogs given a specifc band
     Inputs : clusname - name of the cluster

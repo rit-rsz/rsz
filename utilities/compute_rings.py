@@ -1,8 +1,8 @@
 ################################################################################
 # NAME : compute_rings.py
 # DATE STARTED : June 24, 2019
-# AUTHORS : Benjamin Vaughan
-# PURPOSE : computes the radial average 
+# AUTHORS : Benjamin Vaughan & Victoria Butler
+# PURPOSE : computes the radial average
 # EXPLANATION :
 # CALLING SEQUENCE :
 # INPUTS :
@@ -13,134 +13,129 @@
 ################################################################################
 from math import *
 import numpy as np
+from astropy import wcs
+from astropy.io import fits
 
 def compute_rings(maps, params, binwidth, superplot=0, verbose=1, noconfusion=None):
+
+    # init params
+    bands = ['PSW', 'PMW', 'PLW']
     ncols = len(maps)
     radave = np.empty(ncols)
     if noconfusion:
         confusionnoise = np.empty(ncols)
     else:
-        confusionnoise = np.array([5.8, 6.3, 6.8]) * 0.001 #not sure if this will work
+        ar = [5.8, 6.3, 6.8]
+        confusionnoise = np.array([x*0.001 for x in ar])
 
-    bands = ['PSW', 'PMW', 'PLW']
-    nbins = 0
-    for i in range(ncols):
-        mapsize = maps[i]['astr']['NAXIS']
-        pixsize = maps[i]['pixsize']
-
-        maxrad = ceil(pixsize * np.amax(mapsize) / sqrt(2.0))
-
-        nbinsp = maxrad / binwidth + 1
-
-        if nbinsp > nbins:# PURPOSE : idk lol
-
-            nbins = nbinsp
-
-    #!P.MULTI = [0,1,ncols] I have absolutley no idea what this means...
-    # This is a function in idl that allows multiple plots on a page
-    # If we want to have the plots come up on the screen as we plot them we will need
-    # find a matplot replacement.
+    # create bins for different metrics (mid,flux,err,rad,hit,max)
     for m in range(ncols):
         if verbose:
             print('Average for ' + maps[m]['band'])
 
+        # make sizes for different radial averages
         mapsize = maps[m]['astr']['NAXIS']
         pixsize = maps[m]['pixsize']
-
         maxrad = ceil(pixsize * np.amax(mapsize) / sqrt(2.0))
+        nbinsp = maxrad / binwidth + 1
 
-        radbin = []
-        for i in range(int(nbins)):
-            radbin.append(i / (int(nbins)-1) + 3)
-        radbin[0] = 0.0
-        radbin = np.array(radbin)
+        # make array objects to fill later
+        midbinp = np.empty(len(nbinsp))
+        midwei = np.empty(len(nbinsp))
+        fluxbin = np.empty(len(nbinsp))
+        hitbin = np.empty(len(nbinsp))
+        errbin = np.empty(len(nbinsp))
 
-        #midbin = abs(TS_DIFF(radbin,1)/ 2.0) i don't understand what TS_DIFF is
-        midbinp = np.empty(int(nbins))
-        midwei = np.empty(int(nbins))
-        for i in range(len(radbin)):
-            midbin[i] = radbin[i] + midbin[i]
+        # make radbin
+        stop = maxrad * (len(nbinsp)/(nbinsp-1)) + 3
+        radbin = np.linspace(0.0,stop,len(nbinsp))
 
-        fluxbin = np.empty(nbins)
-        hitbin = np.empty(nbins)
-        errbin = np.empty(nbins)
+        # make midbin
+        midbin = np.absolute([x / 2.0 for x in np.diff(radbin,1)])
+        midbin = np.add(radbin,midbin)
 
-        #convert RA/DEC to xy coordinates
+        ''' This whole section is gonna need some serious TLC'''
+        #convert RA/DEC to pixel coordinates
+        ''' Need to check that fidrad and fidded are in degrees'''
+        ra = params['fidrad'] * u.deg
+        dec = params['fidded'] * u.deg
+        c = SkyCoord(ra, dec)
+        # grabbing header from maps file
+        hdul = fits.open(maps[m]['file'])
+        w = wcs(hdul[1].header)
+        #converting ra/dec to pixel coords
+        px, py = skycoord_to_pixel(c, w)
+        # ===============================================================
+
 
         conv = pixsize / binwidth
+        ''' Not sure if this is the right calfac'''
         calfac = (1*10**-6) / (1.13*25.0**2*( pi /180.0)**2/3600.0**2)
         confnoise = confusionnoise[m]
+        ''' We haven't made this script yet...
+            Nick made a version but not sure if it works'''
         mask = make_noise_mask(maps, m)
-        whplerr = []
+        # ===============================================================
+
+        # use mask to identify bad pixels
         for i in range(mask.shape[0]):
             for j in range(mask.shape[1]):
                 if np.isfinite(mask[i,j]) == False:
-                    whplerr.append([i,j])
-                else:
-                    pass
-        for value in whplerr:
-            mask[value] = 1
-        tempmap = np.empty(mapsize[0], mapsize[1])
+                    mask[i,j] = 1
+        # ====================================================
 
+        # not exactly sure what this is doing but looks like radius of bin rings
+        tempmap = np.empty(mapsize[0], mapsize[1])
         for i in range(mapsize[0]):
             for j in range(mapsize[1]):
-                #thisrad = REFORM(args) call to a function called REFORM, i don't know what the equivalent of REFORM would be in python because i don't understand what reform is doing in idl
-                thisrad = thisrad[0]
-                rad = []
-                for k in range(thisrad.shape[0]):
-                    for h in range(thisrad.shape[1]):
-                        if abs(thisrad[k,h] - midbin[k,h]) == floor(abs(thisrad[k,h] -midbin[k,h])):
-                            rad.append([k,h])
-                for vlaue in rad:
-                    midbinp[rad] = midbinp[rad] + thisrad #this may not work...might have to use np.add()
-                    midwei[rad] = midwei[rad] + 1
-
+                nthisrad = 0 # keep a counter for how many times we find a minimum
                 maps[m]['mask'][i,j] = maps[m]['mask'][i,j] + mask[i,j]
-                tempmap[i,j] = thisrad #i don't get this.
+                thisrad = pixsize * np.sqrt(np.add((np.power((i - px),2),np.power((j - py),2))))
+                #thisrad = REFORM(args) # removes the first dimension of the array (1,10,10) --> (10,10)
+                thisrad = thisrad[0] # why do we care about only the first value ?
+                tempmap[i,j] = thisrad
+                for k in range(len(midbin)):
+                    if abs(thisrad[k] - midbin[k]) == min(abs(thisrad[k] -midbin[k])):
+                        nthisrad += 1
+                        midbinp[k] = midbinp[k] + thisrad
+                        midwei[k] = midwei[k] + 1
+                        if nthisrad != 0 and maps[m]['mask'][i,j] == 0 and (k <= maxrad) :
+                            thiserr = calfac * sqrt(maps[m]['error'][i,j]**2 + confnoise**2)
+                            fluxbin[k] = fluxbin[k] + calfac * maps[m]['srcrm'][i,j] / thiserr**2
+                            hitbin[k] = hitbin[k] + 1.0 / thiserr**2
 
-                if len(rad) > 0 and maps[m]['mask'][i,j] == 0 and rad < maxrad:
-                    thiserr = calfac * sqrt(maps[m]['error'][i,j]**2 + confnoise**2)
-                    for value in rad:
-                        fluxbin[value] = fluxbin[value] + calfac * maps[m]['srcrm'][i,j] / thiserr**2
-                        hitbin[value] = hitbin[value] + 1.0 / thiserr**2
+# ------------------------------------------------------------------------------------------------------------
+
         clusname = maps[m]['name']
         file = '../SPIRE/cluster_analysis/plots/radmap_' + bands[m] + '_' + clusname + '.fits'
         writefits(file, data=tempmap, header_dict=maps[m]['shead'])
 
-        whpl = []
-        nanitout = []
-        for i in range(midwei.shape[0]):
-            for j in range(midwei.shape[1]):
-                if midwei[i,j] >= 1.0:
-                    whpl.append([i,j])
-                else:
-                    nanitout.append([i,j])
+        for i in range(len(nbinsp)):
+            if midwei[i] >= 1.0 :
+                midbinp[i] = midbinp[i] / midwei[i]
+            if hitbin[i] >= 0 :
+                fluxbin[i] = fluxbin[i] / hitbin[i]
+                errbin[i] = sqrt(1.0 / hitbin[i])
 
-        for value in whpl:
-            midbinp[value] = midbinp[value] / midwei[value]
-
-        whpl = []
-        nnan = []
-        for i in range(hitbin.shape[0]):
-            for j in range(hitbin.shape[1]):
-                if hitbin >= 0:
-                    whpl.append([i,j])
-                else:
-                    nnan.append([i,j])
-
-        for value in whpl:
-            fluxbin[value] = fluxbin[value] / hitbin[value]
-            errbin[value] = sqrt(1.0 / hitbin[value])\
         if len(nnan) > 0:
             for value in whnan:
                 midbinp[value] = np.nan
                 fluxbin[value] = np.nan
                 errbin[value] = np.nan
+
+
+
+        # save new bin data to dictionary & return to fitsz
         radave[m] = {'band' : maps[m]['band'],
                      'midbin' : midbinp,
                      'fluxbin' : fluxbin,
                      'errbin' : errbin}
         if superplot:
-            #function to plot the things can probably use matplotlib here.
+            plt.plot(radave[m]['midbin'],)
 
     return radave
+
+if __name__ == '__main__' :
+    maps,err = get_data('a2218')
+    # params gets used as input for AD2XY later
+    compute_rings(maps,params)

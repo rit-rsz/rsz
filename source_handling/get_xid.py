@@ -52,7 +52,7 @@ def get_xid(maps, cats, savemap=0, simmap=0, verbose=1, confusionerrors=1):
     catfile = config.CLUSDATA + 'placeholder' #this doesn't actually seem to do anything in the xid code,
     # but you need something for this for some reason.
 
-    #this is dumb idk why I wrote this...
+    #Old code not used anymore
     # print('Retrieving data from cats')
     # inra = []
     # indec = []
@@ -86,8 +86,8 @@ def get_xid(maps, cats, savemap=0, simmap=0, verbose=1, confusionerrors=1):
     priors = []
     prfs = []
     for i in range(len(maps)):
-        bands = [18, 25, 36]
-        fwhm = bands[i] / maps[i]['pixsize']
+        bands = [18, 25, 36] #units of arcseconds
+        fwhm = bands[i] / maps[i]['pixsize'] #converts to arcseconds/pixel
         pixs = maps[i]['pixsize']
         size = pixs * 5
         moc = pymoc.util.catalog.catalog_to_moc(c, size, 15)
@@ -110,10 +110,13 @@ def get_xid(maps, cats, savemap=0, simmap=0, verbose=1, confusionerrors=1):
         prior.prior_bkg(-5.0, 5)
 
         #setting up prfs.
+        # This prf doesnt quite look correct
+        # In previous set up we needed to rebin to accuratly describe our beam sizes
         prf = Gaussian2DKernel(bands[i] / 2.355, x_size=101, y_size = 101) #maybe x_size and y_size need to change.
         prf.normalize(mode='peak')
         prfs.append(prf.array)
-
+        print(prfs)
+        exit()
         #appending prf to prior and setting point matrix
         prior.set_prf(prfs[i], pinds[i], pinds[i]) #prfs, xpinds, ypinds
         prior.get_pointing_matrix()
@@ -124,7 +127,6 @@ def get_xid(maps, cats, savemap=0, simmap=0, verbose=1, confusionerrors=1):
 
     print('fitting %s sources' % (priors[0].nsrc))
     print('using %s %s %s pixels' % (priors[0].snpix, priors[1].snpix, priors[2].snpix))
-
 
     fit = SPIRE.all_bands(priors[0], priors[1], priors[2], iter=1000) #number of iterations should be at least 100 just set lower for testing.
     posterior = xidplus.posterior_stan(fit,[priors[0],priors[1],priors[2]])

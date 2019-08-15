@@ -111,18 +111,14 @@ def get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
     if bolocam:
         nfiles = nfiles +1
 
-
-#   This is maps as the ptr array<NullPointer><NullPointer><NullPointer>
-#   nfiles = 3 I assume that accounts for the three null pointers being populated
     maps = []
 
-
 #   Need to tweek the syntax of this for loop
-    counter = 0
     for ifile in range(nfiles):
         if ifile < 3: # I feel like this is supposed to be ifile <= 3 :
             if any(col in files[ifile] for col in cols): # checks if name of band is in the filename
                 maps.append(read_file(files[ifile], cols[ifile], clusname, verbose=verbose))
+
             else:
                 errmsg = 'Problem finding ' + cols[ifile] + ' file.'
                 if verbose:
@@ -130,57 +126,8 @@ def get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
         else:
                 maps[ifile] = np.empty(clus_read_bolocam(clusname,verbose=verbose)) #args need to be filled in bolocam one
 
-    new_file = 'None'
-
-    print(len(maps))
-    for i in range(len(maps)):
-        print(maps[i]['file'])
-        if 'PSW' in maps[i]['file'] and i != 0:
-            new_file = maps[0]['file']
-            holder = maps[0]
-            maps[0] = maps[i]
-            maps[0]['band'] = 'PSW'
-
-
-    if 'PMW' in new_file:
-        holder2 = maps[1]
-        maps[1] = holder
-        maps[1]['band'] = 'PMW'
-        new_file = holder2['file']
-
-    elif 'PLW' in new_file:
-        holder2 = maps[2]
-        maps[2] = holder
-        maps[2]['band'] = 'PLW'
-        new_file = holder2['file']
-
-    if 'PLW' in new_file:
-        maps[2] = holder2
-        maps[2]['band'] = 'PLW'
-
-
-    elif 'PMW' in new_file:
-        maps[1] = holder2
-        maps[1]['band'] = 'PMW'
-
-    for i in range(len(maps)):
-        if 'PMW' in maps[i]['file']:
-            new_file = maps[1]['file']
-            holder = maps[1]
-            maps[1] = maps[i]
-            maps[1]['band'] = 'PMW'
-
-    if 'PLW' in new_file:
-        maps[2] = holder
-        maps[2]['band'] = 'PLW'
-
-    for i in range(len(maps)):
-        print('TESTING ------------------------------------------------------')
-        print(maps[i]['file'])
-
-    print(len(maps), 'length after the file checking')
-    print(len(maps[0]), 'length after the file checking')
-
+    # z = fits.PrimaryHDU(maps[0]['signal'],maps[0]['shead'])
+    # z.writeto('mapdata.fits')
 
     return maps, errmsg
 

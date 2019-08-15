@@ -110,7 +110,7 @@ class Catsrc():
 
         if not self.simmap:
             maps, err = get_data(self.clusname,verbose=self.verbose)
-            print('getting my data!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+            print('getting my data!')
             if err:
                 if self.verbose:
                     print('clus_get_data exited with error: ' + err)
@@ -208,7 +208,7 @@ class Catsrc():
                 if self.verbose:
                     print('clus_compute_rings exited with error: ' + err)
         if self.simmap == None:  # don't see the difference between if simmap == 0 and if not simmap ??
-            tfave, err = clusnames_compute_rings(tf_maps, params, 30.0, verbose=self.verbose)
+            tfave, err = clus_compute_rings(tf_maps, params, 30.0, verbose=self.verbose)
             if err:
                 if self.verbose:    # From when carsrc was a def
 

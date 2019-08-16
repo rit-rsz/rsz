@@ -48,6 +48,9 @@ def make_noise_mask(maps, col):
     kernel_full_size[x0:x1, y0:y1] = kernel
     # plt.imshow(kernel_full_size)
     # plt.show()
+    #converting these to lists because the error message is annoying.
+    img = img.tolist()
+    kernel_full_size = kernel_full_size.tolist()
 
     fixed_image = convolve_fft(img, kernel_full_size)
 

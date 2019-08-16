@@ -37,7 +37,7 @@ def make_noise_mask(maps, col):
     # plt.imshow(kernel)
     # plt.show()
 
-    kernel_full_size = np.zeros(mapsize)
+    kernel_full_size = np.zeros(mapsize, dtype=int)
     #find center of kernel
     xc = int(kernel_full_size.shape[0] / 2)
     yc = int(kernel_full_size.shape[1] / 2)
@@ -54,19 +54,22 @@ def make_noise_mask(maps, col):
 
     fixed_image = convolve_fft(img, kernel_full_size)
 
+    plt.imshow(fixed_image)
+    plt.show()
 
     mask = np.zeros(mapsize)
     for j in range(mapsize[0]):
         for k in range(mapsize[1]):
-            if fixed_image[j,k] == 0:
+            if fixed_image[j,k] == 0 or fixed_image[j,k] <= 1e-10:
                 fixed_image[j,k] = 0.005
             if fixed_image[j,k] >= 0.004:
-                mask[j,k] = 1
+                mask[j,k] = int(1)
     return mask
 
 if __name__ == '__main__':
     maps, err = get_data('a0370')
     mask = make_noise_mask(maps, 0)
+    print(np.max(mask), np.min(mask))
     plt.imshow(mask)
     plt.show()
     # plt.imshow(mask)

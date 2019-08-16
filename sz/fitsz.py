@@ -56,12 +56,12 @@ def fitsz(radave, params, beam=None, maxlim=3600, minlim=0, noweight=1, superplo
             # psf = np.empty(len(xrad))
             # for j in range(len(radave[i]['midbin'])):
             #     roftprime[j] = (1.0 + (xrad[j] / xrc[j])**2)**((1.0 - 3.0 * xbeta[j]) / 2.0)
-            #     pf = -1*(2.18 * math.log(2.0) / beam[i]**2)
+            #     pf = -1*(2.18 * math.log(2.0) / beam[i])**2
             #     psf[j] = math.exp(pf * xrad[j]**2)
             #     psf[j] = psf[j] / np.sum(psf)
             #     #roftprimep = CONVOL(roftprime, psf, EDGE_TRUNCATE)
             #     roftprimep[j] = roftprimep[j] / np.aload_headermax(abs(roftprimep))
-            #     #roft = INTERPL(roftprimep, xrad, radwave[i]['midbin'])
+            #     roft = INTERPL(roftprimep, xrad, radwave[i]['midbin'])
 
         if superplot:
             plt.plot(radave[i]['midbin'], radave[i]['fluxbin'])

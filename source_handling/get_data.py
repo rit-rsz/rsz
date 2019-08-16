@@ -29,7 +29,7 @@ import config
 import matplotlib.pyplot as plt
 
 def get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
-            verbose = 1, version = '1', manidentifier=None):
+            verbose = 1, version = '1', manidentifier=None, nsim=0):
     # place holders for the if statements to work until I add them to the input for get data
     # This will happen when the script is fully functional
     print('clus_get_data')
@@ -42,7 +42,7 @@ def get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
         bolocam = 1
 
 #   If there is no manual path set
-    if manpath == 0:
+    if manpath == 0 and sim == 0:
         hermfiles = []
         hermdir = config.CLUSDATA + 'hermes_clusters/'
         hermcount = 0
@@ -90,8 +90,8 @@ def get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
             nfiles = snapcount
             print('snap data')
 
-#   Manual Path option
-    else:
+    #   Manual Path option
+    elif manpath == 1:
         mancount = 0
         manfiles = []
         file_flag = False
@@ -108,10 +108,24 @@ def get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
         files = manfiles
 
 
+    if nsim != 0:
+        simfiles = []
+        simdir = config.CLUSSIMS + clusname + '/'
+        simcount = 0
+        for x in os.listdir(simdir):
+            if x.startswith(clusname):
+                if nsim in x and 'fits' in x and 'BOLOCAM' not in x:
+                    simfiles.append(simdir + x)
+                    simcount += 1
+        files = simfiles
+        nfiles = simcount
+
     if bolocam:
         nfiles = nfiles +1
 
+    print(simfiles)
     maps = []
+
 
 #   Need to tweek the syntax of this for loop
     for ifile in range(nfiles):
@@ -187,8 +201,11 @@ def read_file(file,band,clusname,verbose=0):
     # The rest of the scrpit involves idl_libs stuff that
     # will get grabbed from astropy
     hdul = fits.open(file)
+    # print(test.header)
     map = hdul[1]
-    err = hdul['error']
+    # print(map.header)
+    # exit()
+    err = hdul[2]
     exp = hdul[3]
     flag = hdul[4]
 
@@ -268,7 +285,7 @@ def read_file(file,band,clusname,verbose=0):
     maps = {'name':clusname, #check
           'file':file, #check
           'band':band, #check
-          'signal':map, #check
+          'signal':map.data, #check
           'srcrm':srcrm, #check
           'xclean':xclean, #check
           'error':err, #check
@@ -279,11 +296,12 @@ def read_file(file,band,clusname,verbose=0):
           'ehead':herr, #nope
           'astr':astr, #check
           'pixsize':pixsize, #check
-          'psf':psf, #check
+          'psf':psf, #check    dumb = fits.PrimaryHDU(maps['signal'], map.header)
           'width':width, #check
           'widtha':widtha, #check
           'calfac':calfac, #check
           'JY2MJy':config.JY2MJy} #check
+
     return maps
 
 
@@ -297,4 +315,4 @@ def mean(data):
     return average
 
 if __name__ == '__main__':
-    get_data('rxj1347')
+    get_data('a0370', nsim='197')

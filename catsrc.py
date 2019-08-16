@@ -33,6 +33,7 @@ from config import * #(this line will give me access to all directory variables)
 from clus_get_tfs import *
 from get_clusparams import *
 from get_simmaps import *
+# from clus_convert_bolocam import *
 sys.path.append('source_handling')
 from subtract_cat import *
 from subtract_xcomps import *
@@ -42,7 +43,7 @@ from get_xid import *
 sys.path.append('reduc')
 from get_cats import *
 sys.path.append('sz')
-from add_sziso import *
+# from add_sziso import *
 
 # print(sys.path)
 # from add_sziso import *
@@ -107,19 +108,18 @@ class Catsrc():
         if self.verbose:
             print('Fetching SPIRE maps')
 
-        if not self.simmap:
-            maps, err = get_data(self.clusname,verbose=self.verbose)
-            print('getting my data!')
-            if err:
-                if self.verbose:
-                    print('clus_get_data exited with error: ' + err)
-                exit()
-        else:
-            maps, err = get_simmaps(self.clusname,nsim=self.nsim, simflag=self.simmap, verbose=self.verbose)
-            if err:
-                if self.verbose:
-                    print('clus_get_simmaps exited with error: ' + err)
-                exit()
+        maps, err = get_data(self.clusname,verbose=self.verbose, self.nsim)
+        print('getting my data!')
+        if err:
+            if self.verbose:
+                print('clus_get_data exited with error: ' + err)
+            exit()
+        if simmap == 1:
+            # maps, err = get_simmaps(self.clusname,nsim=self.nsim, simflag=self.simmap, verbose=self.verbose)
+            # if err:
+            #     if self.verbose:
+            #         print('clus_get_simmaps exited with error: ' + err)
+            #     exit()
             maps, err = add_sziso(maps,yin=self.yin, tin=self.tin,verbose=self.verbose)
             if err:
                 if self.verbose:
@@ -268,7 +268,7 @@ class Catsrc():
 
 
 if __name__ == '__main__':
-    catsrc = Catsrc('a0370', verbose=1, cattype='PSW',nsim=200,simmap=2)
+    catsrc = Catsrc('a0370', verbose=1, cattype='PSW')
         # SAVEPLOTS=saveplots,\
         # CATTYPE=cattype,\
         # SAVECAT=savecat,\

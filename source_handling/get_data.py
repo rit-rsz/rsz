@@ -42,7 +42,7 @@ def get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
         bolocam = 1
 
 #   If there is no manual path set
-    if manpath == 0 and sim == 0:
+    if manpath == 0 and nsim==0:
         hermfiles = []
         hermdir = config.CLUSDATA + 'hermes_clusters/'
         hermcount = 0
@@ -108,7 +108,7 @@ def get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
         files = manfiles
 
 
-    if nsim != 0:
+    else:
         simfiles = []
         simdir = config.CLUSSIMS + clusname + '/'
         simcount = 0
@@ -123,7 +123,6 @@ def get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
     if bolocam:
         nfiles = nfiles +1
 
-    print(simfiles)
     maps = []
 
 

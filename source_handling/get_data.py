@@ -257,9 +257,9 @@ def read_file(file,band,clusname,verbose=0):
 
     print(type(head))
 #   Not sure if this is the correct syntax for astr naxis
-    srcrm = np.empty(astr['NAXIS'])
-    xclean = np.empty(astr['NAXIS'])
-    mask = np.empty(astr['NAXIS'])
+    srcrm = np.zeros(astr['NAXIS'])
+    xclean = np.zeros(astr['NAXIS'])
+    mask = np.zeros(astr['NAXIS'])
 
 #  Need to generate default mask map
 #  whnan = WHERE(FINITE(map) EQ 0,countnan)

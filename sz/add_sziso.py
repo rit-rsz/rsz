@@ -22,7 +22,7 @@ from clus_convert_bolocam import *
 from clus_get_lambdas import *
 from config import *
 sys.path.append('../sz')
-from clus_get_relsz_v2 import *
+from clus_get_relsz import *
 from astropy.io import fits
 from astropy.wcs import WCS
 from astropy import units as u
@@ -79,8 +79,8 @@ def add_sziso(maps,yin,tin,
     temphead.set('CD2_2' , bolocam[0]['deconvolved_image_resolution_arcmin'][0] / 60.0)
     temphead.set('EPOCH' , 2000)
     temphead.set('EQUINOX' , 2000)
-    # temphead.set('CTYPE1' , 'RA---TAN')
-    # temphead.set('CTYPE2' , 'DEC--TAN')
+    temphead.set('CTYPE1' , 'RA---TAN')
+    temphead.set('CTYPE2' , 'DEC--TAN')
 
     x = np.arange(naxis[0]) - 14.5
     y = np.arange(naxis[1]) - 14.5
@@ -123,7 +123,7 @@ def add_sziso(maps,yin,tin,
             tin = [7.2,10.1,7.7,9.8,4.5,8.6,7.8,5.5,10.9]
             nu = 3e5 / clus_get_lambdas((maps[imap]['band']))
             # Change name from sz_wrapper to name of file
-            dI,errmsg = clus_get_relsz(nu,y=yin,t=tin,vpec=0.0) # dI = [MJy/sr]
+            dI,errmsg = clus_get_relsz(nu,y=yin,te=tin,vpec=0.0) # dI = [MJy/sr]
             if errmsg:
                 if verbose:
                     new_errmsg = 'Clus_get_relSZ exited with error'+errmsg
@@ -144,53 +144,34 @@ def add_sziso(maps,yin,tin,
     #       Have to interpolate to SPIRE map size
             # using hcongrid from astropy to replace HASTROM
             '''Need to writefits szin inorder to use this function'''
-            hdu = fits.PrimaryHDU(maps[0]['signal'],temphead)
-            hdu.writeto('sim1_sz.fits')
-            # hdu.header = temphead
-            # check = WCS(hdu.header)
-            # print(check)
-            # exit()
-            x = load_header(str(maps[imap]['shead']))
-            hdx = fits.PrimaryHDU(maps[imap]['signal'],x)
-            # print(hdx.header)
-            # szinp = hastrom(hdu.data,hdu.header,hdx.header)
+            hdu = fits.PrimaryHDU(szin,temphead)
+            # hdu.writeto('test.fits')
+
+            # x = load_header(int(maps[imap]['shead']))
+            hdx = fits.PrimaryHDU(maps[imap]['signal'],maps[imap]['shead'])
+            # print(maps[imap]['shead'])
+            # hdx.writeto('test1.fits')
+            print(hdx.header)
             szinp = hcongrid(hdu.data,hdu.header,hdx.header)
-            # if szinp.any() > 0:
-            #     print('success')
-            # else:
-            #     print('No values > 0')
-            z = fits.PrimaryHDU(szinp,hdx.header)
-            z.writeto('hcongridtest.fits')
-            print(hdu.header)
-            szinp.writeto('hcongridtest.fits')
-            print('*******************',szinp)
+            sz = fits.PrimaryHDU(szinp,hdx.header)
+            sz.writeto('test.fits')
+
+            sz_added = fits.PrimaryHDU(maps[imap]['signal'],hdx.header)
+            sz_added.writeto('test.fits')
+            x = maps[imap]['signal']
+            maps[imap]['signal'] = x + szinp
+
+            # sz = fits.PrimaryHDU(szinp,hdx.header)
+            # sz.writeto('test.fits')
+
+            sz_added = fits.PrimaryHDU(maps[imap]['signal'],hdx.header)
+            sz_added.writeto('test1.fits')
             exit()
-            # hdul = fits.HDUList([hdu])
-            # Use for debugging
-            # hdul.writeto('new1.fits')
-            # w = WCS(hdu.header)
-            # ra = np.array(cats[i]['sra']) * u.deg
-            # dec = np.array(hdu) * u.deg
-            # c = SkyCoord(hdu.header['CRVAL1'],hdu.header['CRVAL2'])
-            # px, py = skycoord_to_pixel(c, w, 1)
-            # wc = w.all_world2pix(temphead['CRVAL1'],temphead['CRVAL2'])
-            # print(wc)
-            # exit()
-            # szin.writeto('add_sz_%s.fits' % (maps[imap]['name']))
-            # w = WCS('add_sz_%s.fits' % (maps[imap]['name']))
-            # szinp = w.world2pix(naxis[0],naxis[1])
-            # print(szinp)
-            # exit()
 
 
-            maps[imap]['signal'] = maps[imap]['signal'] + szinp
 
 
 
 #       Need to then set something for maps thats back to the dictonary format
     exit()
-    return maps
-
-
-if __name__ == '__main__':
-    add_sziso(norm=1,factor = 0)
+    return maps, None

@@ -33,7 +33,6 @@ from config import * #(this line will give me access to all directory variables)
 from clus_get_tfs import *
 from get_clusparams import *
 from get_simmaps import *
-# from clus_convert_bolocam import *
 sys.path.append('source_handling')
 from subtract_cat import *
 from subtract_xcomps import *
@@ -43,7 +42,7 @@ from get_xid import *
 sys.path.append('reduc')
 from get_cats import *
 sys.path.append('sz')
-# from add_sziso import *
+from add_sziso import *
 
 # print(sys.path)
 # from add_sziso import *
@@ -269,7 +268,7 @@ class Catsrc():
 
 
 if __name__ == '__main__':
-    catsrc = Catsrc('a0370', verbose=1, cattype='PSW')
+    catsrc = Catsrc('a0370', verbose=1, cattype='PSW',nsim=200,simmap=2)
         # SAVEPLOTS=saveplots,\
         # CATTYPE=cattype,\
         # SAVECAT=savecat,\

@@ -68,6 +68,15 @@ def get_simmaps(clusname, nsim, simflag=1, sb=0, xc=0, verbose=0, maps = None):
     else:
         maps = [] #initializing maps.
         for i in range(nbands):
+            thissim = str(nsim)
+            mapfilename = config.CLUSDATA + 'bethermin_sims/' + clusname +'/' + clusname + '_' + band[i] + '_sim0' + thissim + '.fits'
+            hdul = fits.open(mapfilename)
+            map = hdul[1]
+            err = hdul['error']
+            exp = hdul[3]
+            flag = hdul[4]
+
+            '*********************LEGACY SAV FILE OPENING*************************'
             # thissim = lead_zero(nsim)
             thissim = str(nsim)
             mapfilename = config.CLUSDATA + 'bethermin_sims/' + clusname +'/' + clusname + '_' + band[i] + '_sim0' + thissim + '.sav'
@@ -78,12 +87,15 @@ def get_simmaps(clusname, nsim, simflag=1, sb=0, xc=0, verbose=0, maps = None):
             noisemap = 1.0 * thismap['thismap'].error[0] * np.random.standard_normal((mapsize[0], mapsize[1]))
             thismap['thismap'].signal[0] = thismap['thismap'].signal[0] + noisemap
             maps.append(thismap['thismap'])
-
+            '******************************END******************************'
     new_maps = []
     for map in maps:
+
+
         # print(map.dtype.names)
         # print(map.shead[0])
         # print(map.shead[0].CD1_1)
+
         head = fits.Header()
         map.shead[0] = map.shead[0].astype(str)
         for i in range(map.shead[0].shape[0]):
@@ -107,6 +119,7 @@ def get_simmaps(clusname, nsim, simflag=1, sb=0, xc=0, verbose=0, maps = None):
                 comment = split_line[1]
                 ehead.set(key, value, comment)
         astr = fits.Header()
+
         # print(map.astr[0])
         # map.astr[0] = map.astr[0].astype(str)
         # for i in range(map.astr[0].shape[0]):

@@ -51,8 +51,8 @@ def make_noise_mask(maps, col):
     # plt.show()
 
     fixed_image = convolve_fft(img, kernel_full_size)
-    plt.imshow(fixed_image)
-    plt.show()
+    # plt.imshow(fixed_image)
+    # plt.show()
 
     mask = np.empty(mapsize)
     for j in range(mapsize[0]):
@@ -66,7 +66,7 @@ def make_noise_mask(maps, col):
 if __name__ == '__main__':
     maps, err = get_data('a0370')
     mask = make_noise_mask(maps, 0)
-    plt.imshow(mask)
-    plt.show()
+    # plt.imshow(mask)
+    # plt.show()
     # plt.imshow(mask)
     # plt.show()

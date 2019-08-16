@@ -27,9 +27,9 @@ import config
 # from FITS_tools.load_header import load_header
 import matplotlib.pyplot as plt
 import matplotlib
-matplotlib.use('TkAgg')
+# matplotlib.use('TkAgg')
 
-def compute_rings(maps, params, binwidth, superplot=1, verbose=1, noconfusion=None):
+def compute_rings(maps, params, binwidth, superplot=0, verbose=1, noconfusion=None):
 
     # init params
     bands = ['PSW', 'PMW', 'PLW']
@@ -51,7 +51,7 @@ def compute_rings(maps, params, binwidth, superplot=1, verbose=1, noconfusion=No
         pixsize = maps[m]['pixsize']
         maxrad = ceil(pixsize * np.amax(mapsize) / sqrt(2.0))
         nbinsp = int(maxrad / binwidth) + 1
-
+        print('Mapsize: ',mapsize,'Pixsize: ',pixsize,'Maxrad: ',maxrad,'nbinsp: ',nbinsp)
         # make array objects to fill later
         midbinp = np.empty(nbinsp)
         midwei = np.empty(nbinsp)
@@ -60,13 +60,14 @@ def compute_rings(maps, params, binwidth, superplot=1, verbose=1, noconfusion=No
         errbin = np.empty(nbinsp)
 
         # make radbin
-        stop = maxrad * (nbinsp/(nbinsp-1)) + 3
+        stop = maxrad / (nbinsp-1) + (3 * float(ncols))
         radbin = np.linspace(0.0,stop,nbinsp)
 
         # make midbin
         midbin = np.absolute([x / 2.0 for x in np.diff(radbin,1)])
-        midbin = np.add(radbin[1:],midbin)
-
+        radbin = radbin[1:]
+        midbin = np.add(radbin,midbin)
+        # print('Midbin: ',midbin,'Radbin: ',radbin)
         ''' This whole section is gonna need some serious TLC'''
         #convert RA/DEC to pixel coordinates
         ra = params['fidrad'] * u.deg
@@ -76,7 +77,8 @@ def compute_rings(maps, params, binwidth, superplot=1, verbose=1, noconfusion=No
         hdul = fits.open(maps[m]['file'])
         w = wcs.WCS(hdul[1].header)
         #converting ra/dec to pixel coords
-        px, py = skycoord_to_pixel(c, w)
+        px, py = skycoord_to_pixel(c, w, origin=1)
+        # print('PX: ',px,'PY: ',py)
         # ===============================================================
 
         conv = pixsize / binwidth
@@ -84,15 +86,20 @@ def compute_rings(maps, params, binwidth, superplot=1, verbose=1, noconfusion=No
         calfac = (1*10**-6) / (1.13*25.0**2*( pi /180.0)**2/3600.0**2)
         confnoise = confusionnoise[m]
         mask = make_noise_mask(maps, m)
+        print(mask)
         # ===============================================================
 
         # not exactly sure what this is doing but looks like radius of bin rings
         tempmap = np.empty((int(mapsize[0]), int(mapsize[1])))
         for i in range(mapsize[0]):
             for j in range(mapsize[1]):
+                # mark regions that are bad in mask with 1's
+                if np.isfinite(mask[i,j]) == False :
+                    mask[i,j] = 1
                 nthisrad = 0 # keep a counter for how many times we find a minimum
                 maps[m]['mask'][i,j] = maps[m]['mask'][i,j] + mask[i,j]
                 thisrad = pixsize * sqrt((i - px)**2+(j - py)**2)
+                # print('THIS RAD: ',thisrad)
                 tempmap[i,j] = thisrad
                 for k in range(len(midbin)):
                     if abs(thisrad - midbin[k]) == np.min(abs(thisrad - midbin)):
@@ -124,25 +131,28 @@ def compute_rings(maps, params, binwidth, superplot=1, verbose=1, noconfusion=No
                 fluxbin[i] = np.nan
                 errbin[i] = np.nan
 
-
-        # save new bin data to dictionary & return to fitsz
-        dict = {'band' : maps[m]['band'],
+        print('FLUXBIN: ',fluxbin)
+        #save new bin data to dictionary & return to fitsz
+        radave = [None]*ncols
+        radave[m] = {'band' : maps[m]['band'],
                      'midbin' : midbinp,
                      'fluxbin' : fluxbin,
                      'errbin' : errbin}
-        radave.append(dict)
-        if superplot:
-            plt.plot(radave[m]['midbin'],radave[m]['fluxbin'])
-            plt.title('Clus Compute Rings: Radial Averages for %s' %(maps[m]['band']))
-            plt.xlabel('Radius (arcsec)')
-            plt.ylabel('Signal (MJy/sr)')
-            plt.xlim((0,600))
-            plt.show()
+
+        # print(radave[m]['midbin'])
+
+        # if superplot:
+        #     plt.plot(radave[m]['midbin'],radave[m]['fluxbin'])
+        #     plt.title('Clus Compute Rings: Radial Averages for %s' %(maps[m]['band']))
+        #     plt.xlabel('Radius (arcsec)')
+        #     plt.ylabel('Signal (MJy/sr)')
+        #     plt.xlim((0,600))
+        #     plt.show()
 
 
     return radave
 
 if __name__ == '__main__' :
-    maps,err = get_data('a2218')
-    params,err = get_clus_params('a2218')
+    maps,err = get_data('a0370')
+    params,err = get_clus_params('a0370')
     compute_rings(maps,params,30.0)

@@ -33,28 +33,26 @@ def make_noise_mask(maps, col):
     mapsize = maps[col]['error'].data.shape
     img = maps[col]['error'].data
     stddev = 24 / 2.355
-    kernel = makeGaussian(8, 8, fwhm= 24)
-    kernel = kernel / np.sum(kernel)
+    kernel = makeGaussian(8, 8, fwhm= 4)
     # plt.imshow(kernel)
     # plt.show()
 
     kernel_full_size = np.zeros(mapsize)
     #find center of kernel
-    xc = kernel_full_size.shape[0] / 2
-    yc = kernel_full_size.shape[1] / 2
-    x0 = xc - kernel.shape[0] / 2
-    x1 = xc + kernel.shape[0] / 2
-    y0 = yc - kernel.shape[1] / 2
-    y1 = yc + kernel.shape[1] / 2
+    xc = int(kernel_full_size.shape[0] / 2)
+    yc = int(kernel_full_size.shape[1] / 2)
+    x0 = int(xc - kernel.shape[0] / 2)
+    x1 = int(xc + kernel.shape[0] / 2)
+    y0 = int(yc - kernel.shape[1] / 2)
+    y1 = int(yc + kernel.shape[1] / 2)
     kernel_full_size[x0:x1, y0:y1] = kernel
     # plt.imshow(kernel_full_size)
     # plt.show()
 
     fixed_image = convolve_fft(img, kernel_full_size)
-    plt.imshow(fixed_image)
-    plt.show()
 
-    mask = np.empty(mapsize)
+
+    mask = np.zeros(mapsize)
     for j in range(mapsize[0]):
         for k in range(mapsize[1]):
             if fixed_image[j,k] == 0:

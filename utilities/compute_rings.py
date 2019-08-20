@@ -69,9 +69,8 @@ def compute_rings(maps, params, binwidth, superplot=0, verbose=1, noconfusion=No
         errbin = np.empty(nbins)
 
         # make radbin
-        stop = maxrad * (1 / (nbins-1) + (3 * float(ncols)))
-        radbin = np.linspace(0.0,stop,nbins)
-        print(radbin)
+        step = maxrad / (nbins-1) + 3.0 * float(m)
+        radbin = np.arange(0.0,maxrad+step,step)
         # make midbin
         midbin = np.absolute([x / 2.0 for x in np.diff(radbin,1)])
         radbin = radbin[1:]

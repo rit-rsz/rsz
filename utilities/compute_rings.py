@@ -40,6 +40,16 @@ def compute_rings(maps, params, binwidth, superplot=0, verbose=1, noconfusion=No
         ar = [5.8, 6.3, 6.8]
         confusionnoise = np.array([x*0.001 for x in ar])
 
+    # for exclusively calculating largest nbins
+    nbins = 0
+    for i in range(ncols):
+        mapsize = maps[i]['astr']['NAXIS']
+        pixsize = maps[i]['pixsize']
+        maxrad = ceil(pixsize * np.amax(mapsize) / sqrt(2.0))
+        nbinsp = int(maxrad / binwidth) + 1
+        if nbinsp > nbins :
+            nbins = int(nbinsp)
+
     # create bins for different metrics (mid,flux,err,rad,hit,max)
     radave = []
     for m in range(ncols):
@@ -50,23 +60,24 @@ def compute_rings(maps, params, binwidth, superplot=0, verbose=1, noconfusion=No
         mapsize = maps[m]['astr']['NAXIS']
         pixsize = maps[m]['pixsize']
         maxrad = ceil(pixsize * np.amax(mapsize) / sqrt(2.0))
-        nbinsp = int(maxrad / binwidth) + 1
-        print('Mapsize: ',mapsize,'Pixsize: ',pixsize,'Maxrad: ',maxrad,'nbinsp: ',nbinsp)
+        print('Mapsize: ',mapsize,'Pixsize: ',pixsize,'Maxrad: ',maxrad,'nbins: ',nbins)
         # make array objects to fill later
-        midbinp = np.empty(nbinsp)
-        midwei = np.empty(nbinsp)
-        fluxbin = np.empty(nbinsp)
-        hitbin = np.empty(nbinsp)
-        errbin = np.empty(nbinsp)
+        midbinp = np.empty(nbins)
+        midwei = np.empty(nbins)
+        fluxbin = np.empty(nbins)
+        hitbin = np.empty(nbins)
+        errbin = np.empty(nbins)
 
         # make radbin
-        stop = maxrad / (nbinsp-1) + (3 * float(ncols))
-        radbin = np.linspace(0.0,stop,nbinsp)
-
+        stop = maxrad * (1 / (nbins-1) + (3 * float(ncols)))
+        radbin = np.linspace(0.0,stop,nbins)
+        print(radbin)
         # make midbin
         midbin = np.absolute([x / 2.0 for x in np.diff(radbin,1)])
         radbin = radbin[1:]
         midbin = np.add(radbin,midbin)
+        # print(radbin,midbin)
+        # exit()
         #convert RA/DEC to pixel coordinates
         ra = params['fidrad'] * u.deg
         dec = params['fidded'] * u.deg
@@ -115,10 +126,10 @@ def compute_rings(maps, params, binwidth, superplot=0, verbose=1, noconfusion=No
         # hdu.writeto(file)
         # ===========================================================================================
 
-        for i in range(nbinsp):
+        for i in range(nbins):
             if midwei[i] > 1.0 :
                 midbinp[i] = midbinp[i] / midwei[i]
-        for j in range(nbinsp):
+        for j in range(nbins):
             if hitbin[i] > 0 :
                 fluxbin[i] = fluxbin[i] / hitbin[i]
                 errbin[i] = sqrt(1.0 / hitbin[i])

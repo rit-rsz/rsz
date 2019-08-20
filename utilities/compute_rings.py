@@ -72,11 +72,12 @@ def compute_rings(maps, params, binwidth, superplot=0, verbose=1, noconfusion=No
         step = maxrad / (nbins-1) + 3.0 * float(m)
         radbin = np.arange(0.0,maxrad+step,step)
         # make midbin
-        midbin = np.absolute([x / 2.0 for x in np.diff(radbin,1)])
-        radbin = radbin[1:]
-        midbin = np.add(radbin,midbin)
-        # print(radbin,midbin)
-        # exit()
+        bin_size = np.absolute([x / 2.0 for x in np.diff(radbin,1)])
+        first_val = bin_size[0]
+        midbin = [x + first_val for x in radbin]
+        midbin = np.append(midbin,radbin[-1])
+        print(midbin)
+        exit()
         #convert RA/DEC to pixel coordinates
         ra = params['fidrad'] * u.deg
         dec = params['fidded'] * u.deg

@@ -53,6 +53,10 @@ def compute_rings(maps, params, binwidth, superplot=1, verbose=1, noconfusion=No
     # create bins for different metrics (mid,flux,err,rad,hit,max)
     radave = []
     for m in range(ncols):
+        clusname = maps[m]['name']
+        hdul = fits.open('/home/butler/bitten/SPIRE/cluster_analysis/plots/clus_rings_test_%s_%s.fits' %(bands[m],clusname))
+        # hdul.writeto('test.fits')
+        srcrm = hdul[0].data
         if verbose:
             print('Average for ' + maps[m]['band'])
 
@@ -90,12 +94,12 @@ def compute_rings(maps, params, binwidth, superplot=1, verbose=1, noconfusion=No
         # retrieve noise mask and set base noise level of map
         conv = pixsize / binwidth
         ''' Not sure if this is the right calfac'''
-        calfac = (1*10**-6) / (1.13*25.0**2*( pi /180.0)**2/3600.0**2)
+        # calfac = (1*10**-6) / (1.13*25.0**2*( pi /180.0)**2/3600.0**2)
         confnoise = confusionnoise[m]
         mask = make_noise_mask(maps, m)
         # ===============================================================
         # not exactly sure what this is doing but looks like radius of bin rings
-        tempmap = np.empty((int(mapsize[0]), int(mapsize[1])))
+        tempmap = np.zeros((int(mapsize[0]), int(mapsize[1])))
 
         for i in range(mapsize[0]):
             for j in range(mapsize[1]):
@@ -109,9 +113,9 @@ def compute_rings(maps, params, binwidth, superplot=1, verbose=1, noconfusion=No
                         midbinp[k] = midbinp[k] + thisrad
                         midwei[k] = midwei[k] + 1
                         if maps[m]['mask'][i,j] == 0 and (k <= maxrad) :
-                            thiserr = calfac * sqrt(maps[m]['error'][i,j]**2 + confnoise**2)
-                            # fluxbin[k] = (calfac * maps[m]['srcrm'][i,j] / thiserr**2)
-                            fluxbin[k] = fluxbin[k] + (calfac / thiserr**2)
+                            thiserr = maps[m]['calfac'] * sqrt(maps[m]['error'][i,j]**2 + confnoise**2)
+                            # fluxbin[k] = fluxbin[k] + (maps[m]['calfac'] * maps[m]['srcrm'][i,j] / thiserr**2)
+                            fluxbin[k] = fluxbin[k] + (maps[m]['calfac'] * srcrm[i,j] / thiserr**2)
                             hitbin[k] = hitbin[k] + 1.0 / thiserr**2
 
         # =========================================================================================
@@ -137,7 +141,6 @@ def compute_rings(maps, params, binwidth, superplot=1, verbose=1, noconfusion=No
 
         print('FLUXBIN: ',fluxbin)
         print('MIDBIN: ',midbinp)
-        exit()
         #save new bin data to dictionary & return to fitsz
         radave = [None]*ncols
         radave[m] = {'band' : maps[m]['band'],
@@ -148,12 +151,12 @@ def compute_rings(maps, params, binwidth, superplot=1, verbose=1, noconfusion=No
         # print(radave[m]['midbin'])
 
         if superplot:
-            plt.scatter(midbinp,fluxbin)
+            plt.plot(midbinp,fluxbin)
             plt.title('Clus Compute Rings: Radial Averages for %s' %(maps[m]['band']))
             plt.xlabel('Radius (arcsec)')
             plt.ylabel('Signal (MJy/sr)')
             plt.xlim((0,600))
-            plt.ylim((-1000,1000))
+            # plt.ylim((-1000,1000))
             plt.show()
 
 

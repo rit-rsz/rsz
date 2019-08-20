@@ -51,6 +51,7 @@ def add_sziso(maps,yin,tin,
     cluster_struct = list(data_dict.values())
 
     bolocam,err = clus_convert_bolocam(cluster_struct,verbose=verbose)
+    exit()
 
     if err:
         errmsg = str('clus_convert_bolocam exited with error: ' + err)

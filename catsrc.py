@@ -109,6 +109,7 @@ class Catsrc():
 
         # This step now is for both sims and real data
         maps, err = get_data(self.clusname,verbose=self.verbose,simmap=self.simmap,nsim=self.nsim)
+
         print('getting my data!')
         if err:
             if self.verbose:

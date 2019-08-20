@@ -37,7 +37,7 @@ def make_noise_mask(maps, col):
     # plt.imshow(kernel)
     # plt.show()
 
-    kernel_full_size = np.zeros(mapsize, dtype=int)
+    kernel_full_size = np.zeros(mapsize, dtype=float)
     #find center of kernel
     xc = int(kernel_full_size.shape[0] / 2)
     yc = int(kernel_full_size.shape[1] / 2)
@@ -58,13 +58,19 @@ def make_noise_mask(maps, col):
     # plt.show()
 
 
-    mask = np.zeros(mapsize)
+    mask = np.zeros(mapsize, dtype=int)
     for j in range(mapsize[0]):
         for k in range(mapsize[1]):
-            if fixed_image[j,k] == 0 or fixed_image[j,k] <= 1e-10:
+            if fixed_image[j,k] == 0 or fixed_image[j,k] <= 1e-10 or np.isfinite(fixed_image[j,k]) == False:
                 fixed_image[j,k] = 0.005
             if fixed_image[j,k] >= 0.004:
                 mask[j,k] = int(1)
+
+    ''' Temp fix for edge effects '''
+    mask[0:10,:] = 1 # fix top 10 rows
+    mask[-10:mapsize[0],:] = 1 # fix bottom 10 rows
+    mask[:,0:10] = 1 # fix left 10 rows
+    mask[:,-10:mapsize[1]] = 1 # fix right 10 rows
     return mask
 
 if __name__ == '__main__':

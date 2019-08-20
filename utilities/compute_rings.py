@@ -62,11 +62,11 @@ def compute_rings(maps, params, binwidth, superplot=1, verbose=1, noconfusion=No
         maxrad = ceil(pixsize * np.amax(mapsize) / sqrt(2.0))
         print('Mapsize: ',mapsize,'Pixsize: ',pixsize,'Maxrad: ',maxrad,'nbins: ',nbins)
         # make array objects to fill later
-        midbinp = np.empty(nbins)
-        midwei = np.empty(nbins)
-        fluxbin = np.empty(nbins)
-        hitbin = np.empty(nbins)
-        errbin = np.empty(nbins)
+        midbinp = np.zeros(nbins)
+        midwei = np.zeros(nbins)
+        fluxbin = np.zeros(nbins)
+        hitbin = np.zeros(nbins)
+        errbin = np.zeros(nbins)
 
         # make radbin
         step = maxrad / (nbins-1) + 3.0 * float(m)
@@ -94,12 +94,9 @@ def compute_rings(maps, params, binwidth, superplot=1, verbose=1, noconfusion=No
         confnoise = confusionnoise[m]
         mask = make_noise_mask(maps, m)
         # ===============================================================
-        ''' This is currently where i'm working, this whole section is f*d up'''
         # not exactly sure what this is doing but looks like radius of bin rings
         tempmap = np.empty((int(mapsize[0]), int(mapsize[1])))
 
-        '''more verbose but easier to debug'''
-        ''' yeah I could... just seemed a bit verbose'''
         for i in range(mapsize[0]):
             for j in range(mapsize[1]):
                 # nthisrad = 0 # keep a counter for how many times we find a minimum
@@ -109,13 +106,10 @@ def compute_rings(maps, params, binwidth, superplot=1, verbose=1, noconfusion=No
                 midbin_fill = [abs(thisrad - x) for x in midbin]
                 for k in range(len(midbin)-1):
                     if midbin_fill[k] == np.min(midbin_fill):
-                        # print('#################################')
-                        # print(k)
                         midbinp[k] = midbinp[k] + thisrad
                         midwei[k] = midwei[k] + 1
-                        if  maps[m]['mask'][i,j] == 0 and (k <= maxrad) :
+                        if maps[m]['mask'][i,j] == 0 and (k <= maxrad) :
                             thiserr = calfac * sqrt(maps[m]['error'][i,j]**2 + confnoise**2)
-                            # print('THISERR: ',thiserr,'CONFNOISE: ',confnoise,'CALFAC: ',calfac)
                             # fluxbin[k] = (calfac * maps[m]['srcrm'][i,j] / thiserr**2)
                             fluxbin[k] = fluxbin[k] + (calfac / thiserr**2)
                             hitbin[k] = hitbin[k] + 1.0 / thiserr**2
@@ -133,13 +127,13 @@ def compute_rings(maps, params, binwidth, superplot=1, verbose=1, noconfusion=No
             if midwei[i] > 1.0 :
                 midbinp[i] = midbinp[i] / midwei[i]
         for j in range(nbins):
-            if hitbin[i] > 0 :
-                fluxbin[i] = fluxbin[i] / hitbin[i]
-                errbin[i] = sqrt(1.0 / hitbin[i])
+            if hitbin[j] > 0 :
+                fluxbin[j] = fluxbin[j] / hitbin[j]
+                errbin[j] = sqrt(1.0 / hitbin[j])
             else :
-                midbinp[i] = np.nan
-                fluxbin[i] = np.nan
-                errbin[i] = np.nan
+                midbinp[j] = np.nan
+                fluxbin[j] = np.nan
+                errbin[j] = np.nan
 
         print('FLUXBIN: ',fluxbin)
         print('MIDBIN: ',midbinp)

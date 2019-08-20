@@ -21,11 +21,12 @@ import os
 import sys
 sys.path.append('../sz')
 from clus_dTtoDI import *
+import matplotlib.pyplot as plt
 
 def clus_convert_bolocam(bolocam, verbose=0):
     # Converts mK to MJy/sr
     bolocam[0]['deconvolved_image'] = clus_dTtoDI(143,1e-6*(bolocam[0]['deconvolved_image']))
-    # print(bolocam[0]['deconvolved_image_noise_realizations'])
+
     bolocam[0]['deconvolved_image_smooth_trim_sn'] = \
         clus_dTtoDI(143,1e-6*bolocam[0]['deconvolved_image_smooth_trim_sn'])
 

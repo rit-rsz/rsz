@@ -34,7 +34,10 @@ def clus_dTtoDI(freq,dT):
     gx = hx * fx
     Iz = 2 * (k_B * T_0)**3 / (h * c)**2
 
-    dI = Iz * hx * dT / T_0
+    # Float converts to MJy as well as uK to K
+    dI = (hx * (dT) / T_0)# * float(1e20)
+    # print(dI.dtype)
+    # exit()
 #   Below is a remnent for what I assume is for a wider data set, left in incase this needs to be turned on
 #   if freq < 217:
 #       dI = (-1)*dI

@@ -4,9 +4,14 @@
 # DATE STARTED : June 18, 2019
 # AUTHORS : Dale Mercado
 # PURPOSE : Adding in the SZ isomap
-# EXPLANATION :
+# EXPLANATION : Uses bolocam data to create the spectral shape of the sz effect
+#               which can then be combined with the peak intensty of the SZ.
+#               This is then added into the simmulated 500um map.
 # CALLING SEQUENCE :
-# INPUTS :
+# INPUTS : maps: Simmulated map objects
+#          yin: Compton y paramter values
+#          tin: Temperature of electrons
+#          verbose: Print out messages
 #
 #
 # OUTPUTS :
@@ -24,11 +29,8 @@ from config import *
 sys.path.append('../sz')
 from clus_get_relsz import *
 from astropy.io import fits
-from astropy.wcs import WCS
-from astropy import units as u
-from FITS_tools.hcongrid import hcongrid , hastrom
-from FITS_tools.hcongrid import hcongrid_hdu
-from FITS_tools.load_header import load_header
+# from astropy import units as u
+from FITS_tools.hcongrid import hcongrid
 
 
 
@@ -36,8 +38,8 @@ def add_sziso(maps,yin,tin,
               verbose = 0):
     errmsg = False
 
-#   Now the bolocam data is in the SPIRE format
-#   we can do a loop over the map adding in the false sz signal
+    # Now the bolocam data is in the SPIRE format
+    # we can do a loop over the map adding in the false sz signal
 
     mapsize = len(maps)
 
@@ -56,19 +58,18 @@ def add_sziso(maps,yin,tin,
             print(errmsg)
         return None, errmsg
 
-
+    # Set the size of the image for later use
     naxis = bolocam[0]['deconvolved_image'][0].shape
+    naxis = np.array(naxis)
 
-    # Set this to the size of bolocam.deconvolved image
     sziso = fits.PrimaryHDU()
     temphead = sziso.header
 
-#   Need to ask what this does
+    # Set reference pizel position
     crpix1 = int(naxis[0] / 2)
     crpix2 = int(naxis[1] / 2)
 
-#   this needs to be put into a temptemphead for the bolocam stuff
-#   What is the mapts element thats getting used instead
+    # Setting the tempheader for the bolocam data
     temphead.set('CRVAL1' , bolocam[0]['deconvolved_image_ra_j2000_deg'][0][crpix1,crpix2])
     temphead.set('CRVAL2' , bolocam[0]['deconvolved_image_dec_j2000_deg'][0][crpix1,crpix2])
     temphead.set('CRPIX1' , crpix1)
@@ -84,16 +85,12 @@ def add_sziso(maps,yin,tin,
 
     x = np.arange(naxis[0]) - 14.5
     y = np.arange(naxis[1]) - 14.5
-    naxis = np.array(naxis)
+
     rad = np.zeros((naxis[0],naxis[1]))
 
     for ix in range(naxis[1]):
         rad[:,ix] = (np.tile(x[ix],naxis[0])**2+y**2)**(1/2)
-    '''
-    Add in section to find all values in rad that are greater than 10
-    Loop through nested for loops because rad is multi dimensional
-    Called "outer" , use in szmap
-    '''
+
     # Outer marks the indices of the outside of the circle used to add in the sz effect
     n = 0
     outer = []
@@ -102,76 +99,54 @@ def add_sziso(maps,yin,tin,
             if rad[i,j] > 10:
                 outer.append(n)
             n +=1
-#   right syntax???
 
+    # Set up the spectral shape of the sz effect to be appled to the 500um map
     szmap = -1 * bolocam[0]['deconvolved_image'][0]
     szmap = (np.array(szmap)).flatten()
     szmap = szmap - np.mean(szmap[outer])
-    szmap = szmap / max(szmap)
+    szmap = [x/max(szmap) for x in szmap]
 
 
     for imap in range(mapsize):
-# Below are the changes to units of Jy to beam
-# calculate the surface brightness to put in each pixel at this sim step
-# Need to fix maps right now it is written as a pointer
-        # Only on the PLW Band
-
+        # Applying the effect to the 500um band
         if imap == 2:
-            # This is the work around until the config is fixed
-            yin_coeff = [2.50,1.91,2.26,3.99,1.36,2.42,1.59,1.90,3.99]
-            yin = [x*1e-4 for x in yin_coeff]
-            tin = [7.2,10.1,7.7,9.8,4.5,8.6,7.8,5.5,10.9]
+            # yin_coeff = [2.50,1.91,2.26,3.99,1.36,2.42,1.59,1.90,3.99]
+            # yin = [x*1e-4 for x in yin_coeff]
+            # tin = [7.2,10.1,7.7,9.8,4.5,8.6,7.8,5.5,10.9]
             nu = 3e5 / clus_get_lambdas((maps[imap]['band']))
-            # Change name from sz_wrapper to name of file
             dI,errmsg = clus_get_relsz(nu,y=yin,te=tin,vpec=0.0) # dI = [MJy/sr]
             if errmsg:
                 if verbose:
                     new_errmsg = 'Clus_get_relSZ exited with error'+errmsg
                 return None, new_errmsg
-            '''Up until this section is working correctly'''
-            '''Can Probably still use tile, after the test with zeros it was show the error wa with
-                incorporating the mulitplication to szmap. szmap is I think a much larger size and
-                it is having a hard time combineig the two'''
 
             ''' This was necessary using old units for run_SZpack output '''
             # dI_converted = dI*((1.13*(maps[imap]['widtha'])/3600.)**2 * (pi/180)**2)
             ###########################################################################
 
-            # szin = (np.tile(x,(naxis[0],naxis[1]))) * szmap
-            szin = dI * szmap
+            # Combine the spectral shape of the SZ effect, and combine with the peak intensity
+            # converted to Jy/pixel  ***Confirm these Units***
+            szin = [x * dI / maps[imap]['calfac'] for x in szmap]
             szin = np.reshape(szin,(naxis[0],naxis[1]))
 
-    #       Have to interpolate to SPIRE map size
-            # using hcongrid from astropy to replace HASTROM
-            '''Need to writefits szin inorder to use this function'''
+            # Have to interpolate to SPIRE map size
+            # Using hcongrid from astropy's FITS_tools to replace HASTROM
+            # Requires fits objects to work
+
+            #
             hdu = fits.PrimaryHDU(szin,temphead)
-            # hdu.writeto('test.fits')
-
-            # x = load_header(int(maps[imap]['shead']))
             hdx = fits.PrimaryHDU(maps[imap]['signal'],maps[imap]['shead'])
-            # print(maps[imap]['shead'])
-            # hdx.writeto('test1.fits')
-            print(hdx.header)
+
             szinp = hcongrid(hdu.data,hdu.header,hdx.header)
-            sz = fits.PrimaryHDU(szinp,hdx.header)
-            sz.writeto('test.fits')
-
-            sz_added = fits.PrimaryHDU(maps[imap]['signal'],hdx.header)
-            sz_added.writeto('test.fits')
-            x = maps[imap]['signal']
-            maps[imap]['signal'] = x + szinp
-
+            # Used to check the alligned sz effect image
             # sz = fits.PrimaryHDU(szinp,hdx.header)
             # sz.writeto('test.fits')
 
-            sz_added = fits.PrimaryHDU(maps[imap]['signal'],hdx.header)
-            sz_added.writeto('test1.fits')
-            exit()
+            # Combine the original signal with the sz effect
+            maps[imap]['signal'] = maps[imap]['signal'] + szinp
+            # Used to check the final output map
+            # sz = fits.PrimaryHDU(maps[imap]['signal'],hdx.header)
+            # sz.writeto('test1.fits')
+            # exit()
 
-
-
-
-
-#       Need to then set something for maps thats back to the dictonary format
-    exit()
     return maps, None

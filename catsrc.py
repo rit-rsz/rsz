@@ -43,7 +43,7 @@ from get_xid import *
 sys.path.append('reduc')
 from get_cats import *
 sys.path.append('sz')
-# from add_sziso import *
+from add_sziso import *
 
 # print(sys.path)
 # from add_sziso import *
@@ -51,8 +51,7 @@ sys.path.append('sz')
 class Catsrc():
 
     def __init__(self, clusname, saveplot=1, cattype="24um", savecat=0,
-                 savemap=0, maketf=0, simmap=0, nsim=0, s2n=3, yin=0,
-                 tin=0, verbose=1, resolution='nr'):
+                 savemap=0, maketf=0, simmap=0, nsim=0, s2n=3, verbose=1, resolution='nr'):
         # possibly how we would get around defining these terms, not positive
         self.verbose = verbose
         self.cattype = cattype
@@ -108,13 +107,16 @@ class Catsrc():
         if self.verbose:
             print('Fetching SPIRE maps')
 
-        maps, err = get_data(self.clusname,verbose=self.verbose, self.nsim)
+        # This step now is for both sims and real data
+        maps, err = get_data(self.clusname,verbose=self.verbose,simmap=self.simmap,nsim=self.nsim)
         print('getting my data!')
         if err:
             if self.verbose:
                 print('clus_get_data exited with error: ' + err)
             exit()
-        if simmap == 1:
+
+        # Add the sz effect into the simmulated clusters
+        if self.simmap:
             # maps, err = get_simmaps(self.clusname,nsim=self.nsim, simflag=self.simmap, verbose=self.verbose)
             # if err:
             #     if self.verbose:
@@ -268,7 +270,7 @@ class Catsrc():
 
 
 if __name__ == '__main__':
-    catsrc = Catsrc('a0370', verbose=1, cattype='PSW')
+    catsrc = Catsrc('a0370', verbose=1, cattype='PSW',simmap=2,nsim=200)
         # SAVEPLOTS=saveplots,\
         # CATTYPE=cattype,\
         # SAVECAT=savecat,\

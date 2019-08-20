@@ -29,7 +29,7 @@ import matplotlib.pyplot as plt
 import matplotlib
 # matplotlib.use('TkAgg')
 
-def compute_rings(maps, params, binwidth, superplot=0, verbose=1, noconfusion=None):
+def compute_rings(maps, params, binwidth, superplot=1, verbose=1, noconfusion=None):
 
     # init params
     bands = ['PSW', 'PMW', 'PLW']
@@ -71,13 +71,11 @@ def compute_rings(maps, params, binwidth, superplot=0, verbose=1, noconfusion=No
         # make radbin
         step = maxrad / (nbins-1) + 3.0 * float(m)
         radbin = np.arange(0.0,maxrad+step,step)
+
         # make midbin
         bin_size = np.absolute([x / 2.0 for x in np.diff(radbin,1)])
-        first_val = bin_size[0]
-        midbin = [x + first_val for x in radbin]
-        midbin = np.append(midbin,radbin[-1])
-        print(midbin)
-        exit()
+        midbin = np.append([x + bin_size[0] for x in radbin],maxrad)
+
         #convert RA/DEC to pixel coordinates
         ra = params['fidrad'] * u.deg
         dec = params['fidded'] * u.deg
@@ -89,29 +87,34 @@ def compute_rings(maps, params, binwidth, superplot=0, verbose=1, noconfusion=No
         px, py = skycoord_to_pixel(c, w, origin=1)
         # ===============================================================
 
+        # retrieve noise mask and set base noise level of map
         conv = pixsize / binwidth
         ''' Not sure if this is the right calfac'''
         calfac = (1*10**-6) / (1.13*25.0**2*( pi /180.0)**2/3600.0**2)
         confnoise = confusionnoise[m]
         mask = make_noise_mask(maps, m)
         # ===============================================================
-        print(midbin)
-        exit()
+        ''' This is currently where i'm working, this whole section is f*d up'''
         # not exactly sure what this is doing but looks like radius of bin rings
         tempmap = np.empty((int(mapsize[0]), int(mapsize[1])))
+
+        '''more verbose but easier to debug'''
+        ''' yeah I could... just seemed a bit verbose'''
         for i in range(mapsize[0]):
             for j in range(mapsize[1]):
-                nthisrad = 0 # keep a counter for how many times we find a minimum
+                # nthisrad = 0 # keep a counter for how many times we find a minimum
                 maps[m]['mask'][i,j] = maps[m]['mask'][i,j] + mask[i,j]
                 thisrad = pixsize * sqrt((i - px)**2+(j - py)**2)
                 tempmap[i,j] = thisrad
                 midbin_fill = [abs(thisrad - x) for x in midbin]
-                for k in range(len(midbin)):
+                for k in range(len(midbin)-1):
                     if midbin_fill[k] == np.min(midbin_fill):
-                        midbinp_fill[k] = midbinp[k] + thisrad
+                        # print('#################################')
+                        # print(k)
+                        midbinp[k] = midbinp[k] + thisrad
                         midwei[k] = midwei[k] + 1
-                        if  maps[m]['mask'][i,j] == 0 and (thisrad <= maxrad) :
-                            thiserr = calfac * sqrt(maps[m]['error'].data[i,j]**2 + confnoise**2)
+                        if  maps[m]['mask'][i,j] == 0 and (k <= maxrad) :
+                            thiserr = calfac * sqrt(maps[m]['error'][i,j]**2 + confnoise**2)
                             # print('THISERR: ',thiserr,'CONFNOISE: ',confnoise,'CALFAC: ',calfac)
                             # fluxbin[k] = (calfac * maps[m]['srcrm'][i,j] / thiserr**2)
                             fluxbin[k] = fluxbin[k] + (calfac / thiserr**2)
@@ -140,6 +143,7 @@ def compute_rings(maps, params, binwidth, superplot=0, verbose=1, noconfusion=No
 
         print('FLUXBIN: ',fluxbin)
         print('MIDBIN: ',midbinp)
+        exit()
         #save new bin data to dictionary & return to fitsz
         radave = [None]*ncols
         radave[m] = {'band' : maps[m]['band'],

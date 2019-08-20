@@ -31,7 +31,7 @@ def make_noise_mask(maps, col):
     """
 
     mapsize = maps[col]['error'].data.shape
-    img = maps[col]['error'].data
+    img = maps[col]['error']
     stddev = 24 / 2.355
     kernel = makeGaussian(8, 8, fwhm= 4)
     # plt.imshow(kernel)

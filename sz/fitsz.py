@@ -56,9 +56,9 @@ def fitsz(radave, params, beam=None, maxlim=3600, minlim=0, noweight=1, superplo
             psf = [x / np.sum(psf) for x in psf]
             roftprimep = convolve_fft(roftprime, psf)
             roftprimep = roftprimep / np.max(np.abs(roftprimep))
-            roft = np.interp(roftprimep,xrad,radave[i]['midbin'])
             roft = np.interp(radave[i]['midbin'],xrad,roftprimep)
             plt.plot(roft)
+            plt.show()
             exit()
             # roft = splrep(y=roftprimep, x=xrad, xe=radave[i]['midbin'])
 

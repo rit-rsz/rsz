@@ -34,8 +34,6 @@ def make_noise_mask(maps, col):
     img = maps[col]['error']
     stddev = 24 / 2.355
     kernel = makeGaussian(8, 8, fwhm= 4)
-    # plt.imshow(kernel)
-    # plt.show()
 
     kernel_full_size = np.zeros(mapsize, dtype=float)
     #find center of kernel
@@ -46,17 +44,11 @@ def make_noise_mask(maps, col):
     y0 = int(yc - kernel.shape[1] / 2)
     y1 = int(yc + kernel.shape[1] / 2)
     kernel_full_size[x0:x1, y0:y1] = kernel
-    # plt.imshow(kernel_full_size)
-    # plt.show()
+
     #converting these to lists because the error message is annoying.
     img = img.tolist()
     kernel_full_size = kernel_full_size.tolist()
-
     fixed_image = convolve_fft(img, kernel_full_size)
-
-    # plt.imshow(fixed_image)
-    # plt.show()
-
 
     mask = np.zeros(mapsize, dtype=int)
     for j in range(mapsize[0]):
@@ -76,5 +68,5 @@ def make_noise_mask(maps, col):
 if __name__ == '__main__':
     maps, err = get_data('a0370')
     mask = make_noise_mask(maps, 0)
-    # plt.imshow(mask)
+    # plt.imshow(mask,origin='lower')
     # plt.show()

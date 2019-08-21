@@ -27,10 +27,11 @@ import config
 # from FITS_tools.load_header import load_header
 import matplotlib.pyplot as plt
 import matplotlib
+import time
 # matplotlib.use('TkAgg')
 
 def compute_rings(maps, params, binwidth, superplot=1, verbose=1, noconfusion=None):
-
+    t0 = time.time()
     # init params
     bands = ['PSW', 'PMW', 'PLW']
     ncols = len(maps)
@@ -54,9 +55,9 @@ def compute_rings(maps, params, binwidth, superplot=1, verbose=1, noconfusion=No
     radave = []
     for m in range(ncols):
         clusname = maps[m]['name']
-        hdul = fits.open('/home/butler/bitten/SPIRE/cluster_analysis/plots/clus_rings_test_%s_%s.fits' %(bands[m],clusname))
-        # hdul.writeto('test.fits')
-        srcrm = hdul[0].data
+        # hdul = fits.open('/home/butler/bitten/SPIRE/cluster_analysis/plots/clus_rings_test_%s_%s.fits' %(bands[m],clusname))
+        # # hdul.writeto('test.fits')
+        # srcrm = hdul[0].data
         if verbose:
             print('Average for ' + maps[m]['band'])
 
@@ -88,35 +89,35 @@ def compute_rings(maps, params, binwidth, superplot=1, verbose=1, noconfusion=No
         hdul = fits.open(maps[m]['file'])
         w = wcs.WCS(hdul[1].header)
         #converting ra/dec to pixel coords
-        px, py = skycoord_to_pixel(c, w, origin=1)
+        px, py = skycoord_to_pixel(c, w, origin=0)
         # ===============================================================
 
         # retrieve noise mask and set base noise level of map
         conv = pixsize / binwidth
-        ''' Not sure if this is the right calfac'''
-        # calfac = (1*10**-6) / (1.13*25.0**2*( pi /180.0)**2/3600.0**2)
         confnoise = confusionnoise[m]
         mask = make_noise_mask(maps, m)
         # ===============================================================
-        # not exactly sure what this is doing but looks like radius of bin rings
+        # once filled, shows the radial bins from thisrad
         tempmap = np.zeros((int(mapsize[0]), int(mapsize[1])))
 
-        for i in range(mapsize[0]):
-            for j in range(mapsize[1]):
-                # nthisrad = 0 # keep a counter for how many times we find a minimum
-                maps[m]['mask'][i,j] = maps[m]['mask'][i,j] + mask[i,j]
-                thisrad = pixsize * sqrt((i - px)**2+(j - py)**2)
-                tempmap[i,j] = thisrad
+        # find the flux that falls closest a given radius (thisrad) for a given pixel (ipix,jpix)
+        for ipix in range(mapsize[0]):
+            for jpix in range(mapsize[1]):
+                maps[m]['mask'][ipix,jpix] = maps[m]['mask'][ipix,jpix] + mask[ipix,jpix]
+                thisrad = pixsize * sqrt((ipix - px)**2+(jpix - py)**2)
+                tempmap[ipix,jpix] = thisrad
+
                 midbin_fill = [abs(thisrad - x) for x in midbin]
-                for k in range(len(midbin)-1):
-                    if midbin_fill[k] == np.min(midbin_fill):
-                        midbinp[k] = midbinp[k] + thisrad
-                        midwei[k] = midwei[k] + 1
-                        if maps[m]['mask'][i,j] == 0 and (k <= maxrad) :
-                            thiserr = maps[m]['calfac'] * sqrt(maps[m]['error'][i,j]**2 + confnoise**2)
-                            # fluxbin[k] = fluxbin[k] + (maps[m]['calfac'] * maps[m]['srcrm'][i,j] / thiserr**2)
-                            fluxbin[k] = fluxbin[k] + (maps[m]['calfac'] * srcrm[i,j] / thiserr**2)
-                            hitbin[k] = hitbin[k] + 1.0 / thiserr**2
+                rad = np.where(midbin_fill == np.min(midbin_fill))
+                rad = rad[0][0]
+                if rad < nbins :
+                    midbinp[rad] = midbinp[rad] + thisrad
+                    midwei[rad] = midwei[rad] + 1
+                    if maps[m]['mask'][ipix,jpix] == 0 and (rad <= maxrad) :
+                        thiserr = maps[m]['calfac'] * sqrt(maps[m]['error'][ipix,jpix]**2 + confnoise**2)
+                        fluxbin[k] = fluxbin[k] + (maps[m]['calfac'] * maps[m]['srcrm'][i,j] / thiserr**2)
+                        # fluxbin[rad] = fluxbin[rad] + (maps[m]['calfac'] * srcrm[ipix,jpix] / thiserr**2)
+                        hitbin[rad] = hitbin[rad] + 1.0 / thiserr**2
 
         # =========================================================================================
         # file = config.FITSOUT + 'radmap_' + bands[m] + '_' + maps[m]['name'] + '.fits'
@@ -139,8 +140,6 @@ def compute_rings(maps, params, binwidth, superplot=1, verbose=1, noconfusion=No
                 fluxbin[j] = np.nan
                 errbin[j] = np.nan
 
-        print('FLUXBIN: ',fluxbin)
-        print('MIDBIN: ',midbinp)
         #save new bin data to dictionary & return to fitsz
         radave = [None]*ncols
         radave[m] = {'band' : maps[m]['band'],
@@ -148,19 +147,16 @@ def compute_rings(maps, params, binwidth, superplot=1, verbose=1, noconfusion=No
                      'fluxbin' : fluxbin,
                      'errbin' : errbin}
 
-        # print(radave[m]['midbin'])
-
         if superplot:
             plt.plot(midbinp,fluxbin)
             plt.title('Clus Compute Rings: Radial Averages for %s' %(maps[m]['band']))
             plt.xlabel('Radius (arcsec)')
             plt.ylabel('Signal (MJy/sr)')
             plt.xlim((0,600))
-            # plt.ylim((-1000,1000))
             plt.show()
 
-
     return radave
+
 
 if __name__ == '__main__' :
     maps,err = get_data('a0370')

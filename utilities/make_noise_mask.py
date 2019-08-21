@@ -30,7 +30,7 @@ def make_noise_mask(maps, col):
             0 = PSW, 1 = PMW, 2 = PLW
     """
 
-    mapsize = maps[col]['error'].data.shape
+    mapsize = maps[col]['error'].shape
     img = maps[col]['error']
     stddev = 24 / 2.355
     kernel = makeGaussian(8, 8, fwhm= 4)

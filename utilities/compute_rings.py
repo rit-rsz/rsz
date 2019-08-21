@@ -27,14 +27,14 @@ import config
 # from FITS_tools.load_header import load_header
 import matplotlib.pyplot as plt
 import matplotlib
-import time
 # matplotlib.use('TkAgg')
 
-def compute_rings(maps, params, binwidth, superplot=1, verbose=1, noconfusion=None):
-    t0 = time.time()
+def compute_rings(maps, params, binwidth, superplot=0, verbose=1, noconfusion=None):
     # init params
     bands = ['PSW', 'PMW', 'PLW']
     ncols = len(maps)
+    radave = [None]*ncols
+
     if noconfusion:
         confusionnoise = np.empty(ncols)
     else:
@@ -52,12 +52,11 @@ def compute_rings(maps, params, binwidth, superplot=1, verbose=1, noconfusion=No
             nbins = int(nbinsp)
 
     # create bins for different metrics (mid,flux,err,rad,hit,max)
-    radave = []
     for m in range(ncols):
         clusname = maps[m]['name']
-        # hdul = fits.open('/home/butler/bitten/SPIRE/cluster_analysis/plots/clus_rings_test_%s_%s.fits' %(bands[m],clusname))
-        # # hdul.writeto('test.fits')
-        # srcrm = hdul[0].data
+        hdul = fits.open('/home/butler/bitten/SPIRE/cluster_analysis/plots/clus_rings_test_%s_%s.fits' %(bands[m],clusname))
+        # hdul.writeto('test.fits')
+        srcrm = hdul[0].data
         if verbose:
             print('Average for ' + maps[m]['band'])
 
@@ -115,8 +114,8 @@ def compute_rings(maps, params, binwidth, superplot=1, verbose=1, noconfusion=No
                     midwei[rad] = midwei[rad] + 1
                     if maps[m]['mask'][ipix,jpix] == 0 and (rad <= maxrad) :
                         thiserr = maps[m]['calfac'] * sqrt(maps[m]['error'][ipix,jpix]**2 + confnoise**2)
-                        fluxbin[k] = fluxbin[k] + (maps[m]['calfac'] * maps[m]['srcrm'][i,j] / thiserr**2)
-                        # fluxbin[rad] = fluxbin[rad] + (maps[m]['calfac'] * srcrm[ipix,jpix] / thiserr**2)
+                        # fluxbin[k] = fluxbin[k] + (maps[m]['calfac'] * maps[m]['srcrm'][i,j] / thiserr**2)
+                        fluxbin[rad] = fluxbin[rad] + (maps[m]['calfac'] * srcrm[ipix,jpix] / thiserr**2)
                         hitbin[rad] = hitbin[rad] + 1.0 / thiserr**2
 
         # =========================================================================================
@@ -141,7 +140,6 @@ def compute_rings(maps, params, binwidth, superplot=1, verbose=1, noconfusion=No
                 errbin[j] = np.nan
 
         #save new bin data to dictionary & return to fitsz
-        radave = [None]*ncols
         radave[m] = {'band' : maps[m]['band'],
                      'midbin' : midbinp,
                      'fluxbin' : fluxbin,

@@ -131,13 +131,12 @@ def add_sziso(maps,yin,tin,
             # converted to Jy/pixel  ***Confirm these Units***
             szin = [x * dI / maps[imap]['calfac'] for x in szmap]
             szin = np.reshape(szin,(naxis[0],naxis[1]))
-            print(dI)
-            exit()
+            plt.imshow(szin)
+            plt.show()
+
             # Have to interpolate to SPIRE map size
             # Using hcongrid from astropy's FITS_tools to replace HASTROM
             # Requires fits objects to work
-
-            #
             hdu = fits.PrimaryHDU(szin,temphead)
             hdx = fits.PrimaryHDU(maps[imap]['signal'],maps[imap]['shead'])
 

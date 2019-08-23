@@ -11,7 +11,7 @@
 #
 # OUTPUTS :
 # REVISION HISTORY :
-#   VLB - 9/13/19 - trimmed down the code to get rid of unneccessary for loops,
+#   VLB - 8/13/19 - trimmed down the code to get rid of unneccessary for loops,
 #                   added contour plots to visualize output, robust deletion and
 #                   creation of new fits files for debugging
 ################################################################################
@@ -30,7 +30,6 @@ def subtract_cat(maps, cat, verbose=1):
 
     for i in range(len(maps)):
         if verbose:
-            print(len(maps[i]))
             print('Subtracting for %s' %(maps[i]['band']))
 
         # make the difference image

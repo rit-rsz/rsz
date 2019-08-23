@@ -37,3 +37,16 @@ def makeGaussian(x_size, y_size, fwhm = 3, center=None):
     sigma = fwhm / 2.355
 
     return np.exp(-1 * ((x-x0)**2 + (y-y0)**2) / (2*sigma**2))
+
+def padGaussian(reference_map, kernel):
+    reference_size = reference_map.shape
+    kernel_full_size = np.zeros(reference_size, dtype=float)
+    #find center of kernel
+    xc = int(kernel_full_size.shape[0] / 2)
+    yc = int(kernel_full_size.shape[1] / 2)
+    x0 = int(xc - kernel.shape[0] / 2)
+    x1 = int(xc + kernel.shape[0] / 2)
+    y0 = int(yc - kernel.shape[1] / 2)
+    y1 = int(yc + kernel.shape[1] / 2)
+    kernel_full_size[x0:x1, y0:y1] = kernel
+    return kernel_full_size

@@ -287,7 +287,7 @@ def read_file(file,band,clusname,verbose=0):
           'signal':map.data, #check
           'srcrm':srcrm, #check
           'xclean':xclean, #check
-          'error':err, #check
+          'error':err.data, #check
           'mask':mask, #check
           'flag':flag, #check
           'exp':exp, #check

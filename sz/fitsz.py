@@ -49,9 +49,11 @@ def fitsz(maps, radave, params, beam=None, maxlim=3600, minlim=0, noweight=1, su
             length = int(np.nanmax((radave[i]['midbin'])))
             xrad = np.arange(-1 * length, length)
             roftprime = (1. + (xrad / rc)**2)**((1. - 3. * beta) / 2.)
+            #create psf for beam
             pf = -1 * (2.18 * log(2) / beam[i]**2)
             psf = np.exp(pf * xrad**2)
             psf = [x / np.sum(psf) for x in psf]
+            #convolve beam's psf with r(t)
             roftprimep = convolve_fft(roftprime, psf)
             roftprimep = roftprimep / np.max(np.abs(roftprimep))
             roft = np.interp(radave[i]['midbin'],xrad,roftprimep)
@@ -81,7 +83,7 @@ def fitsz(maps, radave, params, beam=None, maxlim=3600, minlim=0, noweight=1, su
                 roftprimep[k] = 0
 
         # slope, intercept, r_value, p_value, std_err = linregress(roft, radave[i]['fluxbin'])
-
+        #create a linear fit for r(t) vs fluxbin
         z = np.polyfit(roft,radave[i]['fluxbin'],1)
         p = np.poly1d(z)
         intercept = z[1]

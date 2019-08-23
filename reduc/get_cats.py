@@ -9,7 +9,8 @@
 # EXPLANATION :
 # CALLING SEQUENCE :
 # INPUTS :
-#
+# Notes : As of right now (8/23/19) we have only used the "PSW" option and that
+# is the only reliable function in this script that has been tested.
 #
 # OUTPUTS :
 # REVISION HISTORY :
@@ -428,18 +429,15 @@ def make_psw_src_cat(clusname, resolution, nsim, s2n=3, savecat=0, savemap=0, si
         if 'PSW' in maps[i]['file']:
             index = i
 
-    print(maps[index]['file'])
+    #getting data from PSW map object
     dataPSW = maps[index]['signal'].data
     errPSW = maps[index]['error']
     headPSW = maps[index]['shead']
     psfPSW = maps[index]['psf']
-
     beamFWHM = maps[index]['widtha'] #arcsec
     pixsize = maps[index]['pixsize'] #arcsec/pixel
-
-    print(beamFWHM)
-    print(pixsize)
     header = maps[index]['shead']
+    #creating a WCS object for conversions between pixel coords and sky coords
     wcs = WCS(header)
     #Now convert FWHM from arcsec to pixel
     fwhm = np.divide(beamFWHM,pixsize)
@@ -451,29 +449,17 @@ def make_psw_src_cat(clusname, resolution, nsim, s2n=3, savecat=0, savemap=0, si
 
 
     apertures = CircularAperture(positions, r=.3)
-    plt.imshow(dataPSW, origin='lower')
-    apertures.plot(color='red', lw=1.5, alpha=0.5)
-    plt.show()
+
+    #plotting for debugging purposes
+    # plt.imshow(dataPSW, origin='lower')
+    # apertures.plot(color='red', lw=1.5, alpha=0.5)
+    # plt.show()
     # plt.imshow(dataPSW)
     # plt.show()
     x = positions[0]
     y = positions[1]
 
-    print(len(x))
-    # plt.scatter(x, y)
-    # plt.show()
-
-    if savemap:
-        if verbose:
-            print('Saving catalog debug maps')
-        writefits(config.CLUSSBOX + 'make_PSW_src_cat_model.fits', data=modelPSW, header_dict=headPSW)
-        data = np.empty(dataPSW.shape)
-        for i in range(dataPSW.shape[0]):
-            for j in range(dataPSW.shape[1]):
-                data[i,j] = dataPSW[i,j] - modelPSW[i,j]
-        writefits(config.CLUSSBOX + 'make_PSW_src_cat_mdiff.fits', data=data, header_dict=headPSW)
-
-    # ra_dec = wcs.wcs_pix2world(x, y, 1, ra_dec_order=True)
+    #converting to skycoords
     c = pixel_to_skycoord(x, y, wcs, origin=1)
     a = []
     d = []
@@ -483,51 +469,14 @@ def make_psw_src_cat(clusname, resolution, nsim, s2n=3, savecat=0, savemap=0, si
         a.append(float(split_coords[0]))
         d.append(float(split_coords[1]))
 
+    #plots for debugging
     plt.scatter(a, d)
     plt.show()
 
-    # fluxes = np.array(fluxes)
-    # a = np.array(a)
-    # d = np.array(d)
     count = len(a)
-    #originally it was fPLW / sigF which were two outputs from starfinder.
-    #however, these are the outputs from our version of STARFINDER
-    # id: unique object identification number.
-    # xcentroid, ycentroid: object centroid.
-    # sharpness: object sharpness.
-    # roundness1: object roundness based on symmetry.
-    # roundness2: object roundness based on marginal Gaussian fits.
-    # npix: the total number of pixels in the Gaussian kernel array.
-    # sky: the input sky parameter.
-    # peak: the peak, sky-subtracted, pixel value of the object.
-    # flux: the object flux calculated as the peak density in the convolved image divided by the detection threshold. This derivation matches that of DAOFIND if sky is 0.0.
-    #so is the flux output the same as fPLW or is it the same as fPLW / sigf, i don't know.
-    # whpl = np.where(fluxes <= s2n)
-    # count = len(whpl)
-    # a = a[whpl]
-    # d = d[whpl]
-    # fluxes = fluxes[whpl]
 
     if verbose:
         print('Cut S/N >= %s sources, kept %s stars' % (s2n, count))
-
-    if savecat:
-        catfile = config.CLUSDATA + 'catalogs/' + clusname + '_PSW.dat'
-        if verbose:
-            print('Saving catalog data to %s .' % (catfile))
-        file = open(catfile, 'w')
-        file.write('Catalog extracted by make_PSW_src_cat')
-        file.write('Created :' + str(datetime.datetime.now()))
-        file.write('Extracted from ' + imgfile)
-        file.write('Extracted S/N >= ' + str(s2n))
-        file.write('RA    DEC    FLUX    ERROR')
-        for i in range(len(a)):
-            myline = '9B' + str(a[i]).translate(str.maketrans('', '', string.whitespace)) + '9B' + \
-                            str(d[i]).translate(str.maketrans('', '', string.whitespace)) + '9B' + \
-                            str(fPSW[i]).translate(str.maketrans('', '', string.whitespace)) + '9B' + \
-                            str(sigf[i]).translate(str.maketrans('', '', string.whitespace))
-            file.write(myline)
-        file.close()
 
     cat = {'ra': a,
            'dec' : d,
@@ -537,9 +486,12 @@ def make_psw_src_cat(clusname, resolution, nsim, s2n=3, savecat=0, savemap=0, si
            'instrument': 'SPIRE PLW',
            's2n' : s2n}
 
-    with open('cat_file.json', 'w') as f:
-        json.dump(cat, f)
-    print('creating catalog')
+    if savecat:
+        catfile = config.CLUSDATA + 'catalogs/' + clusname + '_PSW.json'
+        if verbose:
+            print('Saving catalog data to %s .' % (catfile))
+            with open(catfile, 'w') as f:
+                json.dump(cat, f)
     return cat, err
 
 def make_mips_src_cat(clusname, maps, s2n=3, savecat=0, savemap=0, verbose=1):

@@ -154,8 +154,7 @@ class Catsrc():
             exit()
         if self.verbose:
             print('Band merging catalogs')
-        for i in range(len(maps)):
-            print(maps[i]['file'])
+        #this is probably going to be replaced with Richard's code and therefore be completley different.
         xid, err = get_xid(maps, cat, savemap=self.savemap, simmap=self.simmap, verbose=self.verbose)
         if err:
             if self.verbose:
@@ -177,11 +176,15 @@ class Catsrc():
         if not self.clusname:
             if self.verbose:
                 print('Require a string array of cluster names as input, aborting!')
-        residual_mask, err = clus_residual_mask(maps,verbose=self.verbose)
-        if err:
-            if self.verbose:
-                print('clus_residual_mask exited with error: ' + err)
-                exit()
+
+        #this is commented out because the function hasn't been made yet.
+        #The idea is to use residual mask to do some manual masking, but we haven't
+        #encountered the need to do that in our pipeline
+        # residual_mask, err = clus_residual_mask(maps,verbose=self.verbose)
+        # if err:
+        #     if self.verbose:
+        #         print('clus_residual_mask exited with error: ' + err)
+        #         exit()
 
         if self.verbose:
             print('Subtracting correlated componenets')

@@ -44,7 +44,7 @@ def clus_get_relsz(nu,y,te, vpec=0.0, ngrid=100):
         # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
         # create input paramters for run_SZpack or read from existing params file
-        if os.path.isfile('lookup/szparams.txt') :
+        if os.path.isfile('../lookup/szparams.txt') :
             pass
         else :
             sz_params = [
@@ -69,7 +69,7 @@ def clus_get_relsz(nu,y,te, vpec=0.0, ngrid=100):
               ' ',
               '../lookup', # path for Output
               '.dat'] #filename extension
-            np.savetxt('lookup/szparams.txt',sz_params,"%s",newline='\n')
+            np.savetxt('../lookup/szparams.txt',sz_params,"%s",newline='\n')
 
         # run & parse 3 columns of stdout from run_SZpack into frequency and SZ signal arrays
         out = check_output(['/usr/local/bin/run_SZpack','CNSN','../lookup/szparams.txt'])

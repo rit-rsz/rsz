@@ -16,6 +16,7 @@
 import scipy.io
 import numpy as np
 # from config import * #(this line will give me access to all directory variables)
+import matplotlib.pyplot as plt
 from math import *
 from astropy.io import fits
 import os
@@ -25,10 +26,10 @@ sys.path.append('../utilities')
 from get_spire_beam import *
 from get_spire_beam_fwhm import *
 import config
-import random
+import matplotlib.pyplot as plt
 
 def get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
-            verbose = 1, version = '1', manidentifier=None,simmap=None, nsim=0):
+            verbose = 1, version = '1', manidentifier=None, nsim=0):
     # place holders for the if statements to work until I add them to the input for get data
     # This will happen when the script is fully functional
     print('clus_get_data')
@@ -113,7 +114,7 @@ def get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
         simcount = 0
         for x in os.listdir(simdir):
             if x.startswith(clusname):
-                if str(nsim) in x and 'fits' in x and 'BOLOCAM' not in x:
+                if nsim in x and 'fits' in x and 'BOLOCAM' not in x:
                     simfiles.append(simdir + x)
                     simcount += 1
         files = simfiles
@@ -129,7 +130,7 @@ def get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
     for ifile in range(nfiles):
         if ifile < 3: # I feel like this is supposed to be ifile <= 3 :
             if any(col in files[ifile] for col in cols): # checks if name of band is in the filename
-                maps.append(read_file(files[ifile], cols[ifile], clusname, verbose=verbose,simmap=simmap))
+                maps.append(read_file(files[ifile], cols[ifile], clusname, verbose=verbose))
 
             else:
                 errmsg = 'Problem finding ' + cols[ifile] + ' file.'
@@ -188,7 +189,7 @@ def get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
 ##################################################################################################
 ##################################################################################################
 
-def read_file(file,band,clusname,verbose=0,simmap=None):
+def read_file(file,band,clusname,verbose=0):
     # Should this calfac be listed as a self.calfac or not?
     '''
     Calfac has been added to config.py as a constant.
@@ -286,7 +287,7 @@ def read_file(file,band,clusname,verbose=0,simmap=None):
           'signal':map.data, #check
           'srcrm':srcrm, #check
           'xclean':xclean, #check
-          'error':err.data, #check
+          'error':err, #check
           'mask':mask, #check
           'flag':flag, #check
           'exp':exp, #check
@@ -299,12 +300,7 @@ def read_file(file,band,clusname,verbose=0,simmap=None):
           'widtha':widtha, #check
           'calfac':calfac, #check
           'JY2MJy':config.JY2MJy} #check
-    if simmap:
-        mapsize = maps['signal'].shape
-        noisemap = 1.0 * maps['error'] * np.random.standard_normal((mapsize[0], mapsize[1]))
-        maps['signal'] = maps['signal'] + noisemap
-        maps['signal'] = maps['signal'] - np.nanmean(maps['signal'])
-        # maps['signal'].append(thismap['thismap'])
+
     return maps
 
 
@@ -318,4 +314,4 @@ def mean(data):
     return average
 
 if __name__ == '__main__':
-    get_data('a0370', nsim='201')
+    get_data('a0370', nsim='197')

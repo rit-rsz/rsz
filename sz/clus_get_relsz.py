@@ -74,7 +74,7 @@ def clus_get_relsz(nu,y,te, vpec=0.0, ngrid=100):
         # run & parse 3 columns of stdout from run_SZpack into frequency and SZ signal arrays
         out = check_output(['/usr/local/bin/run_SZpack','CNSN','../lookup/szparams.txt'])
         output = out.decode("utf-8") #convert from bytes to unicode
-        # print(output[:output.index('x=')-1]) # print header to screen
+        print(output[:output.index('x=')-1]) # print header to screen
         output = output[output.index('x=')-1:] # remove header information before parsing
         output = output.split('\n')
         # output = large array with sub arrays of each line, where line = [x= val1, val2, val3]

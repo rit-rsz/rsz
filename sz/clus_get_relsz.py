@@ -69,7 +69,7 @@ def clus_get_relsz(nu,y,te, vpec=0.0, ngrid=100):
               ' ',
               '../lookup', # path for Output
               '.dat'] #filename extension
-            np.savetxt('lookup/szparams2.txt',sz_params,"%s",newline='\n')
+            np.savetxt('lookup/szparams.txt',sz_params,"%s",newline='\n')
 
         # run & parse 3 columns of stdout from run_SZpack into frequency and SZ signal arrays
         out = check_output(['/usr/local/bin/run_SZpack','CNSN','../lookup/szparams.txt'])
@@ -121,8 +121,8 @@ def clus_get_relsz(nu,y,te, vpec=0.0, ngrid=100):
 
 ########################################################################################################################
 if __name__ == '__main__':
-    # yin_coeff = [2.50,1.91,2.26,3.99,1.36,2.42,1.59,1.90,3.99]
-    # yin = [x*1e-4 for x in yin_coeff]
-    # tin = [7.2,10.1,7.7,9.8,4.5,8.6,7.8,5.5,10.9]
-    # sz_wrapper(600.0,yin,tin,0.0,100)
-    sz_wrapper(argv[1],argv[2],argv[3],argv[4])
+    yin_coeff = [2.50,1.91,2.26,3.99,1.36,2.42,1.59,1.90,3.99]
+    yin = [x*1e-4 for x in yin_coeff]
+    tin = [7.2,10.1,7.7,9.8,4.5,8.6,7.8,5.5,10.9]
+    sz_wrapper(600.0,yin,tin,0.0,100)
+    # sz_wrapper(argv[1],argv[2],argv[3],argv[4])

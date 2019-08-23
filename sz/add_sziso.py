@@ -27,6 +27,8 @@ from clus_convert_bolocam import *
 from clus_get_lambdas import *
 from config import *
 sys.path.append('../sz')
+sys.path.append('../source_handling')
+from get_data import get_data
 from clus_get_relsz import *
 from astropy.io import fits
 # from astropy import units as u

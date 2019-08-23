@@ -129,7 +129,8 @@ def add_sziso(maps,yin,tin,
             # converted to Jy/pixel  ***Confirm these Units***
             szin = [x * dI / maps[imap]['calfac'] for x in szmap]
             szin = np.reshape(szin,(naxis[0],naxis[1]))
-
+            print(dI)
+            exit()
             # Have to interpolate to SPIRE map size
             # Using hcongrid from astropy's FITS_tools to replace HASTROM
             # Requires fits objects to work
@@ -151,3 +152,10 @@ def add_sziso(maps,yin,tin,
             # exit()
 
     return maps, None
+
+if __name__ == '__main__' :
+    yin_coeff = [2.50,1.91,2.26,3.99,1.36,2.42,1.59,1.90,3.99]
+    yin = [x*1e-4 for x in yin_coeff]
+    tin = [7.2,10.1,7.7,9.8,4.5,8.6,7.8,5.5,10.9]
+    maps,err = get_data('a0370')
+    add_sziso(maps,yin=yin,tin=tin)

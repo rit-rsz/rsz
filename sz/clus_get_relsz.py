@@ -124,5 +124,5 @@ if __name__ == '__main__':
     yin_coeff = [2.50,1.91,2.26,3.99,1.36,2.42,1.59,1.90,3.99]
     yin = [x*1e-4 for x in yin_coeff]
     tin = [7.2,10.1,7.7,9.8,4.5,8.6,7.8,5.5,10.9]
-    sz_wrapper(600.0,yin,tin,0.0,100)
+    clus_get_relsz(600.0,yin,tin,0.0,100)
     # sz_wrapper(argv[1],argv[2],argv[3],argv[4])

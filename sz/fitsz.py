@@ -26,7 +26,7 @@ from scipy.optimize import curve_fit
 from gaussian import *
 from get_spire_beam_fwhm import *
 
-def fitsz(maps, radave, params, beam=None, maxlim=3600, minlim=0, noweight=1, superplot=1, verbose=1):
+def fitsz(radave, params, beam=None, maxlim=3600, minlim=0, noweight=1, superplot=1, verbose=1):
 
     # init params
     # beam = [get_spire_beam_fwhm('PSW'),
@@ -61,7 +61,7 @@ def fitsz(maps, radave, params, beam=None, maxlim=3600, minlim=0, noweight=1, su
         if superplot:
             plt.plot(radave[i]['midbin'], radave[i]['fluxbin'])
             plt.ylabel('Radial Average (MJy/sr)')
-            plt.title(maps[i]['name'] + '  ' + radave[i]['band'] + '  RC:' + str(rc) + '  Beta:' + str(beta))
+            plt.title(params['clusname'] + '  ' + radave[i]['band'] + '  RC:' + str(rc) + '  Beta:' + str(beta))
             plt.xlim((0,600))
             plt.ylim((-2,2))
             plt.errorbar(radave[i]['midbin'],radave[i]['fluxbin'],yerr=radave[i]['errbin'])
@@ -107,7 +107,7 @@ def fitsz(maps, radave, params, beam=None, maxlim=3600, minlim=0, noweight=1, su
             ax[1].set_ylabel('Radial Average (MJy/sr)')
             ax[1].legend()
 
-            fig.suptitle(maps[i]['name'] + '  ' + radave[i]['band'] + '  Slope: %.4f  Intercept: %.4f' %(slope,intercept))
+            fig.suptitle(params['clusname'] + '  ' + radave[i]['band'] + '  Slope: %.4f  Intercept: %.4f' %(slope,intercept))
             # fig.tight_layout()
             plt.show()
 

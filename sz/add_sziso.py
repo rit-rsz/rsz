@@ -53,7 +53,6 @@ def add_sziso(maps,yin,tin,
     cluster_struct = list(data_dict.values())
 
     bolocam,err = clus_convert_bolocam(cluster_struct,verbose=verbose)
-
     if err:
         errmsg = str('clus_convert_bolocam exited with error: ' + err)
         if verbose:
@@ -147,9 +146,15 @@ def add_sziso(maps,yin,tin,
             # Combine the original signal with the sz effect
             maps[imap]['signal'] = maps[imap]['signal'] + szinp
             # Used to check the final output map
-            # sz = fits.PrimaryHDU(maps[imap]['signal'],hdx.header)
-            # sz.writeto('test1.fits')
+            sz = fits.PrimaryHDU(maps[imap]['signal'],hdx.header)
+            sz.writeto('a0370_sim202PLW_noise+sz.fits')
             # exit()
+    sz = fits.PrimaryHDU(maps[0]['signal'],maps[0]['shead'])
+    sz.writeto('a0370_sim202PSW_noise.fits')
+    # exit()
+    sz = fits.PrimaryHDU(maps[1]['signal'],maps[1]['shead'])
+    sz.writeto('a0370_sim202PMW_noise.fits')
+    exit()
 
     return maps, None
 

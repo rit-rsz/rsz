@@ -27,27 +27,22 @@ import numpy as np
 import matplotlib.pyplot as plt
 from math import *
 import sys
-from clus_sz_template import *
+# from clus_sz_template import * #used for transfer functions
 sys.path.append('utilities')
 from config import * #(this line will give me access to all directory variables)
 from clus_get_tfs import *
 from get_clusparams import *
 from get_simmaps import *
-# from clus_convert_bolocam import *
 sys.path.append('source_handling')
 from subtract_cat import *
 from subtract_xcomps import *
 from get_data import *
-import config
 from get_xid import *
 sys.path.append('reduc')
 from get_cats import *
 sys.path.append('sz')
 from add_sziso import *
 
-# print(sys.path)
-# from add_sziso import *
-# def catsrc(clusname,saveplots,cattype, savecat,savemap,maketf,simmap,nsim,s2n,yin,tin,verbose,success,errmsg):
 class Catsrc():
 
     def __init__(self, clusname, saveplot=1, cattype="24um", savecat=0,
@@ -75,22 +70,14 @@ class Catsrc():
             exit()
 
         if self.simmap == 0:
-            self.nsim = np.nan #maybe this isn't what is being set.
+            self.nsim = None
 
         if self.verbose:
-            print('Welcome to SZ fitter v 1.0')
+            print('Welcome to SZ fitter v 1.0 python')
 
         if self.saveplot:
-            #call to nuplot idk what to put here instead
+            # Save the plots to an output ps file
             pass
-
-        # These were comments inside of the catsrc file in idl
-        # ringw = 18.0 #arcseconds
-        # calfac = (pi/ 180.0) * (1.0 / 3600)*(1.0 / 3600) * (pi / 4 * log(2.0)) * 1*10**6
-        # PMWthres = 5*10**-3
-        # PLWthres = 8*10**-3
-        #
-        # ncols = 3.0
 
         beam = [get_spire_beam_fwhm('PSW'), #arcsec
                 get_spire_beam_fwhm('PMW'),
@@ -99,6 +86,7 @@ class Catsrc():
         if self.verbose:
             print('Fetching cluster parameters')
         params, err = get_clus_params(self.clusname,verbose=self.verbose)
+
         if err:
             if self.verbose:
                 print('clus_get_clusparams exited with error: ' + err)
@@ -107,10 +95,8 @@ class Catsrc():
         if self.verbose:
             print('Fetching SPIRE maps')
 
-        # This step now is for both sims and real data
+        # Get data now covers both simmulated and real data
         maps, err = get_data(self.clusname,verbose=self.verbose,simmap=self.simmap,nsim=self.nsim)
-
-        print('getting my data!')
         if err:
             if self.verbose:
                 print('clus_get_data exited with error: ' + err)
@@ -118,6 +104,7 @@ class Catsrc():
 
         # Add the sz effect into the simmulated clusters
         if self.simmap:
+            # First maps section is legacy
             # maps, err = get_simmaps(self.clusname,nsim=self.nsim, simflag=self.simmap, verbose=self.verbose)
             # if err:
             #     if self.verbose:
@@ -128,7 +115,10 @@ class Catsrc():
                 if self.verbose:
                     print('clus_add_sziso exited with error: '+ err)
                 exit()
+
         ncols = len(maps)
+        print(' ')
+
         if self.verbose:
             print('Fetching transfer functions')
         # ignore for now as this is only like a 2% correction and we are way off
@@ -152,9 +142,10 @@ class Catsrc():
             if self.verbose:
                 print('clus_get_cats exited with error: ' + err)
             exit()
+
         if self.verbose:
             print('Band merging catalogs')
-        #this is probably going to be replaced with Richard's code and therefore be completley different.
+
         xid, err = get_xid(maps, cat, savemap=self.savemap, simmap=self.simmap, verbose=self.verbose)
         if err:
             if self.verbose:
@@ -204,15 +195,14 @@ class Catsrc():
                 print('clus_save_data exited with error: ' + err)
             exit()
 
-        if self.simmap == 0:
-            if self.verbose:
-                print('Computing radial averagesnsim=200')
+        if self.verbose:
+            print('Computing radial averages')
 
-            radave, err = clus_compute_rings(maps,params,30.0,verbose=self.verbose)
-            if err:
-                if self.verbose:
-                    print('clus_compute_rings exited with error: ' + err)
-        if self.simmap == None:  # don't see the difference between if simmap == 0 and if not simmap ??
+        radave, err = clus_compute_rings(maps,params,30.0,verbose=self.verbose)
+        if err:
+            if self.verbose:
+                print('clus_compute_rings exited with error: ' + err)
+        if self.simmap == None:
             tfave, err = clus_compute_rings(tf_maps, params, 30.0, verbose=self.verbose)
             if err:
                 if self.verbose:
@@ -220,61 +210,60 @@ class Catsrc():
                     print('clus_compute_rings exited with error: ' + err)
                 exit()
 
-        radave[2].fluxbin[0] = np.nan #i guess this is right??
+        # radave[2].fluxbin[0] = np.nan
 
         if self.verbose:
             print('Computing beta model fit.')
 
-        if self.clusname == 'ms0451':
-            maxlim = 300
-        else:
-            maxlim = 450
+        if self.simmap:
+            if self.clusname == 'ms0451':
+                maxlim = 300
+            else:
+                maxlim = 450
 
-        fit, err = clus_fitsz(args) #args need to be figued out when we write this function
-        increment = fit[1,:] #don't know if this is the same as [1,*] in idl
-        print('***** Increment value in catsrc ******', increment)
-        offsets = fit[0,:]
-        if err:
-            if self.verbose:
-                print('clus_fitsz exited with error: ' + err)
-            exit()
+            fit, err = clus_fitsz(radave,params,beam,offsets,maxlim=maxlim,minlim=0,superplot=superplot,
+                                    verbose=self.verbose) #args need to be figued out when we write this function
+            increment = fit[1,:] #don't know if this is the same as [1,*] in idl
+            offsets = fit[0,:]
+            if err:
+                if self.verbose:
+                    print('clus_fitsz exited with error: ' + err)
+                exit()
+
+            err = clus_save_szfits(increment, offsets, radave, params, simflag=self.simmap, verbose=self.verbose, outname='szout_' + str(nsim))
 
         if not self.simmap: #again not really sure if this is right.
             if self.clusname == 'ms0451':
                 maxlim = 300
             else:
                 maxlim = 450
-            print(maxlim)
 
-            fit, err = clus_fitsz(args) #args need to be worked out when we write the function
+            fit, err = clus_fitsz(radave,params,maxlim=maxlim,minlim=0,verbose=self.verbose) #args need to be worked out when we write the function
             increment = fit[1,:]
-            print('***** Increment Value 2 in catsrc ******', increment)
             offsets = fit[0,:]
             if err:
                 if self.verbose:
                     print('clus_fitsz exited with error: ' + err)
                 exit()
-            increment = increment / tfamp # i don't think tfamp is defined?
 
             err = clus_save_szfits(increment, offsets, radave, params, simflag=self.simmap, verbose=self.verbose)
 
-        else:
-            err = clus_save_szfits(increment, offsets, radave, params, simflag=self.simmap, verbose=self.verbose, outname='szout_' + str(nsim))
         if err:
             if self.verbose:
                 print('clus_save_szfits exited with error: ' + err)
             exit()
 
         if self.saveplots:
+            # Save the plots to an output ps file
             pass
-            #do something i don't know what UNPLOT does
+
 
         return
 
 
 
 if __name__ == '__main__':
-    catsrc = Catsrc('a0370', verbose=1, cattype='PSW',simmap=2,nsim=200)
+    catsrc = Catsrc('a0370', verbose=1, cattype='PSW',simmap=2,nsim=202)
         # SAVEPLOTS=saveplots,\
         # CATTYPE=cattype,\
         # SAVECAT=savecat,\

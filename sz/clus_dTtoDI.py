@@ -41,8 +41,6 @@ def clus_dTtoDI(freq,dT):
 #   Below is a remnent for what I assume is for a wider data set, left in incase this needs to be turned on
 #   if freq < 217:
 #       dI = (-1)*dI
-    print('#######################################')
-    print('DI: ',dI)
-    print('#######################################')
+
 
     return dI

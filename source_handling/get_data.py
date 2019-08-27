@@ -29,7 +29,7 @@ import config
 import matplotlib.pyplot as plt
 
 def get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
-            verbose = 1, version = '1', manidentifier=None, nsim=0):
+            verbose = 1, version = '1', manidentifier=None, simmap=0, nsim=0):
     # place holders for the if statements to work until I add them to the input for get data
     # This will happen when the script is fully functional
     print('clus_get_data')
@@ -108,13 +108,13 @@ def get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
         files = manfiles
 
 
-    else:
+    elif simmap ==2:
         simfiles = []
         simdir = config.CLUSSIMS + clusname + '/'
         simcount = 0
         for x in os.listdir(simdir):
             if x.startswith(clusname):
-                if nsim in x and 'fits' in x and 'BOLOCAM' not in x:
+                if str(nsim) in x and 'fits' in x and 'BOLOCAM' not in x:
                     simfiles.append(simdir + x)
                     simcount += 1
         files = simfiles
@@ -130,7 +130,7 @@ def get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
     for ifile in range(nfiles):
         if ifile < 3: # I feel like this is supposed to be ifile <= 3 :
             if any(col in files[ifile] for col in cols): # checks if name of band is in the filename
-                maps.append(read_file(files[ifile], cols[ifile], clusname, verbose=verbose))
+                maps.append(read_file(files[ifile], cols[ifile], clusname, verbose=verbose,simmap=simmap))
 
             else:
                 errmsg = 'Problem finding ' + cols[ifile] + ' file.'
@@ -189,7 +189,7 @@ def get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
 ##################################################################################################
 ##################################################################################################
 
-def read_file(file,band,clusname,verbose=0):
+def read_file(file,band,clusname,verbose=0,simmap=0):
     # Should this calfac be listed as a self.calfac or not?
     '''
     Calfac has been added to config.py as a constant.
@@ -200,13 +200,17 @@ def read_file(file,band,clusname,verbose=0):
     # The rest of the scrpit involves idl_libs stuff that
     # will get grabbed from astropy
     hdul = fits.open(file)
-    # print(test.header)
     map = hdul[1]
-    # print(map.header)
-    # exit()
     err = hdul[2]
     exp = hdul[3]
     flag = hdul[4]
+
+    if simmap:
+        mapsize = map.data.shape
+        noisemap = 1.0 * err.data * np.random.standard_normal((mapsize[0], mapsize[1]))
+        map.data = map.data + noisemap
+        map.data = map.data - np.nanmean(map.data)
+        # maps.append(thismap['thismap'])
 
     if 'CDELT1' in map.header.keys():
         pixsize = 3600 * mean([abs(map.header['CDELT1']),abs(map.header['CDELT2'])])
@@ -300,6 +304,7 @@ def read_file(file,band,clusname,verbose=0):
           'widtha':widtha, #check
           'calfac':calfac, #check
           'JY2MJy':config.JY2MJy} #check
+
 
     return maps
 

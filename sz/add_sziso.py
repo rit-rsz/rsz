@@ -102,6 +102,8 @@ def add_sziso(maps,yin,tin,
             n +=1
 
     # Set up the spectral shape of the sz effect to be appled to the 500um map
+    plt.imshow(bolocam[0]['deconvolved_image'][0])
+    plt.show()
     szmap = -1 * bolocam[0]['deconvolved_image'][0]
     szmap = (np.array(szmap)).flatten()
     szmap = szmap - np.mean(szmap[outer])
@@ -129,8 +131,8 @@ def add_sziso(maps,yin,tin,
             # converted to Jy/pixel  ***Confirm these Units***
             szin = [x * dI / maps[imap]['calfac'] for x in szmap]
             szin = np.reshape(szin,(naxis[0],naxis[1]))
-            plt.imshow(szin)
-            plt.show()
+            # plt.imshow(szin)
+            # plt.show()
 
             # Have to interpolate to SPIRE map size
             # Using hcongrid from astropy's FITS_tools to replace HASTROM
@@ -145,9 +147,10 @@ def add_sziso(maps,yin,tin,
 
             # Combine the original signal with the sz effect
             maps[imap]['signal'] = maps[imap]['signal'] + szinp
+            maps[imap]['signal'] = szinp
             # Used to check the final output map
             sz = fits.PrimaryHDU(maps[imap]['signal'],hdx.header)
-            sz.writeto('a0370_sim202PLW_noise+sz.fits')
+            sz.writeto('a0370_sim200PLW_sz_only.fits')
             # exit()
     sz = fits.PrimaryHDU(maps[0]['signal'],maps[0]['shead'])
     sz.writeto('a0370_sim202PSW_noise.fits')

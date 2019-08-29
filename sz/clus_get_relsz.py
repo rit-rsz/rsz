@@ -26,6 +26,7 @@ from config import *
 from math import *
 from scipy.interpolate import interp1d
 from scipy import interpolate
+sys.path.append('../lookup')
 
 ##########################################################################################################
 def clus_get_relsz(nu,y,te, vpec=0.0, ngrid=100):
@@ -44,7 +45,7 @@ def clus_get_relsz(nu,y,te, vpec=0.0, ngrid=100):
         # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
         # create input paramters for run_SZpack or read from existing params file
-        if os.path.isfile('../lookup/szparams.txt') :
+        if os.path.isfile('szparams.txt') :
             pass
         else :
             sz_params = [
@@ -70,7 +71,6 @@ def clus_get_relsz(nu,y,te, vpec=0.0, ngrid=100):
               '../lookup', # path for Output
               '.dat'] #filename extension
             np.savetxt('../lookup/szparams.txt',sz_params,"%s",newline='\n')
-
         # run & parse 3 columns of stdout from run_SZpack into frequency and SZ signal arrays
         out = check_output(['/usr/local/bin/run_SZpack','CNSN','../lookup/szparams.txt'])
         output = out.decode("utf-8") #convert from bytes to unicode

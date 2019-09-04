@@ -27,27 +27,32 @@ import numpy as np
 import matplotlib.pyplot as plt
 from math import *
 import sys
-# from clus_sz_template import * #used for transfer functions
+from clus_sz_template import *
 sys.path.append('utilities')
 from config import * #(this line will give me access to all directory variables)
 from clus_get_tfs import *
 from get_clusparams import *
-from get_simmaps import *
+# This is no longer being used
+# from get_simmaps import *
 sys.path.append('source_handling')
 from subtract_cat import *
 from subtract_xcomps import *
 from get_data import *
+import config
 from get_xid import *
 sys.path.append('reduc')
 from get_cats import *
 sys.path.append('sz')
 from add_sziso import *
+from compute_rings import *
+from fitsz import *
+sys.path.append('multiband_pcat')
+from multiband_pcat import *
 
 class Catsrc():
 
     def __init__(self, clusname, saveplot=1, cattype="24um", savecat=0,
                  savemap=0, maketf=0, simmap=0, nsim=0, s2n=3, verbose=1, resolution='nr'):
-        # possibly how we would get around defining these terms, not positive
         self.verbose = verbose
         self.cattype = cattype
         self.savecat = savecat
@@ -66,17 +71,19 @@ class Catsrc():
     def setup(self):
         if self.simmap > 0 and self.nsim == 0:
             if self.verbose:
-                print('simmap set but nsim not supplied! Aborting')
+                print('Simmap set but nsim not supplied! Aborting')
             exit()
 
+        # Making sure if no simmap the script wont try to use it
         if self.simmap == 0:
-            self.nsim = None
+            self.nsim = np.nan
 
         if self.verbose:
-            print('Welcome to SZ fitter v 1.0 python')
+            print('Welcome to SZ fitter v 1.0 Python Version')
 
         if self.saveplot:
-            # Save the plots to an output ps file
+            #Need to call a nuplot function
+            # This was used for outplotting graphs to some checkplots pdf
             pass
 
         beam = [get_spire_beam_fwhm('PSW'), #arcsec
@@ -86,7 +93,6 @@ class Catsrc():
         if self.verbose:
             print('Fetching cluster parameters')
         params, err = get_clus_params(self.clusname,verbose=self.verbose)
-
         if err:
             if self.verbose:
                 print('clus_get_clusparams exited with error: ' + err)
@@ -95,8 +101,10 @@ class Catsrc():
         if self.verbose:
             print('Fetching SPIRE maps')
 
-        # Get data now covers both simmulated and real data
+        # This step now is for both sims and real data
         maps, err = get_data(self.clusname,verbose=self.verbose,simmap=self.simmap,nsim=self.nsim)
+
+        print('getting my data!')
         if err:
             if self.verbose:
                 print('clus_get_data exited with error: ' + err)
@@ -104,21 +112,19 @@ class Catsrc():
 
         # Add the sz effect into the simmulated clusters
         if self.simmap:
-            # First maps section is legacy
             # maps, err = get_simmaps(self.clusname,nsim=self.nsim, simflag=self.simmap, verbose=self.verbose)
             # if err:
             #     if self.verbose:
             #         print('clus_get_simmaps exited with error: ' + err)
             #     exit()
-            maps, err = add_sziso(maps,yin=self.yin, tin=self.tin,verbose=self.verbose)
+            maps, err = add_sziso(maps,yin=self.yin, tin=self.tin,verbose=self.verbose,params=params)
+            # plt.imshow(maps[0]['signal'])
+            # plt.show()
             if err:
                 if self.verbose:
                     print('clus_add_sziso exited with error: '+ err)
                 exit()
-
         ncols = len(maps)
-        print(' ')
-
         if self.verbose:
             print('Fetching transfer functions')
         # ignore for now as this is only like a 2% correction and we are way off
@@ -133,6 +139,14 @@ class Catsrc():
         #             tf_maps[i]['error'] = np.tile(1.0, tf_maps[i]['astr']['NAXIS'])
         #             tf_maps[i]['calfac'] = 1.0 / tf_maps[i]['JY2MJy']
 
+        '''This will be the working spot where pcat will be starting to be implemented'''
+        # We can't use this yet until it is set up in a way that we can feed it the maps that we
+        # are carrying
+        # maps, err = pcat_spire(dataname=maps[0]['name'],verbose=2,multiband=0)
+        # exit()
+        '''End of Pcat coding block'''
+
+
         if self.verbose:
             print('Fetching regression catalogs')
         cat, err = get_cats(self.clusname,self.cattype,maps,savecat=self.savecat,
@@ -142,10 +156,9 @@ class Catsrc():
             if self.verbose:
                 print('clus_get_cats exited with error: ' + err)
             exit()
-
         if self.verbose:
             print('Band merging catalogs')
-
+        #this is probably going to be replaced with Richard's code and therefore be completley different.
         xid, err = get_xid(maps, cat, savemap=self.savemap, simmap=self.simmap, verbose=self.verbose)
         if err:
             if self.verbose:
@@ -168,7 +181,7 @@ class Catsrc():
             if self.verbose:
                 print('Require a string array of cluster names as input, aborting!')
 
-        #this is commented out because the function hasn't been made yet.
+        #This is commented out because the function hasn't been made yet.
         #The idea is to use residual mask to do some manual masking, but we haven't
         #encountered the need to do that in our pipeline
         # residual_mask, err = clus_residual_mask(maps,verbose=self.verbose)
@@ -195,14 +208,15 @@ class Catsrc():
                 print('clus_save_data exited with error: ' + err)
             exit()
 
+        if self.simmap == 0:
         if self.verbose:
-            print('Computing radial averages')
+            print('Computing radial averages nsim=200')
 
-        radave, err = clus_compute_rings(maps,params,30.0,verbose=self.verbose)
+        radave = compute_rings(maps,params,30.0,verbose=self.verbose)
         if err:
             if self.verbose:
                 print('clus_compute_rings exited with error: ' + err)
-        if self.simmap == None:
+        if self.simmap == None:  # don't see the difference between if simmap == 0 and if not simmap ??
             tfave, err = clus_compute_rings(tf_maps, params, 30.0, verbose=self.verbose)
             if err:
                 if self.verbose:
@@ -210,53 +224,52 @@ class Catsrc():
                     print('clus_compute_rings exited with error: ' + err)
                 exit()
 
-        # radave[2].fluxbin[0] = np.nan
+        # radave[2].fluxbin[0] = np.nan #i guess this is right??
 
         if self.verbose:
             print('Computing beta model fit.')
 
-        if self.simmap:
-            if self.clusname == 'ms0451':
-                maxlim = 300
-            else:
-                maxlim = 450
+        if self.clusname == 'ms0451':
+            maxlim = 300
+        else:
+            maxlim = 450
 
-            fit, err = clus_fitsz(radave,params,beam,offsets,maxlim=maxlim,minlim=0,superplot=superplot,
-                                    verbose=self.verbose) #args need to be figued out when we write this function
-            increment = fit[1,:] #don't know if this is the same as [1,*] in idl
-            offsets = fit[0,:]
-            if err:
-                if self.verbose:
-                    print('clus_fitsz exited with error: ' + err)
-                exit()
-
-            err = clus_save_szfits(increment, offsets, radave, params, simflag=self.simmap, verbose=self.verbose, outname='szout_' + str(nsim))
+        fit, err = fitsz(maps, radave, params, beam=beam) #args need to be figued out when we write this function
+        increment = fit[1,:] #don't know if this is the same as [1,*] in idl
+        offsets = fit[0,:]
+        if err:
+            if self.verbose:
+                print('clus_fitsz exited with error: ' + err)
+            exit()
 
         if not self.simmap: #again not really sure if this is right.
             if self.clusname == 'ms0451':
                 maxlim = 300
             else:
                 maxlim = 450
+            print(maxlim)
 
-            fit, err = clus_fitsz(radave,params,maxlim=maxlim,minlim=0,verbose=self.verbose) #args need to be worked out when we write the function
+            fit = clus_fitsz(args) #args need to be worked out when we write the function
             increment = fit[1,:]
             offsets = fit[0,:]
             if err:
                 if self.verbose:
                     print('clus_fitsz exited with error: ' + err)
                 exit()
+            increment = increment / tfamp # i don't think tfamp is defined?
 
             err = clus_save_szfits(increment, offsets, radave, params, simflag=self.simmap, verbose=self.verbose)
 
+        else:
+            err = clus_save_szfits(increment, offsets, radave, params, simflag=self.simmap, verbose=self.verbose, outname='szout_' + str(nsim))
         if err:
             if self.verbose:
                 print('clus_save_szfits exited with error: ' + err)
             exit()
 
         if self.saveplots:
-            # Save the plots to an output ps file
             pass
-
+            #do something i don't know what UNPLOT does
 
         return
 

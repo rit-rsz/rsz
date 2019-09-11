@@ -31,21 +31,21 @@ from clus_sz_template import *
 sys.path.append('utilities')
 from config import * #(this line will give me access to all directory variables)
 from clus_get_tfs import *
-from get_clusparams import *
+from clus_get_clusparams import *
 # This is no longer being used
 # from get_simmaps import *
 sys.path.append('source_handling')
-from subtract_cat import *
-from subtract_xcomps import *
-from get_data import *
+from clus_subtract_cat import *
+from clus_subtract_xcomps import *
+from clus_get_data import *
 import config
-from get_xid import *
+from clus_get_xid import *
 sys.path.append('reduc')
-from get_cats import *
+from clus_get_cats import *
 sys.path.append('sz')
-from add_sziso import *
-from compute_rings import *
-from fitsz import *
+from clus_add_sziso import *
+from clus_compute_rings import *
+from clus_fitsz import *
 sys.path.append('multiband_pcat')
 from multiband_pcat import *
 
@@ -92,7 +92,7 @@ class Catsrc():
 
         if self.verbose:
             print('Fetching cluster parameters')
-        params, err = get_clus_params(self.clusname,verbose=self.verbose)
+        params, err = clus_get_clusparams(self.clusname,verbose=self.verbose)
         if err:
             if self.verbose:
                 print('clus_get_clusparams exited with error: ' + err)
@@ -102,9 +102,8 @@ class Catsrc():
             print('Fetching SPIRE maps')
 
         # This step now is for both sims and real data
-        maps, err = get_data(self.clusname,verbose=self.verbose,simmap=self.simmap,nsim=self.nsim)
+        maps, err = clus_get_data(self.clusname,verbose=self.verbose,simmap=self.simmap,nsim=self.nsim)
 
-        print('getting my data!')
         if err:
             if self.verbose:
                 print('clus_get_data exited with error: ' + err)
@@ -117,7 +116,7 @@ class Catsrc():
             #     if self.verbose:
             #         print('clus_get_simmaps exited with error: ' + err)
             #     exit()
-            maps, err = add_sziso(maps,yin=self.yin, tin=self.tin,verbose=self.verbose,params=params)
+            maps, err = clus_add_sziso(maps,yin=self.yin, tin=self.tin,params=params,verbose=self.verbose)
             # plt.imshow(maps[0]['signal'])
             # plt.show()
             if err:
@@ -131,7 +130,7 @@ class Catsrc():
         # if not self.maketf and not self.simmap:
         #     tf_maps, err = get_tfs(self.clusname)
         #     if err:
-        #         tf_maps, err = get_data(self.clusname)
+        #         tf_maps, err = clus_get_data(self.clusname)
         #         ncols = len(tf_maps)
         #         for i in range(ncols):
         #             sztm = clus_sz_template(maps[i], params, verbose=self.verbose)
@@ -149,7 +148,7 @@ class Catsrc():
 
         if self.verbose:
             print('Fetching regression catalogs')
-        cat, err = get_cats(self.clusname,self.cattype,maps,savecat=self.savecat,
+        cat, err = clus_get_cats(self.clusname,self.cattype,maps,savecat=self.savecat,
                                   savemap=self.savemap, simmap=self.simmap, nsim=self.nsim, s2n=self.s2n,
                                   verbose=self.verbose, resolution=self.resolution) #args need to be figured out
         if err:
@@ -159,7 +158,7 @@ class Catsrc():
         if self.verbose:
             print('Band merging catalogs')
         #this is probably going to be replaced with Richard's code and therefore be completley different.
-        xid, err = get_xid(maps, cat, savemap=self.savemap, simmap=self.simmap, verbose=self.verbose)
+        xid, err = clus_get_xid(maps, cat, savemap=self.savemap, simmap=self.simmap, verbose=self.verbose)
         if err:
             if self.verbose:
                 print('clus_get_xid exited with error: ' + err)
@@ -168,7 +167,7 @@ class Catsrc():
         if self.verbose:
             print('Regressing and subtracting catalogs')
 
-        maps, err = subtract_cat(maps, xid, verbose=self.verbose)
+        maps, err = clus_subtract_cat(maps, xid, verbose=self.verbose)
         if err:
             if self.verbose:
                 print('clus_subtract_cat exited with error: ' + err)
@@ -209,10 +208,10 @@ class Catsrc():
             exit()
 
         if self.simmap == 0:
-        if self.verbose:
-            print('Computing radial averages nsim=200')
+            if self.verbose:
+                print('Computing radial averages nsim=200')
 
-        radave = compute_rings(maps,params,30.0,verbose=self.verbose)
+        radave = clus_compute_rings(maps,params,30.0,verbose=self.verbose)
         if err:
             if self.verbose:
                 print('clus_compute_rings exited with error: ' + err)
@@ -234,7 +233,7 @@ class Catsrc():
         else:
             maxlim = 450
 
-        fit, err = fitsz(maps, radave, params, beam=beam) #args need to be figued out when we write this function
+        fit, err = clus_fitsz(maps, radave, params, beam=beam) #args need to be figued out when we write this function
         increment = fit[1,:] #don't know if this is the same as [1,*] in idl
         offsets = fit[0,:]
         if err:

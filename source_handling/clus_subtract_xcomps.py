@@ -20,13 +20,13 @@ sys.path.append('../utilities')
 from astropy.stats import sigma_clipped_stats
 import matplotlib.pyplot as plt
 from FITS_tools.hcongrid import hcongrid , hastrom
-from get_data import *
+from clus_get_data import *
 from astropy.convolution import convolve_fft
 # from scipy import optimize.least_squares
 from scipy.stats import linregress
 from writefits import *
 
-def subtract_xcomps(maps, simflag=0, verbose=1, superplot=0):
+def clus_subtract_xcomps(maps, simflag=0, verbose=1, superplot=0):
     ncols = len(maps)
     #check to see if the maps are in the correct order.
     if maps[0]['band'] != 'PSW':
@@ -106,7 +106,7 @@ if __name__ == '__main__':
     psw = fits.open('../fits_files/xid_9_subtracted_a0370_PSW.fits')
     pmw = fits.open('../fits_files/xid_9_subtracted_a0370_PMW.fits')
     plw = fits.open('../fits_files/xid_9_subtracted_a0370_PLW.fits')
-    maps, err = get_data('a0370')
+    maps, err = clus_get_data('a0370')
     maps[0]['srcrm'] = psw[0].data
     maps[1]['srcrm'] = pmw[0].data
     maps[2]['srcrm'] = plw[0].data

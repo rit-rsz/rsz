@@ -28,7 +28,6 @@ from xidplus import moc_routines
 import xidplus
 from scipy.io import readsav
 sys.path.append('../source_handling')
-from get_data import *
 import numpy as np
 import pymoc
 from astropy import units as u
@@ -43,7 +42,7 @@ from astropy import units as u
 import pymoc
 import matplotlib.pyplot as plt
 
-def get_xid(maps, cats, savemap=0, simmap=0, verbose=1, confusionerrors=1):
+def clus_get_xid(maps, cats, savemap=0, simmap=0, verbose=1, confusionerrors=1):
     err = False
     thresh = 3.0
     mf = 1.0
@@ -102,8 +101,8 @@ def get_xid(maps, cats, savemap=0, simmap=0, verbose=1, confusionerrors=1):
         pixsizes.append(maps[i]['pixsize'])
         prf_sizes.append(get_spire_beam_fwhm(maps[i]['band']))
         pinds.append(np.arange(0,101,1) * 1.0 / pixsizes[i])
-        print(maps[i]['file'])
-        print(pixsizes[i])
+        # print(maps[i]['file'])
+        # print(pixsizes[i])
         #setting up priors
         prior = xidplus.prior(data_maps[i], noise_maps[i], primary_hdus[i], headers[i], moc=moc)
         prior.prior_cat(inra, indec, catfile, moc=moc)
@@ -115,7 +114,7 @@ def get_xid(maps, cats, savemap=0, simmap=0, verbose=1, confusionerrors=1):
         prf = Gaussian2DKernel(bands[i] / 2.355, x_size=101, y_size = 101) #maybe x_size and y_size need to change.
         prf.normalize(mode='peak')
         prfs.append(prf.array)
-        print(prfs)
+        # print(prfs)
         exit()
         #appending prf to prior and setting point matrix
         prior.set_prf(prfs[i], pinds[i], pinds[i]) #prfs, xpinds, ypinds

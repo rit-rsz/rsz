@@ -19,9 +19,9 @@ from astropy.coordinates import SkyCoord
 import sys, os
 from astropy import units as u
 sys.path.append('../utilities')
-from make_noise_mask import make_noise_mask
-from get_data import get_data
-from get_clusparams import get_clus_params
+from clus_make_noise_mask import *
+from clus_get_data import clus_get_data
+from clus_get_clusparams import *
 from astropy.wcs.utils import skycoord_to_pixel
 import config
 # from FITS_tools.load_header import load_header
@@ -29,7 +29,7 @@ import matplotlib.pyplot as plt
 import matplotlib
 # matplotlib.use('TkAgg')
 
-def compute_rings(maps, params, binwidth, superplot=0, verbose=1, noconfusion=None):
+def clus_compute_rings(maps, params, binwidth, superplot=0, verbose=1, noconfusion=None):
     # init params
     bands = ['PSW', 'PMW', 'PLW']
     ncols = len(maps)
@@ -94,7 +94,7 @@ def compute_rings(maps, params, binwidth, superplot=0, verbose=1, noconfusion=No
         # retrieve noise mask and set base noise level of map
         conv = pixsize / binwidth
         confnoise = confusionnoise[m]
-        mask = make_noise_mask(maps, m)
+        mask = clus_make_noise_mask(maps, m)
         # ===============================================================
         # once filled, shows the radial bins from thisrad
         tempmap = np.zeros((int(mapsize[0]), int(mapsize[1])))
@@ -157,6 +157,6 @@ def compute_rings(maps, params, binwidth, superplot=0, verbose=1, noconfusion=No
 
 
 if __name__ == '__main__' :
-    maps,err = get_data('a0370')
-    params,err = get_clus_params('a0370')
-    compute_rings(maps,params,30.0)
+    maps,err = clus_get_data('a0370')
+    params,err = clus_get_clusparams('a0370')
+    clus_compute_rings(maps,params,30.0)

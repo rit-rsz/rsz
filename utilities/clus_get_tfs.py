@@ -17,13 +17,13 @@ import numpy as np
 import config
 import sys
 sys.path.append('source_handling')
-from get_data import *
+from clus_get_data import *
 
-def get_tfs(clusname):
+def clus_get_tfs(clusname):
     err = False
     tf_dir = config.CLUSSBOX
     tf_id =  clusname + '_itermap_tf'
-    tf_maps, err = get_data(clusname,manpath=tf_dir, manidentifier=tf_id)
+    tf_maps, err = clus_get_data(clusname,manpath=tf_dir, manidentifier=tf_id)
     if err:
         print('error when running clus_get_data: ', err)
     else:

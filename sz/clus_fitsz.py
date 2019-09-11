@@ -1,5 +1,5 @@
 ################################################################################
-# NAME : fitsz.py
+# NAME : clus_fitsz.py
 # DATE STARTED : June 24, 2019
 # AUTHORS : Benjamin Vaughan
 # PURPOSE :
@@ -16,9 +16,9 @@ import matplotlib.pyplot as plt
 import sys
 from math import *
 sys.path.append('../utilities')
-from get_clusparams import *
-from compute_rings import *
-from get_data import *
+from clus_get_clusparams import *
+from clus_compute_rings import *
+from clus_get_data import *
 from scipy.stats import linregress
 from astropy.convolution import convolve_fft
 from scipy.interpolate import splrep
@@ -26,7 +26,7 @@ from scipy.optimize import curve_fit
 from gaussian import *
 from get_spire_beam_fwhm import *
 
-def fitsz(radave, params, beam=None, maxlim=3600, minlim=0, noweight=1, superplot=1, verbose=1):
+def clus_fitsz(radave, params, beam=None, maxlim=3600, minlim=0, noweight=1, superplot=1, verbose=1):
 
     # init params
     # beam = [get_spire_beam_fwhm('PSW'),
@@ -114,7 +114,7 @@ def fitsz(radave, params, beam=None, maxlim=3600, minlim=0, noweight=1, superplo
     return fit
 
 if __name__ == '__main__':
-    maps,err = get_data('a0370')
-    params,err = get_clus_params('a0370')
-    radave = compute_rings(maps,params,30.0)
-    fit = fitsz(maps,radave, params)
+    maps,err = clus_get_data('a0370')
+    params,err = clus_get_clusparams('a0370')
+    radave = clus_compute_rings(maps,params,30.0)
+    fit = clus_fitsz(maps,radave, params)

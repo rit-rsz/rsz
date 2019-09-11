@@ -146,72 +146,72 @@ class Catsrc():
         '''End of Pcat coding block'''
 
 
-        if self.verbose:
-            print('Fetching regression catalogs')
-        cat, err = clus_get_cats(self.clusname,self.cattype,maps,savecat=self.savecat,
-                                  savemap=self.savemap, simmap=self.simmap, nsim=self.nsim, s2n=self.s2n,
-                                  verbose=self.verbose, resolution=self.resolution) #args need to be figured out
-        if err:
-            if self.verbose:
-                print('clus_get_cats exited with error: ' + err)
-            exit()
-        if self.verbose:
-            print('Band merging catalogs')
-        #this is probably going to be replaced with Richard's code and therefore be completley different.
-        xid, err = clus_get_xid(maps, cat, savemap=self.savemap, simmap=self.simmap, verbose=self.verbose)
-        if err:
-            if self.verbose:
-                print('clus_get_xid exited with error: ' + err)
-            exit()
-
-        if self.verbose:
-            print('Regressing and subtracting catalogs')
-
-        maps, err = clus_subtract_cat(maps, xid, verbose=self.verbose)
-        if err:
-            if self.verbose:
-                print('clus_subtract_cat exited with error: ' + err)
-            exit()
-
-        if self.verbose:
-            print('Generating residual source mask')
-
-        if not self.clusname:
-            if self.verbose:
-                print('Require a string array of cluster names as input, aborting!')
-
-        #This is commented out because the function hasn't been made yet.
-        #The idea is to use residual mask to do some manual masking, but we haven't
-        #encountered the need to do that in our pipeline
-        # residual_mask, err = clus_residual_mask(maps,verbose=self.verbose)
+        # if self.verbose:
+        #     print('Fetching regression catalogs')
+        # cat, err = clus_get_cats(self.clusname,self.cattype,maps,savecat=self.savecat,
+        #                           savemap=self.savemap, simmap=self.simmap, nsim=self.nsim, s2n=self.s2n,
+        #                           verbose=self.verbose, resolution=self.resolution) #args need to be figured out
         # if err:
         #     if self.verbose:
-        #         print('clus_residual_mask exited with error: ' + err)
-        #         exit()
+        #         print('clus_get_cats exited with error: ' + err)
+        #     exit()
+        # if self.verbose:
+        #     print('Band merging catalogs')
+        # #this is probably going to be replaced with Richard's code and therefore be completley different.
+        # xid, err = clus_get_xid(maps, cat, savemap=self.savemap, simmap=self.simmap, verbose=self.verbose)
+        # if err:
+        #     if self.verbose:
+        #         print('clus_get_xid exited with error: ' + err)
+        #     exit()
+        #
+        # if self.verbose:
+        #     print('Regressing and subtracting catalogs')
+        #
+        # maps, err = clus_subtract_cat(maps, xid, verbose=self.verbose)
+        # if err:
+        #     if self.verbose:
+        #         print('clus_subtract_cat exited with error: ' + err)
+        #     exit()
+        #
+        # if self.verbose:
+        #     print('Generating residual source mask')
+        #
+        # if not self.clusname:
+        #     if self.verbose:
+        #         print('Require a string array of cluster names as input, aborting!')
+        #
+        # #This is commented out because the function hasn't been made yet.
+        # #The idea is to use residual mask to do some manual masking, but we haven't
+        # #encountered the need to do that in our pipeline
+        # # residual_mask, err = clus_residual_mask(maps,verbose=self.verbose)
+        # # if err:
+        # #     if self.verbose:
+        # #         print('clus_residual_mask exited with error: ' + err)
+        # #         exit()
+        #
+        # if self.verbose:
+        #     print('Subtracting correlated componenets')
+        #
+        # subtracted_comps, err = clus_subtract_xcomps(maps, simflag=self.simmap, verbose=self.verbose)
+        # if err:
+        #     if self.verbose:
+        #         print('clus_subtract_xcomps exited with error: ' + err)
+        #     exit()
+        #
+        # if self.verbose:
+        #     print('Saving processed images')
+        #
+        # err = clus_save_data(maps,yin=self.yin, tin=self.tin, simflag=self.simmap, verbose=self.verbose)
+        # if err:
+        #     if self.verbose:
+        #         print('clus_save_data exited with error: ' + err)
+        #     exit()
+        #
+        # if self.simmap == 0:
+        #     if self.verbose:
+        #         print('Computing radial averages nsim=200')
 
-        if self.verbose:
-            print('Subtracting correlated componenets')
-
-        subtracted_comps, err = clus_subtract_xcomps(maps, simflag=self.simmap, verbose=self.verbose)
-        if err:
-            if self.verbose:
-                print('clus_subtract_xcomps exited with error: ' + err)
-            exit()
-
-        if self.verbose:
-            print('Saving processed images')
-
-        err = clus_save_data(maps,yin=self.yin, tin=self.tin, simflag=self.simmap, verbose=self.verbose)
-        if err:
-            if self.verbose:
-                print('clus_save_data exited with error: ' + err)
-            exit()
-
-        if self.simmap == 0:
-            if self.verbose:
-                print('Computing radial averages nsim=200')
-
-        radave = clus_compute_rings(maps,params,30.0,verbose=self.verbose)
+        radave = clus_compute_rings(maps,params,30.0,verbose=self.verbose, superplot=1)
         if err:
             if self.verbose:
                 print('clus_compute_rings exited with error: ' + err)
@@ -233,7 +233,7 @@ class Catsrc():
         else:
             maxlim = 450
 
-        fit, err = clus_fitsz(maps, radave, params, beam=beam) #args need to be figued out when we write this function
+        fit, err = clus_fitsz(radave, params) #args need to be figued out when we write this function
         increment = fit[1,:] #don't know if this is the same as [1,*] in idl
         offsets = fit[0,:]
         if err:
@@ -247,10 +247,10 @@ class Catsrc():
             else:
                 maxlim = 450
             print(maxlim)
-
-            fit = clus_fitsz(args) #args need to be worked out when we write the function
-            increment = fit[1,:]
-            offsets = fit[0,:]
+            #
+            # fit = clus_fitsz(args) #args need to be worked out when we write the function
+            # increment = fit[1,:]
+            # offsets = fit[0,:]
             if err:
                 if self.verbose:
                     print('clus_fitsz exited with error: ' + err)

@@ -118,6 +118,8 @@ def clus_add_sziso(maps,yin,tin,params,
             # tin = [7.2,10.1,7.7,9.8,4.5,8.6,7.8,5.5,10.9]
             nu = 3e5 / clus_get_lambdas((maps[imap]['band']))
             dI,errmsg = clus_get_relsz(nu,y=yin,te=tin,vpec=0.0) # dI = [MJy/sr]
+            dI = 0.265244
+            print(dI / maps[imap]['calfac'])
             if errmsg:
                 if verbose:
                     new_errmsg = 'Clus_get_relSZ exited with error'+errmsg
@@ -129,7 +131,7 @@ def clus_add_sziso(maps,yin,tin,params,
 
             # Combine the spectral shape of the SZ effect, and combine with the peak intensity
             # converted to Jy/pixel  ***Confirm these Units***
-            szin = [x * dI / maps[imap]['calfac'] for x in szmap]
+            szin = [x * dI  for x in szmap] #/ maps[imap]['calfac']
             szin = np.reshape(szin,(naxis[0],naxis[1]))
             # plt.imshow(szin)
             # plt.show()
@@ -146,8 +148,10 @@ def clus_add_sziso(maps,yin,tin,params,
             # sz.writeto('test.fits')
 
             # Combine the original signal with the sz effect
-            maps[imap]['signal'] = maps[imap]['signal'] + szinp
+            # maps[imap]['signal'] = maps[imap]['signal'] + szinp
             maps[imap]['signal'] = szinp
+            plt.imshow(szinp)
+            plt.show()
             # Used to check the final output map
             # sz = fits.PrimaryHDU(maps[imap]['signal'],hdx.header)
             # sz.writeto('a0370_sim200PLW_sz_only.fits')

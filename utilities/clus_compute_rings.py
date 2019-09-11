@@ -54,9 +54,10 @@ def clus_compute_rings(maps, params, binwidth, superplot=0, verbose=1, noconfusi
     # create bins for different metrics (mid,flux,err,rad,hit,max)
     for m in range(ncols):
         clusname = maps[m]['name']
-        hdul = fits.open('/home/butler/bitten/SPIRE/cluster_analysis/plots/clus_rings_test_%s_%s.fits' %(bands[m],clusname))
-        # hdul.writeto('test.fits')
-        srcrm = hdul[0].data
+        srcrm = maps[m]['signal']
+        print(maps[m]['band'])
+        plt.imshow(srcrm)
+        plt.show()
         if verbose:
             print('Average for ' + maps[m]['band'])
 
@@ -64,7 +65,8 @@ def clus_compute_rings(maps, params, binwidth, superplot=0, verbose=1, noconfusi
         mapsize = maps[m]['astr']['NAXIS']
         pixsize = maps[m]['pixsize']
         maxrad = ceil(pixsize * np.amax(mapsize) / sqrt(2.0))
-        print('Mapsize: ',mapsize,'Pixsize: ',pixsize,'Maxrad: ',maxrad,'nbins: ',nbins)
+        if verbose:
+            print('Mapsize: ',mapsize,'Pixsize: ',pixsize,'Maxrad: ',maxrad,'nbins: ',nbins)
         # make array objects to fill later
         midbinp = np.zeros(nbins)
         midwei = np.zeros(nbins)
@@ -73,7 +75,7 @@ def clus_compute_rings(maps, params, binwidth, superplot=0, verbose=1, noconfusi
         errbin = np.zeros(nbins)
 
         # make radbin
-        step = maxrad / (nbins-1) + 3.0 * float(m)
+        step = maxrad / (nbins-1) + 3.0 * float(m) #double check this to convince our selves this is what we want.
         radbin = np.arange(0.0,maxrad+step,step)
 
         # make midbin
@@ -85,7 +87,7 @@ def clus_compute_rings(maps, params, binwidth, superplot=0, verbose=1, noconfusi
         dec = params['fidded'] * u.deg
         c = SkyCoord(ra, dec)
         # grabbing header from maps file
-        hdul = fits.open(maps[m]['file'])
+        hdul = fits.open(maps[m]['file']) #ideally we would be able to use shead here instead.
         w = wcs.WCS(hdul[1].header)
         #converting ra/dec to pixel coords
         px, py = skycoord_to_pixel(c, w, origin=0)
@@ -100,10 +102,10 @@ def clus_compute_rings(maps, params, binwidth, superplot=0, verbose=1, noconfusi
         tempmap = np.zeros((int(mapsize[0]), int(mapsize[1])))
 
         # find the flux that falls closest a given radius (thisrad) for a given pixel (ipix,jpix)
-        for ipix in range(mapsize[0]):
-            for jpix in range(mapsize[1]):
+        for ipix in range(0, mapsize[0]-1):
+            for jpix in range(0, mapsize[1]-1):
                 maps[m]['mask'][ipix,jpix] = maps[m]['mask'][ipix,jpix] + mask[ipix,jpix]
-                thisrad = pixsize * sqrt((ipix - px)**2+(jpix - py)**2)
+                thisrad = pixsize * sqrt((ipix - py)**2+(jpix - px)**2)
                 tempmap[ipix,jpix] = thisrad
 
                 midbin_fill = [abs(thisrad - x) for x in midbin]
@@ -113,9 +115,13 @@ def clus_compute_rings(maps, params, binwidth, superplot=0, verbose=1, noconfusi
                     midbinp[rad] = midbinp[rad] + thisrad
                     midwei[rad] = midwei[rad] + 1
                     if maps[m]['mask'][ipix,jpix] == 0 and (rad <= maxrad) :
-                        thiserr = maps[m]['calfac'] * sqrt(maps[m]['error'][ipix,jpix]**2 + confnoise**2)
+                        #calculating our value for sigma^2
+                        # thiserr = maps[m]['calfac'] * sqrt(maps[m]['error'][ipix,jpix]**2 + confnoise**2)
+                        thiserr = 1
                         # fluxbin[k] = fluxbin[k] + (maps[m]['calfac'] * maps[m]['srcrm'][i,j] / thiserr**2)
-                        fluxbin[rad] = fluxbin[rad] + (maps[m]['calfac'] * srcrm[ipix,jpix] / thiserr**2)
+                        #summing up the flux * 1 / sigma^2
+                        fluxbin[rad] = fluxbin[rad] + ( maps[m]['signal'][ipix, jpix] / thiserr**2) #maps[m]['calfac'] *
+                        #summing up 1 / sigma^2
                         hitbin[rad] = hitbin[rad] + 1.0 / thiserr**2
 
         # =========================================================================================
@@ -127,6 +133,7 @@ def clus_compute_rings(maps, params, binwidth, superplot=0, verbose=1, noconfusi
         # hdu.writeto(file)
         # ===========================================================================================
 
+        #finding averages and changing some value to nan if error points to that.
         for i in range(nbins):
             if midwei[i] > 1.0 :
                 midbinp[i] = midbinp[i] / midwei[i]

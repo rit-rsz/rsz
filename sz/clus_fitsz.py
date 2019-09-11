@@ -26,21 +26,20 @@ from scipy.optimize import curve_fit
 from gaussian import *
 from get_spire_beam_fwhm import *
 
+def fitting_func(a, x, b):
+    return a*x + b
+
 def clus_fitsz(radave, params, beam=None, maxlim=3600, minlim=0, noweight=1, superplot=1, verbose=1):
 
     # init params
-    # beam = [get_spire_beam_fwhm('PSW'),
-    #         get_spire_beam_fwhm('PMW'),
-    #         get_spire_beam_fwhm('PLW')]
-
     ncols = len(radave)
     increment = np.zeros(ncols)
     offsets = np.zeros(ncols)
     fit = [0]*3
-
+    rc = params['rc']
+    beta = params['beta']
     for i in range(ncols):
-        rc = params['rc']
-        beta = params['beta']
+
         if not beam:
             roft = (1. + (radave[i]['midbin'] / rc)**2)**((1. - 3. * beta / 2.))
 
@@ -50,7 +49,8 @@ def clus_fitsz(radave, params, beam=None, maxlim=3600, minlim=0, noweight=1, sup
             xrad = np.arange(-1 * length, length)
             roftprime = (1. + (xrad / rc)**2)**((1. - 3. * beta) / 2.)
             #create psf for beam
-            pf = -1 * (2.18 * log(2) / beam[i]**2)
+            sigma = beam[i] / sqrt(8 * log(2))
+            pf = -1 * (1 / (2 * sigma**2))
             psf = np.exp(pf * xrad**2)
             psf = [x / np.sum(psf) for x in psf]
             #convolve beam's psf with r(t)
@@ -69,10 +69,16 @@ def clus_fitsz(radave, params, beam=None, maxlim=3600, minlim=0, noweight=1, sup
             plt.show()
 
         # ignore values above radius of 600
-        # radave[i]['midbin'] = radave[i]['midbin'][15:]
-        # radave[i]['fluxbin'] = radave[i]['fluxbin'][15:]
+        index = []
+        for k in range(len(radave[i]['midbin'])):
+            if radave[i]['midbin'][k] >= 600:
+                index.append(k)
+        radave[i]['midbin'] = radave[i]['midbin'][0:index[0]]
+        radave[i]['fluxbin'] = radave[i]['fluxbin'][0:index[0]]
+        roft = roft[0:index[0]]
 
-
+        print(radave[i]['fluxbin'])
+        print(roft)
 
         # remove nans from the dataset
         for k in range(len(radave[i]['midbin'])):
@@ -80,34 +86,31 @@ def clus_fitsz(radave, params, beam=None, maxlim=3600, minlim=0, noweight=1, sup
                 radave[i]['midbin'][k] = 0
                 radave[i]['fluxbin'][k] = 0
                 roft[k] = 0
-                roftprimep[k] = 0
 
-        # slope, intercept, r_value, p_value, std_err = linregress(roft, radave[i]['fluxbin'])
         #create a linear fit for r(t) vs fluxbin
-        z = np.polyfit(roft,radave[i]['fluxbin'],1)
-        p = np.poly1d(z)
+        z, cov = curve_fit(fitting_func, roft, radave[i]['fluxbin'])
         intercept = z[1]
         slope = z[0]
         fit[i] = z
         print(z)
+        line = slope * roft + intercept
 
         if superplot:
-            fig, ax = plt.subplots(nrows=1 , ncols=2)
-            ax[0].plot(roft, radave[i]['fluxbin'],label='Data')
-            ax[0].plot(roft, p(roft),label='Best Linear Fit')
-            ax[0].set_xlabel(r'R($\theta$)')
-            ax[0].set_ylabel('Radial Average (MJy/sr)')
-            ax[0].legend()
+            plt.plot(roft, radave[i]['fluxbin'],label='Data')
+            plt.plot(roft, line,label='Best Linear Fit')
+            plt.xlabel(r'R($\theta$)')
+            plt.ylabel('Radial Average (MJy/sr)')
+            plt.legend()
 
-            ax[1].set_xlabel(r"R($\theta^\prime$)")
-            ax[1].set_ylabel('Radial Average (MJy/sr)')
-            ax[1].plot(xrad, roftprimep,label='Data')
-            ax[1].plot(xrad, p(roftprimep),label='Best Linear Fit')
-            ax[1].set_xlabel(r"R($\theta^\prime$)")
-            ax[1].set_ylabel('Radial Average (MJy/sr)')
-            ax[1].legend()
+            # ax[1].set_xlabel(r"R($\theta^\prime$)")
+            # ax[1].set_ylabel('Radial Average (MJy/sr)')
+            # ax[1].plot(xrad, roftprimep,label='Data')
+            # ax[1].plot(xrad, p(roftprimep),label='Best Linear Fit')
+            # ax[1].set_xlabel(r"R($\theta^\prime$)")
+            # ax[1].set_ylabel('Radial Average (MJy/sr)')
+            # ax[1].legend()
 
-            fig.suptitle(params['clusname'] + '  ' + radave[i]['band'] + '  Slope: %.4f  Intercept: %.4f' %(slope,intercept))
+            plt.title(params['clusname'] + '  ' + radave[i]['band'] + '  Slope: %.4f  Intercept: %.4f' %(slope,intercept))
             # fig.tight_layout()
             plt.show()
 

@@ -16,16 +16,16 @@ import numpy as np
 import matplotlib.pyplot as plt
 import sys
 sys.path.append('../source_handling')
-from get_data import get_data
+from clus_get_data import clus_get_data
 from astropy.io import fits
 from astropy.utils.data import get_pkg_data_filename
 from astropy.convolution import Gaussian2DKernel, interpolate_replace_nans
 from gaussian import makeGaussian
 from astropy.convolution import convolve_fft
 
-def make_noise_mask(maps, col):
+def clus_make_noise_mask(maps, col):
     """
-    Inputs: Maps is the maps object that we get from get_data
+    Inputs: Maps is the maps object that we get from clus_get_data
             Col is either 0, 1, 2 to specify which band you want.
             0 = PSW, 1 = PMW, 2 = PLW
     """
@@ -66,7 +66,7 @@ def make_noise_mask(maps, col):
     return mask
 
 if __name__ == '__main__':
-    maps, err = get_data('a0370')
+    maps, err = clus_get_data('a0370')
     mask = make_noise_mask(maps, 0)
     # plt.imshow(mask,origin='lower')
     # plt.show()

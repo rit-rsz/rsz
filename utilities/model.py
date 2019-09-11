@@ -18,7 +18,6 @@ sys.path.append('../source_handling')
 print(sys.path)
 import numpy as np
 import os
-from get_data import get_data
 from astropy.wcs import WCS
 from astropy.wcs.utils import skycoord_to_pixel
 from astropy import units as u

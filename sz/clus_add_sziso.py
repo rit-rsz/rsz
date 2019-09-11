@@ -28,7 +28,7 @@ from clus_get_lambdas import *
 from config import *
 sys.path.append('../sz')
 sys.path.append('../source_handling')
-from get_data import get_data
+from clus_get_data import *
 from clus_get_relsz import *
 from astropy.io import fits
 # from astropy import units as u
@@ -36,8 +36,8 @@ from FITS_tools.hcongrid import hcongrid
 
 
 
-def add_sziso(maps,yin,tin,
-              verbose = 0):
+def clus_add_sziso(maps,yin,tin,params,
+              verbose = 0,):
     errmsg = False
 
     # Now the bolocam data is in the SPIRE format
@@ -102,8 +102,8 @@ def add_sziso(maps,yin,tin,
             n +=1
 
     # Set up the spectral shape of the sz effect to be appled to the 500um map
-    plt.imshow(bolocam[0]['deconvolved_image'][0])
-    plt.show()
+    # plt.imshow(bolocam[0]['deconvolved_image'][0])
+    # plt.show()
     szmap = -1 * bolocam[0]['deconvolved_image'][0]
     szmap = (np.array(szmap)).flatten()
     szmap = szmap - np.mean(szmap[outer])
@@ -149,15 +149,9 @@ def add_sziso(maps,yin,tin,
             maps[imap]['signal'] = maps[imap]['signal'] + szinp
             maps[imap]['signal'] = szinp
             # Used to check the final output map
-            sz = fits.PrimaryHDU(maps[imap]['signal'],hdx.header)
-            sz.writeto('a0370_sim200PLW_sz_only.fits')
+            # sz = fits.PrimaryHDU(maps[imap]['signal'],hdx.header)
+            # sz.writeto('a0370_sim200PLW_sz_only.fits')
             # exit()
-    sz = fits.PrimaryHDU(maps[0]['signal'],maps[0]['shead'])
-    sz.writeto('a0370_sim202PSW_noise.fits')
-    # exit()
-    sz = fits.PrimaryHDU(maps[1]['signal'],maps[1]['shead'])
-    sz.writeto('a0370_sim202PMW_noise.fits')
-    exit()
 
     return maps, None
 
@@ -165,5 +159,5 @@ if __name__ == '__main__' :
     yin_coeff = [2.50,1.91,2.26,3.99,1.36,2.42,1.59,1.90,3.99]
     yin = [x*1e-4 for x in yin_coeff]
     tin = [7.2,10.1,7.7,9.8,4.5,8.6,7.8,5.5,10.9]
-    maps,err = get_data('a0370')
-    add_sziso(maps,yin=yin,tin=tin)
+    maps,err = clus_get_data('a0370')
+    clus_add_sziso(maps,yin=yin,tin=tin)

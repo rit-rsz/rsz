@@ -17,11 +17,11 @@
 ################################################################################
 import numpy as np
 import matplotlib.pyplot as plt
-from get_data import get_data
+# from clus_get_data import *
 from astropy.io import fits
 import config
 
-def subtract_cat(maps, cat, verbose=1):
+def clus_subtract_cat(maps, cat, verbose=1):
     err = False
 
     # make sure both input maps exist

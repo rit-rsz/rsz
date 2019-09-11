@@ -28,7 +28,7 @@ from get_spire_beam_fwhm import *
 import config
 import matplotlib.pyplot as plt
 
-def get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
+def clus_get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
             verbose = 1, version = '1', manidentifier=None, simmap=0, nsim=0):
     # place holders for the if statements to work until I add them to the input for get data
     # This will happen when the script is fully functional
@@ -130,7 +130,7 @@ def get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
     for ifile in range(nfiles):
         if ifile < 3: # I feel like this is supposed to be ifile <= 3 :
             if any(col in files[ifile] for col in cols): # checks if name of band is in the filename
-                maps.append(read_file(files[ifile], cols[ifile], clusname, verbose=verbose,simmap=simmap))
+                maps.append(clus_read_file(files[ifile], cols[ifile], clusname, verbose=verbose,simmap=simmap))
 
             else:
                 errmsg = 'Problem finding ' + cols[ifile] + ' file.'
@@ -189,7 +189,7 @@ def get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
 ##################################################################################################
 ##################################################################################################
 
-def read_file(file,band,clusname,verbose=0,simmap=0):
+def clus_read_file(file,band,clusname,verbose=0,simmap=0):
     # Should this calfac be listed as a self.calfac or not?
     '''
     Calfac has been added to config.py as a constant.
@@ -319,4 +319,4 @@ def mean(data):
     return average
 
 if __name__ == '__main__':
-    get_data('a0370', nsim='197')
+    clus_get_data('a0370', nsim='197')

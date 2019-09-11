@@ -1,5 +1,5 @@
 ################################################################################
-# NAME : get_clusparams.py
+# NAME : clus_get_clusparams.py
 # DATE STARTED : June 11, 2019
 # AUTHORS : Dale Mercado
 # PURPOSE : Fetches the cluster lookup param_data
@@ -19,7 +19,7 @@ from astropy.io.ascii import read
 import config
 
 
-def get_clus_params(clusname_in,
+def clus_get_clusparams(clusname_in,
                     verbose = 1):#, su    return errmsg
     errmsg = False
 #   Read in the csv file to work with
@@ -96,4 +96,4 @@ def get_clus_params(clusname_in,
 
 #For debugging, used to call this file directly
 if __name__ == '__main__':
-    get_clus_params('rxj1347')
+    clus_get_clusparams('rxj1347')

@@ -148,10 +148,11 @@ def clus_add_sziso(maps,yin,tin,params,
             # sz.writeto('test.fits')
 
             # Combine the original signal with the sz effect
+            '''TESTING : For now just passing throught the sz signal only'''
             # maps[imap]['signal'] = maps[imap]['signal'] + szinp
             maps[imap]['signal'] = szinp
-            plt.imshow(szinp)
-            plt.show()
+            # plt.imshow(szinp)
+            # plt.show()
             # Used to check the final output map
             # sz = fits.PrimaryHDU(maps[imap]['signal'],hdx.header)
             # sz.writeto('a0370_sim200PLW_sz_only.fits')

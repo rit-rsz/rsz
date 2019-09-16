@@ -219,21 +219,20 @@ class Catsrc():
             tfave, err = clus_compute_rings(tf_maps, params, 30.0, verbose=self.verbose)
             if err:
                 if self.verbose:
-
                     print('clus_compute_rings exited with error: ' + err)
                 exit()
 
         # radave[2].fluxbin[0] = np.nan #i guess this is right??
 
         if self.verbose:
-            print('Computing beta model fit.')
+            print('Computing Beta model fit.')
 
         if self.clusname == 'ms0451':
             maxlim = 300
         else:
             maxlim = 450
 
-        fit, err = clus_fitsz(radave, params) #args need to be figued out when we write this function
+        fit, err = clus_fitsz(radave, params,beam) #args need to be figued out when we write this function
         increment = fit[1,:] #don't know if this is the same as [1,*] in idl
         offsets = fit[0,:]
         if err:
@@ -246,9 +245,8 @@ class Catsrc():
                 maxlim = 300
             else:
                 maxlim = 450
-            print(maxlim)
             #
-            # fit = clus_fitsz(args) #args need to be worked out when we write the function
+            # fit, err = clus_fitsz(radave, params) #args need to be worked out when we write the function
             # increment = fit[1,:]
             # offsets = fit[0,:]
             if err:

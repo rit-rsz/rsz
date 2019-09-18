@@ -32,6 +32,7 @@ sys.path.append('utilities')
 from config import * #(this line will give me access to all directory variables)
 from clus_get_tfs import *
 from clus_get_clusparams import *
+from clus_pcat_setup import *
 # This is no longer being used
 # from get_simmaps import *
 sys.path.append('source_handling')
@@ -141,7 +142,7 @@ class Catsrc():
         '''This will be the working spot where pcat will be starting to be implemented'''
         # We can't use this yet until it is set up in a way that we can feed it the maps that we
         # are carrying
-        # maps, err = pcat_spire(dataname=maps[0]['name'],verbose=2,multiband=0)
+        maps, err = clus_pcat_setup(maps,parms)
         # exit()
         '''End of Pcat coding block'''
 

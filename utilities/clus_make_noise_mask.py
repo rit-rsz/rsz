@@ -22,6 +22,7 @@ from astropy.utils.data import get_pkg_data_filename
 from astropy.convolution import Gaussian2DKernel, interpolate_replace_nans
 from gaussian import makeGaussian
 from astropy.convolution import convolve_fft
+from gaussian import padGaussian
 
 def clus_make_noise_mask(maps, col):
     """
@@ -34,16 +35,7 @@ def clus_make_noise_mask(maps, col):
     img = maps[col]['error']
     stddev = 24 / 2.355
     kernel = makeGaussian(8, 8, fwhm= 4)
-
-    kernel_full_size = np.zeros(mapsize, dtype=float)
-    #find center of kernel
-    xc = int(kernel_full_size.shape[0] / 2)
-    yc = int(kernel_full_size.shape[1] / 2)
-    x0 = int(xc - kernel.shape[0] / 2)
-    x1 = int(xc + kernel.shape[0] / 2)
-    y0 = int(yc - kernel.shape[1] / 2)
-    y1 = int(yc + kernel.shape[1] / 2)
-    kernel_full_size[x0:x1, y0:y1] = kernel
+    kernel_full_size = padGaussian(img, kernel)
 
     #converting these to lists because the error message is annoying.
     img = img.tolist()

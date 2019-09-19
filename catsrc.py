@@ -48,7 +48,7 @@ from clus_add_sziso import *
 from clus_compute_rings import *
 from clus_fitsz import *
 sys.path.append('multiband_pcat')
-from multiband_pcat import *
+
 
 class Catsrc():
 
@@ -86,7 +86,7 @@ class Catsrc():
             #Need to call a nuplot function
             # This was used for outplotting graphs to some checkplots pdf
             pass
-
+        '''break here'''
         beam = [get_spire_beam_fwhm('PSW'), #arcsec
                 get_spire_beam_fwhm('PMW'),
                 get_spire_beam_fwhm('PLW')]
@@ -142,7 +142,7 @@ class Catsrc():
         '''This will be the working spot where pcat will be starting to be implemented'''
         # We can't use this yet until it is set up in a way that we can feed it the maps that we
         # are carrying
-        maps, err = clus_pcat_setup(maps,parms)
+        maps, err = clus_pcat_setup(maps,params)
         # exit()
         '''End of Pcat coding block'''
 

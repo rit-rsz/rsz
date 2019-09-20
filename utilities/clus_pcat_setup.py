@@ -21,11 +21,25 @@
 ################################################################################
 
 import sys
-sys.path.append('multiband_pcat')
+sys.path.append('../multiband_pcat')
+from pcat_spire import lion
 
+def clus_pcat_setup(maps,params,err=None):
 
-def clus_pcat_setup(maps):
-
-    
+    print('working')
+    ob = lion(band1=1, auto_resize=True, visual=True, make_post_plots=True, nsamp=1000, residual_samples=200)
+    ob.main()
     # Have a commented list of all the settings here for testing usage.
-    pcat,err =  pcat_spire()#Need to figure out the order of all the args
+    #Need to figure out the order of all the args
+
+    exit()
+    return maps,err
+
+def clus_pcat_setup_python2():
+
+    ob = lion(band1=1, auto_resize=True, visual=True, make_post_plots=True, nsamp=1000, residual_samples=200)
+    ob.main()
+    exit()
+
+if __name__ == '__main__':
+    clus_pcat_setup_python2()

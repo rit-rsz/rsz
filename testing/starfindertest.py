@@ -17,7 +17,7 @@ import matplotlib.pyplot as p
 import sys
 sys.path.append('source_handling')
 sys.path.append('utilities')
-from get_data import *
+from clus_get_data import *
 import numpy as np
 from writefits import *
 import config

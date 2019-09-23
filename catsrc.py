@@ -32,7 +32,7 @@ sys.path.append('utilities')
 from config import * #(this line will give me access to all directory variables)
 # from clus_get_tfs import * #this isn't being used right now
 from clus_get_clusparams import *
-# from clus_pcat_setup import *
+from clus_pcat_setup import *
 # This is no longer being used
 # from get_simmaps import *
 sys.path.append('source_handling')
@@ -48,6 +48,7 @@ from clus_add_sziso import *
 from clus_compute_rings import *
 from clus_fitsz import *
 sys.path.append('multiband_pcat')
+from pcat_spire import lion
 # from multiband_pcat import *
 
 class Catsrc():
@@ -87,7 +88,7 @@ class Catsrc():
         self.nsim = nsim
         self.resolution = resolution
         self.data_retrieval()
-        # self.source_removal()
+        self.source_removal()
         self.data_analysis()
 
     def data_retrieval(self):
@@ -185,9 +186,9 @@ class Catsrc():
         '''This will be the working spot where pcat will be starting to be implemented'''
         # We can't use this yet until it is set up in a way that we can feed it the maps that we
         # are carrying, unclear where in this function this goes.
-
-        # maps, err = clus_pcat_setup(self.maps,parms)
-        # exit()
+        print('should print')
+        maps, err = clus_pcat_setup(self.maps,self.params)
+        exit()
         '''End of Pcat coding block'''
 
         #all of this stuff is depreciated from a time when XID + was being used.

@@ -27,8 +27,9 @@ from pcat_spire import lion
 def clus_pcat_setup(maps,params,err=None):
 
     print('working')
-    ob = lion(band1=1, auto_resize=True, visual=True, make_post_plots=True, nsamp=1000, residual_samples=200)
-    ob.main()
+    # ob = lion(raw_counts=True, auto_resize=True, visual=True)
+    ob = lion(map_object=maps,band1=1, auto_resize=True, visual=True, return_median_model=True, make_post_plots=True, nsamp=1, residual_samples=1)
+    x = ob.main()
     # Have a commented list of all the settings here for testing usage.
     #Need to figure out the order of all the args
 

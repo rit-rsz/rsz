@@ -1,0 +1,3 @@
+[submodule "bethermin12_sim"]
+	path = bethermin12_sim
+	url = https://github.com/aconley/bethermin12_sim

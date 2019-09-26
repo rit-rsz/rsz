@@ -21,12 +21,13 @@
 ################################################################################
 
 import sys
-sys.path.append('../multiband_pcat')
+import config
+sys.path.append(config.HOME + 'multiband_pcat')
 from pcat_spire import lion
+import numpy as np
 
 def clus_pcat_setup(maps,params,err=None):
 
-    print('working')
     # ob = lion(raw_counts=True, auto_resize=True, visual=True)
     ob = lion(map_object=maps,band1=1, auto_resize=True, visual=True, return_median_model=True, make_post_plots=True, nsamp=1, residual_samples=1)
     x = ob.main()
@@ -34,7 +35,7 @@ def clus_pcat_setup(maps,params,err=None):
     #Need to figure out the order of all the args
 
     exit()
-    return maps,err
+    return x,err
 
 def clus_pcat_setup_python2():
 

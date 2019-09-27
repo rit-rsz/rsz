@@ -1,3 +1,12 @@
+#HOW TO CALL:
+#import this script.
+# maps = create_map_obj(filename, dir)
+#filename is a list of all three files
+# i.e. [PSW_file, PMW_file, PLW_file]
+#directory is the directory where all these files are kept
+#example is at the bottom.
+
+
 
 import scipy.io
 import numpy as np

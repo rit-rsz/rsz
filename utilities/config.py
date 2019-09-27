@@ -12,12 +12,12 @@
 ################################################################################
 from math import *
 
-CLUSDATA = '/data/butler/SPIRE/'
-CLUSSBOX = '/data/butler/SPIRE/sandbox/'
-CLUSHOME = '/home/butler/bitten/SPIRE/'
-HOME = '/home/butler/rsz/'
-FITSOUT = '/home/butler/rsz/fits_files/'
-CLUSSIMS = '/data/butler/SPIRE/bethermin_sims/'
+CLUSDATA = '/data/mercado/SPIRE/'
+CLUSSBOX = '/data/mercado/SPIRE/sandbox/'
+CLUSHOME = '/home/mercado/bitten/SPIRE/'
+HOME = '/home/mercado/rsz/'
+FITSOUT = '/home/mercado/rsz/fits_files/'
+CLUSSIMS = '/data/mercado/SPIRE/bethermin_sims/'
 
 calfac  = (pi/180.0)**2 * (1/3600.0)**2 * (pi / (4.0 * log(2.0))) * (1e6)
 JY2MJy = 1e6 # Janskys to Mega Janskys

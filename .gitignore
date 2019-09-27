@@ -2,4 +2,4 @@
 .#*
 *.pyc
 __pycache__
-/utilities/config.py
+utilities/config.py

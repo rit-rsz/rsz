@@ -22,7 +22,8 @@ from astropy.io import fits
 import os
 import sys
 #import pyfits
-sys.path.append('../utilities')
+sys.path.append('utilities/')
+print(sys.path)
 from get_spire_beam import *
 from get_spire_beam_fwhm import *
 import config
@@ -107,8 +108,8 @@ def clus_get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
         nfiles = len(manfiles)
         files = manfiles
 
+    elif simmap == 2:
 
-    elif simmap ==2:
         simfiles = []
         simdir = config.CLUSSIMS + clusname + '/'
         simcount = 0
@@ -141,7 +142,6 @@ def clus_get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
 
     new_file = 'None'
 
-    print(len(maps))
     for i in range(len(maps)):
         print(maps[i]['file'])
         if 'PSW' in maps[i]['file'] and i != 0:
@@ -275,7 +275,6 @@ def clus_read_file(file,band,clusname,verbose=0,simmap=0):
     head = map.header
     herr = err.header
 
-    print(type(head))
 #   Not sure if this is the correct syntax for astr naxis
     srcrm = np.zeros(astr['NAXIS'])
     xclean = np.zeros(astr['NAXIS'])

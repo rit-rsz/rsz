@@ -15,7 +15,7 @@ except ImportError:
 
 __all__ = ["genmap_gauss", "get_gauss_beam"]
 
-from .gencat import gencat
+import gencat
 
 
 def get_gauss_beam(fwhm, pixscale, nfwhm=5.0, oversamp=1):
@@ -396,8 +396,10 @@ class genmap_gauss:
             chunks = np.array([nsources], dtype=np.int64)
         else:
             # Recall this is python 3 -- floating point division
+            print(nchunks,nsources,self._gensize)
+            sys.exit()
             nchunks = math.ceil(nsources / self._gensize)
-            chunks = self._gensize * np.ones(nchunks, dtype=np.int64)
+            chunks = self._gensize * np.ones(int(nchunks), dtype=np.int64)
             chunks[-1] = nsources - (nchunks - 1) * self._gensize
             assert chunks.sum() == nsources
 
@@ -480,4 +482,3 @@ class genmap_gauss:
                 maps.append(truthtable)
 
         return maps
-

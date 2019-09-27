@@ -5,9 +5,9 @@ import math
 
 __all__ = ["gencat"]
 
-from .schecter import mass_schecter
-from .zdist import zdist
-from .seds import sed_model
+from schecter import mass_schecter
+import zdist
+from seds import sed_model
 
 
 class gencat:
@@ -157,8 +157,8 @@ class gencat:
                                   ninterpm)
         self._zdist = zdist(self._zmin, self._zmax, self._Om0, self._H0,
                             phib0, gamma_sfmf, ninterpz)
-        self._sedmodel = sed_model(zmin=self._zmin, zmax=self._zmax, 
-                                   Om0=self._Om0, H0=self._H0, 
+        self._sedmodel = sed_model(zmin=self._zmin, zmax=self._zmax,
+                                   Om0=self._Om0, H0=self._H0,
                                    ninterp=ninterpdl)
 
         # Set number per sr
@@ -267,4 +267,3 @@ class gencat:
             return (z, log10mass, is_starburst, log10sSFR, log10lir, fluxes)
         else:
             return (z, log10mass, is_starburst, log10sSFR)
-

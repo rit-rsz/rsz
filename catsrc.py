@@ -108,7 +108,7 @@ class Catsrc():
             self.nsim = np.nan
 
         if self.verbose:
-            print('Welcome to SZ fitter v 1.0 Python Version')
+            print('Welcome to SZ fitter v 1.0 Python Edition')
 
         if self.saveplot:
             #this was used to plot some data and graph, but is depreciated in the python

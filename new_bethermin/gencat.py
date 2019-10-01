@@ -3,14 +3,14 @@ import math
 
 """ Generates sources from the Bethermin et al. 2012 model"""
 
-__all__ = ["gencat"]
+# __all__ = ["gencat"]
 
 from schecter import mass_schecter
 import zdist
 from seds import sed_model
 
 
-class gencat:
+class Gencat:
     """ Generates catalog sources from Bethermin et al. 2012 model"""
 
     def __init__(self, log10Mb=11.2, alpha=1.3, log10Mmin=8.0, log10Mmax=12.75,
@@ -155,7 +155,7 @@ class gencat:
 
         self._sch = mass_schecter(log10Mb, alpha, log10Mmin, log10Mmax,
                                   ninterpm)
-        self._zdist = zdist(self._zmin, self._zmax, self._Om0, self._H0,
+        self._zdist = zdist.Zdist(self._zmin, self._zmax, self._Om0, self._H0,
                             phib0, gamma_sfmf, ninterpz)
         self._sedmodel = sed_model(zmin=self._zmin, zmax=self._zmax,
                                    Om0=self._Om0, H0=self._H0,

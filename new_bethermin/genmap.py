@@ -1,8 +1,10 @@
-from __future__ import print_function
+from __future__ import print_function, absolute_import
 
 import numpy as np
-import math
+import math, sys
 import astropy.io.fits as fits
+import matplotlib.pyplot as plt
+sys.path.append('/home/butler/rsz/new_bethermin/')
 
 try:
     from astropy.convolution import convolve
@@ -13,7 +15,7 @@ except ImportError:
 
 """ Generates simulated maps"""
 
-__all__ = ["genmap_gauss", "get_gauss_beam"]
+# __all__ = ["genmap_gauss", "get_gauss_beam"]
 
 import gencat
 
@@ -63,12 +65,12 @@ def get_gauss_beam(fwhm, pixscale, nfwhm=5.0, oversamp=1):
 
     beam = Gaussian2DKernel(bmsigma / pixscale, x_size=retext,
                             y_size=retext, mode='oversample',
-                            factor=oversample)
+                            factor=oversamp)
     beam *= 1.0 / beam.array.max()
     return beam
 
 
-class genmap_gauss:
+class genmap_gauss :
     """ Generates simulated maps from the Bethermin et al. 2012 model
     using a Gaussian beam"""
 
@@ -267,14 +269,14 @@ class genmap_gauss:
             raise ValueError(errstr.format(self._bmoversamp))
 
         # Set up catalog generator
-        self._gencat = gencat(log10Mb, alpha, log10Mmin, log10Mmax,
+        self._gencat_stuff = gencat.Gencat(log10Mb, alpha, log10Mmin, log10Mmax,
                               ninterpm, zmin, zmax, Om0, H0, phib0,
                               gamma_sfmf, ninterpz, rsb0, gammasb, zsb,
                               logsSFRM0, betaMS, zevo, gammams, bsb,
                               sigmams, sigmasb, mnU_MS0, gammaU_MS0,
                               z_UMS, mnU_SB0, gammaU_SB0, z_USB,
                               scatU, ninterpdl)
-        self._npersr = self._gencat.npersr
+        self._npersr = self._gencat_stuff.npersr
 
     @property
     def npersr(self):
@@ -396,9 +398,8 @@ class genmap_gauss:
             chunks = np.array([nsources], dtype=np.int64)
         else:
             # Recall this is python 3 -- floating point division
-            print(nchunks,nsources,self._gensize)
-            sys.exit()
             nchunks = math.ceil(nsources / self._gensize)
+            print(nchunks,nsources,self._gensize)
             chunks = self._gensize * np.ones(int(nchunks), dtype=np.int64)
             chunks[-1] = nsources - (nchunks - 1) * self._gensize
             assert chunks.sum() == nsources
@@ -417,7 +418,7 @@ class genmap_gauss:
             ypos = nexgen * np.random.rand(nsrc)
 
             # Get fluxes (in Jy)
-            cat = self._gencat.generate(nsrc, wave=self._wave)
+            cat = self._gencat_stuff.generate(nsrc, wave=self._wave)
             fluxes = cat[-1].copy()
 
             # Set up truth table if needed
@@ -440,7 +441,7 @@ class genmap_gauss:
             np.place(xf, xf > nx-1, nx-1)
             np.place(yf, yf > ny-1, ny-1)
             for cx, cy, cf in zip(xf, yf, fluxes[:, 0]):
-                cmap[cy, cx] += cf  # Note transpose
+                cmap[int(cy), int(cx)] += cf  # Note transpose
 
             # Other bands, with pixel scale adjustment
             for mapidx in range(1, self._nbands):
@@ -452,7 +453,7 @@ class genmap_gauss:
                 np.place(xf, xf > nx-1, nx-1)
                 np.place(yf, yf > ny-1, ny-1)
                 for cx, cy, cf in zip(xf, yf, fluxes[:, mapidx]):
-                    cmap[cy, cx] += cf  # Note transpose
+                    cmap[int(cy), int(cx)] += cf  # Note transpose
 
             if not self._returntruth:
                 del fluxes, xpos, ypos, xf, yf
@@ -481,4 +482,11 @@ class genmap_gauss:
             if self._returntruth:
                 maps.append(truthtable)
 
+        plt.imshow(maps[2])
+        plt.title('500 micron')
+        plt.show()
         return maps
+
+if __name__ == '__main__':
+    gm = genmap_gauss()
+    gm.generate(0.25,verbose=True)

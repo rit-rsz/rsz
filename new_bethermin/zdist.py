@@ -6,10 +6,10 @@ import math
 This contains the comoving volume element and the phi_b(z) function.
 """
 
-__all__ = ["zdist"]
+# __all__ = ["zdist"]
 
 
-class zdist:
+class Zdist:
     """ Volume element and z distribution"""
 
     def __init__(self, zmin=0.5, zmax=7.0, Om0=0.315, H0=67.7, phib0=-3.02,
@@ -152,4 +152,3 @@ class zdist:
     def dVPhidzdOmega(self):
         """ Comoving volume in Mpc^3 per redshift per sr at zvals * phi_b(z)"""
         return self._dVPhidzdOmega
-

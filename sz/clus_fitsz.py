@@ -61,9 +61,10 @@ def clus_fitsz(radave, params, beam=None, maxlim=3600, minlim=0, noweight=1, sup
         if superplot:
             plt.plot(radave[i]['midbin'], radave[i]['fluxbin'])
             plt.ylabel('Radial Average (MJy/sr)')
+            plt.xlabel('Radius (arcsec)')
             plt.title(params['clusname'] + '  ' + radave[i]['band'] + '  RC:' + str(rc) + '  Beta:' + str(beta))
             plt.xlim((0,600))
-            plt.ylim((-2,2))
+            # plt.ylim((0.0,0.3))
             plt.errorbar(radave[i]['midbin'],radave[i]['fluxbin'],yerr=radave[i]['errbin'])
             plt.scatter(radave[i]['midbin'], radave[i]['fluxbin'],marker='o')
             plt.show()

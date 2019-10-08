@@ -115,8 +115,8 @@ def clus_get_relsz(nu,y,te, vpec=0.0, ngrid=100):
         bigJ = interpolate.interp1d(xout,JofXout, kind='linear')
         deltaI = float(bigJ(thisx))
         plt.scatter(thisx,deltaI,color='orange')
-        plt.title('RUNSZPACK SZE @ %s GHZ : %0.4f [MJy/sr]' %(nu,deltaI))
-        plt.xlabel('Frequency [GHz]')
+        plt.title('RUN_SZPACK SZE @ %s GHZ : %0.4f [MJy/sr]' %(nu,deltaI))
+        plt.xlabel('Dimensionless Frequency')
         plt.ylabel('$\Delta$I_0 [MJy/sr]')
         plt.show()
         print('SZE @ %s GHZ : %0.4f [MJy/sr]' %(nu,deltaI)) # print current return

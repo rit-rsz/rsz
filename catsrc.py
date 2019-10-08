@@ -48,7 +48,7 @@ from pcat_spire import lion
 class Catsrc():
 
     def __init__(self, clusname, saveplot=1, cattype="24um", savecat=0,
-                 savemap=0, maketf=0, simmap=0, nsim=0, s2n=3, verbose=1, resolution='nr'):
+                 savemap=0, maketf=0, simmap=0, nsim=0, s2n=3, verbose=1, resolution='nr',ib_test=False):
         """
         initializing function for catsrc class
         Purpose: read in arguments to be passed to functions in catsrc.
@@ -66,8 +66,8 @@ class Catsrc():
         Outputs : None
         """
         self.beam = [get_spire_beam_fwhm('PSW'), #arcsec
-                get_spire_beam_fwhm('PMW'),
-                get_spire_beam_fwhm('PLW')]
+                     get_spire_beam_fwhm('PMW'),
+                     get_spire_beam_fwhm('PLW')]
         self.verbose = verbose
         self.cattype = cattype
         self.savecat = savecat
@@ -81,6 +81,7 @@ class Catsrc():
         self.clusname = clusname
         self.nsim = nsim
         self.resolution = resolution
+        self.ib_test = ib_test
         self.data_retrieval()
         # self.source_removal()
         self.data_analysis()
@@ -137,14 +138,13 @@ class Catsrc():
             #     if self.verbose:
             #         print('clus_get_simmaps exited with error: ' + err)
             #     exit()
-            maps, err = clus_add_sziso(maps,yin=self.yin, tin=self.tin,params=params,verbose=self.verbose)
+            maps, err = clus_add_sziso(maps,yin=self.yin, tin=self.tin,params=params,ib_test=self.ib_test,verbose=self.verbose)
             # plt.imshow(maps[0]['signal'])
             # plt.show()
             if err:
                 if self.verbose:
                     print('clus_add_sziso exited with error: '+ err)
                 exit()
-
         #transfer function is not in use currently.
         ncols = len(maps)
         # if self.verbose:
@@ -280,6 +280,7 @@ class Catsrc():
             maxlim = 450
 
         fit = clus_fitsz(radave, self.params,self.beam) #args need to be figued out when we write this function
+        sys.exit()
         increment = fit[1,:] #don't know if this is the same as [1,*] in idl
         offsets = fit[0,:]
 

@@ -2,18 +2,14 @@
 # NAME : catsrc.py
 # DATE STARTED : June 11, 2019
 # AUTHORS : Victoria Butler & Dale Mercado & Benjamin Vaughan
-# PURPOSE : This procedure is the first attempt at translating the old
-#             pipeline from IDL into a working python counterpart.
-#             The purpose is to act as a driver program that has the
-#             capability to fit the SZ effect in the HerMES/HLS clusters.
+# PURPOSE :
+# This procedure is a first stab at a generalized driver program for
+# fitting the SZ effect in the HerMES/HLS clusters.  It is designed so
+# that one gives it a map and catalog as input and it fits for all the
+# sources in the catalog from the map. Then it takes those fits and
+# subtracts or masks them from the map. Finally, it takes radial averages
+# and fits for the SZ effect.
 #
-#   Below is what Mike used to describe the IDL scripts function
-# ;;  This procedure is a first stab at a generalized driver program for
-# ;;  fitting the SZ effect in the HerMES/HLS clusters.  It is designed so
-# ;;  that one gives it a map and catalog as input and it fits for all the
-# ;;  sources in the catalog from the map.  Then it takes those fits and
-# ;;  subtracts or masks them from the map.  Finally, it takes radial averages
-# ;;  and fits for the SZ effect.
 # EXPLANATION :
 # CALLING SEQUENCE :
 # INPUTS :
@@ -33,8 +29,6 @@ from config import * #(this line will give me access to all directory variables)
 # from clus_get_tfs import * #this isn't being used right now
 from clus_get_clusparams import *
 from clus_pcat_setup import *
-# This is no longer being used
-# from get_simmaps import *
 sys.path.append('source_handling')
 from clus_subtract_cat import *
 from clus_subtract_xcomps import *
@@ -88,7 +82,7 @@ class Catsrc():
         self.nsim = nsim
         self.resolution = resolution
         self.data_retrieval()
-        self.source_removal()
+        # self.source_removal()
         self.data_analysis()
 
     def data_retrieval(self):

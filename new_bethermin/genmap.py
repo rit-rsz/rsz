@@ -76,7 +76,7 @@ class genmap_gauss :
 
     def __init__(self, wave=[250.0, 350, 500], pixsize=[6.0, 8.33333, 12.0],
                  fwhm=[17.6, 23.9, 35.2], nfwhm=5.0, bmoversamp=5,
-                 gensize=150000, truthtable=False, log10Mb=11.2,
+                 gensize=150000, truthtable=True, log10Mb=11.2,
                  alpha=1.3, log10Mmin=8.5, log10Mmax=12.75, ninterpm=2000,
                  zmin=0.1, zmax=10.0, Om0=0.315, H0=67.7, phib0=-3.02,
                  gamma_sfmf=0.4, ninterpz=1000, rsb0=0.012, gammasb=1.0,
@@ -482,9 +482,10 @@ class genmap_gauss :
             if self._returntruth:
                 maps.append(truthtable)
 
-        plt.imshow(maps[2])
-        plt.title('500 micron')
-        plt.show()
+        # plt.imshow(maps[2])
+        # plt.title('500 micron')
+        # plt.show()
+        # print(maps[-1]) # shows the truthtable
         return maps
 
 if __name__ == '__main__':

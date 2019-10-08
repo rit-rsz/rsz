@@ -46,51 +46,6 @@ def clus_batch_simbg():
 
             CLUS_SIM_BACKGROUND()
 
-            if isim == 0 and icut == 0:
-                radave0 == np.repeat(simradave[0],3,100)
-                radave1 == np.repeat(simradave[0],3,100)
-                radave2 == np.repeat(simradave[0],3,100)
-                radave3 == np.repeat(simradave[0],3,100)
-                radave4 == np.repeat(simradave[0],3,100)
-                radave5 == np.repeat(simradave[0],3,100)
-                radave6 == np.repeat(simradave[0],3,100)
-
-            # These below probably have to be changed to dictionaries
-            if icut == 0:
-                radave4[icol,isim].fluxbin = simradave[icol].fluxbin
-                radave4[icol,isim].errbin = simradave[icol].errbin
-                radave4[icol,isim].midbin = simradave[icol].midbin
-                radave4[icol,isim].radbin = simradave[icol].radbin
-            if icut == 1:
-                radave4[icol,isim].fluxbin = simradave[icol].fluxbin
-                radave4[icol,isim].errbin = simradave[icol].errbin
-                radave4[icol,isim].midbin = simradave[icol].midbin
-                radave4[icol,isim].radbin = simradave[icol].radbin
-            if icut == 2:
-                radave4[icol,isim].fluxbin = simradave[icol].fluxbin
-                radave4[icol,isim].errbin = simradave[icol].errbin
-                radave4[icol,isim].midbin = simradave[icol].midbin
-                radave4[icol,isim].radbin = simradave[icol].radbin
-            if icut == 3:
-                radave4[icol,isim].fluxbin = simradave[icol].fluxbin
-                radave4[icol,isim].errbin = simradave[icol].errbin
-                radave4[icol,isim].midbin = simradave[icol].midbin
-                radave4[icol,isim].radbin = simradave[icol].radbin
-            if icut == 4:
-                radave4[icol,isim].fluxbin = simradave[icol].fluxbin
-                radave4[icol,isim].errbin = simradave[icol].errbin
-                radave4[icol,isim].midbin = simradave[icol].midbin
-                radave4[icol,isim].radbin = simradave[icol].radbin
-            if icut == 5:
-                radave4[icol,isim].fluxbin = simradave[icol].fluxbin
-                radave4[icol,isim].errbin = simradave[icol].errbin
-                radave4[icol,isim].midbin = simradave[icol].midbin
-                radave4[icol,isim].radbin = simradave[icol].radbin
-            if icut == 6:
-                radave4[icol,isim].fluxbin = simradave[icol].fluxbin
-                radave4[icol,isim].errbin = simradave[icol].errbin
-                radave4[icol,isim].midbin = simradave[icol].midbin
-                radave4[icol,isim].radbin = simradave[icol].radbin
 
     if saveplot:
         # lines for saving the output files

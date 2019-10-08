@@ -113,12 +113,11 @@ def clus_add_sziso(maps,yin,tin,params,
     for imap in range(mapsize):
         # Applying the effect to the 500um band
         if imap == 2:
-            # yin_coeff = [2.50,1.91,2.26,3.99,1.36,2.42,1.59,1.90,3.99]
-            # yin = [x*1e-4 for x in yin_coeff]
-            # tin = [7.2,10.1,7.7,9.8,4.5,8.6,7.8,5.5,10.9]
+            yin_coeff = [2.50,1.91,2.26,3.99,1.36,2.42,1.59,1.90,3.99]
+            yin = [x*1e-4 for x in yin_coeff]
+            tin = [7.2,10.1,7.7,9.8,4.5,8.6,7.8,5.5,10.9]
             nu = 3e5 / clus_get_lambdas((maps[imap]['band']))
             dI,errmsg = clus_get_relsz(nu,y=yin,te=tin,vpec=0.0) # dI = [MJy/sr]
-            dI = 0.265244
             print(dI / maps[imap]['calfac'])
             if errmsg:
                 if verbose:
@@ -148,7 +147,7 @@ def clus_add_sziso(maps,yin,tin,params,
             # sz.writeto('test.fits')
 
             # Combine the original signal with the sz effect
-            '''TESTING : For now just passing throught the sz signal only'''
+            '''TESTING : For now just passing through the sz signal only'''
             # maps[imap]['signal'] = maps[imap]['signal'] + szinp
             maps[imap]['signal'] = szinp
             # plt.imshow(szinp)

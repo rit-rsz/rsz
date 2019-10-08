@@ -29,7 +29,7 @@ import numpy as np
 def clus_pcat_setup(maps,params,err=None):
 
     # ob = lion(raw_counts=True, auto_resize=True, visual=True)
-    ob = lion(band0=0, map_object=maps, auto_resize=True, make_post_plots=True, nsamp=100, residual_samples=100)
+    ob = lion(band0=0, map_object=maps, auto_resize=True, make_post_plots=False, nsamp=100, residual_samples=100)
     ob.main()
 
     # Have a commented list of all the settings here for testing usage.

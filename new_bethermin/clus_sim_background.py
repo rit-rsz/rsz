@@ -13,9 +13,40 @@
 # REVISION HISTORY :
 #
 ################################################################################
+import numpy as np
+import sys
+sys.path.append('../utilities')
+import config
+from clus_popmap import clus_popmap
+from clus_get_clusparams import clus_get_clusparams
+from clus_get_data import clus_get_data
+from clus_format_bethermin import clus_format_bethermin
 
-def clus_sim_background(clusname,simradave,genbethermin=1,genpowerlaw=0,fluxcut=0,saveplots=1,savemaps=0,
+def clus_sim_background(clusname,genbethermin=1,fluxcut=0,saveplots=1,savemaps=0,genpowerlaw=0,\
             genradave=1,addnoise=0,yeslens=1,resolution='fr',nsim=0,bolocam=0,verbose=1,errmsg=None):
+
+    clusters = ['a0370','a1689','a1835','a2218','a2219','a2390',
+              'cl0024','ms0451','ms1054','ms1358','rxj0152','rxj1347']
+
+    clusters = clusname #Is this how you select the one that you want to be working on???
+
+    nclust = len(clusters)
+
+    nsim = 300
+    fluxcut == [[10**(-np.arrage(6)+2))],0]
+
+    for iclust in range(nclust):
+
+        # Line for the output save file path
+
+        for isim in range(nsim):
+
+            print('On sim ' + str(isim+1) + 'of' + str(nsims))
+
+            if icut == 0:
+                genbethermin == 1
+            else:
+                genbethermin == 0
 
         # Welcome the user
         print(' ')
@@ -50,102 +81,97 @@ def clus_sim_background(clusname,simradave,genbethermin=1,genpowerlaw=0,fluxcut=
                 print('clus_get_data exited with error: ' + err)
             exit()
 
-        #  Now generate the beam maps for the three colors
-        if verbose:
-            print('Generating beam maps.')
 
         ncols =  len(maps)
         wave = [250.,350.,500.] # In units of um
+        fwhm = [17.6, 23.9, 35.2]
 
         if resolution == 'fr':
+            '''no idea if this is still correct for new pixsize gaussian generation'''
             pixsize = np.repeat(2.,ncols)
 
         else:
-            pixsize = [6.,6.,6.]
+            pixsize = [6.0, 8.33333, 12.0]
 
         if bolocam:
+            'this is going to be different for bolocam, but not sure what...'
             pixsize = [pixsize,6]
             wave = [wave,2100.]
-
-        # these were string arrays
-        psffiles =  []
-        bands = []
 
         for icol in range(ncol):
             if icol < 3:
                 bands[icol] = maps['band']
             else:
                 bands[icol] = 'BOLOCAM'
-            psffiles[icol] = str(CLUSBOX+bands[icol]+'_psf.fits')
 
-            '''This is a new script to look at'''
-            SMAP_WRITE_FITSBEAM
-
-        print(' ')
+            psffiles[icol] = str(config.CLUSBOX + bands[icol] + '_psf.fits')
 
         if genbethermin:
-            # Now fetch a bunch of lookup stuff and generate the source
-            #  matrix if requested
             if verbose:
                 print('Setting up bethermin model.')
 
-            # This fetches the cold andstarburst templates
-            tpldir = CLUSDATA + 'lookup/'
-            '''another one'''
-            cold = MRDFITS(tpldir+'ias_cold.fits',1)
-            starburst = MRDFITS(tpldir+'ias_starburst.fits',1)
-
-            # this is required for later if required
-            # Need to find out which are inputs or outputs and order of the returns
-            if 0: # if what is 0???
-                READCOL,'pk500mu_nfw_3Rvir_v230709.out',k_theta_m,cl_m_lensed,$
-                cl_m_1h, cl_m_2h, cl_m_tot
-
-            if gendlots:
-                # There was code here but it is commented out in the idl version
-                # May be depreciated
-                something = None
-            else:
-                dlots = MRDFITS(str(tpldir,'dNdLogLdzdOmega.fits'),1)
-
             print('Staring Bethermin.')
 
-            # These inputs will have to be changed inorder to account for the pointer things
-            # Test is something like the maps for racen
-            SMAP_GENERATE_BETHERMIN(dlots,cold,starburst,psffiles,bethfile,AREA=0.25,
-                BANDS=bands,WAVE=wave,RACEN=maps[0]['astr']['crval'][0],DECCEN=(*maps[0]).astr.crval[1],
-                CATFILE=STRING(!CLUSSBOX,bethcat),OUTDIR=!CLUSSBOX,VERBOSE=verbose)
+            sim_maps = genmap(wave,pixsize,fwhm)
 
-            if genpowerlaw:
-                if verbose:
-                    print('Setting up power law model.')
+            ncols == 1
+            bethcat = catfile
+            bethfile = outfile
 
-                catfile = 'powerlawcat.fits'
-                outfile = 'powerlawimage'
-
-                knotpos = [1e-1,2,5,10,20,45,100,200,450,1000] * 1e-3
-                knotval = [10.07,7.05,6.25,5.919,5.139,4.038,2.596,1.42,0.57,-0.45]
-
-                '''Another new script'''
-                # Not sure how often this will even be used
-                BROKEN_IMAGE(outfile,knotpos,knotval,AREA=0.01,NFLUXES=1e6,racen=(*maps[0]).astr.crval[0],
-                deccen=(*maps[0]).astr.crval[1],CATFILE=catfile,PIXSIZE=1.0)
-
-                catmv = str('powerlaw*'+CLUSBOX)
-                # There is a spawn function which I'm not sure how to use
-                # Ben or Victoria have more experience
-                # SPAWN,STRING('mv ',catmv)
-
-                ncols == 1
-                bethcat = catfile
-                bethfile = outfile
 
             for icol in range(ncols):
-                '''another one'''
-                CLUS_FORMAT_BETHERMIN(icol,STRING(!CLUSSBOX,bethcat),STRING(!CLUSSBOX,bethfile),
+                clus_format_bethermin(icol,STRING(!CLUSSBOX,bethcat),STRING(!CLUSSBOX,bethfile),
                     bands[icol],clusname,pixsize[icol],FLUXCUT=fluxcut,ZZERO=params.z,RETCAT=lozcat)
 
                 if yeslens == 1:
 
                     print('Starting ', clusname, ' lens run for ', bands[icol], '...')
-                
+
+                    # create output data files for lenstool
+                    lnfile = config.CLUSHOME + 'model/' + clusname + '/' + clusname + '_cat.cat'
+                    ltfile = config.CLUSSBOX + clusname + '_image_' + bands[icol] + '.dat'
+
+                    # creates a symbolic link to this file in the current working directory
+                    subprocess.Popen(['ln -s %s' %(lnfile)],shell=True)
+
+                    # calling lenstool program
+                    subprocess.Popen(['/usr/local/bin/lenstool', config.CLUSHOME + 'cluster_analysis/model/' + clusname + '/bestopt.par', '-n'],shell=True)
+
+                    # i'm assuming that this moves the output from lenstool to the directory CLUSSBOX and renames it
+                    subprocess.Popen(['mv image.all %s' %(ltfile)],shell=True)
+
+                    # post process cleanup
+                    os.remove(clusname+'_cat.cat')
+                    os.remove('*.fits')
+                    os.remove('*.dat')
+                    os.remove('*.out')
+
+                else :
+                    ltfile = config.CLUSHOME + 'model/' + clusname + '/' + clusname + '_cat.cat'
+
+                # populate the sim maps with sources from lenstool
+                clus_popmap(ltfile,maps[icol],MAP=outmap,LOZ=lozcat)
+
+                if icol < 3 :
+                    whpl = np.where(maps[icol]['flag'] > 0) # check that this is right
+                    outmap[whpl] = np.nan
+
+                maps[icol]['signal'] = outmap
+
+
+                # adding random noise to the signal map
+                if addnoise == 1 :
+                    print('Adding noise to sim maps')
+
+                    confnoise = 0.0
+                    noisemap = np.random.random(seed,) #noisemap = RANDOMN(SEED,(*maps[icol]).astr.naxis)
+                    (maps[icol]['signal'] = maps[icol]['signal'] + (maps[icol]['mask']*maps[icol]['error'])*noisemap)
+
+                if savemaps == 1 :
+                    # save the current sim map in /data/sim_clusters
+
+                elif savemaps == 2 :
+                    # save the current sim map in the 0200 naming convention in /data/bethermin_sims
+
+                if saveplots == 1 :
+                    # make some plots

@@ -40,6 +40,7 @@ def clus_subtract_xcomps(maps, simflag=0, verbose=1, superplot=0):
         if verbose:
             print('On band %s' %(maps[i]['band']))
         #create a new image for the PSW band that is the same shape and beamsize as the reference images
+        #do this by convolving the srcrm map with a gaussian kernel
         width = sqrt(maps[i]['widtha']**2 - maps[0]['widtha']**2) / maps[0]['pixsize']
         kern = makeGaussian(15, 15, fwhm =width, center=None)
         inmap = maps[0]['srcrm']
@@ -59,7 +60,7 @@ def clus_subtract_xcomps(maps, simflag=0, verbose=1, superplot=0):
         PSW_array = xmap_align.flatten()
         ref_array = maps[i]['srcrm'].flatten()
 
-        #find the linear fit for PSW vs ref
+        #find the linear fit for PSW vs reference PMW / PLW
         slope, intercept, r_value, p_value, std_err = linregress(PSW_array, ref_array)
         y = slope * PSW_array + intercept
 

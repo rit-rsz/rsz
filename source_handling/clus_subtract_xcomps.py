@@ -65,8 +65,10 @@ def clus_subtract_xcomps(maps, simflag=0, verbose=1, superplot=0):
 
 
         if superplot:
-            plt.plot(PSW_array, PMW_array, 'x')
-            plt.plot(PSW_array, y, c='red')
+            plt.plot(PSW_array, PMW_array, 'x', label='data')
+            plt.ylabel('PMW map')
+            plt.plot(PSW_array, y, c='red', label='fit')
+            plt.xlabel('PSW map')
             plt.show()
 
 

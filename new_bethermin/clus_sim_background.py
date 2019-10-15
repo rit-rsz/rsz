@@ -2,8 +2,9 @@
 ################################################################################
 # NAME : clus_sim_background.py
 # DATE STARTED : September 27, 2019
-# AUTHORS : Dale Mercado
-# PURPOSE : The wrapper for Conley's Bethermin simmulation generator. fluxcut is in Jy(/beam if you like).
+# AUTHORS : Dale Mercado & Victoria Butler
+# PURPOSE : The wrapper for Conley's Bethermin simmulation generator.
+#           Fluxcut is in Jy(/beam if you like).
 # EXPLANATION :
 # CALLING SEQUENCE :
 # INPUTS :
@@ -14,59 +15,46 @@
 #
 ################################################################################
 import numpy as np
-import sys
+import sys, time, subprocess, os
 sys.path.append('../utilities')
+sys.path.append('../new_bethermin')
+sys.path.append('../source_handling')
+from genmap import genmap_gauss
 import config
-from clus_popmap import clus_popmap
+# from clus_popmap import clus_popmap
 from clus_get_clusparams import clus_get_clusparams
 from clus_get_data import clus_get_data
 from clus_format_bethermin import clus_format_bethermin
 
-def clus_sim_background(clusname,genbethermin=1,fluxcut=0,saveplots=1,savemaps=0,genpowerlaw=0,\
-            genradave=1,addnoise=0,yeslens=1,resolution='fr',nsim=0,bolocam=0,verbose=1,errmsg=None):
+def clus_sim_background(genbethermin=1,fluxcut=0,saveplots=1,savemaps=0,genpowerlaw=0,\
+            genradave=1,addnoise=0,yeslens=1,resolution='fr',nsim=1,bolocam=0,verbose=1,errmsg=None):
 
     clusters = ['a0370','a1689','a1835','a2218','a2219','a2390',
               'cl0024','ms0451','ms1054','ms1358','rxj0152','rxj1347']
 
-    clusters = clusname #Is this how you select the one that you want to be working on???
-
     nclust = len(clusters)
 
     nsim = 300
-    fluxcut == [[10**(-np.arrage(6)+2))],0]
+    # fluxcut == [[10**(-np.arrage(6)+2))],0] # was used for doing radial average maps
+
+    # Welcome the user
+    print(' ')
+    if verbose:
+        'Welcome to background simulator v 1.0 Python Edition'
+    print(' ')
 
     for iclust in range(nclust):
 
-        # Line for the output save file path
-
-        for isim in range(nsim):
-
-            print('On sim ' + str(isim+1) + 'of' + str(nsims))
-
-            if icut == 0:
-                genbethermin == 1
-            else:
-                genbethermin == 0
-
-        # Welcome the user
-        print(' ')
-        if verbose:
-            'Welcome to background simulator v 1.0 Python Edition'
-        print(' ')
-
-        # Set up ps plotting if appropriate
-        if saveplots:
-            '''Need to create Nuplot for this aswell'''
-
         # Set up some path handling
-        bethfile = str('bethermin_'+ clusname)
-        bethcat = str('bethermin_'+ clusname + '_cat.fits')
+        bethfile = str('bethermin_'+ clusters[iclust])
+        bethcat = str('bethermin_'+ clusters[iclust] + '_cat.fits')
 
         # First get the cluster parameters
         if verbose:
-            print('Fetching cluster parameters')
+            print('Fetching cluster %s parameters' %(clusters[iclust]))
+
         # Use the version of clusparams that we have already worked with
-        params, err = clus_get_clusparams(clusname,verbose=verbose)
+        params, err = clus_get_clusparams(clusters[iclust],verbose=verbose)
         if err:
             if verbose:
                 print('clus_get_clusparams exited with error: ' + err)
@@ -74,17 +62,19 @@ def clus_sim_background(clusname,genbethermin=1,fluxcut=0,saveplots=1,savemaps=0
 
         # now get the spire maps
         if verbose:
-            print('Fetching SPIRE maps.')
-        maps, err = clus_get_data(clusname=clusname, resolution=resolution, bolocam=bolocam, verbose=verbose)
+            print('Fetching SPIRE maps for %s' %(clusters[iclust]))
+
+        maps, err = clus_get_data(clusname=clusters[iclust], resolution=resolution, bolocam=bolocam, verbose=verbose)
         if err:
             if verbose:
                 print('clus_get_data exited with error: ' + err)
             exit()
 
-
+        # set some initial params, these don't usually change
         ncols =  len(maps)
-        wave = [250.,350.,500.] # In units of um
+        wave = [250.,350.,500.] # In units of microns
         fwhm = [17.6, 23.9, 35.2]
+        bands = ncols * [0]
 
         if resolution == 'fr':
             '''no idea if this is still correct for new pixsize gaussian generation'''
@@ -98,80 +88,85 @@ def clus_sim_background(clusname,genbethermin=1,fluxcut=0,saveplots=1,savemaps=0
             pixsize = [pixsize,6]
             wave = [wave,2100.]
 
-        for icol in range(ncol):
+        for icol in range(ncols):
             if icol < 3:
-                bands[icol] = maps['band']
+                bands[icol] = maps[icol]['band']
             else:
                 bands[icol] = 'BOLOCAM'
 
-            psffiles[icol] = str(config.CLUSBOX + bands[icol] + '_psf.fits')
+        for isim in range(nsim):
+            print('Starting sim %s of %s sims' %(isim,nsim))
 
-        if genbethermin:
-            if verbose:
-                print('Setting up bethermin model.')
+            if genbethermin:
+                if verbose:
+                    print('Staring Bethermin.')
 
-            print('Staring Bethermin.')
-
-            sim_maps = genmap(wave,pixsize,fwhm)
-
-            ncols == 1
-            bethcat = catfile
-            bethfile = outfile
-
+                gm = genmap_gauss(wave=wave, pixsize=pixsize, fwhm=fwhm)
+                sim_maps = gm.generate(0.25,verbose=True)
 
             for icol in range(ncols):
-                clus_format_bethermin(icol,STRING(!CLUSSBOX,bethcat),STRING(!CLUSSBOX,bethfile),
-                    bands[icol],clusname,pixsize[icol],FLUXCUT=fluxcut,ZZERO=params.z,RETCAT=lozcat)
+                lozcat = clus_format_bethermin(icol,sim_maps,maps,bands[icol],clusters[iclust],
+                                        pixsize[icol],fluxcut=fluxcut,zzero=params['z'])
 
                 if yeslens == 1:
-
-                    print('Starting ', clusname, ' lens run for ', bands[icol], '...')
+                    ''' format bethermin needs to spit out only one cat file for the band it's on
+                        then you need to loop through lenstool and make it do a new run for each catfile.
+                        lenstool is dumb and doesn't know which band it's on, it just re-reads the same
+                        file each time, so we need to make sure we re-write which one we are on
+                    '''
+                    print('Starting ', clusters[iclust], ' lens run for ', bands[icol], '...')
 
                     # create output data files for lenstool
-                    lnfile = config.CLUSHOME + 'model/' + clusname + '/' + clusname + '_cat.cat'
-                    ltfile = config.CLUSSBOX + clusname + '_image_' + bands[icol] + '.dat'
+                    lnfile = config.HOME + 'model/' + clusters[iclust] + '/' + clusters[iclust] + '_cat.cat'
+                    ltfile = config.SIMBOX + clusters[iclust] + '_image_' + bands[icol] + '.dat'
+
 
                     # creates a symbolic link to this file in the current working directory
                     subprocess.Popen(['ln -s %s' %(lnfile)],shell=True)
 
-                    # calling lenstool program
-                    subprocess.Popen(['/usr/local/bin/lenstool', config.CLUSHOME + 'cluster_analysis/model/' + clusname + '/bestopt.par', '-n'],shell=True)
+                    # calling lenstool program, waiting to continue until program finishes
+                    subprocess.call(['/usr/local/bin/lenstool %s -n' %(config.HOME + 'model/' + clusters[iclust] + '/bestopt.par')],shell=True)
 
                     # i'm assuming that this moves the output from lenstool to the directory CLUSSBOX and renames it
                     subprocess.Popen(['mv image.all %s' %(ltfile)],shell=True)
-
                     # post process cleanup
-                    os.remove(clusname+'_cat.cat')
-                    os.remove('*.fits')
-                    os.remove('*.dat')
-                    os.remove('*.out')
+                    ''' deletes lenstool output files from current working directory (/home/person/rsz/new_bethermin)'''
+                    os.remove(clusters[iclust]+'_cat.cat')
+                    os.remove('/new_bethermin/*.fits')
+                    os.remove('/new_bethermin/*.dat')
+                    os.remove('/new_bethermin/*.out')
 
                 else :
-                    ltfile = config.CLUSHOME + 'model/' + clusname + '/' + clusname + '_cat.cat'
+                    ltfile = config.SIM + 'model/' + clusters[iclust] + '/' + clusters[iclust] + '_cat.cat'
 
                 # populate the sim maps with sources from lenstool
-                clus_popmap(ltfile,maps[icol],MAP=outmap,LOZ=lozcat)
-
-                if icol < 3 :
-                    whpl = np.where(maps[icol]['flag'] > 0) # check that this is right
-                    outmap[whpl] = np.nan
-
+                outmap = clus_popmap(ltfile,maps[icol],bands[icol],clusters[iclust],pixsize[icol],LOZ=lozcat)
+                #
+                # if icol < 3 :
+                #     whpl = np.where(maps[icol]['flag'] > 0) # check that this is right
+                #     outmap[whpl] = np.nan
+                #
                 maps[icol]['signal'] = outmap
 
 
                 # adding random noise to the signal map
-                if addnoise == 1 :
-                    print('Adding noise to sim maps')
+                # if addnoise == 1 :
+                #     print('Adding noise to sim maps')
+                #
+                #     confnoise = 0.0
+                #     noisemap = np.random.random(seed,) #noisemap = RANDOMN(SEED,(*maps[icol]).astr.naxis)
+                #     (maps[icol]['signal'] = maps[icol]['signal'] + (maps[icol]['mask']*maps[icol]['error'])*noisemap)
 
-                    confnoise = 0.0
-                    noisemap = np.random.random(seed,) #noisemap = RANDOMN(SEED,(*maps[icol]).astr.naxis)
-                    (maps[icol]['signal'] = maps[icol]['signal'] + (maps[icol]['mask']*maps[icol]['error'])*noisemap)
+                # if savemaps == 1 :
+                #     # save the current sim map in /data/sim_clusters
+                #
+                # elif savemaps == 2 :
+                #     # save the current sim map in the 0200 naming convention in /data/bethermin_sims
+                #
+                # if saveplots == 1 :
+                #     # make some plots
 
-                if savemaps == 1 :
-                    # save the current sim map in /data/sim_clusters
-
-                elif savemaps == 2 :
-                    # save the current sim map in the 0200 naming convention in /data/bethermin_sims
-
-                if saveplots == 1 :
-                    # make some plots
+if __name__ == '__main__' :
+    clus_sim_background(genbethermin=1,fluxcut=0,saveplots=1,savemaps=0,genpowerlaw=0,\
+                        genradave=1,addnoise=0,yeslens=1,resolution='fr',nsim=1,bolocam=0,\
+                        verbose=1,errmsg=None)

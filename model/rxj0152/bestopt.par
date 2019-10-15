@@ -1,0 +1,87 @@
+Chi2tot: 251.691
+Chi2pos: 251.691
+Chi2formex: 0.000
+Chi2formey: 0.000
+Chi2l: 0.000
+log(Evidence) : -163.904
+runmode
+	reference     3 28.182720 -13.955638
+	image     0 
+	source    1 rxj0152_cat.cat 
+	inverse   0 0.100000 299
+	ampli	  1 1800 1.5  mu.fits
+	end
+image
+	multfile    0 mul1.cat
+	forme       0
+	z_m_limit  1 2.0 1 1.000 5.000 0.1000 
+	z_m_limit  2 3.0 1 1.000 5.000 0.1000 
+	z_m_limit  3 4.0 1 1.000 5.000 0.1000 
+	z_m_limit  4 5.0 1 1.000 5.000 0.1000 
+	mult_wcs    1
+	sigposArcsec   0.200000
+	end
+grille
+	nombre      128
+	nlentille   99
+	nlens_opt   0
+	end
+potentiel O1
+	profil       81
+	x_centre     -0.430
+	y_centre     -1.028
+	ellipticite     0.688
+	angle_pos       133.221
+	core_radius_kpc     97.881
+	cut_radius_kpc     1000.000
+	v_disp     1041.661
+	z_lens     0.8300
+	end
+limit O1
+	x_centre     1 -0.756 -0.466 0.010
+	y_centre     1 -0.959 -0.687 0.010
+	ellipticite     1 0.703 0.808 0.000
+	angle_pos     1 133.223 133.936 0.100
+	core_radius_kpc     1 90.147 99.939 0.100
+	v_disp    1 1003.015 1035.113 0.100
+	end
+potfile
+	filein  1 ../model/rxj0152/galsort.cat
+	zlens   0.830000
+	type    81
+	corekpc 0.150000
+	mag0    20.964000
+	sigma   0 158.000000 27.000000
+	cutkpc  0 45.000000 100.000000
+	slope   0 4.000000 4.200000
+	vdslope 0 4.000000 0.000000
+	end
+cline
+	dmax     150.000
+	algorithm   MARCHINGSQUARES
+	limitHigh   1.0
+	limitLow    0.100
+	end
+grande
+	iso         0 0 0.000 0.000 0.000
+	name        best
+	profil      0 0
+	contour     1 0
+	large_dist  0.300
+	end
+cosmologie
+	H0         70.000
+	omegaM     0.300
+	omegaX     0.700
+	omegaK     0.
+	wX         -1.000
+	end
+cosmolimit
+	omegaM		0 0.000 0.000
+	omegaX		0 0.000 0.000
+	wX		0 0.000 0.000
+	end
+champ
+	dmax  1800
+	end
+fini

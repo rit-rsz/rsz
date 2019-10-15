@@ -29,20 +29,10 @@ import numpy as np
 def clus_pcat_setup(maps,params,err=None):
 
     # ob = lion(raw_counts=True, auto_resize=True, visual=True)
-    ob = lion(band0=0, map_object=maps, auto_resize=True, make_post_plots=False, nsamp=100, residual_samples=100)
-    ob.main()
+    ob = lion(band0=0, map_object=maps, auto_resize=True, make_post_plots=False, nsamp=10, residual_samples=10)
+    x = ob.main()
 
-    # Have a commented list of all the settings here for testing usage.
-    #Need to figure out the order of all the args
-
-    exit()
     return x,err
-
-def clus_pcat_setup_python2():
-
-    ob = lion(band1=1, auto_resize=True, visual=True, make_post_plots=True, nsamp=1000, residual_samples=200)
-    ob.main()
-    exit()
 
 if __name__ == '__main__':
     clus_pcat_setup_python2()

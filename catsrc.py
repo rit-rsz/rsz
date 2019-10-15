@@ -83,7 +83,7 @@ class Catsrc():
         self.resolution = resolution
         self.ib_test = ib_test
         self.data_retrieval()
-        # self.source_removal()
+        self.source_removal()
         self.data_analysis()
 
     def data_retrieval(self):
@@ -163,62 +163,38 @@ class Catsrc():
 
         self.maps = maps
         self.params = params
-        return maps, params
 
-
-
+        return
 
     def source_removal(self):
         """
         Purpose : the purpose of this function is to act as a wrapper for the source removal script that
-        we are using. That used to be XID but most of this code has been depreciated.
+        we are using. That used to be XID but most of this code has been deprecated.
         Inputs : self.maps get passed by reference
         Outputs : None
         Class variables : self.maps gets passed in and set on the way out
         """
-        '''this should be in the source removal section of the code'''
-        '''This will be the working spot where pcat will be starting to be implemented'''
-        # We can't use this yet until it is set up in a way that we can feed it the maps that we
-        # are carrying, unclear where in this function this goes.
-        print('should print')
-        maps, err = clus_pcat_setup(self.maps,self.params)
-        exit()
-        '''End of Pcat coding block'''
 
-        #all of this stuff is depreciated from a time when XID + was being used.
-        if self.verbose:
-            print('Fetching regression catalogs')
-        cat, err = clus_get_cats(self.clusname,self.cattype,maps,savecat=self.savecat,
-                                  savemap=self.savemap, simmap=self.simmap, nsim=self.nsim, s2n=self.s2n,
-                                  verbose=self.verbose, resolution=self.resolution) #args need to be figured out
-        if err:
-            if self.verbose:
-                print('clus_get_cats exited with error: ' + err)
-            exit()
-        if self.verbose:
-            print('Band merging catalogs')
-        #this is probably going to be replaced with Richard's code and therefore be completley different.
-        xid, err = clus_get_xid(maps, cat, savemap=self.savemap, simmap=self.simmap, verbose=self.verbose)
-        if err:
-            if self.verbose:
-                print('clus_get_xid exited with error: ' + err)
-            exit()
+        # resid_maps, err = clus_pcat_setup(self.maps,self.params)
+        # plt.imsave('/home/butler/rsz/pcat_resid2.png',resid_maps[0],format='png')
+        # np.save('/home/butler/rsz/pcat_resid.npy',resid_maps)
+        self.maps = np.load('/home/butler/rsz/pcat_resid.npy')
 
         if self.verbose:
             print('Regressing and subtracting catalogs')
 
-        maps, err = clus_subtract_cat(maps, xid, verbose=self.verbose)
-        if err:
-            if self.verbose:
-                print('clus_subtract_cat exited with error: ' + err)
-            exit()
-
-        if self.verbose:
-            print('Generating residual source mask')
-
-        if not self.clusname:
-            if self.verbose:
-                print('Require a string array of cluster names as input, aborting!')
+        # maps, err = clus_subtract_cat(maps, resid_maps, verbose=self.verbose)
+        # if err:
+        #     if self.verbose:
+        #         print('clus_subtract_cat exited with error: ' + err)
+        #     exit()
+        #
+        # if self.verbose:
+        #     print('Generating residual source mask')
+        #
+        # if not self.clusname:
+        #     if self.verbose:
+        #         print('Require a string array of cluster names as input, aborting!')
 
         #This is commented out because the function hasn't been made yet.
         #The idea is to use residual mask to do some manual masking, but we haven't
@@ -232,7 +208,7 @@ class Catsrc():
         if self.verbose:
             print('Subtracting correlated componenets')
 
-        maps, err = clus_subtract_xcomps(maps, simflag=self.simmap, verbose=self.verbose)
+        maps, err = clus_subtract_xcomps(self.maps, simflag=self.simmap, verbose=self.verbose)
         if err:
             if self.verbose:
                 print('clus_subtract_xcomps exited with error: ' + err)
@@ -250,8 +226,9 @@ class Catsrc():
         if self.simmap == 0:
             if self.verbose:
                 print('Computing radial averages nsim=200')
-        self.maps
-        return maps
+        self.maps = maps
+
+        return
 
     def data_analysis(self):
         """

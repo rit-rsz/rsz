@@ -12,51 +12,101 @@
 # REVISION HISTORY :
 
 ##########################################################################
+from astropy.wcs.utils import skycoord_to_pixel
+from astropy.wcs import WCS
+from astropy.coordinates import SkyCoord
+import astropy.units as u
+import sys
+sys.path.append('../utilities')
+from gaussian import makeGaussian
+import matplotlib.pyplot as plt
+from astropy.io import fits
+from FITS_tools.hcongrid import hcongrid
+import numpy as np
 
+def clus_popmap(ltfile,maps,band,name,pixsize,loz=None):
 
-def clus_popmap(ltfile,copymap,MAP=outmap,LOZ=loz):
+    # read in the image.dat file
+    ra = []
+    dec = []
+    mag = []
+    with open(ltfile,'r') as f :
+        data = f.readlines()
+        for i in range(len(data)) :
+            val = data[i].strip().split(' ')
+            if i == 0 :
+                racent = float(val[-2])
+                deccent = float(val[-1])
+            else :
+                ra.append(float(val[1]))
+                dec.append(float(val[2]))
+                mag.append(float(val[-1]))
+    f.close()
+    # if len(loz) == 8 :
+    #     ra = [ra,loz['x']]
+    #     dec = [dec,loz['y']]
 
-'''
-  IF ~N_ELEMENTS(loz) THEN loz=0 ELSE loz=loz
+    naxis = maps['signal'].shape
+    crpix1 = int(naxis[0] / 2)
+    crpix2 = int(naxis[1] / 2)
+    refx = crpix1
+    refy = crpix2
 
-  READCOL,ltfile,dummy,type,racent,deccent,NUMLINE=1,$
-          FORMAT='A,A,F,F',/SILENT
+    # convert ra/dec to degrees
+    print(ra[0:10])
+    print(dec[0:10])
+    ra = [((-x / 3600.0) + refx) for x in ra]
+    dec = [((y / 3600.0) + refy) for y in dec]
+    print(ra[0:10])
+    print(dec[0:10])
 
-  READCOL,ltfile,id,ra,dec,xs,ys,theta,z,mag,SKIPLINE=1;,/SILENT
+    flux = [10.0**(-k/2.5) for k in mag]
+    # if len(loz) == 8 :
+    #     flux = [flux,loz['f']]
 
-  lozsize = SIZE(loz)
-  IF lozsize[2] EQ 8 THEN BEGIN
-     ra = [ra,loz.x]
-     dec = [dec,loz.y]
-  ENDIF
+    # header = maps['shead']
+    # wcs = WCS(header)
+    # coords = SkyCoord(ra=ra*u.deg,dec=dec*u.deg)
+    # x,y = skycoord_to_pixel(coords, wcs, origin=0)
+    x = [i / pixsize for i in ra]
+    y = [j / pixsize for j in dec]
+    print(x[0:10])
+    print(y[0:10])
 
-  ra = -ra / 3600. + REPLICATE(racent,N_ELEMENTS(ra))
-  dec = dec /3600. + REPLICATE(deccent,N_ELEMENTS(dec))
-  ;; this 4 shouldn't be here and should be removed if you rerun sims
-  flux = 10.^(-mag / 2.5); / 4.
-  IF lozsize[2] EQ 8 THEN BEGIN
-     flux = [flux,loz.f]
-  ENDIF
+    x_size = maps['signal'].shape[0]
+    y_size = maps['signal'].shape[1]
+    outmap = np.zeros((x_size,y_size))
+    for i in range(len(flux)):
+        kern = makeGaussian(y_size,x_size, fwhm = 3, center=(x[i],y[i]))
+        kern = kern / np.max(kern)
+        norm = flux[i]
+        psf = kern * norm
+        outmap = outmap + psf
+        # plt.imshow(outmap)
+        # plt.show()
 
-  AD2XY,ra,dec,copymap.astr,x,y
+    # plt.imshow(outmap)
+    plt.imsave('/home/butler/rsz/popmap.png',outmap,format='png')
+    plt.show()
 
-  psf = copymap.psf ;/ TOTAL(copymap.psf)
+    return
 
-  outmap = FLTARR(copymap.astr.naxis)
-  FOR isrc=0l,N_ELEMENTS(ra) - 1l DO BEGIN
-     IF x[isrc] GE 0 and x[isrc] LT copymap.astr.naxis[0] AND $
-        y[isrc] GE 0 AND y[isrc] LT copymap.astr.naxis[1] THEN $
-           outmap[x[isrc],y[isrc]] = outmap[x[isrc],y[isrc]] + flux[isrc]
-  ENDFOR
+    # hdx = fits.PrimaryHDU(maps['signal'],maps['shead'])
+    # sz = fits.PrimaryHDU(outmap,hdx.header)
+    # sz.writeto(config.SIMBOX + 'lensedmap_' + name + '_' + band + '.fits')
 
-  outmap = CONVOLVE(outmap,psf)
-
-  ;outmap = IMAGE_MODEL(x,y,flux,copymap.astr.naxis[0],copymap.astr.naxis[1],psf)
-
-  outfile = STRING(!CLUSSBOX,'lensedmap_',copymap.name,'_',copymap.band,'.fits')
-  WRITEFITS,outfile,outmap,copymap.shead
-
-  RETURN
-
-END
-'''
+if __name__ == '__main__':
+    import sys
+    sys.path.append('../utilities')
+    sys.path.append('../source_handling')
+    from clus_get_data import clus_get_data
+    import config
+    clusname = 'a0370'
+    resolution = 'nr'
+    bolocam = None
+    verbose = 1
+    pixsize = [6.0, 8.33333, 12.0]
+    maps, err = clus_get_data(clusname=clusname, resolution=resolution, bolocam=bolocam, verbose=verbose)
+    band = maps[2]['band']
+    ltfile = config.SIMBOX + 'a0370' + '_image_' + band + '.dat'
+    clus_popmap(ltfile,maps[2],band,'a0370',pixsize[2])

@@ -1,0 +1,88 @@
+Chi2tot: 27.750
+Chi2pos: 27.750
+Chi2formex: 0.000
+Chi2formey: 0.000
+Chi2l: 0.000
+log(Evidence) : -41.216
+runmode
+	reference     3 209.960660 62.518155
+	source    1 ms1358_cat.cat 
+	inverse   0 0.010000 3363
+	ampli	  1 1800 1.5  mu.fits
+	end
+image
+	multfile    0 mul.cat
+	forme       0
+        z_m_limit  1 3.0 1 0.500 3.000 0.1000 
+        z_m_limit  2 4.0 1 0.500 3.000 0.1000 
+        z_m_limit  3 5.0 1 0.500 3.000 0.1000 
+        z_m_limit  4 6.0 1 0.500 3.000 0.1000 
+        z_m_limit  5 7.0 1 0.500 3.000 0.1000 
+        z_m_limit  6 8.0 1 0.500 3.000 0.1000 
+        z_m_limit  7 9.0 1 0.500 3.000 0.1000 
+	sigposArcsec   0.200000
+	end
+grille
+	nombre      128
+	nlentille   99
+	nlens_opt   0
+	end
+potentiel O1
+	profil       81
+	x_centre     0.000
+	y_centre     0.000
+	ellipticite     0.453
+	angle_pos       72.721
+	core_radius_kpc     83.910
+	cut_radius_kpc     1000.000
+	v_disp     1075.166
+	z_lens     0.3280
+	end
+limit O1
+	ellipticite     3 0.446 0.091 0.000
+	angle_pos     3 72.492 1.230 0.100
+	core_radius_kpc     3 85.536 18.173 0.100
+	v_disp    3 1077.036 69.577 0.100
+	end
+potfile
+	filein  1 ../model/ms1358/galsort.cat
+	zlens   0.328000
+	type    81
+	corekpc 0.500000
+	mag0    17.500000
+	sigma   3 217.17 42.671496
+	cutkpc  3 44.570002 51.557343
+	slope   0 2.500000 4.200000
+	vdslope 0 4.000000 0.000000
+	vdscat 0 0.000000 0.000000
+	rcutscat 0 0.000000 0.000000
+	end
+cline
+	dmax     150.000
+	algorithm   MARCHINGSQUARES
+	limitHigh   1.0
+	limitLow    0.100
+	end
+grande
+	iso         0 0 0.000 0.000 0.000
+	name        best
+	profil      0 0
+	contour     1 0
+	large_dist  0.300
+	end
+cosmologie
+	H0         70.000
+	omegaM     0.300
+	omegaX     0.700
+	omegaK     0.
+	wX         -1.000
+	end
+cosmolimit
+	omegaM		0 0.000 0.000
+	omegaX		0 0.000 0.000
+	wX		0 0.000 0.000
+	end
+champ
+	dmax 1800
+	end
+fini

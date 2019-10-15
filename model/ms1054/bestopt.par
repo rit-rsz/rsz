@@ -1,0 +1,47 @@
+runmode
+	reference   3 164.2459 -3.6265267
+        source    1 ms1054_cat.cat
+	inverse   0 0.010000 3363
+	ampli     1 1800 1.5 mu.fits
+	end
+grille
+	nombre      128
+	polaire     0
+	nlentille   99
+	nlens_crit   0
+	end
+potentiel 1
+	profil     81
+	x_centre     0.
+	y_centre     0.0
+	ellipticite     0.61
+	angle_pos     -0.
+	core_radius_kpc  250.
+	cut_radius_kpc   2400.
+	v_disp     1150.
+	z_lens     0.881 
+	end
+cline
+	nplan    1 2.5
+	dmax     0.000000
+	pas      1.500000
+	end
+grande
+	iso         0 0 0.000000 0.000000 0.000000
+	name        best
+	profil      0 0
+	contour     1 0
+	large_dist  0.300000
+	end
+cosmologie
+	H0        70.000000
+	omega     0.300000
+	lambda    0.700000
+	end
+champ
+	xmin -97.2934
+	xmax 233.707
+	ymin -96.612
+	ymax 234.388
+	end
+fini

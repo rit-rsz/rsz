@@ -39,6 +39,7 @@ def clus_subtract_xcomps(maps, simflag=0, verbose=1, superplot=0):
     for i in range(1, ncols):
         if verbose:
             print('On band %s' %(maps[i]['band']))
+
         #create a new image for the PSW band that is the same shape and beamsize as the reference images
         width = sqrt(maps[i]['widtha']**2 - maps[0]['widtha']**2) / maps[0]['pixsize']
         kern = makeGaussian(15, 15, fwhm =width, center=None)

@@ -154,8 +154,8 @@ def clus_add_sziso(maps,yin,tin,params,ib_test,
                 szinp = hcongrid(hdu.data,hdu.header,hdx.header)
 
                 #Used to check the alligned sz effect image
-                sz = fits.PrimaryHDU(szinp,hdx.header)
-                sz.writeto('test.fits')
+                # sz = fits.PrimaryHDU(szinp,hdx.header)
+                # sz.writeto('test.fits')
 
             # Combine the original signal with the sz effect
             '''TESTING : For now just passing through the sz signal only'''

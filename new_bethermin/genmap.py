@@ -482,10 +482,11 @@ class genmap_gauss :
             if self._returntruth:
                 maps.append(truthtable)
 
-        # plt.imshow(maps[2])
-        # plt.title('500 micron')
+        plt.imshow(maps[2])
+        plt.title('500 micron')
         # plt.show()
-        # print(maps[-1]) # shows the truthtable
+        print(len(maps[-1]['fluxdens'])) # shows the truthtable
+        # print(maps[2].shape)
         return maps
 
 if __name__ == '__main__':

@@ -1,0 +1,2650 @@
+Chi2tot: 239.9879
+Chi2pos: 239.988
+Chi2formex: 0.000
+Chi2formey: 0.000
+Chi2l: 0.000
+log(Evidence) : -219.0
+#c13.0 z:2.806 dlsds:0.886 
+#c12.0 z:2.649 dlsds:0.883 
+#c11.0 z:2.608 dlsds:0.882 
+#c10.0 z:2.342 dlsds:0.875 
+n_Warning: 1
+runmode
+	reference     3 248.954604 66.212242
+	source     1 a2218_cat.cat
+	inverse    0 3363
+	ampli     1 1800 1.5  mu.fits	
+	end
+image
+        multfile    0 mul.cat
+        forme       0
+        z_m_limit  1 3.0 1 0.500 3.000 0.1000 
+        z_m_limit  2 4.0 1 0.500 3.000 0.1000 
+        z_m_limit  3 5.0 1 0.500 3.000 0.1000 
+        z_m_limit  4 6.0 1 0.500 3.000 0.1000 
+        z_m_limit  5 7.0 1 0.500 3.000 0.1000 
+        z_m_limit  6 8.0 1 0.500 3.000 0.1000 
+        z_m_limit  7 9.0 1 0.500 3.000 0.1000 
+        sigposArcsec   0.200000
+        end
+grille
+	nombre      128
+	nlentille   99
+	nlens_crit  0
+	nlens_opt   0
+	end
+potentiel O1
+	profil     81
+	x_centre     3.509
+	y_centre     21.269
+	ellipticite     0.044
+	angle_pos     37.659
+	core_radius  20.193
+	core_radius_kpc     58.802
+	cut_radius  259.126
+	cut_radius_kpc     754.557
+	v_disp     694.255
+	z_lens     0.171
+	end
+potentiel O2
+	profil     81
+	x_centre     -15.444
+	y_centre     -20.760
+	ellipticite     0.368
+	angle_pos     9.140
+	core_radius  38.156
+	core_radius_kpc     111.107
+	cut_radius  529.723
+	cut_radius_kpc     1542.519
+	v_disp     987.318
+	z_lens     0.171
+	end
+potentiel O3
+	profil     81
+	x_centre     -0.480
+	y_centre     0.070
+	ellipticite     0.460
+	angle_pos     52.400
+	core_radius  3.270
+	core_radius_kpc     9.521
+	cut_radius  94.913
+	cut_radius_kpc     276.380
+	v_disp     513.047
+	z_lens     0.171
+	end
+potentiel O4
+	profil     81
+	x_centre     -16.044
+	y_centre     -10.341
+	ellipticite     0.180
+	angle_pos     80.400
+	core_radius  0.311
+	core_radius_kpc     0.905
+	cut_radius  0.514
+	cut_radius_kpc     1.497
+	v_disp     414.978
+	z_lens     0.171
+	end
+potentiel O5
+	profil     81
+	x_centre     -46.110
+	y_centre     -49.135
+	ellipticite     0.199
+	angle_pos     59.400
+	core_radius  0.764
+	core_radius_kpc     2.223
+	cut_radius  81.659
+	cut_radius_kpc     237.785
+	v_disp     280.309
+	z_lens     0.171
+	end
+potentiel 6.00000
+	profil     81
+	x_centre     9.160
+	y_centre     -96.644
+	ellipticite     0.210
+	angle_pos     -23.300
+	core_radius  0.093
+	core_radius_kpc     0.271
+	cut_radius  2.057
+	cut_radius_kpc     5.988
+	v_disp     213.410
+	z_lens     0.171
+	end
+potentiel 7.00000
+	profil     81
+	x_centre     -48.622
+	y_centre     -96.201
+	ellipticite     0.453
+	angle_pos     -67.400
+	core_radius  0.111
+	core_radius_kpc     0.323
+	cut_radius  2.453
+	cut_radius_kpc     7.144
+	v_disp     233.086
+	z_lens     0.171
+	end
+potentiel 8.00000
+	profil     81
+	x_centre     -21.892
+	y_centre     -97.011
+	ellipticite     0.218
+	angle_pos     -55.300
+	core_radius  0.023
+	core_radius_kpc     0.068
+	cut_radius  0.519
+	cut_radius_kpc     1.510
+	v_disp     107.168
+	z_lens     0.171
+	end
+potentiel 13.0000
+	profil     81
+	x_centre     -59.085
+	y_centre     -103.158
+	ellipticite     0.177
+	angle_pos     22.300
+	core_radius  0.012
+	core_radius_kpc     0.035
+	cut_radius  0.267
+	cut_radius_kpc     0.777
+	v_disp     76.882
+	z_lens     0.171
+	end
+potentiel 202.000
+	profil     81
+	x_centre     -48.061
+	y_centre     -89.190
+	ellipticite     0.242
+	angle_pos     19.000
+	core_radius  0.024
+	core_radius_kpc     0.070
+	cut_radius  0.532
+	cut_radius_kpc     1.550
+	v_disp     108.569
+	z_lens     0.171
+	end
+potentiel 215.000
+	profil     81
+	x_centre     -51.321
+	y_centre     -93.955
+	ellipticite     0.612
+	angle_pos     75.400
+	core_radius  0.013
+	core_radius_kpc     0.037
+	cut_radius  0.284
+	cut_radius_kpc     0.826
+	v_disp     79.257
+	z_lens     0.171
+	end
+potentiel 317.000
+	profil     81
+	x_centre     -25.512
+	y_centre     -87.956
+	ellipticite     0.019
+	angle_pos     -20.300
+	core_radius  0.013
+	core_radius_kpc     0.039
+	cut_radius  0.298
+	cut_radius_kpc     0.868
+	v_disp     81.228
+	z_lens     0.171
+	end
+potentiel 329.000
+	profil     81
+	x_centre     5.025
+	y_centre     -75.302
+	ellipticite     0.255
+	angle_pos     72.800
+	core_radius  0.051
+	core_radius_kpc     0.149
+	cut_radius  1.131
+	cut_radius_kpc     3.293
+	v_disp     158.265
+	z_lens     0.171
+	end
+potentiel 340.000
+	profil     81
+	x_centre     -96.015
+	y_centre     -83.994
+	ellipticite     0.323
+	angle_pos     62.500
+	core_radius  0.011
+	core_radius_kpc     0.031
+	cut_radius  0.237
+	cut_radius_kpc     0.689
+	v_disp     72.395
+	z_lens     0.171
+	end
+potentiel 386.000
+	profil     81
+	x_centre     28.891
+	y_centre     -82.943
+	ellipticite     0.043
+	angle_pos     -75.500
+	core_radius  0.011
+	core_radius_kpc     0.031
+	cut_radius  0.238
+	cut_radius_kpc     0.692
+	v_disp     72.530
+	z_lens     0.171
+	end
+potentiel 422.000
+	profil     81
+	x_centre     5.972
+	y_centre     -80.597
+	ellipticite     0.548
+	angle_pos     1.800
+	core_radius  0.013
+	core_radius_kpc     0.038
+	cut_radius  0.292
+	cut_radius_kpc     0.851
+	v_disp     80.467
+	z_lens     0.171
+	end
+potentiel 424.000
+	profil     81
+	x_centre     -89.776
+	y_centre     -64.197
+	ellipticite     0.147
+	angle_pos     16.000
+	core_radius  0.092
+	core_radius_kpc     0.267
+	cut_radius  2.031
+	cut_radius_kpc     5.914
+	v_disp     212.073
+	z_lens     0.171
+	end
+potentiel 430.000
+	profil     81
+	x_centre     -37.132
+	y_centre     -76.703
+	ellipticite     0.719
+	angle_pos     -47.100
+	core_radius  0.019
+	core_radius_kpc     0.055
+	cut_radius  0.415
+	cut_radius_kpc     1.210
+	v_disp     95.915
+	z_lens     0.171
+	end
+potentiel 435.000
+	profil     81
+	x_centre     -57.281
+	y_centre     -71.997
+	ellipticite     0.091
+	angle_pos     71.100
+	core_radius  0.041
+	core_radius_kpc     0.119
+	cut_radius  0.903
+	cut_radius_kpc     2.628
+	v_disp     141.386
+	z_lens     0.171
+	end
+potentiel 437.000
+	profil     81
+	x_centre     61.126
+	y_centre     -70.247
+	ellipticite     0.664
+	angle_pos     63.100
+	core_radius  0.032
+	core_radius_kpc     0.092
+	cut_radius  0.701
+	cut_radius_kpc     2.041
+	v_disp     124.591
+	z_lens     0.171
+	end
+potentiel 452.000
+	profil     81
+	x_centre     -40.484
+	y_centre     -72.454
+	ellipticite     0.201
+	angle_pos     88.900
+	core_radius  0.028
+	core_radius_kpc     0.081
+	cut_radius  0.615
+	cut_radius_kpc     1.792
+	v_disp     116.734
+	z_lens     0.171
+	end
+potentiel 477.000
+	profil     81
+	x_centre     59.255
+	y_centre     -75.096
+	ellipticite     0.503
+	angle_pos     -72.600
+	core_radius  0.013
+	core_radius_kpc     0.037
+	cut_radius  0.285
+	cut_radius_kpc     0.829
+	v_disp     79.384
+	z_lens     0.171
+	end
+potentiel 478.000
+	profil     81
+	x_centre     -17.941
+	y_centre     -76.730
+	ellipticite     0.013
+	angle_pos     -46.400
+	core_radius  0.011
+	core_radius_kpc     0.032
+	cut_radius  0.244
+	cut_radius_kpc     0.711
+	v_disp     73.520
+	z_lens     0.171
+	end
+potentiel 482.000
+	profil     81
+	x_centre     -4.090
+	y_centre     -59.906
+	ellipticite     0.055
+	angle_pos     3.600
+	core_radius  0.054
+	core_radius_kpc     0.158
+	cut_radius  1.201
+	cut_radius_kpc     3.496
+	v_disp     163.059
+	z_lens     0.171
+	end
+potentiel 493.000
+	profil     81
+	x_centre     46.677
+	y_centre     -70.894
+	ellipticite     0.065
+	angle_pos     -60.600
+	core_radius  0.018
+	core_radius_kpc     0.051
+	cut_radius  0.391
+	cut_radius_kpc     1.138
+	v_disp     93.041
+	z_lens     0.171
+	end
+potentiel 494.000
+	profil     81
+	x_centre     19.566
+	y_centre     -64.831
+	ellipticite     0.427
+	angle_pos     66.400
+	core_radius  0.031
+	core_radius_kpc     0.090
+	cut_radius  0.681
+	cut_radius_kpc     1.983
+	v_disp     122.816
+	z_lens     0.171
+	end
+potentiel 497.000
+	profil     81
+	x_centre     17.981
+	y_centre     -70.151
+	ellipticite     0.364
+	angle_pos     -82.400
+	core_radius  0.022
+	core_radius_kpc     0.063
+	cut_radius  0.478
+	cut_radius_kpc     1.391
+	v_disp     102.857
+	z_lens     0.171
+	end
+potentiel 526.000
+	profil     81
+	x_centre     -43.798
+	y_centre     -69.824
+	ellipticite     0.199
+	angle_pos     87.600
+	core_radius  0.012
+	core_radius_kpc     0.035
+	cut_radius  0.263
+	cut_radius_kpc     0.765
+	v_disp     76.253
+	z_lens     0.171
+	end
+potentiel 539.000
+	profil     81
+	x_centre     55.373
+	y_centre     -63.884
+	ellipticite     0.095
+	angle_pos     44.000
+	core_radius  0.043
+	core_radius_kpc     0.125
+	cut_radius  0.947
+	cut_radius_kpc     2.757
+	v_disp     144.816
+	z_lens     0.171
+	end
+potentiel 546.000
+	profil     81
+	x_centre     -79.399
+	y_centre     -51.754
+	ellipticite     0.698
+	angle_pos     15.400
+	core_radius  0.091
+	core_radius_kpc     0.265
+	cut_radius  2.015
+	cut_radius_kpc     5.867
+	v_disp     211.235
+	z_lens     0.171
+	end
+potentiel 565.000
+	profil     81
+	x_centre     -1.335
+	y_centre     -68.173
+	ellipticite     0.108
+	angle_pos     -72.800
+	core_radius  0.012
+	core_radius_kpc     0.034
+	cut_radius  0.258
+	cut_radius_kpc     0.752
+	v_disp     75.625
+	z_lens     0.171
+	end
+potentiel 594.000
+	profil     81
+	x_centre     21.614
+	y_centre     -56.910
+	ellipticite     0.323
+	angle_pos     -49.400
+	core_radius  0.039
+	core_radius_kpc     0.115
+	cut_radius  0.873
+	cut_radius_kpc     2.544
+	v_disp     139.084
+	z_lens     0.171
+	end
+potentiel 599.000
+	profil     81
+	x_centre     -1.583
+	y_centre     -58.874
+	ellipticite     0.132
+	angle_pos     85.700
+	core_radius  0.026
+	core_radius_kpc     0.075
+	cut_radius  0.567
+	cut_radius_kpc     1.650
+	v_disp     112.025
+	z_lens     0.171
+	end
+potentiel 607.000
+	profil     81
+	x_centre     31.768
+	y_centre     -49.141
+	ellipticite     0.775
+	angle_pos     -40.400
+	core_radius  0.045
+	core_radius_kpc     0.132
+	cut_radius  1.004
+	cut_radius_kpc     2.924
+	v_disp     149.113
+	z_lens     0.171
+	end
+potentiel 609.000
+	profil     81
+	x_centre     19.767
+	y_centre     -55.695
+	ellipticite     0.385
+	angle_pos     80.200
+	core_radius  0.028
+	core_radius_kpc     0.080
+	cut_radius  0.608
+	cut_radius_kpc     1.771
+	v_disp     116.066
+	z_lens     0.171
+	end
+potentiel 618.000
+	profil     81
+	x_centre     -43.194
+	y_centre     -53.556
+	ellipticite     0.154
+	angle_pos     88.500
+	core_radius  0.070
+	core_radius_kpc     0.204
+	cut_radius  1.546
+	cut_radius_kpc     4.501
+	v_disp     185.023
+	z_lens     0.171
+	end
+potentiel 627.000
+	profil     81
+	x_centre     -90.131
+	y_centre     -59.989
+	ellipticite     0.217
+	angle_pos     17.100
+	core_radius  0.014
+	core_radius_kpc     0.040
+	cut_radius  0.303
+	cut_radius_kpc     0.882
+	v_disp     81.893
+	z_lens     0.171
+	end
+potentiel 634.000
+	profil     81
+	x_centre     62.295
+	y_centre     -56.764
+	ellipticite     0.305
+	angle_pos     75.200
+	core_radius  0.024
+	core_radius_kpc     0.070
+	cut_radius  0.534
+	cut_radius_kpc     1.554
+	v_disp     108.702
+	z_lens     0.171
+	end
+potentiel 643.000
+	profil     81
+	x_centre     64.116
+	y_centre     -53.984
+	ellipticite     0.562
+	angle_pos     55.100
+	core_radius  0.014
+	core_radius_kpc     0.041
+	cut_radius  0.310
+	cut_radius_kpc     0.903
+	v_disp     82.866
+	z_lens     0.171
+	end
+potentiel 644.000
+	profil     81
+	x_centre     -17.061
+	y_centre     -58.225
+	ellipticite     0.194
+	angle_pos     -86.200
+	core_radius  0.011
+	core_radius_kpc     0.033
+	cut_radius  0.253
+	cut_radius_kpc     0.737
+	v_disp     74.864
+	z_lens     0.171
+	end
+potentiel 662.000
+	profil     81
+	x_centre     -4.409
+	y_centre     -55.993
+	ellipticite     0.247
+	angle_pos     -61.900
+	core_radius  0.013
+	core_radius_kpc     0.039
+	cut_radius  0.296
+	cut_radius_kpc     0.861
+	v_disp     80.944
+	z_lens     0.171
+	end
+potentiel 675.000
+	profil     81
+	x_centre     -19.964
+	y_centre     -54.137
+	ellipticite     0.096
+	angle_pos     -13.400
+	core_radius  0.028
+	core_radius_kpc     0.081
+	cut_radius  0.619
+	cut_radius_kpc     1.802
+	v_disp     117.065
+	z_lens     0.171
+	end
+potentiel 691.000
+	profil     81
+	x_centre     48.452
+	y_centre     -54.326
+	ellipticite     0.326
+	angle_pos     -24.100
+	core_radius  0.017
+	core_radius_kpc     0.049
+	cut_radius  0.372
+	cut_radius_kpc     1.082
+	v_disp     90.729
+	z_lens     0.171
+	end
+potentiel 699.000
+	profil     81
+	x_centre     -61.827
+	y_centre     -38.010
+	ellipticite     0.066
+	angle_pos     12.400
+	core_radius  0.084
+	core_radius_kpc     0.244
+	cut_radius  1.857
+	cut_radius_kpc     5.406
+	v_disp     202.771
+	z_lens     0.171
+	end
+potentiel 705.000
+	profil     81
+	x_centre     -50.983
+	y_centre     -53.305
+	ellipticite     0.328
+	angle_pos     -47.200
+	core_radius  0.011
+	core_radius_kpc     0.032
+	cut_radius  0.245
+	cut_radius_kpc     0.714
+	v_disp     73.690
+	z_lens     0.171
+	end
+potentiel 707.000
+	profil     81
+	x_centre     -8.646
+	y_centre     -42.813
+	ellipticite     0.344
+	angle_pos     78.300
+	core_radius  0.037
+	core_radius_kpc     0.109
+	cut_radius  0.829
+	cut_radius_kpc     2.415
+	v_disp     135.514
+	z_lens     0.171
+	end
+potentiel 727.000
+	profil     81
+	x_centre     -47.209
+	y_centre     -53.035
+	ellipticite     0.050
+	angle_pos     -55.000
+	core_radius  0.014
+	core_radius_kpc     0.041
+	cut_radius  0.312
+	cut_radius_kpc     0.909
+	v_disp     83.128
+	z_lens     0.171
+	end
+potentiel 745.000
+	profil     81
+	x_centre     -72.953
+	y_centre     -48.744
+	ellipticite     0.235
+	angle_pos     0.800
+	core_radius  0.018
+	core_radius_kpc     0.053
+	cut_radius  0.399
+	cut_radius_kpc     1.161
+	v_disp     93.971
+	z_lens     0.171
+	end
+potentiel 761.000
+	profil     81
+	x_centre     -90.973
+	y_centre     -32.582
+	ellipticite     0.768
+	angle_pos     -79.500
+	core_radius  0.053
+	core_radius_kpc     0.153
+	cut_radius  1.164
+	cut_radius_kpc     3.390
+	v_disp     160.567
+	z_lens     0.171
+	end
+potentiel 767.000
+	profil     81
+	x_centre     32.914
+	y_centre     -50.699
+	ellipticite     0.121
+	angle_pos     28.500
+	core_radius  0.010
+	core_radius_kpc     0.030
+	cut_radius  0.229
+	cut_radius_kpc     0.666
+	v_disp     71.160
+	z_lens     0.171
+	end
+potentiel 769.000
+	profil     81
+	x_centre     4.385
+	y_centre     -43.070
+	ellipticite     0.461
+	angle_pos     84.800
+	core_radius  0.028
+	core_radius_kpc     0.081
+	cut_radius  0.614
+	cut_radius_kpc     1.787
+	v_disp     116.591
+	z_lens     0.171
+	end
+potentiel 772.000
+	profil     81
+	x_centre     -68.820
+	y_centre     -37.475
+	ellipticite     0.088
+	angle_pos     -24.600
+	core_radius  0.037
+	core_radius_kpc     0.108
+	cut_radius  0.823
+	cut_radius_kpc     2.396
+	v_disp     134.991
+	z_lens     0.171
+	end
+potentiel 777.000
+	profil     81
+	x_centre     54.194
+	y_centre     -48.427
+	ellipticite     0.093
+	angle_pos     -79.100
+	core_radius  0.015
+	core_radius_kpc     0.045
+	cut_radius  0.339
+	cut_radius_kpc     0.986
+	v_disp     86.614
+	z_lens     0.171
+	end
+potentiel 785.000
+	profil     81
+	x_centre     -78.000
+	y_centre     -46.181
+	ellipticite     0.167
+	angle_pos     -29.300
+	core_radius  0.015
+	core_radius_kpc     0.045
+	cut_radius  0.340
+	cut_radius_kpc     0.989
+	v_disp     86.731
+	z_lens     0.171
+	end
+potentiel 790.000
+	profil     81
+	x_centre     -110.579
+	y_centre     -45.417
+	ellipticite     0.190
+	angle_pos     -7.800
+	core_radius  0.015
+	core_radius_kpc     0.045
+	cut_radius  0.342
+	cut_radius_kpc     0.996
+	v_disp     87.021
+	z_lens     0.171
+	end
+potentiel 795.000
+	profil     81
+	x_centre     -40.636
+	y_centre     -41.278
+	ellipticite     0.195
+	angle_pos     13.200
+	core_radius  0.030
+	core_radius_kpc     0.087
+	cut_radius  0.658
+	cut_radius_kpc     1.917
+	v_disp     120.747
+	z_lens     0.171
+	end
+potentiel 802.000
+	profil     81
+	x_centre     52.722
+	y_centre     -45.225
+	ellipticite     0.045
+	angle_pos     88.300
+	core_radius  0.013
+	core_radius_kpc     0.038
+	cut_radius  0.286
+	cut_radius_kpc     0.834
+	v_disp     79.639
+	z_lens     0.171
+	end
+potentiel 805.000
+	profil     81
+	x_centre     -44.114
+	y_centre     -46.363
+	ellipticite     0.060
+	angle_pos     78.300
+	core_radius  0.013
+	core_radius_kpc     0.038
+	cut_radius  0.288
+	cut_radius_kpc     0.839
+	v_disp     79.900
+	z_lens     0.171
+	end
+potentiel 832.000
+	profil     81
+	x_centre     -6.253
+	y_centre     -39.181
+	ellipticite     0.046
+	angle_pos     65.200
+	core_radius  0.021
+	core_radius_kpc     0.062
+	cut_radius  0.473
+	cut_radius_kpc     1.377
+	v_disp     102.338
+	z_lens     0.171
+	end
+potentiel 836.000
+	profil     81
+	x_centre     -12.881
+	y_centre     -37.097
+	ellipticite     0.519
+	angle_pos     55.400
+	core_radius  0.028
+	core_radius_kpc     0.081
+	cut_radius  0.615
+	cut_radius_kpc     1.791
+	v_disp     116.696
+	z_lens     0.171
+	end
+potentiel 844.000
+	profil     81
+	x_centre     2.349
+	y_centre     -35.075
+	ellipticite     0.059
+	angle_pos     25.200
+	core_radius  0.035
+	core_radius_kpc     0.103
+	cut_radius  0.781
+	cut_radius_kpc     2.273
+	v_disp     131.482
+	z_lens     0.171
+	end
+potentiel 848.000
+	profil     81
+	x_centre     -34.556
+	y_centre     -26.580
+	ellipticite     0.584
+	angle_pos     89.600
+	core_radius  0.038
+	core_radius_kpc     0.110
+	cut_radius  0.834
+	cut_radius_kpc     2.429
+	v_disp     135.924
+	z_lens     0.171
+	end
+potentiel 855.000
+	profil     81
+	x_centre     -41.678
+	y_centre     -41.565
+	ellipticite     0.165
+	angle_pos     22.600
+	core_radius  0.012
+	core_radius_kpc     0.034
+	cut_radius  0.258
+	cut_radius_kpc     0.750
+	v_disp     75.547
+	z_lens     0.171
+	end
+potentiel 864.000
+	profil     81
+	x_centre     22.587
+	y_centre     -36.269
+	ellipticite     0.624
+	angle_pos     23.500
+	core_radius  0.032
+	core_radius_kpc     0.093
+	cut_radius  0.707
+	cut_radius_kpc     2.060
+	v_disp     125.154
+	z_lens     0.171
+	end
+potentiel 885.000
+	profil     81
+	x_centre     -55.334
+	y_centre     -38.137
+	ellipticite     0.397
+	angle_pos     -4.200
+	core_radius  0.011
+	core_radius_kpc     0.032
+	cut_radius  0.245
+	cut_radius_kpc     0.713
+	v_disp     73.657
+	z_lens     0.171
+	end
+potentiel 887.000
+	profil     81
+	x_centre     -115.853
+	y_centre     -30.814
+	ellipticite     0.563
+	angle_pos     -5.800
+	core_radius  0.042
+	core_radius_kpc     0.123
+	cut_radius  0.931
+	cut_radius_kpc     2.712
+	v_disp     143.614
+	z_lens     0.171
+	end
+potentiel 889.000
+	profil     81
+	x_centre     14.259
+	y_centre     -21.860
+	ellipticite     0.037
+	angle_pos     -56.300
+	core_radius  0.064
+	core_radius_kpc     0.187
+	cut_radius  1.418
+	cut_radius_kpc     4.130
+	v_disp     177.221
+	z_lens     0.171
+	end
+potentiel 892.000
+	profil     81
+	x_centre     -86.477
+	y_centre     -36.287
+	ellipticite     0.206
+	angle_pos     29.100
+	core_radius  0.011
+	core_radius_kpc     0.033
+	cut_radius  0.250
+	cut_radius_kpc     0.728
+	v_disp     74.390
+	z_lens     0.171
+	end
+potentiel 896.000
+	profil     81
+	x_centre     -71.023
+	y_centre     -35.314
+	ellipticite     0.271
+	angle_pos     25.900
+	core_radius  0.013
+	core_radius_kpc     0.038
+	cut_radius  0.289
+	cut_radius_kpc     0.842
+	v_disp     80.018
+	z_lens     0.171
+	end
+potentiel 898.000
+	profil     81
+	x_centre     -49.807
+	y_centre     -28.935
+	ellipticite     0.344
+	angle_pos     21.500
+	core_radius  0.059
+	core_radius_kpc     0.171
+	cut_radius  1.301
+	cut_radius_kpc     3.787
+	v_disp     169.717
+	z_lens     0.171
+	end
+potentiel 908.000
+	profil     81
+	x_centre     41.331
+	y_centre     -33.050
+	ellipticite     0.469
+	angle_pos     13.800
+	core_radius  0.025
+	core_radius_kpc     0.073
+	cut_radius  0.557
+	cut_radius_kpc     1.622
+	v_disp     111.067
+	z_lens     0.171
+	end
+potentiel 951.000
+	profil     81
+	x_centre     -67.999
+	y_centre     -23.840
+	ellipticite     0.112
+	angle_pos     13.200
+	core_radius  0.031
+	core_radius_kpc     0.090
+	cut_radius  0.686
+	cut_radius_kpc     1.997
+	v_disp     123.244
+	z_lens     0.171
+	end
+potentiel 953.000
+	profil     81
+	x_centre     11.580
+	y_centre     -28.968
+	ellipticite     0.136
+	angle_pos     -41.500
+	core_radius  0.014
+	core_radius_kpc     0.040
+	cut_radius  0.302
+	cut_radius_kpc     0.879
+	v_disp     81.751
+	z_lens     0.171
+	end
+potentiel 984.000
+	profil     81
+	x_centre     15.560
+	y_centre     -26.375
+	ellipticite     0.284
+	angle_pos     -58.400
+	core_radius  0.011
+	core_radius_kpc     0.033
+	cut_radius  0.252
+	cut_radius_kpc     0.733
+	v_disp     74.687
+	z_lens     0.171
+	end
+potentiel 988.000
+	profil     81
+	x_centre     -4.533
+	y_centre     -24.764
+	ellipticite     0.149
+	angle_pos     -54.300
+	core_radius  0.025
+	core_radius_kpc     0.073
+	cut_radius  0.556
+	cut_radius_kpc     1.618
+	v_disp     110.924
+	z_lens     0.171
+	end
+potentiel 989.000
+	profil     81
+	x_centre     -9.621
+	y_centre     -24.248
+	ellipticite     0.152
+	angle_pos     18.100
+	core_radius  0.073
+	core_radius_kpc     0.211
+	cut_radius  1.604
+	cut_radius_kpc     4.671
+	v_disp     188.476
+	z_lens     0.171
+	end
+potentiel 992.000
+	profil     81
+	x_centre     -6.329
+	y_centre     -25.171
+	ellipticite     0.461
+	angle_pos     -53.900
+	core_radius  0.039
+	core_radius_kpc     0.113
+	cut_radius  0.855
+	cut_radius_kpc     2.490
+	v_disp     137.618
+	z_lens     0.171
+	end
+potentiel 993.000
+	profil     81
+	x_centre     -4.807
+	y_centre     -20.919
+	ellipticite     0.210
+	angle_pos     -79.000
+	core_radius  0.087
+	core_radius_kpc     0.253
+	cut_radius  1.923
+	cut_radius_kpc     5.600
+	v_disp     206.365
+	z_lens     0.171
+	end
+potentiel 996.000
+	profil     81
+	x_centre     46.544
+	y_centre     -27.168
+	ellipticite     0.042
+	angle_pos     -69.600
+	core_radius  0.011
+	core_radius_kpc     0.031
+	cut_radius  0.235
+	cut_radius_kpc     0.683
+	v_disp     72.097
+	z_lens     0.171
+	end
+potentiel 1010.00
+	profil     81
+	x_centre     -78.907
+	y_centre     -10.045
+	ellipticite     0.122
+	angle_pos     -35.800
+	core_radius  0.099
+	core_radius_kpc     0.287
+	cut_radius  2.181
+	cut_radius_kpc     6.350
+	v_disp     219.753
+	z_lens     0.171
+	end
+potentiel 1019.00
+	profil     81
+	x_centre     -86.785
+	y_centre     -18.030
+	ellipticite     0.308
+	angle_pos     -55.300
+	core_radius  0.029
+	core_radius_kpc     0.084
+	cut_radius  0.641
+	cut_radius_kpc     1.865
+	v_disp     119.101
+	z_lens     0.171
+	end
+potentiel 1029.00
+	profil     81
+	x_centre     34.507
+	y_centre     -23.801
+	ellipticite     0.185
+	angle_pos     19.100
+	core_radius  0.014
+	core_radius_kpc     0.040
+	cut_radius  0.307
+	cut_radius_kpc     0.893
+	v_disp     82.415
+	z_lens     0.171
+	end
+potentiel 1033.00
+	profil     81
+	x_centre     -41.967
+	y_centre     -20.029
+	ellipticite     0.635
+	angle_pos     -23.700
+	core_radius  0.031
+	core_radius_kpc     0.089
+	cut_radius  0.675
+	cut_radius_kpc     1.967
+	v_disp     122.308
+	z_lens     0.171
+	end
+potentiel 1044.00
+	profil     81
+	x_centre     -25.281
+	y_centre     -6.099
+	ellipticite     0.513
+	angle_pos     -88.800
+	core_radius  0.057
+	core_radius_kpc     0.165
+	cut_radius  1.253
+	cut_radius_kpc     3.650
+	v_disp     166.612
+	z_lens     0.171
+	end
+potentiel 1048.00
+	profil     81
+	x_centre     9.846
+	y_centre     -12.334
+	ellipticite     0.484
+	angle_pos     76.100
+	core_radius  0.056
+	core_radius_kpc     0.162
+	cut_radius  1.228
+	cut_radius_kpc     3.577
+	v_disp     164.940
+	z_lens     0.171
+	end
+potentiel 1057.00
+	profil     81
+	x_centre     10.377
+	y_centre     -20.542
+	ellipticite     0.131
+	angle_pos     -51.800
+	core_radius  0.012
+	core_radius_kpc     0.035
+	cut_radius  0.266
+	cut_radius_kpc     0.773
+	v_disp     76.681
+	z_lens     0.171
+	end
+potentiel 1076.00
+	profil     81
+	x_centre     15.752
+	y_centre     -17.771
+	ellipticite     0.325
+	angle_pos     20.100
+	core_radius  0.026
+	core_radius_kpc     0.077
+	cut_radius  0.584
+	cut_radius_kpc     1.702
+	v_disp     113.764
+	z_lens     0.171
+	end
+potentiel 1091.00
+	profil     81
+	x_centre     44.934
+	y_centre     -13.827
+	ellipticite     0.586
+	angle_pos     79.600
+	core_radius  0.014
+	core_radius_kpc     0.042
+	cut_radius  0.320
+	cut_radius_kpc     0.933
+	v_disp     84.214
+	z_lens     0.171
+	end
+potentiel 1099.00
+	profil     81
+	x_centre     35.110
+	y_centre     -16.385
+	ellipticite     0.616
+	angle_pos     15.500
+	core_radius  0.022
+	core_radius_kpc     0.065
+	cut_radius  0.495
+	cut_radius_kpc     1.441
+	v_disp     104.702
+	z_lens     0.171
+	end
+potentiel 1100.00
+	profil     81
+	x_centre     -25.291
+	y_centre     -12.150
+	ellipticite     0.114
+	angle_pos     63.800
+	core_radius  0.039
+	core_radius_kpc     0.112
+	cut_radius  0.853
+	cut_radius_kpc     2.483
+	v_disp     137.412
+	z_lens     0.171
+	end
+potentiel 1102.00
+	profil     81
+	x_centre     -44.185
+	y_centre     -17.551
+	ellipticite     0.165
+	angle_pos     -62.600
+	core_radius  0.016
+	core_radius_kpc     0.047
+	cut_radius  0.354
+	cut_radius_kpc     1.031
+	v_disp     88.541
+	z_lens     0.171
+	end
+potentiel 1110.00
+	profil     81
+	x_centre     -57.148
+	y_centre     -17.347
+	ellipticite     0.296
+	angle_pos     -48.300
+	core_radius  0.011
+	core_radius_kpc     0.032
+	cut_radius  0.245
+	cut_radius_kpc     0.712
+	v_disp     73.611
+	z_lens     0.171
+	end
+potentiel 1112.00
+	profil     81
+	x_centre     -85.567
+	y_centre     -11.941
+	ellipticite     0.621
+	angle_pos     14.700
+	core_radius  0.032
+	core_radius_kpc     0.092
+	cut_radius  0.702
+	cut_radius_kpc     2.044
+	v_disp     124.688
+	z_lens     0.171
+	end
+potentiel 1117.00
+	profil     81
+	x_centre     -96.081
+	y_centre     -16.392
+	ellipticite     0.796
+	angle_pos     32.600
+	core_radius  0.012
+	core_radius_kpc     0.035
+	cut_radius  0.264
+	cut_radius_kpc     0.769
+	v_disp     76.488
+	z_lens     0.171
+	end
+potentiel 1118.00
+	profil     81
+	x_centre     9.785
+	y_centre     -2.082
+	ellipticite     0.772
+	angle_pos     -67.500
+	core_radius  0.066
+	core_radius_kpc     0.193
+	cut_radius  1.467
+	cut_radius_kpc     4.271
+	v_disp     180.221
+	z_lens     0.171
+	end
+potentiel 1121.00
+	profil     81
+	x_centre     19.456
+	y_centre     -11.867
+	ellipticite     0.016
+	angle_pos     85.600
+	core_radius  0.038
+	core_radius_kpc     0.112
+	cut_radius  0.848
+	cut_radius_kpc     2.470
+	v_disp     137.058
+	z_lens     0.171
+	end
+potentiel 1125.00
+	profil     81
+	x_centre     -11.505
+	y_centre     -10.582
+	ellipticite     0.332
+	angle_pos     -17.000
+	core_radius  0.031
+	core_radius_kpc     0.089
+	cut_radius  0.676
+	cut_radius_kpc     1.968
+	v_disp     122.356
+	z_lens     0.171
+	end
+potentiel 1129.00
+	profil     81
+	x_centre     11.909
+	y_centre     -13.314
+	ellipticite     0.553
+	angle_pos     75.900
+	core_radius  0.016
+	core_radius_kpc     0.045
+	cut_radius  0.344
+	cut_radius_kpc     1.003
+	v_disp     87.324
+	z_lens     0.171
+	end
+potentiel 1141.00
+	profil     81
+	x_centre     -85.289
+	y_centre     -7.786
+	ellipticite     0.279
+	angle_pos     -1.200
+	core_radius  0.031
+	core_radius_kpc     0.090
+	cut_radius  0.686
+	cut_radius_kpc     1.998
+	v_disp     123.267
+	z_lens     0.171
+	end
+potentiel 1143.00
+	profil     81
+	x_centre     -45.533
+	y_centre     -3.395
+	ellipticite     0.269
+	angle_pos     66.900
+	core_radius  0.051
+	core_radius_kpc     0.149
+	cut_radius  1.135
+	cut_radius_kpc     3.304
+	v_disp     158.517
+	z_lens     0.171
+	end
+potentiel 1147.00
+	profil     81
+	x_centre     50.384
+	y_centre     -8.113
+	ellipticite     0.463
+	angle_pos     68.200
+	core_radius  0.033
+	core_radius_kpc     0.097
+	cut_radius  0.735
+	cut_radius_kpc     2.141
+	v_disp     127.616
+	z_lens     0.171
+	end
+potentiel 1163.00
+	profil     81
+	x_centre     -38.283
+	y_centre     -12.848
+	ellipticite     0.431
+	angle_pos     -59.500
+	core_radius  0.011
+	core_radius_kpc     0.033
+	cut_radius  0.253
+	cut_radius_kpc     0.736
+	v_disp     74.827
+	z_lens     0.171
+	end
+potentiel 1166.00
+	profil     81
+	x_centre     -70.578
+	y_centre     -11.108
+	ellipticite     0.081
+	angle_pos     -47.300
+	core_radius  0.012
+	core_radius_kpc     0.036
+	cut_radius  0.273
+	cut_radius_kpc     0.796
+	v_disp     77.794
+	z_lens     0.171
+	end
+potentiel 1170.00
+	profil     81
+	x_centre     -104.212
+	y_centre     3.359
+	ellipticite     0.015
+	angle_pos     -70.600
+	core_radius  0.075
+	core_radius_kpc     0.218
+	cut_radius  1.654
+	cut_radius_kpc     4.815
+	v_disp     191.371
+	z_lens     0.171
+	end
+potentiel 1186.00
+	profil     81
+	x_centre     -72.579
+	y_centre     -10.943
+	ellipticite     0.714
+	angle_pos     -11.400
+	core_radius  0.014
+	core_radius_kpc     0.040
+	cut_radius  0.300
+	cut_radius_kpc     0.874
+	v_disp     81.545
+	z_lens     0.171
+	end
+potentiel 1191.00
+	profil     81
+	x_centre     0.194
+	y_centre     -12.839
+	ellipticite     0.539
+	angle_pos     -60.900
+	core_radius  0.014
+	core_radius_kpc     0.040
+	cut_radius  0.305
+	cut_radius_kpc     0.889
+	v_disp     82.229
+	z_lens     0.171
+	end
+potentiel 1192.00
+	profil     81
+	x_centre     -1.584
+	y_centre     -8.429
+	ellipticite     0.240
+	angle_pos     8.300
+	core_radius  0.077
+	core_radius_kpc     0.223
+	cut_radius  1.695
+	cut_radius_kpc     4.936
+	v_disp     193.756
+	z_lens     0.171
+	end
+potentiel 1206.00
+	profil     81
+	x_centre     55.466
+	y_centre     -8.994
+	ellipticite     0.097
+	angle_pos     -85.300
+	core_radius  0.010
+	core_radius_kpc     0.030
+	cut_radius  0.229
+	cut_radius_kpc     0.666
+	v_disp     71.196
+	z_lens     0.171
+	end
+potentiel 1225.00
+	profil     81
+	x_centre     -67.385
+	y_centre     -0.358
+	ellipticite     0.072
+	angle_pos     24.700
+	core_radius  0.056
+	core_radius_kpc     0.162
+	cut_radius  1.229
+	cut_radius_kpc     3.578
+	v_disp     164.963
+	z_lens     0.171
+	end
+potentiel 1255.00
+	profil     81
+	x_centre     -61.598
+	y_centre     9.020
+	ellipticite     0.304
+	angle_pos     85.700
+	core_radius  0.071
+	core_radius_kpc     0.206
+	cut_radius  1.566
+	cut_radius_kpc     4.560
+	v_disp     186.237
+	z_lens     0.171
+	end
+potentiel 1265.00
+	profil     81
+	x_centre     77.329
+	y_centre     -3.368
+	ellipticite     0.717
+	angle_pos     79.800
+	core_radius  0.012
+	core_radius_kpc     0.034
+	cut_radius  0.259
+	cut_radius_kpc     0.753
+	v_disp     75.679
+	z_lens     0.171
+	end
+potentiel 1267.00
+	profil     81
+	x_centre     54.075
+	y_centre     -3.977
+	ellipticite     0.022
+	angle_pos     -32.500
+	core_radius  0.022
+	core_radius_kpc     0.065
+	cut_radius  0.496
+	cut_radius_kpc     1.444
+	v_disp     104.791
+	z_lens     0.171
+	end
+potentiel 1280.00
+	profil     81
+	x_centre     17.441
+	y_centre     7.212
+	ellipticite     0.069
+	angle_pos     54.000
+	core_radius  0.059
+	core_radius_kpc     0.171
+	cut_radius  1.296
+	cut_radius_kpc     3.774
+	v_disp     169.428
+	z_lens     0.171
+	end
+potentiel 1286.00
+	profil     81
+	x_centre     -103.742
+	y_centre     -1.682
+	ellipticite     0.419
+	angle_pos     53.800
+	core_radius  0.012
+	core_radius_kpc     0.036
+	cut_radius  0.272
+	cut_radius_kpc     0.792
+	v_disp     77.601
+	z_lens     0.171
+	end
+potentiel 1294.00
+	profil     81
+	x_centre     -101.499
+	y_centre     -3.118
+	ellipticite     0.141
+	angle_pos     -71.200
+	core_radius  0.012
+	core_radius_kpc     0.035
+	cut_radius  0.262
+	cut_radius_kpc     0.764
+	v_disp     76.204
+	z_lens     0.171
+	end
+potentiel 1309.00
+	profil     81
+	x_centre     -4.190
+	y_centre     -3.318
+	ellipticite     0.066
+	angle_pos     64.000
+	core_radius  0.015
+	core_radius_kpc     0.044
+	cut_radius  0.337
+	cut_radius_kpc     0.983
+	v_disp     86.448
+	z_lens     0.171
+	end
+potentiel 1319.00
+	profil     81
+	x_centre     0.985
+	y_centre     16.205
+	ellipticite     0.634
+	angle_pos     -74.400
+	core_radius  0.061
+	core_radius_kpc     0.178
+	cut_radius  1.355
+	cut_radius_kpc     3.945
+	v_disp     173.207
+	z_lens     0.171
+	end
+potentiel 1323.00
+	profil     81
+	x_centre     -99.511
+	y_centre     5.177
+	ellipticite     0.826
+	angle_pos     -57.300
+	core_radius  0.022
+	core_radius_kpc     0.063
+	cut_radius  0.477
+	cut_radius_kpc     1.390
+	v_disp     102.831
+	z_lens     0.171
+	end
+potentiel 1331.00
+	profil     81
+	x_centre     73.008
+	y_centre     13.629
+	ellipticite     0.070
+	angle_pos     -62.200
+	core_radius  0.065
+	core_radius_kpc     0.190
+	cut_radius  1.445
+	cut_radius_kpc     4.208
+	v_disp     178.890
+	z_lens     0.171
+	end
+potentiel 1346.00
+	profil     81
+	x_centre     -61.014
+	y_centre     5.135
+	ellipticite     0.090
+	angle_pos     8.900
+	core_radius  0.019
+	core_radius_kpc     0.057
+	cut_radius  0.430
+	cut_radius_kpc     1.251
+	v_disp     97.543
+	z_lens     0.171
+	end
+potentiel 1351.00
+	profil     81
+	x_centre     56.167
+	y_centre     4.430
+	ellipticite     0.269
+	angle_pos     -4.500
+	core_radius  0.025
+	core_radius_kpc     0.073
+	cut_radius  0.552
+	cut_radius_kpc     1.608
+	v_disp     110.603
+	z_lens     0.171
+	end
+potentiel 1360.00
+	profil     81
+	x_centre     -123.959
+	y_centre     13.810
+	ellipticite     0.096
+	angle_pos     85.500
+	core_radius  0.045
+	core_radius_kpc     0.132
+	cut_radius  1.005
+	cut_radius_kpc     2.927
+	v_disp     149.206
+	z_lens     0.171
+	end
+potentiel 1368.00
+	profil     81
+	x_centre     3.630
+	y_centre     3.772
+	ellipticite     0.062
+	angle_pos     27.400
+	core_radius  0.026
+	core_radius_kpc     0.076
+	cut_radius  0.580
+	cut_radius_kpc     1.688
+	v_disp     113.291
+	z_lens     0.171
+	end
+potentiel 1371.00
+	profil     81
+	x_centre     7.552
+	y_centre     14.569
+	ellipticite     0.181
+	angle_pos     -79.900
+	core_radius  0.031
+	core_radius_kpc     0.091
+	cut_radius  0.687
+	cut_radius_kpc     2.002
+	v_disp     123.389
+	z_lens     0.171
+	end
+potentiel 1372.00
+	profil     81
+	x_centre     25.784
+	y_centre     8.935
+	ellipticite     0.102
+	angle_pos     13.600
+	core_radius  0.024
+	core_radius_kpc     0.069
+	cut_radius  0.527
+	cut_radius_kpc     1.533
+	v_disp     107.991
+	z_lens     0.171
+	end
+potentiel 1381.00
+	profil     81
+	x_centre     -32.820
+	y_centre     6.098
+	ellipticite     0.153
+	angle_pos     -21.900
+	core_radius  0.012
+	core_radius_kpc     0.035
+	cut_radius  0.268
+	cut_radius_kpc     0.782
+	v_disp     77.107
+	z_lens     0.171
+	end
+potentiel 1383.00
+	profil     81
+	x_centre     -75.236
+	y_centre     9.690
+	ellipticite     0.692
+	angle_pos     67.000
+	core_radius  0.020
+	core_radius_kpc     0.057
+	cut_radius  0.435
+	cut_radius_kpc     1.266
+	v_disp     98.117
+	z_lens     0.171
+	end
+potentiel 1393.00
+	profil     81
+	x_centre     55.263
+	y_centre     11.530
+	ellipticite     0.038
+	angle_pos     -62.400
+	core_radius  0.044
+	core_radius_kpc     0.129
+	cut_radius  0.981
+	cut_radius_kpc     2.857
+	v_disp     147.406
+	z_lens     0.171
+	end
+potentiel 1396.00
+	profil     81
+	x_centre     -12.219
+	y_centre     10.279
+	ellipticite     0.060
+	angle_pos     -74.700
+	core_radius  0.030
+	core_radius_kpc     0.086
+	cut_radius  0.655
+	cut_radius_kpc     1.907
+	v_disp     120.436
+	z_lens     0.171
+	end
+potentiel 1415.00
+	profil     81
+	x_centre     83.893
+	y_centre     24.959
+	ellipticite     0.447
+	angle_pos     -71.000
+	core_radius  0.046
+	core_radius_kpc     0.134
+	cut_radius  1.016
+	cut_radius_kpc     2.958
+	v_disp     149.981
+	z_lens     0.171
+	end
+potentiel 1422.00
+	profil     81
+	x_centre     -43.500
+	y_centre     9.823
+	ellipticite     0.489
+	angle_pos     47.900
+	core_radius  0.012
+	core_radius_kpc     0.036
+	cut_radius  0.273
+	cut_radius_kpc     0.795
+	v_disp     77.740
+	z_lens     0.171
+	end
+potentiel 1429.00
+	profil     81
+	x_centre     -104.557
+	y_centre     8.953
+	ellipticite     0.214
+	angle_pos     -4.300
+	core_radius  0.010
+	core_radius_kpc     0.030
+	cut_radius  0.231
+	cut_radius_kpc     0.671
+	v_disp     71.455
+	z_lens     0.171
+	end
+potentiel 1446.00
+	profil     81
+	x_centre     -13.692
+	y_centre     27.619
+	ellipticite     0.759
+	angle_pos     -43.700
+	core_radius  0.066
+	core_radius_kpc     0.192
+	cut_radius  1.454
+	cut_radius_kpc     4.235
+	v_disp     179.472
+	z_lens     0.171
+	end
+potentiel 1455.00
+	profil     81
+	x_centre     -90.352
+	y_centre     17.731
+	ellipticite     0.136
+	angle_pos     70.300
+	core_radius  0.031
+	core_radius_kpc     0.090
+	cut_radius  0.682
+	cut_radius_kpc     1.985
+	v_disp     122.867
+	z_lens     0.171
+	end
+potentiel 1481.00
+	profil     81
+	x_centre     -11.267
+	y_centre     18.633
+	ellipticite     0.254
+	angle_pos     -18.600
+	core_radius  0.017
+	core_radius_kpc     0.048
+	cut_radius  0.367
+	cut_radius_kpc     1.068
+	v_disp     90.138
+	z_lens     0.171
+	end
+potentiel 1484.00
+	profil     81
+	x_centre     87.404
+	y_centre     14.979
+	ellipticite     0.314
+	angle_pos     -36.500
+	core_radius  0.012
+	core_radius_kpc     0.034
+	cut_radius  0.260
+	cut_radius_kpc     0.757
+	v_disp     75.876
+	z_lens     0.171
+	end
+potentiel 1490.00
+	profil     81
+	x_centre     -77.032
+	y_centre     14.683
+	ellipticite     0.103
+	angle_pos     -51.500
+	core_radius  0.011
+	core_radius_kpc     0.032
+	cut_radius  0.240
+	cut_radius_kpc     0.698
+	v_disp     72.853
+	z_lens     0.171
+	end
+potentiel 1491.00
+	profil     81
+	x_centre     -33.075
+	y_centre     17.775
+	ellipticite     0.229
+	angle_pos     -84.400
+	core_radius  0.016
+	core_radius_kpc     0.046
+	cut_radius  0.347
+	cut_radius_kpc     1.011
+	v_disp     87.689
+	z_lens     0.171
+	end
+potentiel 1494.00
+	profil     81
+	x_centre     87.637
+	y_centre     17.439
+	ellipticite     0.278
+	angle_pos     -79.400
+	core_radius  0.016
+	core_radius_kpc     0.046
+	cut_radius  0.350
+	cut_radius_kpc     1.019
+	v_disp     88.019
+	z_lens     0.171
+	end
+potentiel 1497.00
+	profil     81
+	x_centre     -31.710
+	y_centre     20.623
+	ellipticite     0.224
+	angle_pos     -23.400
+	core_radius  0.038
+	core_radius_kpc     0.110
+	cut_radius  0.836
+	cut_radius_kpc     2.435
+	v_disp     136.080
+	z_lens     0.171
+	end
+potentiel 1510.00
+	profil     81
+	x_centre     43.416
+	y_centre     20.366
+	ellipticite     0.267
+	angle_pos     -1.000
+	core_radius  0.028
+	core_radius_kpc     0.082
+	cut_radius  0.626
+	cut_radius_kpc     1.824
+	v_disp     117.768
+	z_lens     0.171
+	end
+potentiel 1511.00
+	profil     81
+	x_centre     11.938
+	y_centre     31.454
+	ellipticite     0.194
+	angle_pos     11.500
+	core_radius  0.076
+	core_radius_kpc     0.221
+	cut_radius  1.676
+	cut_radius_kpc     4.882
+	v_disp     192.684
+	z_lens     0.171
+	end
+potentiel 1522.00
+	profil     81
+	x_centre     -64.251
+	y_centre     18.617
+	ellipticite     0.469
+	angle_pos     -42.600
+	core_radius  0.012
+	core_radius_kpc     0.034
+	cut_radius  0.258
+	cut_radius_kpc     0.750
+	v_disp     75.535
+	z_lens     0.171
+	end
+potentiel 1539.00
+	profil     81
+	x_centre     75.766
+	y_centre     19.199
+	ellipticite     0.129
+	angle_pos     -84.800
+	core_radius  0.012
+	core_radius_kpc     0.036
+	cut_radius  0.271
+	cut_radius_kpc     0.788
+	v_disp     77.431
+	z_lens     0.171
+	end
+potentiel 1557.00
+	profil     81
+	x_centre     33.821
+	y_centre     24.805
+	ellipticite     0.273
+	angle_pos     -34.400
+	core_radius  0.017
+	core_radius_kpc     0.051
+	cut_radius  0.385
+	cut_radius_kpc     1.120
+	v_disp     92.288
+	z_lens     0.171
+	end
+potentiel 1575.00
+	profil     81
+	x_centre     10.852
+	y_centre     20.676
+	ellipticite     0.076
+	angle_pos     -39.100
+	core_radius  0.017
+	core_radius_kpc     0.049
+	cut_radius  0.375
+	cut_radius_kpc     1.091
+	v_disp     91.074
+	z_lens     0.171
+	end
+potentiel 1578.00
+	profil     81
+	x_centre     54.905
+	y_centre     36.828
+	ellipticite     0.152
+	angle_pos     -78.600
+	core_radius  0.092
+	core_radius_kpc     0.267
+	cut_radius  2.028
+	cut_radius_kpc     5.907
+	v_disp     211.946
+	z_lens     0.171
+	end
+potentiel 1580.00
+	profil     81
+	x_centre     30.808
+	y_centre     35.533
+	ellipticite     0.401
+	angle_pos     -89.900
+	core_radius  0.103
+	core_radius_kpc     0.299
+	cut_radius  2.269
+	cut_radius_kpc     6.608
+	v_disp     224.185
+	z_lens     0.171
+	end
+potentiel 1590.00
+	profil     81
+	x_centre     -18.672
+	y_centre     22.319
+	ellipticite     0.180
+	angle_pos     -67.600
+	core_radius  0.012
+	core_radius_kpc     0.034
+	cut_radius  0.259
+	cut_radius_kpc     0.755
+	v_disp     75.792
+	z_lens     0.171
+	end
+potentiel 1591.00
+	profil     81
+	x_centre     -71.022
+	y_centre     25.753
+	ellipticite     0.400
+	angle_pos     50.000
+	core_radius  0.018
+	core_radius_kpc     0.053
+	cut_radius  0.401
+	cut_radius_kpc     1.168
+	v_disp     94.260
+	z_lens     0.171
+	end
+potentiel 1615.00
+	profil     81
+	x_centre     -88.257
+	y_centre     29.779
+	ellipticite     0.394
+	angle_pos     10.600
+	core_radius  0.032
+	core_radius_kpc     0.094
+	cut_radius  0.714
+	cut_radius_kpc     2.080
+	v_disp     125.775
+	z_lens     0.171
+	end
+potentiel 1645.00
+	profil     81
+	x_centre     -90.961
+	y_centre     40.823
+	ellipticite     0.572
+	angle_pos     -39.300
+	core_radius  0.085
+	core_radius_kpc     0.249
+	cut_radius  1.888
+	cut_radius_kpc     5.496
+	v_disp     204.454
+	z_lens     0.171
+	end
+potentiel 1676.00
+	profil     81
+	x_centre     -55.302
+	y_centre     36.956
+	ellipticite     0.222
+	angle_pos     1.700
+	core_radius  0.048
+	core_radius_kpc     0.140
+	cut_radius  1.063
+	cut_radius_kpc     3.095
+	v_disp     153.425
+	z_lens     0.171
+	end
+potentiel 1687.00
+	profil     81
+	x_centre     73.675
+	y_centre     34.616
+	ellipticite     0.739
+	angle_pos     -16.700
+	core_radius  0.047
+	core_radius_kpc     0.137
+	cut_radius  1.038
+	cut_radius_kpc     3.023
+	v_disp     151.637
+	z_lens     0.171
+	end
+potentiel 1732.00
+	profil     81
+	x_centre     -13.674
+	y_centre     29.604
+	ellipticite     0.579
+	angle_pos     6.100
+	core_radius  0.012
+	core_radius_kpc     0.035
+	cut_radius  0.263
+	cut_radius_kpc     0.767
+	v_disp     76.360
+	z_lens     0.171
+	end
+potentiel 1804.00
+	profil     81
+	x_centre     25.082
+	y_centre     36.503
+	ellipticite     0.542
+	angle_pos     -50.100
+	core_radius  0.011
+	core_radius_kpc     0.031
+	cut_radius  0.239
+	cut_radius_kpc     0.697
+	v_disp     72.786
+	z_lens     0.171
+	end
+potentiel 1806.00
+	profil     81
+	x_centre     -56.840
+	y_centre     36.937
+	ellipticite     0.146
+	angle_pos     -21.600
+	core_radius  0.024
+	core_radius_kpc     0.069
+	cut_radius  0.524
+	cut_radius_kpc     1.526
+	v_disp     107.732
+	z_lens     0.171
+	end
+potentiel 1843.00
+	profil     81
+	x_centre     -91.852
+	y_centre     44.325
+	ellipticite     0.283
+	angle_pos     -36.700
+	core_radius  0.046
+	core_radius_kpc     0.133
+	cut_radius  1.008
+	cut_radius_kpc     2.934
+	v_disp     149.381
+	z_lens     0.171
+	end
+potentiel 1849.00
+	profil     81
+	x_centre     -87.861
+	y_centre     49.452
+	ellipticite     0.204
+	angle_pos     -4.200
+	core_radius  0.057
+	core_radius_kpc     0.165
+	cut_radius  1.255
+	cut_radius_kpc     3.655
+	v_disp     166.719
+	z_lens     0.171
+	end
+potentiel 1862.00
+	profil     81
+	x_centre     -81.050
+	y_centre     47.711
+	ellipticite     0.274
+	angle_pos     54.800
+	core_radius  0.040
+	core_radius_kpc     0.115
+	cut_radius  0.874
+	cut_radius_kpc     2.545
+	v_disp     139.128
+	z_lens     0.171
+	end
+potentiel 1865.00
+	profil     81
+	x_centre     75.549
+	y_centre     45.869
+	ellipticite     0.192
+	angle_pos     59.100
+	core_radius  0.026
+	core_radius_kpc     0.076
+	cut_radius  0.581
+	cut_radius_kpc     1.691
+	v_disp     113.406
+	z_lens     0.171
+	end
+potentiel 1897.00
+	profil     81
+	x_centre     -60.752
+	y_centre     49.185
+	ellipticite     0.050
+	angle_pos     -16.500
+	core_radius  0.034
+	core_radius_kpc     0.098
+	cut_radius  0.742
+	cut_radius_kpc     2.160
+	v_disp     128.179
+	z_lens     0.171
+	end
+potentiel 1906.00
+	profil     81
+	x_centre     44.841
+	y_centre     48.328
+	ellipticite     0.777
+	angle_pos     -9.000
+	core_radius  0.029
+	core_radius_kpc     0.085
+	cut_radius  0.649
+	cut_radius_kpc     1.890
+	v_disp     119.877
+	z_lens     0.171
+	end
+potentiel 1912.00
+	profil     81
+	x_centre     -44.926
+	y_centre     43.895
+	ellipticite     0.029
+	angle_pos     71.700
+	core_radius  0.010
+	core_radius_kpc     0.030
+	cut_radius  0.230
+	cut_radius_kpc     0.670
+	v_disp     71.378
+	z_lens     0.171
+	end
+potentiel 1950.00
+	profil     81
+	x_centre     65.454
+	y_centre     50.089
+	ellipticite     0.142
+	angle_pos     -55.700
+	core_radius  0.022
+	core_radius_kpc     0.065
+	cut_radius  0.493
+	cut_radius_kpc     1.434
+	v_disp     104.445
+	z_lens     0.171
+	end
+potentiel 1957.00
+	profil     81
+	x_centre     -94.027
+	y_centre     49.452
+	ellipticite     0.059
+	angle_pos     -60.000
+	core_radius  0.024
+	core_radius_kpc     0.070
+	cut_radius  0.529
+	cut_radius_kpc     1.541
+	v_disp     108.262
+	z_lens     0.171
+	end
+potentiel 1963.00
+	profil     81
+	x_centre     48.372
+	y_centre     62.346
+	ellipticite     0.365
+	angle_pos     -32.200
+	core_radius  0.109
+	core_radius_kpc     0.318
+	cut_radius  2.411
+	cut_radius_kpc     7.022
+	v_disp     231.087
+	z_lens     0.171
+	end
+potentiel 1986.00
+	profil     81
+	x_centre     13.661
+	y_centre     50.464
+	ellipticite     0.118
+	angle_pos     -57.200
+	core_radius  0.022
+	core_radius_kpc     0.065
+	cut_radius  0.493
+	cut_radius_kpc     1.437
+	v_disp     104.534
+	z_lens     0.171
+	end
+potentiel 2001.00
+	profil     81
+	x_centre     -84.120
+	y_centre     51.675
+	ellipticite     0.465
+	angle_pos     -89.500
+	core_radius  0.011
+	core_radius_kpc     0.032
+	cut_radius  0.242
+	cut_radius_kpc     0.704
+	v_disp     73.164
+	z_lens     0.171
+	end
+potentiel 2009.00
+	profil     81
+	x_centre     75.685
+	y_centre     47.875
+	ellipticite     0.288
+	angle_pos     -10.500
+	core_radius  0.011
+	core_radius_kpc     0.031
+	cut_radius  0.232
+	cut_radius_kpc     0.677
+	v_disp     71.754
+	z_lens     0.171
+	end
+potentiel 2014.00
+	profil     81
+	x_centre     -94.592
+	y_centre     58.071
+	ellipticite     0.441
+	angle_pos     -52.300
+	core_radius  0.047
+	core_radius_kpc     0.136
+	cut_radius  1.030
+	cut_radius_kpc     2.998
+	v_disp     151.006
+	z_lens     0.171
+	end
+potentiel 2022.00
+	profil     81
+	x_centre     -89.187
+	y_centre     49.567
+	ellipticite     0.677
+	angle_pos     53.300
+	core_radius  0.018
+	core_radius_kpc     0.053
+	cut_radius  0.402
+	cut_radius_kpc     1.171
+	v_disp     94.375
+	z_lens     0.171
+	end
+potentiel 2072.00
+	profil     81
+	x_centre     -9.461
+	y_centre     59.518
+	ellipticite     0.066
+	angle_pos     36.800
+	core_radius  0.017
+	core_radius_kpc     0.049
+	cut_radius  0.370
+	cut_radius_kpc     1.077
+	v_disp     90.518
+	z_lens     0.171
+	end
+potentiel 2079.00
+	profil     81
+	x_centre     -72.690
+	y_centre     55.168
+	ellipticite     0.375
+	angle_pos     48.000
+	core_radius  0.012
+	core_radius_kpc     0.034
+	cut_radius  0.258
+	cut_radius_kpc     0.752
+	v_disp     75.627
+	z_lens     0.171
+	end
+potentiel 2085.00
+	profil     81
+	x_centre     -103.497
+	y_centre     59.396
+	ellipticite     0.439
+	angle_pos     7.500
+	core_radius  0.017
+	core_radius_kpc     0.049
+	cut_radius  0.370
+	cut_radius_kpc     1.079
+	v_disp     90.579
+	z_lens     0.171
+	end
+potentiel 2150.00
+	profil     81
+	x_centre     69.518
+	y_centre     76.406
+	ellipticite     0.091
+	angle_pos     44.700
+	core_radius  0.057
+	core_radius_kpc     0.167
+	cut_radius  1.270
+	cut_radius_kpc     3.698
+	v_disp     167.705
+	z_lens     0.171
+	end
+potentiel 2156.00
+	profil     81
+	x_centre     -42.821
+	y_centre     63.131
+	ellipticite     0.270
+	angle_pos     79.400
+	core_radius  0.028
+	core_radius_kpc     0.081
+	cut_radius  0.616
+	cut_radius_kpc     1.794
+	v_disp     116.822
+	z_lens     0.171
+	end
+potentiel 2162.00
+	profil     81
+	x_centre     47.178
+	y_centre     60.068
+	ellipticite     0.074
+	angle_pos     64.000
+	core_radius  0.021
+	core_radius_kpc     0.061
+	cut_radius  0.467
+	cut_radius_kpc     1.360
+	v_disp     101.696
+	z_lens     0.171
+	end
+potentiel 2171.00
+	profil     81
+	x_centre     -126.829
+	y_centre     65.141
+	ellipticite     0.545
+	angle_pos     -87.600
+	core_radius  0.024
+	core_radius_kpc     0.070
+	cut_radius  0.535
+	cut_radius_kpc     1.557
+	v_disp     108.832
+	z_lens     0.171
+	end
+potentiel 2173.00
+	profil     81
+	x_centre     -33.033
+	y_centre     75.900
+	ellipticite     0.435
+	angle_pos     -60.800
+	core_radius  0.092
+	core_radius_kpc     0.269
+	cut_radius  2.040
+	cut_radius_kpc     5.940
+	v_disp     212.542
+	z_lens     0.171
+	end
+potentiel 2177.00
+	profil     81
+	x_centre     -7.175
+	y_centre     61.238
+	ellipticite     0.918
+	angle_pos     21.100
+	core_radius  0.011
+	core_radius_kpc     0.032
+	cut_radius  0.243
+	cut_radius_kpc     0.708
+	v_disp     73.400
+	z_lens     0.171
+	end
+potentiel 2213.00
+	profil     81
+	x_centre     54.353
+	y_centre     70.134
+	ellipticite     0.523
+	angle_pos     15.200
+	core_radius  0.051
+	core_radius_kpc     0.148
+	cut_radius  1.121
+	cut_radius_kpc     3.265
+	v_disp     157.589
+	z_lens     0.171
+	end
+potentiel 2232.00
+	profil     81
+	x_centre     61.867
+	y_centre     74.664
+	ellipticite     0.298
+	angle_pos     -76.900
+	core_radius  0.027
+	core_radius_kpc     0.078
+	cut_radius  0.591
+	cut_radius_kpc     1.721
+	v_disp     114.392
+	z_lens     0.171
+	end
+potentiel 2246.00
+	profil     81
+	x_centre     -42.860
+	y_centre     70.520
+	ellipticite     0.139
+	angle_pos     86.300
+	core_radius  0.032
+	core_radius_kpc     0.092
+	cut_radius  0.702
+	cut_radius_kpc     2.044
+	v_disp     124.683
+	z_lens     0.171
+	end
+potentiel 2252.00
+	profil     81
+	x_centre     -126.447
+	y_centre     66.222
+	ellipticite     0.474
+	angle_pos     -25.100
+	core_radius  0.014
+	core_radius_kpc     0.039
+	cut_radius  0.299
+	cut_radius_kpc     0.870
+	v_disp     81.357
+	z_lens     0.171
+	end
+potentiel 2294.00
+	profil     81
+	x_centre     -126.433
+	y_centre     75.734
+	ellipticite     0.722
+	angle_pos     3.900
+	core_radius  0.020
+	core_radius_kpc     0.058
+	cut_radius  0.440
+	cut_radius_kpc     1.281
+	v_disp     98.691
+	z_lens     0.171
+	end
+potentiel 2300.00
+	profil     81
+	x_centre     -46.252
+	y_centre     74.101
+	ellipticite     0.314
+	angle_pos     -20.800
+	core_radius  0.022
+	core_radius_kpc     0.065
+	cut_radius  0.493
+	cut_radius_kpc     1.435
+	v_disp     104.485
+	z_lens     0.171
+	end
+potentiel 2301.00
+	profil     81
+	x_centre     40.389
+	y_centre     73.134
+	ellipticite     0.252
+	angle_pos     68.400
+	core_radius  0.016
+	core_radius_kpc     0.045
+	cut_radius  0.344
+	cut_radius_kpc     1.001
+	v_disp     87.254
+	z_lens     0.171
+	end
+potentiel 2309.00
+	profil     81
+	x_centre     -70.231
+	y_centre     72.834
+	ellipticite     0.527
+	angle_pos     15.600
+	core_radius  0.015
+	core_radius_kpc     0.044
+	cut_radius  0.337
+	cut_radius_kpc     0.981
+	v_disp     86.369
+	z_lens     0.171
+	end
+potentiel 2311.00
+	profil     81
+	x_centre     -39.305
+	y_centre     72.529
+	ellipticite     0.414
+	angle_pos     77.500
+	core_radius  0.012
+	core_radius_kpc     0.035
+	cut_radius  0.266
+	cut_radius_kpc     0.776
+	v_disp     76.803
+	z_lens     0.171
+	end
+potentiel 2347.00
+	profil     81
+	x_centre     -36.665
+	y_centre     88.756
+	ellipticite     0.527
+	angle_pos     70.900
+	core_radius  0.062
+	core_radius_kpc     0.179
+	cut_radius  1.362
+	cut_radius_kpc     3.966
+	v_disp     173.674
+	z_lens     0.171
+	end
+potentiel 2375.00
+	profil     81
+	x_centre     -110.320
+	y_centre     78.293
+	ellipticite     0.128
+	angle_pos     40.000
+	core_radius  0.026
+	core_radius_kpc     0.075
+	cut_radius  0.573
+	cut_radius_kpc     1.668
+	v_disp     112.623
+	z_lens     0.171
+	end
+potentiel 2391.00
+	profil     81
+	x_centre     61.481
+	y_centre     93.634
+	ellipticite     0.143
+	angle_pos     86.500
+	core_radius  0.051
+	core_radius_kpc     0.148
+	cut_radius  1.122
+	cut_radius_kpc     3.267
+	v_disp     157.625
+	z_lens     0.171
+	end
+potentiel 2412.00
+	profil     81
+	x_centre     16.771
+	y_centre     78.155
+	ellipticite     0.308
+	angle_pos     -17.600
+	core_radius  0.014
+	core_radius_kpc     0.040
+	cut_radius  0.305
+	cut_radius_kpc     0.888
+	v_disp     82.167
+	z_lens     0.171
+	end
+potentiel 2517.00
+	profil     81
+	x_centre     -1.605
+	y_centre     82.108
+	ellipticite     0.177
+	angle_pos     -20.600
+	core_radius  0.013
+	core_radius_kpc     0.037
+	cut_radius  0.280
+	cut_radius_kpc     0.816
+	v_disp     78.796
+	z_lens     0.171
+	end
+potentiel 2526.00
+	profil     81
+	x_centre     30.092
+	y_centre     87.545
+	ellipticite     0.078
+	angle_pos     64.500
+	core_radius  0.014
+	core_radius_kpc     0.042
+	cut_radius  0.317
+	cut_radius_kpc     0.922
+	v_disp     83.725
+	z_lens     0.171
+	end
+potentiel 2583.00
+	profil     81
+	x_centre     41.625
+	y_centre     88.914
+	ellipticite     0.500
+	angle_pos     12.900
+	core_radius  0.045
+	core_radius_kpc     0.131
+	cut_radius  0.998
+	cut_radius_kpc     2.907
+	v_disp     148.702
+	z_lens     0.171
+	end
+potentiel 2643.00
+	profil     81
+	x_centre     -2.232
+	y_centre     85.580
+	ellipticite     0.092
+	angle_pos     -42.300
+	core_radius  0.011
+	core_radius_kpc     0.031
+	cut_radius  0.236
+	cut_radius_kpc     0.688
+	v_disp     72.348
+	z_lens     0.171
+	end
+potentiel 2801.00
+	profil     81
+	x_centre     39.207
+	y_centre     83.739
+	ellipticite     0.454
+	angle_pos     -2.600
+	core_radius  0.013
+	core_radius_kpc     0.038
+	cut_radius  0.288
+	cut_radius_kpc     0.839
+	v_disp     79.885
+	z_lens     0.171
+	end
+cline
+	dmax     150.000
+	algorithm   MARCHINGSQUARES
+	limitHigh   1.0
+	limitLow    0.100
+	end
+grande
+	iso         0 0 0.000 0.000 0.000
+	name        best
+	profil      0 0
+	contour     1 0
+	large_dist  0.300
+	end
+cosmologie
+	H0        70.000
+	omegaM    0.300
+	omegaX    0.700
+	wX        -1.000
+	end
+cosmolimit
+        omegaM          0 0.000 0.000
+        omegaX          0 0.000 0.000
+        wX              0 0.000 0.000
+        end
+champ
+	dmax   1800.
+	end
+fini

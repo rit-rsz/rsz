@@ -22,6 +22,7 @@
 
 import sys
 <<<<<<< HEAD
+<<<<<<< HEAD
 sys.path.append('../multiband_pcat')
 from pcat_spire import lion
 
@@ -45,6 +46,8 @@ def clus_pcat_setup_python2():
 if __name__ == '__main__':
     clus_pcat_setup_python2()
 =======
+=======
+>>>>>>> 2a62b22f013f88b19d4c4ea007039b9a32495b10
 import config
 sys.path.append(config.HOME + 'multiband_pcat')
 from pcat_spire import lion
@@ -60,4 +63,7 @@ def clus_pcat_setup(maps,params,err=None):
 
 if __name__ == '__main__':
     clus_pcat_setup()
+<<<<<<< HEAD
+>>>>>>> 2a62b22f013f88b19d4c4ea007039b9a32495b10
+=======
 >>>>>>> 2a62b22f013f88b19d4c4ea007039b9a32495b10

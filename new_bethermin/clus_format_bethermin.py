@@ -18,6 +18,7 @@ sys.path.append('../utilities')
 import config
 import numpy as np
 import matplotlib.pyplot as plt
+from math import *
 
 
 def clus_format_bethermin(icol,sim_map,maps,band,clusname,pixsize,\
@@ -30,16 +31,23 @@ def clus_format_bethermin(icol,sim_map,maps,band,clusname,pixsize,\
     # 3,4,5 are 250,350,500 truthtables
     cat = sim_map[icol+3]
     nsrc = len(cat['fluxdens']) # pulls len of truthtable
-    refx = maps[icol]['shead']['CRPIX1']
-    refy = maps[icol]['shead']['CRPIX2']
-    print(refx,refy)
+    # refx = maps[icol]['shead']['CRPIX1']
+    # refy = maps[icol]['shead']['CRPIX2']
+    # print(refx,refy)
+
+    for f in maps[icol]['shead']:
+        print(f, maps[icol]['shead'][f])
+
+    print(pixsize)
 
     # massage data into new arrays
     xpos = sim_map[icol+3]['x']
     ypos = sim_map[icol+3]['y']
     zpos = sim_map[icol+3]['z']
-    plt.scatter(xpos,ypos,s=2)
-    plt.show()
+    refx = np.max(np.asarray(xpos)) / 2.0
+    refy = np.max(np.asarray(ypos)) / 2.0
+    # plt.scatter(xpos,ypos,s=2)
+    # plt.show()
     outx = [pixsize * (x - refx) for x in xpos]
     outy = [pixsize * (y - refy) for y in ypos]
     outz = [float(np.ceil(10.0 * z)) / 10.0 for z in zpos]
@@ -95,13 +103,21 @@ def clus_format_bethermin(icol,sim_map,maps,band,clusname,pixsize,\
     houty = [y for _,y in sorted(zip(toutz,touty), key = lambda pair: pair[0])]
     houtz = sorted(toutz)
 
+    # #calculate the center of the image.
+    # x1 = ceil(np.max(np.asarray(houtx)))
+    # y1 = ceil(np.max(np.asarray(houty)))
+    # x2 = floor(np.min(np.asarray(houtx)))
+    # y2 = floor(np.min(np.asarray(houty)))
+    # racent = (x1 - x2) / 2.0 + x2
+    # deccent= (y1 - y2) / 2.0 + y2
+    # cent = [racent, deccent]
+    # print(cent)
 
     # magnitude instead of flux in Jy
     outmag = [-2.5 * np.log10(x) for x in houtflux]
     plt.scatter(houtx,houty,s=2)
     plt.title('end of format bethermin')
     plt.show()
-    exit()
     # write everything to file for lenstool to ingest
     lensfile = (config.HOME + 'model/' + clusname + '/' + clusname + '_cat.cat')
     with open(lensfile,'w') as f :

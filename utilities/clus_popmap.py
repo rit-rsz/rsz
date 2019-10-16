@@ -63,14 +63,17 @@ def clus_popmap(ltfile,maps,band,name,pixsize,loz=None):
     # if len(loz) == 8 :
     #     flux = [flux,loz['f']]
 
+    print(np.max(np.asarray(flux)))
     header = maps['shead']
     wcs = WCS(header)
     coords = SkyCoord(ra=ra*u.deg,dec=dec*u.deg)
     x,y = skycoord_to_pixel(coords, wcs)
-    plt.scatter(x,y,s=2)
+    plt.scatter(x,y,s=2, c=flux)
     plt.title('clus_popmap')
     plt.show()
-    exit()
+
+    print(maps['signal'].shape)
+    print(maps['shead']['NAXIS1'], maps['shead']['NAXIS2'])
 
     x_size = maps['signal'].shape[0]
     y_size = maps['signal'].shape[1]

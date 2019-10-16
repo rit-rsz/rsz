@@ -35,4 +35,4 @@ def clus_pcat_setup(maps,params,err=None):
     return x,err
 
 if __name__ == '__main__':
-    clus_pcat_setup_python2()
+    clus_pcat_setup()

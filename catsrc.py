@@ -175,26 +175,21 @@ class Catsrc():
         Class variables : self.maps gets passed in and set on the way out
         """
 
-        # resid_maps, err = clus_pcat_setup(self.maps,self.params)
-        # plt.imsave('/home/butler/rsz/pcat_resid2.png',resid_maps[0],format='png')
-        # np.save('/home/butler/rsz/pcat_resid.npy',resid_maps)
-        self.maps = np.load('/home/butler/rsz/pcat_resid.npy')
-
         if self.verbose:
             print('Regressing and subtracting catalogs')
 
-        # maps, err = clus_subtract_cat(maps, resid_maps, verbose=self.verbose)
-        # if err:
-        #     if self.verbose:
-        #         print('clus_subtract_cat exited with error: ' + err)
-        #     exit()
-        #
-        # if self.verbose:
-        #     print('Generating residual source mask')
-        #
-        # if not self.clusname:
-        #     if self.verbose:
-        #         print('Require a string array of cluster names as input, aborting!')
+        maps, err = clus_subtract_cat(self.maps, verbose=self.verbose)
+        if err:
+            if self.verbose:
+                print('clus_subtract_cat exited with error: ' + err)
+            exit()
+
+        if self.verbose:
+            print('Generating residual source mask')
+
+        if not self.clusname:
+            if self.verbose:
+                print('Require a string array of cluster names as input, aborting!')
 
         #This is commented out because the function hasn't been made yet.
         #The idea is to use residual mask to do some manual masking, but we haven't
@@ -206,14 +201,16 @@ class Catsrc():
         #         exit()
 
         if self.verbose:
-            print('Subtracting correlated componenets')
+            print('Subtracting correlated components')
 
-        maps, err = clus_subtract_xcomps(self.maps, simflag=self.simmap, verbose=self.verbose)
+        exit()
+        maps, err = clus_subtract_xcomps(self.maps, simflag=self.simmap, verbose=self.verbose, superplot=1)
         if err:
             if self.verbose:
                 print('clus_subtract_xcomps exited with error: ' + err)
             exit()
 
+        exit()
         if self.verbose:
             print('Saving processed images')
 
@@ -256,7 +253,7 @@ class Catsrc():
         else:
             maxlim = 450
 
-        fit = clus_fitsz(radave, self.params,self.beam) #args need to be figued out when we write this function
+        fit = clus_fitsz(radave, self.params,self.beam)
         sys.exit()
         increment = fit[1,:] #don't know if this is the same as [1,*] in idl
         offsets = fit[0,:]

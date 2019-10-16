@@ -17,6 +17,7 @@ import sys
 sys.path.append('../utilities')
 import config
 import numpy as np
+import matplotlib.pyplot as plt
 
 
 def clus_format_bethermin(icol,sim_map,maps,band,clusname,pixsize,\
@@ -24,7 +25,6 @@ def clus_format_bethermin(icol,sim_map,maps,band,clusname,pixsize,\
 
 
     # initialize variables
-
     msrc = 50000 - 1
 
     # 3,4,5 are 250,350,500 truthtables
@@ -38,12 +38,10 @@ def clus_format_bethermin(icol,sim_map,maps,band,clusname,pixsize,\
     xpos = sim_map[icol+3]['x']
     ypos = sim_map[icol+3]['y']
     zpos = sim_map[icol+3]['z']
-    print(xpos[0:10],ypos[0:10])
+    plt.scatter(xpos,ypos,s=2)
+    plt.show()
     outx = [pixsize * (x - refx) for x in xpos]
     outy = [pixsize * (y - refy) for y in ypos]
-    # outx = [pixsize * x for x in xpos]
-    # outy = [pixsize * y for y in ypos]
-    print(outx[0:10],outy[0:10])
     outz = [float(np.ceil(10.0 * z)) / 10.0 for z in zpos]
     outflux = sim_map[-1]['fluxdens'][:,icol]
 
@@ -86,27 +84,31 @@ def clus_format_bethermin(icol,sim_map,maps,band,clusname,pixsize,\
 
     # truncate to the msrc brightest sources
     if msrc < nsrc :
-        outflux = outflux[0:msrc]
-        outx = outx[0:msrc]
-        outy = outy[0:msrc]
-        outz = outz[0:msrc]
-    print(len(outflux))
+        toutflux = outflux[0:msrc]
+        toutx = outx[0:msrc]
+        touty = outy[0:msrc]
+        toutz = outz[0:msrc]
+    print(len(toutflux))
     # now sort according to z
-    outflux = [f for _,f in sorted(zip(outz,outflux))]
-    outx = [x for _,x in sorted(zip(outz,outx))]
-    outy = [y for _,y in sorted(zip(outz,outy))]
-    outz = sorted(outz)
+    houtflux = [f for _,f in sorted(zip(toutz,toutflux), key = lambda pair: pair[0])]
+    houtx = [x for _,x in sorted(zip(toutz,toutx), key = lambda pair: pair[0])]
+    houty = [y for _,y in sorted(zip(toutz,touty), key = lambda pair: pair[0])]
+    houtz = sorted(toutz)
+
 
     # magnitude instead of flux in Jy
-    outmag = [-2.5 * np.log10(x) for x in outflux]
-
+    outmag = [-2.5 * np.log10(x) for x in houtflux]
+    plt.scatter(houtx,houty,s=2)
+    plt.title('end of format bethermin')
+    plt.show()
+    exit()
     # write everything to file for lenstool to ingest
     lensfile = (config.HOME + 'model/' + clusname + '/' + clusname + '_cat.cat')
     with open(lensfile,'w') as f :
         f.write('#REFERENCE 3 %.6f %.6f \n' %(maps[icol]['shead']['CRVAL1'], maps[icol]['shead']['CRVAL2']))
         for k in range(len(outmag)):
             f.write('%i %.3f %.3f 0.5 0.5 0.0 %0.6f %0.6f \n' \
-                    %(k,outx[k],outy[k],outz[k],outmag[k]))
+                    %(k,houtx[k],houty[k],houtz[k],outmag[k]))
         f.close()
 
     return retcat

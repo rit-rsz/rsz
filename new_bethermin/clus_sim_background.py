@@ -21,7 +21,7 @@ sys.path.append('../new_bethermin')
 sys.path.append('../source_handling')
 from genmap import genmap_gauss
 import config
-# from clus_popmap import clus_popmap
+from clus_popmap import clus_popmap
 from clus_get_clusparams import clus_get_clusparams
 from clus_get_data import clus_get_data
 from clus_format_bethermin import clus_format_bethermin
@@ -119,28 +119,29 @@ def clus_sim_background(genbethermin=1,fluxcut=0,saveplots=1,savemaps=0,genpower
                     # create output data files for lenstool
                     lnfile = config.HOME + 'model/' + clusters[iclust] + '/' + clusters[iclust] + '_cat.cat'
                     ltfile = config.SIMBOX + clusters[iclust] + '_image_' + bands[icol] + '.dat'
-
-
-                    # creates a symbolic link to this file in the current working directory
+                    #
+                    #
+                    # # creates a symbolic link to this file in the current working directory
                     subprocess.Popen(['ln -s %s' %(lnfile)],shell=True)
-
-                    # calling lenstool program, waiting to continue until program finishes
+                    #
+                    # # calling lenstool program, waiting to continue until program finishes
                     subprocess.call(['/usr/local/bin/lenstool %s -n' %(config.HOME + 'model/' + clusters[iclust] + '/bestopt.par')],shell=True)
+                    #
+                    # # i'm assuming that this moves the output from lenstool to the directory CLUSSBOX and renames it
+                    subprocess.call(['mv image.all %s' %(ltfile)],shell=True)
 
-                    # i'm assuming that this moves the output from lenstool to the directory CLUSSBOX and renames it
-                    subprocess.Popen(['mv image.all %s' %(ltfile)],shell=True)
                     # post process cleanup
                     ''' deletes lenstool output files from current working directory (/home/person/rsz/new_bethermin)'''
-                    os.remove(clusters[iclust]+'_cat.cat')
-                    os.remove('/new_bethermin/*.fits')
-                    os.remove('/new_bethermin/*.dat')
-                    os.remove('/new_bethermin/*.out')
+                    # os.remove(config.SIM + clusters[iclust] + '_cat.cat')
+                    # os.remove(config.SIM + '*.fits')
+                    # os.remove(config.SIM + '*.dat')
+                    # os.remove(config.SIM + '*.out')
 
                 else :
                     ltfile = config.SIM + 'model/' + clusters[iclust] + '/' + clusters[iclust] + '_cat.cat'
 
                 # populate the sim maps with sources from lenstool
-                outmap = clus_popmap(ltfile,maps[icol],bands[icol],clusters[iclust],pixsize[icol],LOZ=lozcat)
+                outmap = clus_popmap(ltfile,maps[icol],bands[icol],clusters[iclust],pixsize[icol],loz=lozcat)
                 #
                 # if icol < 3 :
                 #     whpl = np.where(maps[icol]['flag'] > 0) # check that this is right
@@ -168,5 +169,5 @@ def clus_sim_background(genbethermin=1,fluxcut=0,saveplots=1,savemaps=0,genpower
 
 if __name__ == '__main__' :
     clus_sim_background(genbethermin=1,fluxcut=0,saveplots=1,savemaps=0,genpowerlaw=0,\
-                        genradave=1,addnoise=0,yeslens=1,resolution='fr',nsim=1,bolocam=0,\
+                        genradave=1,addnoise=0,yeslens=1,resolution='nr',nsim=1,bolocam=0,\
                         verbose=1,errmsg=None)

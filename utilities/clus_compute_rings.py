@@ -116,13 +116,19 @@ def clus_compute_rings(maps, params, binwidth, superplot=0, verbose=1, noconfusi
                     midwei[rad] = midwei[rad] + 1
                     if maps[m]['mask'][ipix,jpix] == 0 and (rad <= maxrad) :
                         #calculating our value for sigma^2
-                        # thiserr = maps[m]['calfac'] * sqrt(maps[m]['error'][ipix,jpix]**2 + confnoise**2)
-                        thiserr = 1
-                        # fluxbin[k] = fluxbin[k] + (maps[m]['calfac'] * maps[m]['srcrm'][i,j] / thiserr**2)
+                        thiserr = maps[m]['calfac'] * sqrt(maps[m]['error'][ipix,jpix]**2 + confnoise**2)
                         #summing up the flux * 1 / sigma^2
-                        fluxbin[rad] = fluxbin[rad] + ( maps[m]['signal'][ipix, jpix] / thiserr**2) #maps[m]['calfac'] *
+                        '''
+                            srcrm is the new pcat_spire map, which may already be in units of
+                            mJy/pixel rather than Jy/beam like the other maps
+                        '''
+                        fluxbin[k] = fluxbin[k] + (maps[m]['calfac'] * maps[m]['srcrm'][i,j] / thiserr**2)
                         #summing up 1 / sigma^2
                         hitbin[rad] = hitbin[rad] + 1.0 / thiserr**2
+                        ''' for testing without real subtracted map
+                        thiserr = 1
+                        fluxbin[rad] = fluxbin[rad] + ( maps[m]['signal'][ipix, jpix] / thiserr**2)
+                        '''
 
         # =========================================================================================
         # file = config.FITSOUT + 'radmap_' + bands[m] + '_' + maps[m]['name'] + '.fits'

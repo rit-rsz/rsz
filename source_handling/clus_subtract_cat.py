@@ -21,38 +21,35 @@ import matplotlib.pyplot as plt
 # from clus_get_data import *
 from astropy.io import fits
 import config
+import sys
+sys.path.append(config.HOME + 'multiband_pcat')
+from pcat_spire import lion
 
-def clus_subtract_cat(maps, cat, verbose=1):
-    err = False
+def clus_subtract_cat(maps, verbose=1):
+    err = None
+
+    # ob = lion(raw_counts=True, auto_resize=True, visual=True)
+    # default is to have all of the 3 maps returned
+    ob = lion(map_object=maps, auto_resize=True, make_post_plots=False, nsamp=100, residual_samples=100)
+    resid_maps = ob.main()
+
+    plt.imsave('/home/butler/rsz/pcat_resid2.png',resid_maps[0],format='png')
+    np.save('/home/butler/rsz/pcat_resid.npy',resid_maps)
+    # resid_maps = np.load('/home/butler/rsz/pcat_resid.npy')
 
     # make sure both input maps exist
-    if maps == None or cat == None :
-        return None, 'clus or pcat_spire map structure input is absent'
+    ''' turned off for testing purposes '''
+    # if maps.any() == None or resid_maps.any() == None :
+    #     return None, 'clus or pcat_spire map structure input is absent'
 
-    for i in range(len(cat)): # only loop through how many residuals we have
+    for i in range(len(resid_maps)): # only loop through how many residuals we have
         if verbose:
-            print('Subtracting for %s' %(maps[i]['band']))
+            print('Setting Subtracted Maps for %s' %(maps[i]['band']))
 
         # make the difference image
-        datasub = np.empty(maps[i]['astr']['NAXIS'])
+        datasub = resid_maps[i]
         # make full data map object
-        datafull = maps[i]['signal'].data
-
-        # find parts of the signal map & mask which exist and dont
-        # perform subtraction for good data, make nans for bad data
-        for j in range(maps[i]['signal'].data.shape[0]):
-            for k in range(maps[i]['signal'].data.shape[1]):
-                if np.isfinite(maps[i]['signal'].data[j,k]) == False or maps[i]['mask'][j,k] == 1 :
-                    datasub[j,k] = np.nan
-                else:
-                    datasub[j,k] = maps[i]['signal'].data[j,k] - cat[i][j,k]
-
-        # write a fits for debugging purposes
-        # if os.path.exists(config.FITSOUT + 'xid_subtracted_%s_%s.fits' % (maps[i]['name'], maps[i]['band'])) == True :
-        #     os.remove(config.FITSOUT + 'xid_subtracted_%s_%s.fits' % (maps[i]['name'], maps[i]['band']))
-        #     hdu = fits.PrimaryHDU(datasub)
-        #     hdul = fits.HDUList([hdu])
-        #     hdul.writeto(config.FITSOUT + 'xid_subtracted_%s_%s.fits' % (maps[i]['name'], maps[i]['band']))
+        datafull = maps[i]['signal']
 
         # plotting for debugging purposes
         fig1, ax1 = plt.subplots()

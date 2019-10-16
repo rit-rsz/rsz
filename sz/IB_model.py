@@ -19,7 +19,6 @@ import os
 import sys
 sys.path.append('../utilities')
 sys.path.append('../source_handling')
-from get_data import get_data
 from config import *
 from astropy.io import fits
 from astropy import wcs
@@ -27,7 +26,6 @@ from astropy.coordinates import SkyCoord
 from astropy.wcs.utils import skycoord_to_pixel
 from astropy import units as u
 import matplotlib.pyplot as plt
-from get_clusparams import *
 
 def IB_model(maps,params, verbose = 0):
     errmsg = False

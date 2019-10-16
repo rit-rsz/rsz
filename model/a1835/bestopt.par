@@ -1,0 +1,140 @@
+Chi2tot: 665.099
+Chi2pos: 664.746
+Chi2formex: 0.000
+Chi2formey: 0.000
+Chi2l: 0.353
+log(Evidence) : -430.734
+runmode
+	reference     3 210.258650 2.878470
+	source    1 a1835_cat.cat
+	inverse   0 0.010000 3213
+	ampli     1 1800 1.5  mu.fits
+	end
+image
+	multfile    0 newmul3d.cat
+	forme       0
+	critic    1 16.870 -18.980 45.000 0.100 2.070
+	z_m_limit  1 100.0 3 3.500 0.500 0.1000 
+	z_m_limit  2 200.0 3 1.700 0.500 0.1000 
+	z_m_limit  3 300.0 3 2.000 0.500 0.1000 
+	z_m_limit  4 400.0 3 4.500 0.500 0.1000 
+	mult_wcs    1
+	sigposArcsec   0.200000
+	end
+grille
+	nombre      128
+	polaire     0
+	nlentille   99
+	nlens_opt   0
+	end
+potentiel O1
+	profil       81
+	x_centre     4.831
+	y_centre     0.719
+	ellipticite     0.688
+	angle_pos       77.693
+	core_radius_kpc     99.129
+	cut_radius_kpc     1000.000
+	v_disp     1219.379
+	z_lens     0.2530
+	end
+limit O1
+	x_centre     3 4.831 0.000 0.010
+	y_centre     3 0.415 0.415 0.010
+	ellipticite     3 0.690 0.028 0.000
+	angle_pos     3 77.680 0.197 0.100
+	core_radius_kpc     3 97.944 4.007 0.100
+	v_disp    3 1218.560 7.620 0.100
+	end
+potentiel O2
+	profil       81
+	x_centre     1.449
+	y_centre     -0.259
+	ellipticite     0.148
+	angle_pos       58.600
+	core_radius_kpc     4.384
+	cut_radius_kpc     24.709
+	v_disp     880.897
+	mag		  12.850
+	z_lens     0.2530
+	end
+limit O2
+	x_centre     3 1.420 0.281 0.010
+	y_centre     3 -0.329 0.329 0.010
+	cut_radius_kpc     3 24.814 4.589 0.000
+	v_disp    3 875.981 40.829 0.100
+	end
+potentiel O3
+	profil       81
+	x_centre     14.953
+	y_centre     -19.787
+	ellipticite     0.720
+	angle_pos       60.600
+	core_radius_kpc     0.098
+	cut_radius_kpc     94.065
+	v_disp     111.490
+	mag		  16.690
+	z_lens     0.2530
+	end
+limit O3
+	cut_radius_kpc     3 80.489 80.489 0.000
+	v_disp    3 73.586 73.586 0.000
+	end
+potentiel O4
+	profil       81
+	x_centre     -17.593
+	y_centre     -23.726
+	ellipticite     0.229
+	angle_pos       -36.700
+	core_radius_kpc     0.124
+	cut_radius_kpc     2.542
+	v_disp     363.623
+	mag		  16.190
+	z_lens     0.2530
+	end
+limit O4
+	cut_radius_kpc     3 5.477 5.477 0.000
+	v_disp    3 258.295 131.089 0.000
+	end
+potfile
+	filein  1 ../model/a1835/galsortedK3_nobcg_no212_no213.cat
+	zlens   0.253000
+	type    81
+	corekpc 0.150000
+	mag0    15.770000
+	sigma   0 158.000000 27.000000
+	cutkpc  0 45.000000 20.000000
+	slope   0 4.000000 0.100000
+	vdslope 0 4.000000 0.000000
+	vdscat 0 0.000000 0.000000
+	rcutscat 0 0.000000 0.000000
+	end
+cline
+	dmax     150.000
+	algorithm   MARCHINGSQUARES
+	limitHigh   1.00
+	limitLow    0.100
+	end
+grande
+	iso         0 0 0.000 0.000 0.000
+	name        best
+	profil      0 0
+	contour     1 0
+	large_dist  0.300
+	end
+cosmologie
+	H0         70.000
+	omegaM     0.300
+	omegaX     0.700
+	omegaK     0.
+	wX         -1.000
+	end
+cosmolimit
+	omegaM		0 0.000 0.000
+	omegaX		0 0.000 0.000
+	wX		0 0.000 0.000
+	end
+champ
+	dmax   1800
+	end
+fini

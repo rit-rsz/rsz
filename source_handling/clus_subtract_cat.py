@@ -14,61 +14,62 @@
 #   VLB - 8/13/19 - trimmed down the code to get rid of unneccessary for loops,
 #                   added contour plots to visualize output, robust deletion and
 #                   creation of new fits files for debugging
+#   VLB - 10/15/19 - changing to work with PCAT_SPIRE residual maps instead of XID+
 ################################################################################
 import numpy as np
 import matplotlib.pyplot as plt
 # from clus_get_data import *
 from astropy.io import fits
 import config
+import sys
+sys.path.append(config.HOME + 'multiband_pcat')
+from pcat_spire import lion
 
-def clus_subtract_cat(maps, cat, verbose=1):
-    err = False
+def clus_subtract_cat(maps, verbose=1):
+    err = None
+
+    # ob = lion(raw_counts=True, auto_resize=True, visual=True)
+    # default is to have all of the 3 maps returned
+    ob = lion(map_object=maps, auto_resize=True, make_post_plots=False, nsamp=100, residual_samples=100)
+    resid_maps = ob.main()
+
+    plt.imsave('/home/butler/rsz/pcat_resid2.png',resid_maps[0],format='png')
+    np.save('/home/butler/rsz/pcat_resid.npy',resid_maps)
+    # resid_maps = np.load('/home/butler/rsz/pcat_resid.npy')
 
     # make sure both input maps exist
-    if maps == None or cat == None :
-        return None, 'clus or xid map structure input is absent'
+    ''' turned off for testing purposes '''
+    # if maps.any() == None or resid_maps.any() == None :
+    #     return None, 'clus or pcat_spire map structure input is absent'
 
-    for i in range(len(maps)):
+    for i in range(len(resid_maps)): # only loop through how many residuals we have
         if verbose:
-            print('Subtracting for %s' %(maps[i]['band']))
+            print('Setting Subtracted Maps for %s' %(maps[i]['band']))
 
         # make the difference image
-        datasub = np.empty(maps[i]['astr']['NAXIS'])
+        datasub = resid_maps[i]
         # make full data map object
-        datafull = maps[i]['signal'].data
-
-        # find parts of the signal map & mask which exist and dont
-        # perform subtraction for good data, make nans for bad data
-        for j in range(maps[i]['signal'].data.shape[0]):
-            for k in range(maps[i]['signal'].data.shape[1]):
-                if np.isfinite(maps[i]['signal'].data[j,k]) == False or maps[i]['mask'][j,k] == 1 :
-                    datasub[j,k] = np.nan
-                else:
-                    datasub[j,k] = maps[i]['signal'].data[j,k] - cat[i]['model'][j,k]
-
-        # write a fits for debugging purposes
-        # if os.path.exists(config.FITSOUT + 'xid_subtracted_%s_%s.fits' % (maps[i]['name'], maps[i]['band'])) == True :
-        #     os.remove(config.FITSOUT + 'xid_subtracted_%s_%s.fits' % (maps[i]['name'], maps[i]['band']))
-        #     hdu = fits.PrimaryHDU(datasub)
-        #     hdul = fits.HDUList([hdu])
-        #     hdul.writeto(config.FITSOUT + 'xid_subtracted_%s_%s.fits' % (maps[i]['name'], maps[i]['band']))
+        datafull = maps[i]['signal']
 
         # plotting for debugging purposes
-        # fig1, ax1 = plt.subplots()
-        # fig1, ax2 = plt.subplots()
-        # cp1 = ax1.contour(datafull)
-        # ax1.set_title('clus_subtract_cat: Signal map for %s' %(maps[i]['band']))
-        # cp2 = ax2.contour(datasub)
-        # ax2.set_title('clus_subtract_cat: Catalog subtracted map for %s' %(maps[i]['band']))
-        # plt.show()
+        fig1, ax1 = plt.subplots()
+        fig1, ax2 = plt.subplots()
+        cp1 = ax1.contour(datafull)
+        ax1.set_title('clus_subtract_cat: Signal map for %s' %(maps[i]['band']))
+        cp2 = ax2.contour(datasub)
+        ax2.set_title('clus_subtract_cat: Catalog subtracted map for %s' %(maps[i]['band']))
+        plt.show()
 
         # save new subtracted signal to map
         maps[i]['scrrm'] = datasub
-        maps[i]['xclean'] = datasub
 
     return maps, err
 
-# if __name__ == '__main__' :
-    # maps, err = get_data('rxj1347')
-    # maps, err = get_data('a2218')
-    # subtract_cat(maps,maps)
+if __name__ == '__main__' :
+    import sys
+    sys.path.append('../utilities')
+    sys.path.append('../source_handling')
+    from clus_get_data import clus_get_data
+    maps, err = clus_get_data(clusname='a0370')
+    resid_maps = np.load('/home/butler/rsz/pcat_resid.npy')
+    subtract_cat(maps,resid_maps)

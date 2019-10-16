@@ -25,6 +25,7 @@ from astropy.convolution import convolve_fft
 # from scipy import optimize.least_squares
 from scipy.stats import linregress
 from writefits import *
+from gaussian import makeGaussian, padGaussian
 
 def clus_subtract_xcomps(maps, simflag=0, verbose=1, superplot=0):
     ncols = len(maps)
@@ -39,12 +40,17 @@ def clus_subtract_xcomps(maps, simflag=0, verbose=1, superplot=0):
     for i in range(1, ncols):
         if verbose:
             print('On band %s' %(maps[i]['band']))
+
         #create a new image for the PSW band that is the same shape and beamsize as the reference images
+<<<<<<< HEAD
         #do this by convolving the srcrm map with a gaussian kernel
         width = sqrt(maps[i]['widtha']**2 - maps[0]['widtha']**2) / maps[0]['pixsize']
+=======
+        width = sqrt(maps[i]['widtha']**2 + maps[0]['widtha']**2) / maps[0]['pixsize']
+>>>>>>> 2a62b22f013f88b19d4c4ea007039b9a32495b10
         kern = makeGaussian(15, 15, fwhm =width, center=None)
         inmap = maps[0]['srcrm']
-        kern = padGaussian(inmap)
+        kern = padGaussian(inmap,kern)
         inmap = convolve_fft(inmap, kern)
         maps[0]['xclean'] = maps[0]['srcrm']
         xmap = inmap
@@ -66,14 +72,19 @@ def clus_subtract_xcomps(maps, simflag=0, verbose=1, superplot=0):
 
 
         if superplot:
+<<<<<<< HEAD
             plt.plot(PSW_array, PMW_array, 'x', label='data')
             plt.ylabel('PMW map')
             plt.plot(PSW_array, y, c='red', label='fit')
             plt.xlabel('PSW map')
+=======
+            plt.plot(PSW_array, ref_array, 'x')
+            plt.plot(PSW_array, y, c='red')
+>>>>>>> 2a62b22f013f88b19d4c4ea007039b9a32495b10
             plt.show()
 
 
-        #subtract the correlated componenets from the image
+        #subtract the correlated components from the image
         maps[i]['xclean'] = np.empty(maps[i]['srcrm'].shape)
         for j in range(maps[i]['xclean'].shape[0]):
             for k in range(maps[i]['xclean'].shape[1]):

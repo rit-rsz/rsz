@@ -1,0 +1,145 @@
+Chi2tot: 105.354
+Chi2pos: 105.354
+Chi2formex: 0.000
+Chi2formey: 0.000
+Chi2l: 0.000
+log(Evidence) : -130.918
+runmode
+	reference     3 39.971152 -1.582262
+	source    1 a0370_cat.cat
+	inverse   0 0.010000 3363
+	ampli	  1 1800 1.5  mu.fits
+	end
+image
+	multfile    0 mul.cat
+	forme       0
+	z_m_limit  1 3.0 1 0.500 3.000 0.1000 
+	z_m_limit  2 4.0 1 0.500 3.000 0.1000 
+	z_m_limit  3 5.0 1 0.500 3.000 0.1000 
+	z_m_limit  4 6.0 1 0.500 3.000 0.1000 
+	z_m_limit  5 7.0 1 0.500 3.000 0.1000 
+	z_m_limit  6 8.0 1 0.500 3.000 0.1000 
+	z_m_limit  7 9.0 1 0.500 3.000 0.1000 
+	sigposArcsec   0.200000
+	end
+grille
+	nombre      128
+	nlentille   99
+	nlens_opt   0
+	nlens_crit   0
+	end
+potentiel O1
+	profil       81
+	x_centre     1.255
+	y_centre     -0.622
+	ellipticite     0.260
+	angle_pos       -101.366
+	core_radius_kpc     30.272
+	cut_radius_kpc     800.000
+	v_disp     596.462
+	z_lens     0.3750
+	end
+limit O1
+	x_centre     3 1.203 0.766 0.010
+	y_centre     3 -0.635 0.635 0.010
+	ellipticite     3 0.294 0.224 0.000
+	angle_pos     3 -101.428 12.753 0.100
+	core_radius_kpc     3 32.383 8.878 0.100
+	v_disp    3 595.817 98.697 0.100
+	end
+potentiel O2
+	profil       81
+	x_centre     1.517
+	y_centre     27.256
+	ellipticite     0.307
+	angle_pos       -96.080
+	core_radius_kpc     123.482
+	cut_radius_kpc     800.000
+	v_disp     1315.676
+	z_lens     0.3750
+	end
+limit O2
+	x_centre     3 1.455 0.603 0.010
+	y_centre     3 26.855 3.076 0.010
+	ellipticite     3 0.313 0.068 0.000
+	angle_pos     3 -95.954 1.824 0.002
+	core_radius_kpc     3 120.454 18.912 0.100
+	v_disp    3 1299.514 111.734 0.100
+	end
+potentiel O3
+	profil       81
+	x_centre     -0.014
+	y_centre     0.024
+	ellipticite     0.296
+	angle_pos       -81.900
+	core_radius_kpc     0.138
+	cut_radius_kpc     42.993
+	v_disp     153.928
+	mag		  18.490
+	z_lens     0.3750
+	end
+limit O3
+	cut_radius_kpc     3 41.333 15.640 0.100
+	v_disp    3 185.205 79.647 0.100
+	end
+potentiel O4
+	profil       81
+	x_centre     7.924
+	y_centre     -9.764
+	ellipticite     0.260
+	angle_pos       25.700
+	core_radius_kpc     0.062
+	cut_radius_kpc     16.359
+	v_disp     111.795
+	mag		  20.220
+	z_lens     0.3750
+	end
+limit O4
+	cut_radius_kpc     3 18.912 18.548 0.100
+	v_disp    3 115.915 38.900 0.100
+	end
+potfile
+	filein  1 ../model/a0370/galsortcutI_5601_5666.cat
+	zlens   0.375000
+	type    81
+	corekpc 0.150000
+	mag0    18.310000
+	sigma   3 198.910484 27.715731
+	cutkpc  0 45.000000 50.000000
+	slope   0 4.000000 2.500000
+	vdslope 0 4.000000 0.000000
+	vdscat 0 0.000000 0.000000
+	rcutscat 0 0.000000 0.000000
+	end
+cline
+	dmax     150.000
+	algorithm   MARCHINGSQUARES
+	0algorithm   SNAKE
+	limitHigh   1.0
+	limitLow    0.10
+        0pas       1.0
+        0zonemult 0 800 mult.fits
+	end
+grande
+	iso         0 0 0.000 0.000 0.000
+	name        best
+	profil      0 0
+	contour     1 0
+	large_dist  0.300
+	end
+cosmologie
+	H0         70.000
+	omegaM     0.300
+	omegaX     0.700
+	omegaK     0.
+	wX         -1.000
+	end
+cosmolimit
+	omegaM		0 0.000 0.000
+	omegaX		0 0.000 0.000
+	wX		0 0.000 0.000
+	end
+champ
+	dmax   1800
+	end
+fini

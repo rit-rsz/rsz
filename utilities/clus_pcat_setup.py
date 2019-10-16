@@ -21,6 +21,7 @@
 ################################################################################
 
 import sys
+<<<<<<< HEAD
 sys.path.append('../multiband_pcat')
 from pcat_spire import lion
 
@@ -43,3 +44,20 @@ def clus_pcat_setup_python2():
 
 if __name__ == '__main__':
     clus_pcat_setup_python2()
+=======
+import config
+sys.path.append(config.HOME + 'multiband_pcat')
+from pcat_spire import lion
+import numpy as np
+
+def clus_pcat_setup(maps,params,err=None):
+
+    # ob = lion(raw_counts=True, auto_resize=True, visual=True)
+    ob = lion(band0=0, map_object=maps, auto_resize=True, make_post_plots=False, nsamp=10, residual_samples=10)
+    x = ob.main()
+
+    return x,err
+
+if __name__ == '__main__':
+    clus_pcat_setup()
+>>>>>>> 2a62b22f013f88b19d4c4ea007039b9a32495b10

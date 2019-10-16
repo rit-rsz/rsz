@@ -33,10 +33,11 @@ from clus_get_relsz import *
 from astropy.io import fits
 # from astropy import units as u
 from FITS_tools.hcongrid import hcongrid
+from IB_model import *  # for testing
 
 
 
-def clus_add_sziso(maps,yin,tin,params,
+def clus_add_sziso(maps,yin,tin,params,ib_test,
               verbose = 0,):
     errmsg = False
 
@@ -102,61 +103,70 @@ def clus_add_sziso(maps,yin,tin,params,
             n +=1
 
     # Set up the spectral shape of the sz effect to be appled to the 500um map
-    # plt.imshow(bolocam[0]['deconvolved_image'][0])
-    # plt.show()
-    szmap = -1 * bolocam[0]['deconvolved_image'][0]
-    szmap = (np.array(szmap)).flatten()
-    szmap = szmap - np.mean(szmap[outer])
-    szmap = [x/max(szmap) for x in szmap]
-
+    if ib_test == False :
+        # plt.imshow(bolocam[0]['deconvolved_image'][0])
+        # plt.show()
+        szmap = -1 * bolocam[0]['deconvolved_image'][0]
+        szmap = (np.array(szmap)).flatten()
+        szmap = szmap - np.mean(szmap[outer])
+        szmap = [x/max(szmap) for x in szmap]
+        # szmap = np.reshape(szmap, (naxis[0], naxis[1]))
 
     for imap in range(mapsize):
         # Applying the effect to the 500um band
         if imap == 2:
-            # yin_coeff = [2.50,1.91,2.26,3.99,1.36,2.42,1.59,1.90,3.99]
-            # yin = [x*1e-4 for x in yin_coeff]
-            # tin = [7.2,10.1,7.7,9.8,4.5,8.6,7.8,5.5,10.9]
+            yin_coeff = [2.50,1.91,2.26,3.99,1.36,2.42,1.59,1.90,3.99]
+            yin = [x*1e-4 for x in yin_coeff]
+            tin = [7.2,10.1,7.7,9.8,4.5,8.6,7.8,5.5,10.9]
             nu = 3e5 / clus_get_lambdas((maps[imap]['band']))
             dI,errmsg = clus_get_relsz(nu,y=yin,te=tin,vpec=0.0) # dI = [MJy/sr]
-            dI = 0.265244
             print(dI / maps[imap]['calfac'])
             if errmsg:
                 if verbose:
                     new_errmsg = 'Clus_get_relSZ exited with error'+errmsg
                 return None, new_errmsg
 
+
             ''' This was necessary using old units for run_SZpack output '''
             # dI_converted = dI*((1.13*(maps[imap]['widtha'])/3600.)**2 * (pi/180)**2)
-            ###########################################################################
 
-            # Combine the spectral shape of the SZ effect, and combine with the peak intensity
-            # converted to Jy/pixel  ***Confirm these Units***
-            szin = [x * dI  for x in szmap] #/ maps[imap]['calfac']
-            szin = np.reshape(szin,(naxis[0],naxis[1]))
-            # plt.imshow(szin)
-            # plt.show()
+            if ib_test == True :
+                szmap,err = IB_model(maps[imap],params,verbose)
+                plt.imshow(szmap)
+                plt.show()
+                szmap = (np.array(szmap))
+                naxis1 = szmap.shape[0]
+                naxis2 = szmap.shape[1]
+                szmap = szmap.flatten()
+                szin = [x * dI / maps[imap]['calfac'] for x in szmap]
+                szinp = np.reshape(szin,(naxis1,naxis2))
+
+            else :
+                # Combine the spectral shape of the SZ effect, and combine with the peak intensity
+                # converted to Jy/pixel  ***Confirm these Units***
+                szin = [x * dI  for x in szmap] #/ maps[imap]['calfac']
+                szin = np.reshape(szin,(naxis[0],naxis[1]))
 
             # Have to interpolate to SPIRE map size
-            # Using hcongrid from astropy's FITS_tools to replace HASTROM
             # Requires fits objects to work
-            hdu = fits.PrimaryHDU(szin,temphead)
-            hdx = fits.PrimaryHDU(maps[imap]['signal'],maps[imap]['shead'])
+                hdu = fits.PrimaryHDU(szin,temphead)
+                hdx = fits.PrimaryHDU(maps[imap]['signal'],maps[imap]['shead'])
+                szinp = hcongrid(hdu.data,hdu.header,hdx.header)
 
-            szinp = hcongrid(hdu.data,hdu.header,hdx.header)
-            # Used to check the alligned sz effect image
-            # sz = fits.PrimaryHDU(szinp,hdx.header)
-            # sz.writeto('test.fits')
+                #Used to check the alligned sz effect image
+                # sz = fits.PrimaryHDU(szinp,hdx.header)
+                # sz.writeto('test.fits')
 
             # Combine the original signal with the sz effect
-            '''TESTING : For now just passing throught the sz signal only'''
+            '''TESTING : For now just passing through the sz signal only'''
             # maps[imap]['signal'] = maps[imap]['signal'] + szinp
             maps[imap]['signal'] = szinp
             # plt.imshow(szinp)
             # plt.show()
-            # Used to check the final output map
+
+            # check the final output map
             # sz = fits.PrimaryHDU(maps[imap]['signal'],hdx.header)
             # sz.writeto('a0370_sim200PLW_sz_only.fits')
-            # exit()
 
     return maps, None
 

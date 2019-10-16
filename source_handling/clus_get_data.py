@@ -298,7 +298,7 @@ def clus_read_file(file,band,clusname,verbose=0,simmap=0):
           'ehead':herr, #nope
           'astr':astr, #check
           'pixsize':pixsize, #check
-          'psf':psf, #check    dumb = fits.PrimaryHDU(maps['signal'], map.header)
+          'psf':psf, #check    hdu = fits.PrimaryHDU(maps['signal'], map.header)
           'width':width, #check
           'widtha':widtha, #check
           'calfac':calfac, #check

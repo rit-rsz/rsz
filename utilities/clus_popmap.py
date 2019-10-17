@@ -18,19 +18,19 @@ from astropy.coordinates import SkyCoord
 import astropy.units as u
 import sys
 sys.path.append('../utilities')
+import config
 from gaussian import makeGaussian
 import matplotlib.pyplot as plt
 from astropy.io import fits
 from FITS_tools.hcongrid import hcongrid
 import numpy as np
 
-def clus_popmap(ltfile,maps,band,name,pixsize,loz=None):
+def clus_popmap(ltfile,maps,band,name,pixsize,loz=None,superplot=0,savemaps=0):
 
     # read in the image.dat file
     ra = []
     dec = []
     mag = []
-    num = []
     with open(ltfile,'r') as f :
         data = f.readlines()
         for i in range(len(data)) :
@@ -42,7 +42,6 @@ def clus_popmap(ltfile,maps,band,name,pixsize,loz=None):
                 ra.append(float(val[1]))
                 dec.append(float(val[2]))
                 mag.append(float(val[-1]))
-                num.append(float(val[0]))
     f.close()
 
     # if len(loz) == 8 :
@@ -50,53 +49,52 @@ def clus_popmap(ltfile,maps,band,name,pixsize,loz=None):
     #     dec = [dec,loz['y']]
     refx = maps['shead']['CRVAL1']
     refy = maps['shead']['CRVAL2']
-    print(refx,refy)
-    plt.scatter(ra,dec,s=2)
-    plt.show()
 
     # convert ra/dec to degrees
     ra = [((-x / 3600.0) + refx) for x in ra]
     dec = [((y / 3600.0) + refy) for y in dec]
-    plt.scatter(ra,dec,s=2)
-    plt.show()
     flux = [10.0**(-k/2.5) for k in mag]
     # if len(loz) == 8 :
     #     flux = [flux,loz['f']]
 
-    print(np.max(np.asarray(flux)))
+    if superplot:
+        plt.scatter(ra,dec,s=2)
+        plt.title('Start of Clus Popmap')
+        plt.show()
+
     header = maps['shead']
     wcs = WCS(header)
     coords = SkyCoord(ra=ra*u.deg,dec=dec*u.deg)
     x,y = skycoord_to_pixel(coords, wcs)
-    plt.scatter(x,y,s=2, c=flux)
-    plt.title('clus_popmap')
-    plt.show()
 
-    print(maps['signal'].shape)
-    print(maps['shead']['NAXIS1'], maps['shead']['NAXIS2'])
+    if superplot:
+        plt.scatter(x,y,s=2)
+        plt.title('clus_popmap: after skycoord_to_pixel')
+        plt.show()
 
     x_size = maps['signal'].shape[0]
     y_size = maps['signal'].shape[1]
-    outmap = np.zeros((x_size,y_size))
+    outmap = np.zeros((y_size,x_size))
     for i in range(len(flux)):
-        if x[i] > 0 and x[i] < x_size and y[i] > 0 and y[i] < y_size:
-            kern = makeGaussian(y_size,x_size, fwhm = 3, center=(x[i],y[i]))
+        if x[i] >= 0 and x[i] <= y_size and y[i] >= 0 and y[i] <= x_size:
+            kern = makeGaussian(x_size,y_size, fwhm = 3, center=(x[i],y[i]))
             kern = kern / np.max(kern)
             norm = flux[i]
             psf = kern * norm
             outmap = outmap + psf
-            # plt.imshow(outmap)
-            # plt.show()
 
-    plt.imshow(outmap,origin=0)
-    # plt.imsave('/home/butler/rsz/popmap.png',outmap,format='png')
-    plt.show()
+    if superplot:
+        plt.imshow(outmap,origin=0)
+        plt.title('clus_popmap: lensed sim map')
+        plt.show()
 
-    return
-
-    # hdx = fits.PrimaryHDU(maps['signal'],maps['shead'])
-    # sz = fits.PrimaryHDU(outmap,hdx.header)
-    # sz.writeto(config.SIMBOX + 'lensedmap_' + name + '_' + band + '.fits')
+    if savemaps:
+        print('band: ',band)
+        hdx = fits.PrimaryHDU(maps['signal'],maps['shead'])
+        sz = fits.PrimaryHDU(outmap,hdx.header)
+        if os.path.isfile(config.SIMBOX + 'lensedmap_' + name + '_' + band + '.fits'):
+            os.remove(config.SIMBOX + 'lensedmap_' + name + '_' + band + '.fits')
+        sz.writeto(config.SIMBOX + 'lensedmap_' + name + '_' + band + '.fits')
 
 if __name__ == '__main__':
     import sys
@@ -113,4 +111,4 @@ if __name__ == '__main__':
     band = maps[0]['band']
     ltfile = config.SIMBOX + 'a0370' + '_image_' + band + '.dat'
     # ltfile = '/data/zemcov/clusters/sandbox/a0370_image_PSW.dat'
-    clus_popmap(ltfile,maps[0],band,'a0370',pixsize[0])
+    clus_popmap(ltfile,maps[0],band,'a0370',pixsize[0],superplot=1,savemaps=1)

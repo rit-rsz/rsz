@@ -140,6 +140,7 @@ def clus_add_sziso(maps,yin,tin,params,ib_test,
                 szmap = szmap.flatten()
                 szin = [x * dI / maps[imap]['calfac'] for x in szmap]
                 szinp = np.reshape(szin,(naxis1,naxis2))
+                maps[imap]['signal'] = szinp
 
             else :
                 # Combine the spectral shape of the SZ effect, and combine with the peak intensity
@@ -152,17 +153,12 @@ def clus_add_sziso(maps,yin,tin,params,ib_test,
                 hdu = fits.PrimaryHDU(szin,temphead)
                 hdx = fits.PrimaryHDU(maps[imap]['signal'],maps[imap]['shead'])
                 szinp = hcongrid(hdu.data,hdu.header,hdx.header)
+                maps[imap]['signal'] = maps[imap]['signal'] + szinp
 
                 #Used to check the alligned sz effect image
                 # sz = fits.PrimaryHDU(szinp,hdx.header)
                 # sz.writeto('test.fits')
 
-            # Combine the original signal with the sz effect
-            '''TESTING : For now just passing through the sz signal only'''
-            # maps[imap]['signal'] = maps[imap]['signal'] + szinp
-            maps[imap]['signal'] = szinp
-            # plt.imshow(szinp)
-            # plt.show()
 
             # check the final output map
             # sz = fits.PrimaryHDU(maps[imap]['signal'],hdx.header)

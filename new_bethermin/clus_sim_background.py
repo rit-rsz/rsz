@@ -25,9 +25,12 @@ from clus_popmap import clus_popmap
 from clus_get_clusparams import clus_get_clusparams
 from clus_get_data import clus_get_data
 from clus_format_bethermin import clus_format_bethermin
+from astropy.io import fits
+from FITS_tools.hcongrid import hcongrid
 
 def clus_sim_background(genbethermin=1,fluxcut=0,saveplots=1,savemaps=0,genpowerlaw=0,\
-            genradave=1,addnoise=0,yeslens=1,resolution='fr',nsim=1,bolocam=0,verbose=1,errmsg=None):
+            genradave=1,addnoise=0,yeslens=1,resolution='nr',nsim=1,bolocam=0,verbose=1,\
+            errmsg=None,superplot=0):
 
     clusters = ['a0370','a1689','a1835','a2218','a2219','a2390',
               'cl0024','ms0451','ms1054','ms1358','rxj0152','rxj1347']
@@ -106,7 +109,7 @@ def clus_sim_background(genbethermin=1,fluxcut=0,saveplots=1,savemaps=0,genpower
 
             for icol in range(ncols):
                 lozcat = clus_format_bethermin(icol,sim_maps,maps,bands[icol],clusters[iclust],
-                                        pixsize[icol],fluxcut=fluxcut,zzero=params['z'])
+                                        pixsize[icol],fluxcut=fluxcut,zzero=params['z'],superplot=superplot,savemaps=savemaps)
 
                 if yeslens == 1:
                     ''' format bethermin needs to spit out only one cat file for the band it's on
@@ -131,43 +134,61 @@ def clus_sim_background(genbethermin=1,fluxcut=0,saveplots=1,savemaps=0,genpower
                     subprocess.call(['mv image.all %s' %(ltfile)],shell=True)
 
                     # post process cleanup
-                    ''' deletes lenstool output files from current working directory (/home/person/rsz/new_bethermin)'''
-                    # os.remove(config.SIM + clusters[iclust] + '_cat.cat')
-                    # os.remove(config.SIM + '*.fits')
-                    # os.remove(config.SIM + '*.dat')
-                    # os.remove(config.SIM + '*.out')
+                    os.remove(config.SIM + clusters[iclust] + '_cat.cat')
+                    os.remove(config.SIM + 'mu.fits')
+                    os.remove(config.SIM + 'image.dat')
+                    os.remove(config.SIM + 'pot.dat')
+                    os.remove(config.SIM + 'dist.dat')
+                    os.remove(config.SIM + 'para.out')
 
                 else :
                     ltfile = config.SIM + 'model/' + clusters[iclust] + '/' + clusters[iclust] + '_cat.cat'
 
                 # populate the sim maps with sources from lenstool
-                outmap = clus_popmap(ltfile,maps[icol],bands[icol],clusters[iclust],pixsize[icol],loz=lozcat)
-                #
+                outmap = clus_popmap(ltfile,maps[icol],bands[icol],clusters[iclust],pixsize[icol],loz=lozcat,superplot=superplot,savemaps=savemaps)
+
+                # modify the outmap to remove pixels that have been flagged
                 # if icol < 3 :
                 #     whpl = np.where(maps[icol]['flag'] > 0) # check that this is right
                 #     outmap[whpl] = np.nan
-                #
+
                 maps[icol]['signal'] = outmap
-
-
                 # adding random noise to the signal map
-                # if addnoise == 1 :
-                #     print('Adding noise to sim maps')
-                #
-                #     confnoise = 0.0
-                #     noisemap = np.random.random(seed,) #noisemap = RANDOMN(SEED,(*maps[icol]).astr.naxis)
-                #     (maps[icol]['signal'] = maps[icol]['signal'] + (maps[icol]['mask']*maps[icol]['error'])*noisemap)
+                if addnoise == 1 :
+                    print('Adding noise to sim maps')
 
-                # if savemaps == 1 :
-                #     # save the current sim map in /data/sim_clusters
-                #
-                # elif savemaps == 2 :
-                #     # save the current sim map in the 0200 naming convention in /data/bethermin_sims
-                #
+                    ''' confnoise doesn't appear to be used in IDL version '''
+                    confnoise = 0.0 #[5.8,6.3,6.8] * 1e-3 / 2. #(SQRT(8.))
+                    np.random.seed(102793)
+                    noisemap = np.random.randn((maps[icol]['shead']['NAXIS'][0],maps[icol]['shead']['NAXIS'][1])).flatten()
+                    signal_map = np.array(maps[icol]['signal'])
+                    mask = np.array(maps[icol]['mask']).flatten()
+                    error =  np.array(maps[icol]['error']).flatten()
+                    total_noise = ((mask * error) * noisemap)
+                    maps[icol]['signal'] = signal_map + np.reshape(total_noise,(signal_map.shape[0],signal_map.shape[1]))
+
+                if savemaps == 1 :
+                    # save the current sim map in /data/sim_clusters
+                    print('Savemaps set, saving maps in %s' %(config.SIMBOX+'sim_clusters/'))
+                    savefile = config.SIMBOX + 'sim_clusters/' + clusname + '_' + bands[icol] + '.fits'
+                    hdx = fits.PrimaryHDU(maps[icol]['signal'],maps[icol]['shead'])
+                    if os.path.isfile(savefile):
+                        os.remove(savefile)
+                    hdx.writeto(savefile)
+
+                elif savemaps == 2 :
+                    # save the current sim map in the 0200 naming convention in /data/bethermin_sims
+                    print('Savemaps set , saving maps in %s' %(config.CLUSNSIMS))
+                    savefile = config.CLUSNSIMS + clusname + '_' + bands[icol] + '_sim0' + isim + '.fits'
+                    hdx = fits.PrimaryHDU(maps[icol]['signal'],maps[icol]['shead'])
+                    if os.path.isfile(savefile):
+                        os.remove(savefile)
+                    hdx.writeto(savefile)
+
                 # if saveplots == 1 :
-                #     # make some plots
+                #     make some plots
 
 if __name__ == '__main__' :
-    clus_sim_background(genbethermin=1,fluxcut=0,saveplots=1,savemaps=0,genpowerlaw=0,\
+    clus_sim_background(genbethermin=1,fluxcut=0,saveplots=1,savemaps=1,genpowerlaw=0,\
                         genradave=1,addnoise=0,yeslens=1,resolution='nr',nsim=1,bolocam=0,\
-                        verbose=1,errmsg=None)
+                        verbose=0,errmsg=None,superplot=1)

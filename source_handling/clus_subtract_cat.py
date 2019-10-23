@@ -29,14 +29,18 @@ from pcat_spire import lion
 def clus_subtract_cat(maps, verbose=1):
     err = None
 
-    # ob = lion(raw_counts=True, auto_resize=True, visual=True)
     # default is to have all of the 3 maps returned
-    ob = lion(map_object=maps, auto_resize=True, make_post_plots=False, nsamp=100, residual_samples=100, visual=False)
-    resid_maps = ob.main()
+    # ob = lion(band0=2 , map_object=maps, auto_resize=True, make_post_plots=False, nsamp=500, residual_samples=100, visual=False)
+    # resid_maps = ob.main()
 
-    plt.imsave('/home/butler/rsz/pcat_resid.png',resid_maps[0],format='png')
-    np.save('/home/butler/rsz/pcat_resid.npy',resid_maps)
-    # resid_maps = np.load('/home/butler/rsz/pcat_resid.npy',allow_pickle=True)
+    # plt.imsave('/home/butler/rsz/pcat_resid.png',resid_maps[0],format='png')
+    # np.save('/home/butler/rsz/pcat_resid2.npy',resid_maps)
+
+    map1 = np.load('/home/butler/rsz/pcat_resid.npy',allow_pickle=True)
+    map2 = np.load('/home/butler/rsz/pcat_resid1.npy',allow_pickle=True)
+    map3 = np.load('/home/butler/rsz/pcat_resid2.npy',allow_pickle=True)
+
+    resid_maps = [map1[0],map2[0],map3[0]]
 
     # make sure both input maps exist
     ''' turned off for testing purposes '''
@@ -66,7 +70,8 @@ def clus_subtract_cat(maps, verbose=1):
         plt.title('clus_subtract_cat: Catalog subtracted map for %s' %(maps[i]['band']))
         plt.show()
         # save new subtracted signal to map
-        maps[i]['scrrm'] = datasub
+        # reshape pcat square map to original SPIRE size
+        maps[i]['srcrm'] = datasub[0:maps[i]['signal'].shape[0],0:maps[i]['signal'].shape[1]]
 
     return maps, err
 

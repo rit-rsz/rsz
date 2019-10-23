@@ -185,7 +185,7 @@ def get_spire_beam(band=None, pixsize=0,npixx=0, npixy=0,
     # plt.xlabel('x [pixels]')
     # plt.ylabel('y [pixels]')
     # plt.show()
-    beamkern = 1
+    # beamkern = 1
 
     return beamkern
 

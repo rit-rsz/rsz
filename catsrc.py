@@ -2,14 +2,18 @@
 # NAME : catsrc.py
 # DATE STARTED : June 11, 2019
 # AUTHORS : Victoria Butler & Dale Mercado & Benjamin Vaughan
-# PURPOSE :
-# This procedure is a first stab at a generalized driver program for
-# fitting the SZ effect in the HerMES/HLS clusters.  It is designed so
-# that one gives it a map and catalog as input and it fits for all the
-# sources in the catalog from the map. Then it takes those fits and
-# subtracts or masks them from the map. Finally, it takes radial averages
-# and fits for the SZ effect.
+# PURPOSE : This procedure is the first attempt at translating the old
+#             pipeline from IDL into a working python counterpart.
+#             The purpose is to act as a driver program that has the
+#             capability to fit the SZ effect in the HerMES/HLS clusters.
 #
+#   Below is what Mike used to describe the IDL scripts function
+# ;;  This procedure is a first stab at a generalized driver program for
+# ;;  fitting the SZ effect in the HerMES/HLS clusters.  It is designed so
+# ;;  that one gives it a map and catalog as input and it fits for all the
+# ;;  sources in the catalog from the map.  Then it takes those fits and
+# ;;  subtracts or masks them from the map.  Finally, it takes radial averages
+# ;;  and fits for the SZ effect.
 # EXPLANATION :
 # CALLING SEQUENCE :
 # INPUTS :
@@ -29,6 +33,8 @@ from config import * #(this line will give me access to all directory variables)
 # from clus_get_tfs import * #this isn't being used right now
 from clus_get_clusparams import *
 # from clus_pcat_setup import *
+# This is no longer being used
+# from get_simmaps import *
 sys.path.append('source_handling')
 from clus_subtract_cat import *
 from clus_subtract_xcomps import *
@@ -41,15 +47,13 @@ sys.path.append('sz')
 from clus_add_sziso import *
 from clus_compute_rings import *
 from clus_fitsz import *
-# from clus_save_data import *
 sys.path.append('multiband_pcat')
-from pcat_spire import lion
 # from multiband_pcat import *
 
 class Catsrc():
 
     def __init__(self, clusname, saveplot=1, cattype="24um", savecat=0,
-                 savemap=0, maketf=0, simmap=0, nsim=0, s2n=3, verbose=1, resolution='nr',ib_test=False):
+                 savemap=0, maketf=0, simmap=0, nsim=0, s2n=3, verbose=1, resolution='nr'):
         """
         initializing function for catsrc class
         Purpose: read in arguments to be passed to functions in catsrc.
@@ -67,8 +71,8 @@ class Catsrc():
         Outputs : None
         """
         self.beam = [get_spire_beam_fwhm('PSW'), #arcsec
-                     get_spire_beam_fwhm('PMW'),
-                     get_spire_beam_fwhm('PLW')]
+                get_spire_beam_fwhm('PMW'),
+                get_spire_beam_fwhm('PLW')]
         self.verbose = verbose
         self.cattype = cattype
         self.savecat = savecat
@@ -82,7 +86,6 @@ class Catsrc():
         self.clusname = clusname
         self.nsim = nsim
         self.resolution = resolution
-        self.ib_test = ib_test
         self.data_retrieval()
         self.source_removal()
         self.data_analysis()
@@ -134,18 +137,15 @@ class Catsrc():
 
         # Add the sz effect into the simmulated clusters
         if self.simmap:
-            # maps, err = get_simmaps(self.clusname,nsim=self.nsim, simflag=self.simmap, verbose=self.verbose)
-            # if err:
-            #     if self.verbose:
-            #         print('clus_get_simmaps exited with error: ' + err)
-            #     exit()
-            maps, err = clus_add_sziso(maps,yin=self.yin, tin=self.tin,params=params,ib_test=self.ib_test,verbose=self.verbose)
-            # plt.imshow(maps[0]['signal'])
-            # plt.show()
-            if err:
-                if self.verbose:
-                    print('clus_add_sziso exited with error: '+ err)
-                exit()
+            maps, err = clus_add_sziso(maps,yin=self.yin, tin=self.tin,params=params,verbose=self.verbose)
+            plt.imshow(maps[2]['signal'])
+            plt.show()
+
+        if err:
+            if self.verbose:
+                print('clus_add_sziso exited with error: '+ err)
+            exit()
+
         #transfer function is not in use currently.
         ncols = len(maps)
         # if self.verbose:
@@ -164,13 +164,15 @@ class Catsrc():
 
         self.maps = maps
         self.params = params
-
         return
+
+
+
 
     def source_removal(self):
         """
         Purpose : the purpose of this function is to act as a wrapper for the source removal script that
-        we are using. That used to be XID but most of this code has been deprecated.
+        we are using. That used to be XID but most of this code has been depreciated.
         Inputs : self.maps get passed by reference
         Outputs : None
         Class variables : self.maps gets passed in and set on the way out
@@ -178,10 +180,6 @@ class Catsrc():
 
         if self.verbose:
             print('Regressing and subtracting catalogs')
-
-        plt.imshow(self.maps[2]['signal'])
-        plt.colorbar()
-        plt.show()
 
         maps, err = clus_subtract_cat(self.maps, verbose=self.verbose)
         if err:
@@ -206,9 +204,9 @@ class Catsrc():
         #         exit()
 
         if self.verbose:
-            print('Subtracting correlated components')
+            print('Subtracting correlated componenets')
 
-        maps, err = clus_subtract_xcomps(maps, simflag=self.simmap, verbose=self.verbose, superplot=1)
+        maps, err = clus_subtract_xcomps(maps, simflag=self.simmap, verbose=self.verbose)
         if err:
             if self.verbose:
                 print('clus_subtract_xcomps exited with error: ' + err)
@@ -218,18 +216,17 @@ class Catsrc():
         if self.verbose:
             print('Saving processed images')
 
-        # err = clus_save_data(maps,yin=self.yin, tin=self.tin, simflag=self.simmap, verbose=self.verbose)
-        # if err:
-        #     if self.verbose:
-        #         print('clus_save_data exited with error: ' + err)
-        #     exit()
+        err = clus_save_data(maps,yin=self.yin, tin=self.tin, simflag=self.simmap, verbose=self.verbose)
+        if err:
+            if self.verbose:
+                print('clus_save_data exited with error: ' + err)
+            exit()
 
         if self.simmap == 0:
             if self.verbose:
                 print('Computing radial averages nsim=200')
-        self.maps = maps
-
-        return
+        self.maps
+        return maps
 
     def data_analysis(self):
         """
@@ -257,8 +254,7 @@ class Catsrc():
         else:
             maxlim = 450
 
-        fit = clus_fitsz(radave, self.params,self.beam)
-        sys.exit()
+        fit = clus_fitsz(radave, self.params,self.beam) #args need to be figued out when we write this function
         increment = fit[1,:] #don't know if this is the same as [1,*] in idl
         offsets = fit[0,:]
 

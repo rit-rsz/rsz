@@ -28,6 +28,7 @@ from writefits import *
 from gaussian import makeGaussian, padGaussian
 
 def clus_subtract_xcomps(maps, simflag=0, verbose=1, superplot=1):
+
     err =  None
     ncols = len(maps)
     #check to see if the maps are in the correct order.
@@ -37,6 +38,8 @@ def clus_subtract_xcomps(maps, simflag=0, verbose=1, superplot=1):
             print(err)
         return None, err
 
+    mask = clus_make_noise_mask(maps, 0)
+    maps[0]['mask'] = maps[0]['mask'] + mask
 
     for i in range(1, ncols):
         if verbose:
@@ -52,9 +55,12 @@ def clus_subtract_xcomps(maps, simflag=0, verbose=1, superplot=1):
         xmap = inmap
         xmap_align = hcongrid(xmap, maps[0]['shead'], maps[i]['shead'])
 
+        mask = clus_make_noise_mask(maps, i)
+
         for j in range(xmap_align.shape[0]):
             for k in range(xmap_align.shape[1]):
-                if np.isnan(xmap_align[j,k]) or np.isnan(maps[i]['srcrm'][j,k]):
+                maps[m]['mask'][ipix,jpix] = maps[m]['mask'][ipix,jpix] + mask[ipix,jpix]
+                if np.isnan(xmap_align[j,k]) or np.isnan(maps[i]['srcrm'][j,k]) or maps[m]['mask'][ipix,jpix] == 1:
                     xmap_align[j,k] = 0
                     maps[i]['srcrm'][j,k] = 0
 
@@ -70,6 +76,9 @@ def clus_subtract_xcomps(maps, simflag=0, verbose=1, superplot=1):
         if superplot:
             plt.plot(PSW_array, ref_array, 'x')
             plt.plot(PSW_array, y, c='red')
+            plt.title('clus_subtract_xcomps: PSW vs. %s' %(maps[i]['band']))
+            plt.xlabel('PSW')
+            plt.ylabel('%s' %(maps[i]['band']))
             plt.show()
 
         #subtract the correlated components from the image
@@ -101,17 +110,34 @@ def clus_subtract_xcomps(maps, simflag=0, verbose=1, superplot=1):
     for i in range(maps[0]['xclean'].shape[0]):
         for j in range(maps[0]['xclean'].shape[1]):
             maps[0]['xclean'][i,j] = maps[0]['xclean'][i,j] - np.mean(maps[0]['xclean'])
+
+    plt.imshow(maps[0]['xclean'])
+    plt.show()
+
     return maps, err
 
 
 
 if __name__ == '__main__':
-    psw = fits.open('../fits_files/xid_9_subtracted_a0370_PSW.fits')
-    pmw = fits.open('../fits_files/xid_9_subtracted_a0370_PMW.fits')
-    plw = fits.open('../fits_files/xid_9_subtracted_a0370_PLW.fits')
+    from clus_get_data import clus_get_data
     maps, err = clus_get_data('a0370')
-    maps[0]['srcrm'] = psw[0].data
-    maps[1]['srcrm'] = pmw[0].data
-    maps[2]['srcrm'] = plw[0].data
-    print(type(pmw[0].data))
-    maps, err = subtract_xcomps(maps)
+
+    # psw = fits.open('../fits_files/xid_9_subtracted_a0370_PSW.fits')
+    # pmw = fits.open('../fits_files/xid_9_subtracted_a0370_PMW.fits')
+    # plw = fits.open('../fits_files/xid_9_subtracted_a0370_PLW.fits')
+    # maps[0]['srcrm'] = psw[0].data
+    # maps[1]['srcrm'] = pmw[0].data
+    # maps[2]['srcrm'] = plw[0].data
+
+    import sys
+    sys.path.append('../utilities')
+    sys.path.append('../source_handling')
+    import numpy as np
+    map = np.load('/home/butler/rsz/pcat_resid.npy',allow_pickle=True)
+    map1 = np.load('/home/butler/rsz/pcat_resid1.npy',allow_pickle=True)
+    map2 = np.load('/home/butler/rsz/pcat_resid2.npy',allow_pickle=True)
+    maps[0]['srcrm'] = map[0][0:maps[0]['signal'].shape[0],0:maps[0]['signal'].shape[1]]
+    maps[1]['srcrm'] = map1[0][0:maps[1]['signal'].shape[0],0:maps[1]['signal'].shape[1]]
+    maps[2]['srcrm'] = map2[0][0:maps[2]['signal'].shape[0],0:maps[2]['signal'].shape[1]]
+    from clus_subtract_xcomps import clus_subtract_xcomps
+    clus_subtract_xcomps(maps)

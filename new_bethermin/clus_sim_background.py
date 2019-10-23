@@ -109,7 +109,7 @@ def clus_sim_background(genbethermin=1,fluxcut=0,saveplots=1,savemaps=0,genpower
 
             for icol in range(ncols):
                 lozcat = clus_format_bethermin(icol,sim_maps,maps,bands[icol],clusters[iclust],
-                                        pixsize[icol],fluxcut=fluxcut,zzero=params['z'],superplot=superplot,savemaps=savemaps)
+                                        pixsize[icol],fwhm[icol],fluxcut=fluxcut,zzero=params['z'],superplot=superplot,savemaps=savemaps)
 
                 if yeslens == 1:
                     ''' format bethermin needs to spit out only one cat file for the band it's on
@@ -145,7 +145,7 @@ def clus_sim_background(genbethermin=1,fluxcut=0,saveplots=1,savemaps=0,genpower
                     ltfile = config.SIM + 'model/' + clusters[iclust] + '/' + clusters[iclust] + '_cat.cat'
 
                 # populate the sim maps with sources from lenstool
-                outmap = clus_popmap(ltfile,maps[icol],bands[icol],clusters[iclust],pixsize[icol],loz=lozcat,superplot=superplot,savemaps=savemaps)
+                outmap = clus_popmap(ltfile,maps[icol],bands[icol],clusters[iclust],pixsize[icol],fwhm[icol],loz=lozcat,superplot=superplot,savemaps=savemaps)
 
                 # modify the outmap to remove pixels that have been flagged
                 # if icol < 3 :

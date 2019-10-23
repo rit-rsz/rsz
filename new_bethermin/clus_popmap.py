@@ -16,7 +16,7 @@ from astropy.wcs.utils import skycoord_to_pixel
 from astropy.wcs import WCS
 from astropy.coordinates import SkyCoord
 import astropy.units as u
-import sys
+import sys, os
 sys.path.append('../utilities')
 import config
 from gaussian import makeGaussian
@@ -25,7 +25,7 @@ from astropy.io import fits
 from FITS_tools.hcongrid import hcongrid
 import numpy as np
 
-def clus_popmap(ltfile,maps,band,name,pixsize,loz=None,superplot=0,savemaps=0):
+def clus_popmap(ltfile,maps,band,name,pixsize,fwhm,loz=None,superplot=0,savemaps=0):
 
     # read in the image.dat file
     ra = []
@@ -58,8 +58,9 @@ def clus_popmap(ltfile,maps,band,name,pixsize,loz=None,superplot=0,savemaps=0):
     #     flux = [flux,loz['f']]
 
     if superplot:
-        plt.scatter(ra,dec,s=2)
-        plt.title('Start of Clus Popmap (IDL)')
+        plt.scatter(ra,dec,s=2,c=flux)
+        plt.colorbar()
+        plt.title('Start of Clus Popmap')
         plt.show()
 
     header = maps['shead']
@@ -68,29 +69,39 @@ def clus_popmap(ltfile,maps,band,name,pixsize,loz=None,superplot=0,savemaps=0):
     x,y = skycoord_to_pixel(coords, wcs)
 
     if superplot:
-        plt.scatter(x,y,s=2)
-        plt.title('clus_popmap: after skycoord_to_pixel (IDL)')
+        plt.scatter(x,y,s=2,c=flux)
+        plt.colorbar()
+        plt.title('clus_popmap: after skycoord_to_pixel')
         plt.show()
 
-    x_size = maps['signal'].shape[0]
-    y_size = maps['signal'].shape[1]
-    outmap = np.zeros((y_size,x_size))
+    # x_size = maps['signal'].shape[0]
+    # y_size = maps['signal'].shape[1]
+    x_size = 300
+    y_size = 300
+    outmap = np.zeros((x_size,y_size))
+    num = 0
     for i in range(len(flux)):
         if x[i] > 0 and x[i] < y_size and y[i] > 0 and y[i] < x_size:
-            kern = makeGaussian(x_size,y_size, fwhm = 3, center=(x[i],y[i]))
-            kern = kern / np.max(kern)
+            kern = makeGaussian(y_size,x_size, fwhm = fwhm/pixsize, center=(x[i],y[i]))
+            kern = kern / np.sum(kern)
             norm = flux[i]
             psf = kern * norm
             outmap = outmap + psf
+        else :
+            print('source outside map: ', flux[i],x[i],y[i])
+            num += 1
+    print('number of sources outside map: ',num)
 
     if superplot:
         plt.imshow(outmap,origin=0)
-        plt.title('clus_popmap: lensed sim map (IDL)')
+        plt.title('clus_popmap: lensed sim map')
         plt.show()
 
     if savemaps:
         hdx = fits.PrimaryHDU(maps['signal'],maps['shead'])
         sz = fits.PrimaryHDU(outmap,hdx.header)
+        if os.path.isfile(config.SIMBOX + 'lensedmap_' + name + '_' + band + '.fits'):
+            os.remove(config.SIMBOX + 'lensedmap_' + name + '_' + band + '.fits')
         sz.writeto(config.SIMBOX + 'lensedmap_' + name + '_' + band + '.fits')
 
 if __name__ == '__main__':

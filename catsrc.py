@@ -47,13 +47,14 @@ sys.path.append('sz')
 from clus_add_sziso import *
 from clus_compute_rings import *
 from clus_fitsz import *
+from save_fitsz import *
 sys.path.append('multiband_pcat')
 # from multiband_pcat import *
 
 class Catsrc():
 
     def __init__(self, clusname, saveplot=1, cattype="24um", savecat=0,
-                 savemap=0, maketf=0, simmap=0, nsim=0, s2n=3, verbose=1, resolution='nr'):
+                 savemap=0, maketf=0, simmap=0, nsim=0, s2n=3, verbose=1, resolution='nr', superplot=1):
         """
         initializing function for catsrc class
         Purpose: read in arguments to be passed to functions in catsrc.
@@ -86,6 +87,7 @@ class Catsrc():
         self.clusname = clusname
         self.nsim = nsim
         self.resolution = resolution
+        self.superplot = superplot
         self.data_retrieval()
         self.source_removal()
         self.data_analysis()
@@ -138,8 +140,8 @@ class Catsrc():
         # Add the sz effect into the simmulated clusters
         if self.simmap:
             maps, err = clus_add_sziso(maps,yin=self.yin, tin=self.tin,params=params,verbose=self.verbose)
-            plt.imshow(maps[2]['signal'])
-            plt.show()
+            # plt.imshow(maps[2]['signal'])
+            # plt.show()
 
         if err:
             if self.verbose:
@@ -206,26 +208,25 @@ class Catsrc():
         if self.verbose:
             print('Subtracting correlated componenets')
 
-        maps, err = clus_subtract_xcomps(maps, simflag=self.simmap, verbose=self.verbose)
+        maps, err = clus_subtract_xcomps(maps, simflag=self.simmap, verbose=self.verbose, superplot=self.superplot)
         if err:
             if self.verbose:
                 print('clus_subtract_xcomps exited with error: ' + err)
             exit()
 
-        exit()
         if self.verbose:
             print('Saving processed images')
 
-        err = clus_save_data(maps,yin=self.yin, tin=self.tin, simflag=self.simmap, verbose=self.verbose)
-        if err:
-            if self.verbose:
-                print('clus_save_data exited with error: ' + err)
-            exit()
+        # err = clus_save_data(maps,yin=self.yin, tin=self.tin, simflag=self.simmap, verbose=self.verbose)
+        # if err:
+        #     if self.verbose:
+        #         print('clus_save_data exited with error: ' + err)
+        #     exit()
 
         if self.simmap == 0:
             if self.verbose:
                 print('Computing radial averages nsim=200')
-        self.maps
+        self.maps = maps
         return maps
 
     def data_analysis(self):
@@ -235,7 +236,7 @@ class Catsrc():
         Outputs : None
         Class Variables : self.maps gets passed. and passed out.
         """
-        radave = clus_compute_rings(self.maps,self.params,30.0,verbose=self.verbose, superplot=1)  #should superplot be a flag in catsrc?
+        radave = clus_compute_rings(self.maps,self.params,30.0,verbose=self.verbose, superplot=self.superplot)  #should superplot be a flag in catsrc?
         #unclear at the moment why we need to have two different calls to compute_rings
         # if self.simmap == None:  # don't see the difference between if simmap == 0 and if not simmap ??
         #     tfave, err = clus_compute_rings(tf_maps, params, 30.0, verbose=self.verbose)
@@ -254,9 +255,11 @@ class Catsrc():
         else:
             maxlim = 450
 
-        fit = clus_fitsz(radave, self.params,self.beam) #args need to be figued out when we write this function
-        increment = fit[1,:] #don't know if this is the same as [1,*] in idl
-        offsets = fit[0,:]
+        fit = clus_fitsz(radave, self.params,self.beam, superplot=self.superplot) #args need to be figued out when we write this function
+        fit = np.asarray(fit)
+        increment = fit[:,0]
+        print(increment)
+        offsets = fit[:,1]
 
         if not self.simmap: #again not really sure if this is right.
             if self.clusname == 'ms0451':
@@ -269,22 +272,22 @@ class Catsrc():
                 offsets = fit[0,:]
 
             # increment = increment / tfamp # i don't think tfamp is defined?
-        err = clus_save_szfits(increment, offsets, radave, self.params, simflag=self.simmap, verbose=self.verbose, outname='szout_' + str(nsim))
+        err = save_fitsz(increment, offsets, radave, self.params, simflag=self.simmap, verbose=self.verbose, outname='szout_')
         if err:
             if self.verbose:
                 print('clus_save_szfits exited with error: ' + err)
             exit()
         self.offsets = offsets
         self.increment = increment
-        if self.saveplots:
-            pass
+        # if self.saveplots:
+        #     pass
             #we want to save some plots from the pipeline here.
         return fit
 
 
 
 if __name__ == '__main__':
-    catsrc = Catsrc('a0370', verbose=1, cattype='PSW',simmap=2,nsim=200)
+    catsrc = Catsrc('a0370', verbose=1, cattype='PSW',simmap=2,nsim=200, superplot=0)
         # SAVEPLOTS=saveplots,\
         # CATTYPE=cattype,\
         # SAVECAT=savecat,\

@@ -26,6 +26,7 @@ from astropy.convolution import convolve_fft
 from scipy.stats import linregress
 from writefits import *
 from gaussian import makeGaussian, padGaussian
+from clus_make_noise_mask import clus_make_noise_mask
 
 def clus_subtract_xcomps(maps, simflag=0, verbose=1, superplot=1):
 
@@ -38,8 +39,13 @@ def clus_subtract_xcomps(maps, simflag=0, verbose=1, superplot=1):
             print(err)
         return None, err
 
-    mask = clus_make_noise_mask(maps, 0)
-    maps[0]['mask'] = maps[0]['mask'] + mask
+    for i in range(len(maps)):
+        mask = clus_make_noise_mask(maps, i)
+        maps[i]['mask'] = maps[i]['mask'] + mask
+        for j in range(maps[i]['signal'].shape[0]):
+            for k in range(maps[i]['signal'].shape[1]):
+                if maps[i]['mask'][j,k] == 1:
+                    maps[i]['srcrm'][j,k] = np.nan
 
     for i in range(1, ncols):
         if verbose:
@@ -55,12 +61,9 @@ def clus_subtract_xcomps(maps, simflag=0, verbose=1, superplot=1):
         xmap = inmap
         xmap_align = hcongrid(xmap, maps[0]['shead'], maps[i]['shead'])
 
-        mask = clus_make_noise_mask(maps, i)
-
         for j in range(xmap_align.shape[0]):
             for k in range(xmap_align.shape[1]):
-                maps[m]['mask'][ipix,jpix] = maps[m]['mask'][ipix,jpix] + mask[ipix,jpix]
-                if np.isnan(xmap_align[j,k]) or np.isnan(maps[i]['srcrm'][j,k]) or maps[m]['mask'][ipix,jpix] == 1:
+                if np.isnan(xmap_align[j,k]) or np.isnan(maps[i]['srcrm'][j,k]):
                     xmap_align[j,k] = 0
                     maps[i]['srcrm'][j,k] = 0
 
@@ -94,6 +97,7 @@ def clus_subtract_xcomps(maps, simflag=0, verbose=1, superplot=1):
 
         if superplot:
             plt.imshow(maps[i]['xclean'])
+            plt.title('xclean map')
             plt.show()
 
         if not simflag:
@@ -107,12 +111,13 @@ def clus_subtract_xcomps(maps, simflag=0, verbose=1, superplot=1):
         writefits(filename, data=datasub, header_dict=maps[i]['shead'])
 
     #subtract the mean of the new map from itself.
-    for i in range(maps[0]['xclean'].shape[0]):
-        for j in range(maps[0]['xclean'].shape[1]):
-            maps[0]['xclean'][i,j] = maps[0]['xclean'][i,j] - np.mean(maps[0]['xclean'])
+    # for i in range(maps[0]['xclean'].shape[0]):
+    #     for j in range(maps[0]['xclean'].shape[1]):
+    #         maps[0]['xclean'][i,j] = maps[0]['xclean'][i,j] - np.mean(maps[0]['xclean'])
 
-    plt.imshow(maps[0]['xclean'])
-    plt.show()
+    # plt.imshow(maps[0]['xclean'])
+    # plt.title('PSW map - mean')
+    # plt.show()
 
     return maps, err
 

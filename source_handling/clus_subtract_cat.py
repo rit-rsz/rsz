@@ -36,9 +36,9 @@ def clus_subtract_cat(maps, verbose=1):
     # plt.imsave('/home/butler/rsz/pcat_resid.png',resid_maps[0],format='png')
     # np.save('/home/butler/rsz/pcat_resid2.npy',resid_maps)
 
-    map1 = np.load('/home/butler/rsz/pcat_resid.npy',allow_pickle=True)
-    map2 = np.load('/home/butler/rsz/pcat_resid1.npy',allow_pickle=True)
-    map3 = np.load('/home/butler/rsz/pcat_resid2.npy',allow_pickle=True)
+    map1 = np.load('/home/vaughan/rsz/pcat_resid.npy',allow_pickle=True)
+    map2 = np.load('/home/vaughan/rsz/pcat_resid1.npy',allow_pickle=True)
+    map3 = np.load('/home/vaughan/rsz/pcat_resid2.npy',allow_pickle=True)
 
     resid_maps = [map1[0],map2[0],map3[0]]
 
@@ -65,10 +65,10 @@ def clus_subtract_cat(maps, verbose=1):
         # ax2.set_title('clus_subtract_cat: Catalog subtracted map for %s' %(maps[i]['band']))
         # plt.show()
 
-        plt.imshow(datasub)
-        plt.colorbar()
-        plt.title('clus_subtract_cat: Catalog subtracted map for %s' %(maps[i]['band']))
-        plt.show()
+        # plt.imshow(datasub)
+        # plt.colorbar()
+        # plt.title('clus_subtract_cat: Catalog subtracted map for %s' %(maps[i]['band']))
+        # plt.show()
         # save new subtracted signal to map
         # reshape pcat square map to original SPIRE size
         maps[i]['srcrm'] = datasub[0:maps[i]['signal'].shape[0],0:maps[i]['signal'].shape[1]]

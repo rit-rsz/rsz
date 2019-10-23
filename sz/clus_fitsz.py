@@ -71,15 +71,12 @@ def clus_fitsz(radave, params, beam=None, maxlim=3600, minlim=0, noweight=1, sup
 
         # ignore values above radius of 600
         index = []
-        for k in range(len(radave[i]['midbin'])):
-            if radave[i]['midbin'][k] >= 600:
-                index.append(k)
-        radave[i]['midbin'] = radave[i]['midbin'][0:index[0]]
-        radave[i]['fluxbin'] = radave[i]['fluxbin'][0:index[0]]
-        roft = roft[0:index[0]]
-
-        print(radave[i]['fluxbin'])
-        print(roft)
+        # for k in range(len(radave[i]['midbin'])):
+        #     if radave[i]['midbin'][k] >= 600:
+        #         index.append(k)
+        # radave[i]['midbin'] = radave[i]['midbin'][0:index[0]]
+        # radave[i]['fluxbin'] = radave[i]['fluxbin'][0:index[0]]
+        # roft = roft[0:index[0]]
 
         # remove nans from the dataset
         for k in range(len(radave[i]['midbin'])):
@@ -93,7 +90,6 @@ def clus_fitsz(radave, params, beam=None, maxlim=3600, minlim=0, noweight=1, sup
         intercept = z[1]
         slope = z[0]
         fit[i] = z
-        print(z)
         line = slope * roft + intercept
 
         if superplot:

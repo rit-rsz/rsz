@@ -46,10 +46,6 @@ def clus_format_bethermin(icol,sim_map,maps,band,clusname,pixsize,fwhm,\
     zpos = sim_map[icol+3]['z']
     outflux = sim_map[-1]['fluxdens'][:,icol]
 
-    print(xpos)
-    print(ypos)
-    print(outflux)
-
     # x_size = sim_map[icol].shape[0]
     # y_size = sim_map[icol].shape[1]
     # x_size = maps[icol]['signal'].shape[0]
@@ -80,9 +76,6 @@ def clus_format_bethermin(icol,sim_map,maps,band,clusname,pixsize,fwhm,\
     outx = [pixsize * (x - refx) for x in xpos]
     outy = [pixsize * (y - refy) for y in ypos]
     outz = [float(np.ceil(10.0 * z)) / 10.0 for z in zpos]
-    # maxf = outflux.tolist().index(max(outflux))
-    # print('max flux : ', max(outflux),maxf)
-    # print('location : ', outx[maxf], outy[maxf])
 
     # lets do some fluxcuts
     if fluxcut > 0.0 :
@@ -99,30 +92,29 @@ def clus_format_bethermin(icol,sim_map,maps,band,clusname,pixsize,fwhm,\
     savey = []
     savez = []
     savef = []
+    index = []
     if zzero > 0 :
         for j in range(len(outflux)):
             if outz[j] <= zzero :
+                index.append(j)
                 savef.append(outflux[j])
-                np.delete(outflux,j)
                 savex.append(outx[j])
-                np.delete(outx,j)
                 savey.append(outy[j])
-                np.delete(outy,j)
                 savez.append(outz[j])
-                np.delete(outz,j)
         retcat = {'x':savex,'y':savey,'z':savez,'f':savef}
+        print('len of retcat:',len(retcat['x']))
         nsrc = len(outflux)
+        coutx = np.delete(np.asarray(outx),index)
+        couty = np.delete(np.asarray(outy),index)
+        coutz = np.delete(np.asarray(outz),index)
+        coutflux = np.delete(np.asarray(outflux),index)
 
     # sort according to brightness due to lenstool limitations
     # lambda pair: pair[0] tells sorted to use outflux as the sorting key
-    outx = [x for _,x in sorted(zip(outflux,outx), key = lambda pair: pair[0], reverse=True)]
-    outy = [y for _,y in sorted(zip(outflux,outy), key = lambda pair: pair[0], reverse=True)]
-    outz = [z for _,z in sorted(zip(outflux,outz), key = lambda pair: pair[0], reverse=True)]
+    outx = [x for _,x in sorted(zip(coutflux,coutx), key = lambda pair: pair[0], reverse=True)]
+    outy = [y for _,y in sorted(zip(coutflux,couty), key = lambda pair: pair[0], reverse=True)]
+    outz = [z for _,z in sorted(zip(coutflux,coutz), key = lambda pair: pair[0], reverse=True)]
     outflux = sorted(outflux, reverse=True)
-
-    # maxf = outflux.index(max(outflux))
-    # print('max flux : ', max(outflux),maxf)
-    # print('location : ', outx[maxf], outy[maxf])
 
     # truncate to the msrc brightest sources
     if msrc < nsrc :
@@ -137,10 +129,7 @@ def clus_format_bethermin(icol,sim_map,maps,band,clusname,pixsize,fwhm,\
     houty = [y for _,y in sorted(zip(outz,outy), key = lambda pair: pair[0])]
     houtz = sorted(outz)
 
-    # maxf = houtflux.index(max(houtflux))
-    # print('max flux : ', max(houtflux),maxf)
-    # print('location : ', houtx[maxf], houty[maxf])
-
+    print(max(houtflux),min(houtflux))
     # x_size = sim_map[icol].shape[0]
     # y_size = sim_map[icol].shape[1]
     # x_size = maps[icol]['signal'].shape[0]
@@ -149,10 +138,6 @@ def clus_format_bethermin(icol,sim_map,maps,band,clusname,pixsize,fwhm,\
     y_size = 300
     outmap = np.zeros((x_size,y_size))
 
-    # noutflux = houtflux[:]
-    # noutx = houtx[:]
-    # nouty = houty[:]
-    # noutz = houtz[:]
     for i in range(len(houtflux)):
         if (houtx[i]/pixsize + refx) <= y_size and (houty[i]/pixsize + refy) <= x_size:
             kern = makeGaussian(y_size,x_size, fwhm = fwhm/pixsize, center=(int(houtx[i]/pixsize + refx),int(houty[i]/pixsize + refy)))
@@ -160,18 +145,14 @@ def clus_format_bethermin(icol,sim_map,maps,band,clusname,pixsize,fwhm,\
             norm = houtflux[i]
             psf = kern * norm
             outmap = outmap + psf
-            # else :
-            #     noutflux.remove(houtflux[i])
-            #     noutx.remove(houtx[i])
-            #     nouty.remove(houty[i])
-            #     noutz.remove(houtz[i])
-            # print('this is %s' %(i))
-            # print(houtx[i]/pixsize + refx,houty[i]/pixsize + refy,houtflux[i])
-            # plt.imshow(outmap,origin=0)
-            # plt.show()
 
-    plt.imshow(outmap,origin=0)
-    plt.title('all')
+    plt.imshow(outmap,extent=(0,300,0,300),clim=[0.0,0.15],origin=0)
+    plt.colorbar()
+    # ax2a=ax2.annotate('Field 2',xy=(0,300),xycoords='data',xytext=(0,300), textcoords='data',horizontalalignment='right', verticalalignment='top',color='yellow',fontsize=14)
+    # ax2a.set_path_effects([path_effects.Stroke(linewidth=2, foreground='black'),path_effects.Normal()])
+    # ax2.set_ylabel('arcseconds')
+    # ax2.set_xlabel('arcseconds')
+    plt.title('clus_format_bethermin: Non-lensed map')
     plt.show()
 
     if savemaps:
@@ -183,6 +164,7 @@ def clus_format_bethermin(icol,sim_map,maps,band,clusname,pixsize,fwhm,\
 
     # magnitude instead of flux in Jy
     outmag = [-2.5 * np.log10(x) for x in houtflux]
+    print('format mag: ',outmag[0:10])
 
     if superplot:
         plt.scatter(houtx,houty,s=2,c=houtflux)
@@ -199,7 +181,7 @@ def clus_format_bethermin(icol,sim_map,maps,band,clusname,pixsize,fwhm,\
                     %(k,houtx[k],houty[k],houtz[k],outmag[k]))
         f.close()
 
-    return #retcat
+    return retcat
 
 if __name__ == '__main__' :
     clusname = 'a0370'

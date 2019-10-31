@@ -24,10 +24,12 @@ from clus_get_data import *
 from astropy.convolution import convolve_fft
 # from scipy import optimize.least_squares
 from scipy.stats import linregress
-from writefits import *
+from writefits import writefits
 from gaussian import makeGaussian, padGaussian
+from clus_make_noise_mask import clus_make_noise_mask
+import config
 
-def clus_subtract_xcomps(maps, simflag=0, verbose=1, superplot=1):
+def clus_subtract_xcomps(maps, simflag=0, verbose=1, superplot=1, nsim=0, saveplot=1):
 
     err =  None
     ncols = len(maps)
@@ -38,8 +40,13 @@ def clus_subtract_xcomps(maps, simflag=0, verbose=1, superplot=1):
             print(err)
         return None, err
 
-    mask = clus_make_noise_mask(maps, 0)
-    maps[0]['mask'] = maps[0]['mask'] + mask
+    for i in range(len(maps)):
+        mask = clus_make_noise_mask(maps, i)
+        maps[i]['mask'] = maps[i]['mask'] + mask
+        for j in range(maps[i]['signal'].shape[0]):
+            for k in range(maps[i]['signal'].shape[1]):
+                if maps[i]['mask'][j,k] == 1:
+                    maps[i]['srcrm'][j,k] = np.nan
 
     for i in range(1, ncols):
         if verbose:
@@ -55,12 +62,9 @@ def clus_subtract_xcomps(maps, simflag=0, verbose=1, superplot=1):
         xmap = inmap
         xmap_align = hcongrid(xmap, maps[0]['shead'], maps[i]['shead'])
 
-        mask = clus_make_noise_mask(maps, i)
-
         for j in range(xmap_align.shape[0]):
             for k in range(xmap_align.shape[1]):
-                maps[m]['mask'][ipix,jpix] = maps[m]['mask'][ipix,jpix] + mask[ipix,jpix]
-                if np.isnan(xmap_align[j,k]) or np.isnan(maps[i]['srcrm'][j,k]) or maps[m]['mask'][ipix,jpix] == 1:
+                if np.isnan(xmap_align[j,k]) or np.isnan(maps[i]['srcrm'][j,k]):
                     xmap_align[j,k] = 0
                     maps[i]['srcrm'][j,k] = 0
 
@@ -73,13 +77,20 @@ def clus_subtract_xcomps(maps, simflag=0, verbose=1, superplot=1):
         y = slope * PSW_array + intercept
 
 
-        if superplot:
+        if superplot or saveplot:
             plt.plot(PSW_array, ref_array, 'x')
             plt.plot(PSW_array, y, c='red')
             plt.title('clus_subtract_xcomps: PSW vs. %s' %(maps[i]['band']))
             plt.xlabel('PSW')
             plt.ylabel('%s' %(maps[i]['band']))
-            plt.show()
+            if superplot:
+                plt.show()
+            elif saveplot:
+                if nsim != 0:
+                    filename = config.HOME + 'outputs/correlated_components/' + maps[i]['clusname'] + '_' + maps[i]['band'] + '_' + str(nsim) + '.pdf'
+                else:
+                    filename = config.HOME + 'outputs/correlated_components/' + maps[i]['clusname'] + '_' + maps[i]['band'] + '_' + str(nsim) + '.pdf'
+                plt.savefig(filename, format='pdf')
 
         #subtract the correlated components from the image
         maps[i]['xclean'] = np.empty(maps[i]['srcrm'].shape)
@@ -94,25 +105,28 @@ def clus_subtract_xcomps(maps, simflag=0, verbose=1, superplot=1):
 
         if superplot:
             plt.imshow(maps[i]['xclean'])
+            plt.title('xclean map')
             plt.show()
 
-        if not simflag:
-            filename = config.CLUSDATA + 'sz/' + maps[i]['name'] + str(maps[i]['band']) + '_xc.fits'
-        else:
-            filename = config.CLUSDATA + 'sz/sim/' + maps[i]['name'] + str(maps[i]['band']) + '_xc.fits'
+        if saveplot:
+            if not simflag:
+                filename = config.HOME + 'outputs/correlated_components/' + maps[i]['name'] + '_' + maps[i]['band'] + '_xc.fits'
+            else:
+                filename = config.HOME + 'outputs/correlated_components/' + maps[i]['name'] + '_' + maps[i]['band'] + '_' + str(nsim) + '_xc.fits'
 
-        filename = 'correlated_comp_test_%s.fits' % (maps[i]['band'])
-        if os.path.isfile(filename):
-            os.remove(filename)
-        writefits(filename, data=datasub, header_dict=maps[i]['shead'])
+            filename = 'correlated_comp_test_%s.fits' % (maps[i]['band'])
+            if os.path.isfile(filename):
+                os.remove(filename)
+            writefits(filename, data=datasub, header_dict=maps[i]['shead'])
 
     #subtract the mean of the new map from itself.
-    for i in range(maps[0]['xclean'].shape[0]):
-        for j in range(maps[0]['xclean'].shape[1]):
-            maps[0]['xclean'][i,j] = maps[0]['xclean'][i,j] - np.mean(maps[0]['xclean'])
+    # for i in range(maps[0]['xclean'].shape[0]):
+    #     for j in range(maps[0]['xclean'].shape[1]):
+    #         maps[0]['xclean'][i,j] = maps[0]['xclean'][i,j] - np.mean(maps[0]['xclean'])
 
-    plt.imshow(maps[0]['xclean'])
-    plt.show()
+    # plt.imshow(maps[0]['xclean'])
+    # plt.title('PSW map - mean')
+    # plt.show()
 
     return maps, err
 

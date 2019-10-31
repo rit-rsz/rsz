@@ -29,7 +29,7 @@ import matplotlib.pyplot as plt
 import matplotlib
 # matplotlib.use('TkAgg')
 
-def clus_compute_rings(maps, params, binwidth, superplot=0, verbose=1, noconfusion=None):
+def clus_compute_rings(maps, params, binwidth, superplot=0, verbose=1, noconfusion=None, saveplot=1, nsim=0):
     # init params
     bands = ['PSW', 'PMW', 'PLW']
     ncols = len(maps)
@@ -54,10 +54,8 @@ def clus_compute_rings(maps, params, binwidth, superplot=0, verbose=1, noconfusi
     # create bins for different metrics (mid,flux,err,rad,hit,max)
     for m in range(ncols):
         clusname = maps[m]['name']
-        srcrm = maps[m]['signal']
+        xclean = maps[m]['xclean']
         print(maps[m]['band'])
-        plt.imshow(srcrm)
-        plt.show()
         if verbose:
             print('Average for ' + maps[m]['band'])
 
@@ -119,10 +117,10 @@ def clus_compute_rings(maps, params, binwidth, superplot=0, verbose=1, noconfusi
                         thiserr = maps[m]['calfac'] * sqrt(maps[m]['error'][ipix,jpix]**2 + confnoise**2)
                         #summing up the flux * 1 / sigma^2
                         '''
-                            srcrm is the new pcat_spire map, which may already be in units of
+                            xclean is the new pcat_spire map, which may already be in units of
                             mJy/pixel rather than Jy/beam like the other maps
                         '''
-                        fluxbin[rad] = fluxbin[rad] + (maps[m]['calfac'] * maps[m]['srcrm'][ipix,jpix] / thiserr**2)
+                        fluxbin[rad] = fluxbin[rad] + (maps[m]['calfac'] * maps[m]['xclean'][ipix,jpix] / thiserr**2)
                         #summing up 1 / sigma^2
                         hitbin[rad] = hitbin[rad] + 1.0 / thiserr**2
                         ''' for testing without real subtracted map
@@ -158,24 +156,31 @@ def clus_compute_rings(maps, params, binwidth, superplot=0, verbose=1, noconfusi
                      'fluxbin' : fluxbin,
                      'errbin' : errbin}
 
-        if superplot:
+        if superplot or saveplot:
             plt.plot(midbinp,fluxbin)
             plt.title('Clus Compute Rings: Radial Averages for %s' %(maps[m]['band']))
             plt.xlabel('Radius (arcsec)')
             plt.ylabel('Signal (MJy/sr)')
             plt.xlim((0,600))
-            plt.show()
+            if superplot:
+                plt.show()
+            if saveplot:
+                if nsim != 0:
+                    filename = config.HOME + 'outputs/radial_averages/' + maps[m]['clusname'] + '_' + maps[m]['band'] + '_' + str(nsim) + '.pdf'
+                else:
+                    filename = config.HOME + 'outputs/radial_averages/' + maps[m]['clusname'] + '_' + maps[m]['band'] + '_' + '.pdf'
+                plt.savefig(filename, format='pdf')
 
-            fig = plt.figure()
-            new_midbin = [(x/pixsize) + px for x in midbinp]
+            # fig = plt.figure()
+            # new_midbin = [(x/pixsize) + px for x in midbinp]
 
-            for k in range(nbins):
-                circle = plt.Circle((px,py),new_midbin[k]-px,fill=False)
-                plt.gca().add_artist(circle)
-            plt.imshow(tempmap, alpha=0.9)
-            plt.scatter(new_midbin,[py]*nbins,c='r')
-            plt.title('Midbins for %s' %(maps[m]['band']))
-            plt.show()
+            # for k in range(nbins):
+            #     circle = plt.Circle((px,py),new_midbin[k]-px,fill=False)
+            #     plt.gca().add_artist(circle)
+            # plt.imshow(tempmap, alpha=0.9)
+            # plt.scatter(new_midbin,[py]*nbins,c='r')
+            # plt.title('Midbins for %s' %(maps[m]['band']))
+            # plt.show()
 
     return radave
 

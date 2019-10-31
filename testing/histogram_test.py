@@ -14,10 +14,22 @@
 # REVISION HISTORY :
 ################################################################################
 import scipy.io
+import sys
+sys.path.append('../utilities/')
 import numpy as np
-from config import * #(this line will give me access to all directory variables)
+# from config import * #(this line will give me access to all directory variables)
 import matplotlib.pyplot as plt
 import math
+
+CLUSDATA = '/data/butler/SPIRE/'
+CLUSSBOX = '/data/butler/SPIRE/sandbox/'
+CLUSHOME = '/home/vaughan/bitten/SPIRE/'
+HOME = '/home/vaughan/rsz/'
+SIM = '/home/vaughan/rsz/new_bethermin/'
+FITSOUT = '/home/vaughan/rsz/fits_files/'
+CLUSSIMS = '/data/butler/SPIRE/bethermin_sims/'
+CLUSNSIMS = '/data/butler/SPIRE/new_bethermin_sims/'
+SIMBOX = '/home/vaughan/rsz/new_bethermin/lens_model/'
 
 def data_gen(nsims,l):
 
@@ -37,7 +49,8 @@ def data_gen(nsims,l):
             for i in range(200,200+nsims-1) :
                 data_file = 'sz/sim/szout_0' + str(i) + '_' + clusname + '.sav'
                 data = scipy.io.readsav(CLUSDATA + data_file,python_dict = True)
-                arr_data = data.values()[0][k][0] # only works on python 2, returns increment
+                arr_data = list(data.values())[0][k][0]
+                # arr_data = data.values()[0][k][0] # only works on python 2, returns increment
                 ''' for python 3 use arr_data = list(data.values())[0][k][0] '''
                 # filter out nan values if they exist #
                 # final_data = [value for value in arr_data if not value == 0.0]
@@ -50,24 +63,26 @@ def data_gen(nsims,l):
 def plot_hist(j,k,l,I_0,xbin,clusname,band) :
     b = 0
     dI = abs((max(I_0)-min(I_0))/l) # this is the binsize
+    print(dI, 'this is dI')
     for b in range(l) :
         xbin[b] = min(I_0)+ (b+0.5)*dI
-        print(dI,b,min(I_0))
+        # print(dI,b,min(I_0))
         b += 1
     # xbin2 = np.arange(min(I_0),8*0.5*dI,0.5*dI)
-    print(xbin)
+    print(xbin, 'this is xbin')
+    print(I_0, 'this is I_0')
     # print(xbin2)
     n, bins, patches = plt.hist(x=I_0, bins=xbin)#,density = True)
                                 # rwidth is the width of the bars as a fraction of the bin width
 
-#     data_file = 'sz/sim/szout_' + clusname + '.sav'
-#     data = scipy.io.readsav(CLUSDATA + data_file,python_dict = True)
-#     ########################## Data Array Structure ###########################
-#     # [increment,offset,band,radbin,midbin,fluxbin,errbin,rc,beta,clusname]
-#     ###########################################################################
-#     inc = data.values()[0][k][0] # only works on python 2, returns increment
-#     ''' for python 3 use arr_data = list(data.values())[0][k][0] '''
-#     I_0 = inc
+    #     data_file = 'sz/sim/szout_' + clusname + '.sav'
+    #     data = scipy.io.readsav(CLUSDATA + data_file,python_dict = True)
+    #     ########################## Data Array Structure ###########################
+    #     # [increment,offset,band,radbin,midbin,fluxbin,errbin,rc,beta,clusname]
+    #     ###########################################################################
+    #     inc = data.values()[0][k][0] # only works on python 2, returns increment
+    #     ''' for python 3 use arr_data = list(data.values())[0][k][0] '''
+    #     I_0 = inc
 # #     We need to determine where this then needs to go
 #
 #     xmin = min([I_0,min(xbin)])
@@ -79,7 +94,7 @@ def plot_hist(j,k,l,I_0,xbin,clusname,band) :
 
     plt.xlabel('I_0 (mJy/sr)')
     plt.ylabel('Probability')
-    plt.title('I_0 for ' + clusname + ' Band: ' + band)
+    plt.title('I_0 for ' + clusname + ' Band: ' + band + 'old')
     plt.show()
 
 

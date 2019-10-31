@@ -29,7 +29,7 @@ from get_spire_beam_fwhm import *
 def fitting_func(a, x, b):
     return a*x + b
 
-def clus_fitsz(radave, params, beam=None, maxlim=3600, minlim=0, noweight=1, superplot=1, verbose=1):
+def clus_fitsz(radave, params, beam=None, maxlim=3600, minlim=0, noweight=1, superplot=1, verbose=1, nsim, saveplot=1):
 
     # init params
     ncols = len(radave)
@@ -58,7 +58,7 @@ def clus_fitsz(radave, params, beam=None, maxlim=3600, minlim=0, noweight=1, sup
             roftprimep = roftprimep / np.max(np.abs(roftprimep))
             roft = np.interp(radave[i]['midbin'],xrad,roftprimep)
 
-        if superplot:
+        if superplot or saveplot:
             plt.plot(radave[i]['midbin'], radave[i]['fluxbin'])
             plt.ylabel('Radial Average (MJy/sr)')
             plt.xlabel('Radius (arcsec)')
@@ -67,20 +67,27 @@ def clus_fitsz(radave, params, beam=None, maxlim=3600, minlim=0, noweight=1, sup
             # plt.ylim((0.0,0.3))
             plt.errorbar(radave[i]['midbin'],radave[i]['fluxbin'],yerr=radave[i]['errbin'])
             plt.scatter(radave[i]['midbin'], radave[i]['fluxbin'],marker='o')
-            plt.show()
+            if superplot:
+                plt.show()
+            elif saveplot:
+                if nsim != 0:
+                    filename = config.HOME + 'outputs/IB_fits/ra_v_r_' + params['clusname'] + '_' + radave[i]['band'] + '_' + str(nsim) + '.pdf'
+                else:
+                    filename = config.HOME + 'outputs/IB_fits/ra_v_r_' + params['clusname'] + '_' + radave[i]['band'] + '_' + '.pdf'
+                plt.savefig(filename, format='pdf')
 
         # ignore values above radius of 600
         index = []
-        # for k in range(len(radave[i]['midbin'])):
-        #     if radave[i]['midbin'][k] >= 600:
-        #         index.append(k)
-        # radave[i]['midbin'] = radave[i]['midbin'][0:index[0]]
-        # radave[i]['fluxbin'] = radave[i]['fluxbin'][0:index[0]]
-        # roft = roft[0:index[0]]
+        for k in range(len(radave[i]['midbin'])):
+            if radave[i]['midbin'][k] >= 600:
+                index.append(k)
+        radave[i]['midbin'] = np.delete(radave[i]['midbin'], k)
+        radave[i]['fluxbin'] = np.delete(radave[i]['fluxbin'], k)
+        roft = np.delete(roft, k)
 
         # remove nans from the dataset
         for k in range(len(radave[i]['midbin'])):
-            if np.isnan(radave[i]['midbin'][k]) :
+            if np.isnan(radave[i]['midbin'][k]) or np.isnan(radave[i]['fluxbin'][k]):
                 radave[i]['midbin'][k] = 0
                 radave[i]['fluxbin'][k] = 0
                 roft[k] = 0
@@ -92,7 +99,7 @@ def clus_fitsz(radave, params, beam=None, maxlim=3600, minlim=0, noweight=1, sup
         fit[i] = z
         line = slope * roft + intercept
 
-        if superplot:
+        if superplot or saveplot:
             plt.plot(roft, radave[i]['fluxbin'],label='Data')
             plt.plot(roft, line,label='Best Linear Fit')
             plt.xlabel(r'R($\theta$)')
@@ -109,7 +116,14 @@ def clus_fitsz(radave, params, beam=None, maxlim=3600, minlim=0, noweight=1, sup
 
             plt.title(params['clusname'] + '  ' + radave[i]['band'] + '  Slope: %.4f  Intercept: %.4f' %(slope,intercept))
             # fig.tight_layout()
-            plt.show()
+            if superplot:
+                plt.show()
+            if saveplot:
+                if nsim != 0:
+                    filename = config.HOME + 'outputs/IB_fits/dI_fit_' + params['clusname'] + '_' + radave[i]['band'] + '_' + str(nsim) + '.pdf'
+                else:
+                    filename = config.HOME + 'outputs/IB_fits/dI_fit_' + params['clusname'] + '_' + radave[i]['band'] + '_' + '.pdf'
+                plt.savefig(filename, format='pdf')
 
     return fit
 

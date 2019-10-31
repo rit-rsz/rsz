@@ -44,12 +44,13 @@ def clus_popmap(ltfile,maps,band,name,pixsize,fwhm,loz=None,superplot=0,savemaps
                 mag.append(float(val[-1]))
     f.close()
 
+    print(len(mag), 'length in clus_popmap after lenstool')
+
     # if len(loz) == 8 :
     #     ra = [ra,loz['x']]
     #     dec = [dec,loz['y']]
-    refx = maps['shead']['CRVAL1']
-    refy = maps['shead']['CRVAL2']
-
+    refx = racent
+    refy = deccent
     # convert ra/dec to degrees
     ra = [((-x / 3600.0) + refx) for x in ra]
     dec = [((y / 3600.0) + refy) for y in dec]
@@ -88,7 +89,7 @@ def clus_popmap(ltfile,maps,band,name,pixsize,fwhm,loz=None,superplot=0,savemaps
             psf = kern * norm
             outmap = outmap + psf
         else :
-            print('source outside map: ', flux[i],x[i],y[i])
+            # print('source outside map: ', flux[i],x[i],y[i])
             num += 1
     print('number of sources outside map: ',num)
 

@@ -44,11 +44,15 @@ def clus_popmap(ltfile,maps,band,name,pixsize,loz=None,superplot=0,savemaps=0):
                 mag.append(float(val[-1]))
     f.close()
 
+
+    print(len(mag), 'length after lenstool')
     # if len(loz) == 8 :
     #     ra = [ra,loz['x']]
     #     dec = [dec,loz['y']]
-    refx = maps['shead']['CRVAL1']
-    refy = maps['shead']['CRVAL2']
+    refx = racent
+    refy = deccent
+
+    print(np.min(np.asarray(mag)))
 
     # convert ra/dec to degrees
     ra = [((-x / 3600.0) + refx) for x in ra]
@@ -56,6 +60,8 @@ def clus_popmap(ltfile,maps,band,name,pixsize,loz=None,superplot=0,savemaps=0):
     flux = [10.0**(-k/2.5) for k in mag]
     # if len(loz) == 8 :
     #     flux = [flux,loz['f']]
+
+    print(np.max(np.asarray(flux)), 'max flux!!!!')
 
     if superplot:
         plt.scatter(ra,dec,s=2)
@@ -74,14 +80,18 @@ def clus_popmap(ltfile,maps,band,name,pixsize,loz=None,superplot=0,savemaps=0):
 
     x_size = maps['signal'].shape[0]
     y_size = maps['signal'].shape[1]
-    outmap = np.zeros((y_size,x_size))
+    outmap = np.zeros((x_size,y_size))
     for i in range(len(flux)):
         if x[i] >= 0 and x[i] <= y_size and y[i] >= 0 and y[i] <= x_size:
-            kern = makeGaussian(x_size,y_size, fwhm = 3, center=(x[i],y[i]))
+            kern = makeGaussian(y_size,x_size, fwhm = 3, center=(x[i],y[i]))
             kern = kern / np.max(kern)
             norm = flux[i]
             psf = kern * norm
             outmap = outmap + psf
+            print(flux[i])
+            if np.max(psf) > .095:
+                plt.imshow(psf)
+                plt.show()
 
     if superplot:
         plt.imshow(outmap,origin=0)
@@ -102,6 +112,7 @@ if __name__ == '__main__':
     sys.path.append('../source_handling')
     from clus_get_data import clus_get_data
     import config
+    import os
     clusname = 'a0370'
     resolution = 'nr'
     bolocam = None
@@ -109,6 +120,6 @@ if __name__ == '__main__':
     pixsize = [6.0, 8.33333, 12.0]
     maps, err = clus_get_data(clusname=clusname, resolution=resolution, bolocam=bolocam, verbose=verbose)
     band = maps[0]['band']
-    ltfile = config.SIMBOX + 'a0370' + '_image_' + band + '.dat'
-    # ltfile = '/data/zemcov/clusters/sandbox/a0370_image_PSW.dat'
+    # ltfile = config.SIMBOX + 'a0370' + '_image_' + band + '.dat'
+    ltfile = '/data/mercado/SPIRE/sandbox/a0370_image_PSW.dat'
     clus_popmap(ltfile,maps[0],band,'a0370',pixsize[0],superplot=1,savemaps=1)

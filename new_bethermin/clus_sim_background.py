@@ -108,6 +108,7 @@ def clus_sim_background(genbethermin=1,fluxcut=0,saveplots=1,savemaps=0,genpower
                 sim_maps = gm.generate(0.25,verbose=True)
 
             for icol in range(ncols):
+                print(params['z'])
                 lozcat = clus_format_bethermin(icol,sim_maps,maps,bands[icol],clusters[iclust],
                                         pixsize[icol],fwhm[icol],fluxcut=fluxcut,zzero=params['z'],superplot=superplot,savemaps=savemaps)
 
@@ -134,12 +135,12 @@ def clus_sim_background(genbethermin=1,fluxcut=0,saveplots=1,savemaps=0,genpower
                     subprocess.call(['mv image.all %s' %(ltfile)],shell=True)
 
                     # post process cleanup
-                    os.remove(config.SIM + clusters[iclust] + '_cat.cat')
-                    os.remove(config.SIM + 'mu.fits')
-                    os.remove(config.SIM + 'image.dat')
-                    os.remove(config.SIM + 'pot.dat')
-                    os.remove(config.SIM + 'dist.dat')
-                    os.remove(config.SIM + 'para.out')
+                    # os.remove(config.SIM + clusters[iclust] + '_cat.cat')
+                    # os.remove(config.SIM + 'mu.fits')
+                    # os.remove(config.SIM + 'image.dat')
+                    # os.remove(config.SIM + 'pot.dat')
+                    # os.remove(config.SIM + 'dist.dat')
+                    # os.remove(config.SIM + 'para.out')
 
                 else :
                     ltfile = config.SIM + 'model/' + clusters[iclust] + '/' + clusters[iclust] + '_cat.cat'

@@ -106,7 +106,7 @@ class Catsrc():
             exit()
 
         if self.simmap == 0:
-            self.nsim = np.nan
+            self.nsim = 0
 
         if self.verbose:
             print('Welcome to SZ fitter v 1.0 Python Version')
@@ -183,7 +183,7 @@ class Catsrc():
         if self.verbose:
             print('Regressing and subtracting catalogs')
 
-        maps, err = clus_subtract_cat(self.maps, verbose=self.verbose)
+        maps, err = clus_subtract_cat(self.maps, verbose=self.verbose, saveplot=self.saveplot, nsim=self.nsim)
         if err:
             if self.verbose:
                 print('clus_subtract_cat exited with error: ' + err)
@@ -208,7 +208,7 @@ class Catsrc():
         if self.verbose:
             print('Subtracting correlated componenets')
 
-        maps, err = clus_subtract_xcomps(maps, simflag=self.simmap, verbose=self.verbose, superplot=self.superplot)
+        maps, err = clus_subtract_xcomps(maps, simflag=self.simmap, verbose=self.verbose, superplot=self.superplot, saveplot=self.saveplot, nsim=self.nsim)
         if err:
             if self.verbose:
                 print('clus_subtract_xcomps exited with error: ' + err)
@@ -236,7 +236,7 @@ class Catsrc():
         Outputs : None
         Class Variables : self.maps gets passed. and passed out.
         """
-        radave = clus_compute_rings(self.maps,self.params,30.0,verbose=self.verbose, superplot=self.superplot)  #should superplot be a flag in catsrc?
+        radave = clus_compute_rings(self.maps,self.params,30.0,verbose=self.verbose, superplot=self.superplot, saveplot=self.saveplot, nsim=self.nsim)  #should superplot be a flag in catsrc?
         #unclear at the moment why we need to have two different calls to compute_rings
         # if self.simmap == None:  # don't see the difference between if simmap == 0 and if not simmap ??
         #     tfave, err = clus_compute_rings(tf_maps, params, 30.0, verbose=self.verbose)
@@ -255,24 +255,24 @@ class Catsrc():
         else:
             maxlim = 450
 
-        fit = clus_fitsz(radave, self.params,self.beam, superplot=self.superplot) #args need to be figued out when we write this function
+        fit = clus_fitsz(radave, self.params,self.beam, superplot=self.superplot, saveplot=self.saveplot, nsim=self.nsim) #args need to be figued out when we write this function
         fit = np.asarray(fit)
         increment = fit[:,0]
         print(increment)
         offsets = fit[:,1]
 
-        if not self.simmap: #again not really sure if this is right.
-            if self.clusname == 'ms0451':
-                maxlim = 300
-            else:
-                maxlim = 450
-
-                fit = clus_fitsz(radave, params, self.beam)
-                increment = fit[1,:]
-                offsets = fit[0,:]
+        # if not self.simmap: #again not really sure if this is right.
+        #     if self.clusname == 'ms0451':
+        #         maxlim = 300
+        #     else:
+        #         maxlim = 450
+        #
+        #         fit = clus_fitsz(radave, params, self.beam)
+        #         increment = fit[1,:]
+        #         offsets = fit[0,:]
 
             # increment = increment / tfamp # i don't think tfamp is defined?
-        err = save_fitsz(increment, offsets, radave, self.params, simflag=self.simmap, verbose=self.verbose, outname='szout_')
+        err = save_fitsz(increment, offsets, radave, self.params, simflag=self.simmap, verbose=self.verbose, outname='szout_', nsim=self.nsim, outdir='outputs/szout/')
         if err:
             if self.verbose:
                 print('clus_save_szfits exited with error: ' + err)

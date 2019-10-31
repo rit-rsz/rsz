@@ -29,7 +29,7 @@ import matplotlib.pyplot as plt
 import matplotlib
 # matplotlib.use('TkAgg')
 
-def clus_compute_rings(maps, params, binwidth, superplot=0, verbose=1, noconfusion=None):
+def clus_compute_rings(maps, params, binwidth, superplot=0, verbose=1, noconfusion=None, saveplot=1, nsim=0):
     # init params
     bands = ['PSW', 'PMW', 'PLW']
     ncols = len(maps)
@@ -156,13 +156,20 @@ def clus_compute_rings(maps, params, binwidth, superplot=0, verbose=1, noconfusi
                      'fluxbin' : fluxbin,
                      'errbin' : errbin}
 
-        if superplot:
+        if superplot or saveplot:
             plt.plot(midbinp,fluxbin)
             plt.title('Clus Compute Rings: Radial Averages for %s' %(maps[m]['band']))
             plt.xlabel('Radius (arcsec)')
             plt.ylabel('Signal (MJy/sr)')
             plt.xlim((0,600))
-            plt.show()
+            if superplot:
+                plt.show()
+            if saveplot:
+                if nsim != 0:
+                    filename = config.HOME + 'outputs/radial_averages/' + maps[m]['clusname'] + '_' + maps[m]['band'] + '_' + str(nsim) + '.pdf'
+                else:
+                    filename = config.HOME + 'outputs/radial_averages/' + maps[m]['clusname'] + '_' + maps[m]['band'] + '_' + '.pdf'
+                plt.savefig(filename, format='pdf')
 
             # fig = plt.figure()
             # new_midbin = [(x/pixsize) + px for x in midbinp]

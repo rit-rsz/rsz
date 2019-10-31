@@ -51,6 +51,7 @@ def histogram(nsims):
                 #outfile = config.CLUSDATA + outdir + '/' + outname + '_' + params['clusname'][0] + '.json'
             histogram_test(10, k, Isim, xbin, clusname, band)
         exit()
+
 def histogram_test(binsize, k, Isim, xbin, clusname, band):
     dI = abs((np.max(Isim) + np.min(Isim)) / binsize)
     # for b in range(binsize):

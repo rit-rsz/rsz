@@ -49,6 +49,7 @@ from clus_compute_rings import *
 from clus_fitsz import *
 from save_fitsz import *
 sys.path.append('multiband_pcat')
+import os
 # from multiband_pcat import *
 
 class Catsrc():

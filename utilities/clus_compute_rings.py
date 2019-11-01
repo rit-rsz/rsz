@@ -166,9 +166,11 @@ def clus_compute_rings(maps, params, binwidth, superplot=0, verbose=1, noconfusi
                 plt.show()
             if saveplot:
                 if nsim != 0:
-                    filename = config.HOME + 'outputs/radial_averages/' + maps[m]['clusname'] + '_' + maps[m]['band'] + '_' + str(nsim) + '.pdf'
+                    filename = config.HOME + 'outputs/radial_averages/' + maps[m]['name'] + '_' + maps[m]['band'] + '_' + str(nsim) + '.pdf'
                 else:
-                    filename = config.HOME + 'outputs/radial_averages/' + maps[m]['clusname'] + '_' + maps[m]['band'] + '_' + '.pdf'
+                    filename = config.HOME + 'outputs/radial_averages/' + maps[m]['name'] + '_' + maps[m]['band'] + '_' + '.pdf'
+                if os.path.isfile(filename):
+                    os.remove(filename)
                 plt.savefig(filename, format='pdf')
 
             # fig = plt.figure()

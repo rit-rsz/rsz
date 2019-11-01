@@ -29,7 +29,7 @@ from get_spire_beam_fwhm import *
 def fitting_func(a, x, b):
     return a*x + b
 
-def clus_fitsz(radave, params, beam=None, maxlim=3600, minlim=0, noweight=1, superplot=1, verbose=1, nsim, saveplot=1):
+def clus_fitsz(radave, params, beam=None, maxlim=3600, minlim=0, noweight=1, superplot=1, verbose=1, nsim=0, saveplot=1):
 
     # init params
     ncols = len(radave)

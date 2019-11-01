@@ -24,7 +24,7 @@ from clus_get_data import *
 from astropy.convolution import convolve_fft
 # from scipy import optimize.least_squares
 from scipy.stats import linregress
-from writefits import writefits
+from save_fits import writefits
 from gaussian import makeGaussian, padGaussian
 from clus_make_noise_mask import clus_make_noise_mask
 import config
@@ -87,9 +87,11 @@ def clus_subtract_xcomps(maps, simflag=0, verbose=1, superplot=1, nsim=0, savepl
                 plt.show()
             elif saveplot:
                 if nsim != 0:
-                    filename = config.HOME + 'outputs/correlated_components/' + maps[i]['clusname'] + '_' + maps[i]['band'] + '_' + str(nsim) + '.pdf'
+                    filename = config.HOME + 'outputs/correlated_components/' + maps[i]['name'] + '_' + maps[i]['band'] + '_' + str(nsim) + '.pdf'
                 else:
-                    filename = config.HOME + 'outputs/correlated_components/' + maps[i]['clusname'] + '_' + maps[i]['band'] + '_' + str(nsim) + '.pdf'
+                    filename = config.HOME + 'outputs/correlated_components/' + maps[i]['name'] + '_' + maps[i]['band'] + '_' + str(nsim) + '.pdf'
+                if os.path.isfile(filename):
+                    os.remove(filename)
                 plt.savefig(filename, format='pdf')
 
         #subtract the correlated components from the image

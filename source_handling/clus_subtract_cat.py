@@ -32,19 +32,19 @@ def clus_subtract_cat(maps, verbose=1, nsim=0, saveplot=1):
     err = None
 
     # default is to have all of the 3 maps returned
-    # ob = lion(band0=0, band1=1, band2=2, map_object=maps, auto_resize=True, make_post_plots=False, nsamp=500, residual_samples=100, visual=False)
-    # resid_maps = ob.main()
+    ob = lion(band0=0, band1=1, band2=2, map_object=maps, auto_resize=True, make_post_plots=False, nsamp=500, residual_samples=100, visual=False)
+    resid_maps = ob.main()
 
     # plt.imsave('/home/butler/rsz/pcat_resid_0.png',resid_maps[0],format='png')
     # plt.imsave('/home/butler/rsz/pcat_resid_1.png',resid_maps[1],format='png')
     # plt.imsave('/home/butler/rsz/pcat_resid_2.png',resid_maps[2],format='png')
     # np.save('/home/butler/rsz/pcat_resid.npy',resid_maps)
 
-    map1 = np.load('/home/butler/rsz/pcat_resid.npy',allow_pickle=True)
-    map2 = np.load('/home/butler/rsz/pcat_resid1.npy',allow_pickle=True)
-    map3 = np.load('/home/butler/rsz/pcat_resid2.npy',allow_pickle=True)
-
-    resid_maps = [map1[0],map2[0],map3[0]]
+    # map1 = np.load('/home/butler/rsz/pcat_resid.npy',allow_pickle=True)
+    # map2 = np.load('/home/butler/rsz/pcat_resid1.npy',allow_pickle=True)
+    # map3 = np.load('/home/butler/rsz/pcat_resid2.npy',allow_pickle=True)
+    #
+    # resid_maps = [map1[0],map2[0],map3[0]]
 
     # make sure both input maps exist
     ''' turned off for testing purposes '''

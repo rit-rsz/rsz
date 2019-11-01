@@ -55,7 +55,8 @@ import os
 class Catsrc():
 
     def __init__(self, clusname, saveplot=1, cattype="24um", savecat=0,
-                 savemap=0, maketf=0, simmap=0, nsim=0, s2n=3, verbose=1, resolution='nr', superplot=1):
+                 savemap=0, maketf=0, simmap=0, nsim=0, s2n=3, verbose=1, resolution='nr', superplot=1,
+                 yin=False, tin=False):
         """
         initializing function for catsrc class
         Purpose: read in arguments to be passed to functions in catsrc.

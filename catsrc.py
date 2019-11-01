@@ -255,7 +255,7 @@ class Catsrc():
         else:
             maxlim = 450
 
-        fit = clus_fitsz(radave, self.params,self.beam, superplot=self.superplot, saveplot=self.saveplot, nsim=self.nsim) #args need to be figued out when we write this function
+        fit = clus_fitsz(radave, self.params,self.beam, superplot=self.superplot, saveplot=self.saveplot, nsim=self.nsim)
         fit = np.asarray(fit)
         increment = fit[:,0]
         print(increment)
@@ -272,7 +272,8 @@ class Catsrc():
         #         offsets = fit[0,:]
 
             # increment = increment / tfamp # i don't think tfamp is defined?
-        err = save_fitsz(increment, offsets, radave, self.params, simflag=self.simmap, verbose=self.verbose, outname='szout_', nsim=self.nsim, outdir='outputs/szout/')
+
+        err = save_fitsz(increment, offsets, radave, self.params, simflag=self.simmap, verbose=self.verbose, nsim=self.nsim)
         if err:
             if self.verbose:
                 print('clus_save_szfits exited with error: ' + err)

@@ -131,7 +131,7 @@ def clus_sim_background(genbethermin=1,fluxcut=0,saveplots=1,savemaps=0,genpower
                     # # calling lenstool program, waiting to continue until program finishes
                     subprocess.call(['/usr/local/bin/lenstool %s -n' %(config.HOME + 'model/' + clusters[iclust] + '/bestopt.par')],shell=True)
                     #
-                    # # i'm assuming that this moves the output from lenstool to the directory CLUSSBOX and renames it
+                    # this moves the output from lenstool to the directory SIMBOX and renames it
                     subprocess.call(['mv image.all %s' %(ltfile)],shell=True)
 
                     # post process cleanup
@@ -154,6 +154,7 @@ def clus_sim_background(genbethermin=1,fluxcut=0,saveplots=1,savemaps=0,genpower
                 #     outmap[whpl] = np.nan
 
                 maps[icol]['signal'] = outmap
+                exit()
                 # adding random noise to the signal map
                 if addnoise == 1 :
                     print('Adding noise to sim maps')

@@ -129,7 +129,7 @@ def clus_get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
 
 #   Need to tweek the syntax of this for loop
     for ifile in range(nfiles):
-        if ifile < 3: # I feel like this is supposed to be ifile <= 3 :
+        if ifile < 3:
             if any(col in files[ifile] for col in cols): # checks if name of band is in the filename
                 maps.append(clus_read_file(files[ifile], cols[ifile], clusname, verbose=verbose,simmap=simmap))
 
@@ -190,7 +190,6 @@ def clus_get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
 ##################################################################################################
 
 def clus_read_file(file,band,clusname,verbose=0,simmap=0):
-    # Should this calfac be listed as a self.calfac or not?
     '''
     Calfac has been added to config.py as a constant.
     This is the first place it is created a used.
@@ -229,16 +228,9 @@ def clus_read_file(file,band,clusname,verbose=0,simmap=0):
                         abs(map.header['CD2_1'] + map.header['CD2_2'])])
 
     psf = get_spire_beam(pixsize=pixsize, band=band)
-    #psf = 4 #for xid test only...
     widtha = get_spire_beam_fwhm(band) #arcsecs (sigma of gaussian)
     width = widtha / (sqrt(8 * log(2)) * pixsize) # width in pixels
     calfac = 1 / (config.calfac * (get_spire_beam_fwhm(band))**2)
-#   This should be defined in the catsrsc file
-    '''
-    This was moved to config.py
-    '''
-    # JY2MJy = 1e6
-
 
 #   Gets header information from a fits image. Astropy should be able to do this
     astr = {}

@@ -33,6 +33,7 @@ def clus_popmap(ltfile,maps,band,name,pixsize,fwhm,loz=None,superplot=0,savemaps
     mag = []
     with open(ltfile,'r') as f :
         data = f.readlines()
+        print('length of popmap data:',len(data))
         for i in range(len(data)) :
             val = data[i].strip().split(' ')
             if i == 0 :
@@ -44,17 +45,21 @@ def clus_popmap(ltfile,maps,band,name,pixsize,fwhm,loz=None,superplot=0,savemaps
                 mag.append(float(val[-1]))
     f.close()
 
-    print(len(mag), 'length in clus_popmap after lenstool')
-
+    print('mags:',mag[0:10])
     # if len(loz) == 8 :
     #     ra = [ra,loz['x']]
     #     dec = [dec,loz['y']]
-    refx = racent
-    refy = deccent
+
+    # refx = maps['shead']['CRVAL1']
+    # refy = maps['shead']['CRVAL2']
+    refx = float(racent)
+    refy = float(deccent)
+
     # convert ra/dec to degrees
     ra = [((-x / 3600.0) + refx) for x in ra]
     dec = [((y / 3600.0) + refy) for y in dec]
     flux = [10.0**(-k/2.5) for k in mag]
+
     # if len(loz) == 8 :
     #     flux = [flux,loz['f']]
 
@@ -83,19 +88,19 @@ def clus_popmap(ltfile,maps,band,name,pixsize,fwhm,loz=None,superplot=0,savemaps
     num = 0
     for i in range(len(flux)):
         if x[i] > 0 and x[i] < y_size and y[i] > 0 and y[i] < x_size:
-            kern = makeGaussian(y_size,x_size, fwhm = fwhm/pixsize, center=(x[i],y[i]))
-            kern = kern / np.sum(kern)
+            kern = makeGaussian(y_size,x_size, fwhm = fwhm/pixsize, center=(int(x[i]),int(y[i])))
+            kern = kern / np.max(kern)
             norm = flux[i]
             psf = kern * norm
             outmap = outmap + psf
         else :
-            # print('source outside map: ', flux[i],x[i],y[i])
             num += 1
     print('number of sources outside map: ',num)
 
     if superplot:
-        plt.imshow(outmap,origin=0)
-        plt.title('clus_popmap: lensed sim map')
+        plt.imshow(outmap,extent=(0,300,0,300),clim=[0.0,0.15],origin=0)
+        plt.colorbar()
+        plt.title('clus_popmap: Lensed map')
         plt.show()
 
     if savemaps:

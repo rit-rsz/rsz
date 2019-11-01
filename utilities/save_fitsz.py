@@ -27,7 +27,7 @@ def create_template(params):
                        'clusname' : params['clusname']}
     return szout_template
 
-def save_fitsz(increment, offset, radave, params, simflag=1, nsim=0, outname='szout', outdir='sz', verbose=1):
+def save_fitsz(increment, offset, radave, params, simflag=1, nsim=0, verbose=1):
     ncols = len(radave)
 
 
@@ -45,10 +45,10 @@ def save_fitsz(increment, offset, radave, params, simflag=1, nsim=0, outname='sz
         #i have a feeling this may  not work ex: szout[i]['radbin'] = radave[i]['radbin'] but not sure
 
     if not simflag:
-        outfile = config.HOME + outdir + outname + '_' + params['clusname'] + 'real.json'
+        outfile = config.HOME + 'output/szout/szout__' + params['clusname'] + 'real.json'
         print(outfile)
     else:
-        outfile = config.HOME + outdir + outname + '_' + params['clusname'] + str(nsim) + '.json'
+        outfile = config.HOME + 'output/szout/szout__' + params['clusname'] + str(nsim) + '.json'
         print(outfile)
     with open(outfile, 'w') as f:
         json.dump(szout, f)

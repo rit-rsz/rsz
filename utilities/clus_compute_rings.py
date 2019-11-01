@@ -172,6 +172,7 @@ def clus_compute_rings(maps, params, binwidth, superplot=0, verbose=1, noconfusi
                 if os.path.isfile(filename):
                     os.remove(filename)
                 plt.savefig(filename, format='pdf')
+                plt.clf()
 
             # fig = plt.figure()
             # new_midbin = [(x/pixsize) + px for x in midbinp]

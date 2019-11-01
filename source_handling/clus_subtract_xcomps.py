@@ -93,6 +93,7 @@ def clus_subtract_xcomps(maps, simflag=0, verbose=1, superplot=1, nsim=0, savepl
                 if os.path.isfile(filename):
                     os.remove(filename)
                 plt.savefig(filename, format='pdf')
+                plt.clf()
 
         #subtract the correlated components from the image
         maps[i]['xclean'] = np.empty(maps[i]['srcrm'].shape)

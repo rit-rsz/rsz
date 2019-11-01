@@ -74,7 +74,10 @@ def clus_fitsz(radave, params, beam=None, maxlim=3600, minlim=0, noweight=1, sup
                     filename = config.HOME + 'outputs/IB_fits/ra_v_r_' + params['clusname'] + '_' + radave[i]['band'] + '_' + str(nsim) + '.pdf'
                 else:
                     filename = config.HOME + 'outputs/IB_fits/ra_v_r_' + params['clusname'] + '_' + radave[i]['band'] + '_' + '.pdf'
+                if os.path.isfile(filename):
+                    os.remove(filename)
                 plt.savefig(filename, format='pdf')
+                plt.clf()
 
         # ignore values above radius of 600
         index = []
@@ -123,7 +126,10 @@ def clus_fitsz(radave, params, beam=None, maxlim=3600, minlim=0, noweight=1, sup
                     filename = config.HOME + 'outputs/IB_fits/dI_fit_' + params['clusname'] + '_' + radave[i]['band'] + '_' + str(nsim) + '.pdf'
                 else:
                     filename = config.HOME + 'outputs/IB_fits/dI_fit_' + params['clusname'] + '_' + radave[i]['band'] + '_' + '.pdf'
+                if os.path.isfile(filename):
+                    os.remove(filename)
                 plt.savefig(filename, format='pdf')
+                plt.clf()
 
     return fit
 

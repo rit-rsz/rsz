@@ -34,8 +34,7 @@ def clus_get_relsz(nu,y,te, vpec=0.0, ngrid=100):
         # constants
         # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
         tau = []
-        for i in range(len(y)):
-            tau.append(float(y[i]) * (420.0 / float(te[i])**0.9)) # optical depth
+        tau.append(float(y) * (420.0 / float(te)**0.9)) # optical depth
         T_0     = 2.725                   #CMB temperature, K
         k_B     = 1.3806503e-23           #Boltzmann constant, J/K
         h       = 6.626068e-34            #Planck constant, J s

@@ -1,197 +1,197 @@
 ['/home/vaughan/rsz', '/usr/lib64/python37.zip', '/usr/lib64/python3.7', '/usr/lib64/python3.7/lib-dynload', '/usr/local/lib64/python3.7/site-packages', '/usr/local/lib/python3.7/site-packages', '/home/vaughan/XID_plus', '/usr/lib64/python3.7/site-packages', '/usr/lib/python3.7/site-packages', 'utilities', 'source_handling', '/utilities', '/home/vaughan/rsz/multiband_pcat', '../utilities', '../utilities', '../utilities', 'utilities/', '../source_handling', '../utilities', '../source_handling']
 hermes data
 BREAK ---------------------------------------
-PLW /data/butler/SPIRE/hermes_clusters/a1689_PSW_nr_1.fits 6.000000145272001 files after sorting
-PSW /data/butler/SPIRE/hermes_clusters/a1689_PMW_nr_1.fits 8.333333395416 files after sorting
-PMW /data/butler/SPIRE/hermes_clusters/a1689_PLW_nr_1.fits 12.00000029058 files after sorting
+PSW /data/butler/SPIRE/hermes_clusters/a1689_PSW_nr_1.fits 6.000000145272001 files after sorting
+PMW /data/butler/SPIRE/hermes_clusters/a1689_PMW_nr_1.fits 8.333333395416 files after sorting
+PLW /data/butler/SPIRE/hermes_clusters/a1689_PLW_nr_1.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
-PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0200.fits 6.000000145272001 files after sorting
+PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0200.fits 6.000000145272001 files after sorting
 PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0200.fits 8.333333395416 files after sorting
-PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0200.fits 12.00000029058 files after sorting
+PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0200.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
-PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0201.fits 6.000000145272001 files after sorting
-PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0201.fits 8.333333395416 files after sorting
-PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0201.fits 12.00000029058 files after sorting
+PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0201.fits 6.000000145272001 files after sorting
+PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0201.fits 8.333333395416 files after sorting
+PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0201.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
-PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0202.fits 6.000000145272001 files after sorting
-PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0202.fits 8.333333395416 files after sorting
-PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0202.fits 12.00000029058 files after sorting
+PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0202.fits 6.000000145272001 files after sorting
+PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0202.fits 8.333333395416 files after sorting
+PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0202.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
-PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0203.fits 6.000000145272001 files after sorting
+PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0203.fits 6.000000145272001 files after sorting
 PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0203.fits 8.333333395416 files after sorting
-PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0203.fits 12.00000029058 files after sorting
+PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0203.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
-PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0204.fits 6.000000145272001 files after sorting
-PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0204.fits 8.333333395416 files after sorting
-PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0204.fits 12.00000029058 files after sorting
+PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0204.fits 6.000000145272001 files after sorting
+PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0204.fits 8.333333395416 files after sorting
+PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0204.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
-PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0205.fits 6.000000145272001 files after sorting
-PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0205.fits 8.333333395416 files after sorting
+PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0205.fits 6.000000145272001 files after sorting
+PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0205.fits 8.333333395416 files after sorting
 PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0205.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
 PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0206.fits 6.000000145272001 files after sorting
 PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0206.fits 8.333333395416 files after sorting
 PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0206.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
-PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0207.fits 6.000000145272001 files after sorting
-PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0207.fits 8.333333395416 files after sorting
+PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0207.fits 6.000000145272001 files after sorting
+PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0207.fits 8.333333395416 files after sorting
 PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0207.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
 PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0208.fits 6.000000145272001 files after sorting
 PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0208.fits 8.333333395416 files after sorting
 PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0208.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
-PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0209.fits 6.000000145272001 files after sorting
+PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0209.fits 6.000000145272001 files after sorting
 PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0209.fits 8.333333395416 files after sorting
-PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0209.fits 12.00000029058 files after sorting
+PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0209.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
-PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0210.fits 6.000000145272001 files after sorting
-PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0210.fits 8.333333395416 files after sorting
-PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0210.fits 12.00000029058 files after sorting
+PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0210.fits 6.000000145272001 files after sorting
+PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0210.fits 8.333333395416 files after sorting
+PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0210.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
 PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0211.fits 6.000000145272001 files after sorting
 PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0211.fits 8.333333395416 files after sorting
 PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0211.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
-PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0212.fits 6.000000145272001 files after sorting
-PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0212.fits 8.333333395416 files after sorting
-PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0212.fits 12.00000029058 files after sorting
+PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0212.fits 6.000000145272001 files after sorting
+PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0212.fits 8.333333395416 files after sorting
+PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0212.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
 PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0213.fits 6.000000145272001 files after sorting
 PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0213.fits 8.333333395416 files after sorting
 PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0213.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
-PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0214.fits 6.000000145272001 files after sorting
-PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0214.fits 8.333333395416 files after sorting
-PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0214.fits 12.00000029058 files after sorting
+PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0214.fits 6.000000145272001 files after sorting
+PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0214.fits 8.333333395416 files after sorting
+PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0214.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
-PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0215.fits 6.000000145272001 files after sorting
-PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0215.fits 8.333333395416 files after sorting
-PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0215.fits 12.00000029058 files after sorting
+PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0215.fits 6.000000145272001 files after sorting
+PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0215.fits 8.333333395416 files after sorting
+PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0215.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
-PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0216.fits 6.000000145272001 files after sorting
-PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0216.fits 8.333333395416 files after sorting
-PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0216.fits 12.00000029058 files after sorting
+PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0216.fits 6.000000145272001 files after sorting
+PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0216.fits 8.333333395416 files after sorting
+PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0216.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
 PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0217.fits 6.000000145272001 files after sorting
 PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0217.fits 8.333333395416 files after sorting
 PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0217.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
-PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0218.fits 6.000000145272001 files after sorting
-PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0218.fits 8.333333395416 files after sorting
+PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0218.fits 6.000000145272001 files after sorting
+PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0218.fits 8.333333395416 files after sorting
 PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0218.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
-PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0219.fits 6.000000145272001 files after sorting
-PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0219.fits 8.333333395416 files after sorting
+PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0219.fits 6.000000145272001 files after sorting
+PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0219.fits 8.333333395416 files after sorting
 PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0219.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
-PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0220.fits 6.000000145272001 files after sorting
+PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0220.fits 6.000000145272001 files after sorting
 PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0220.fits 8.333333395416 files after sorting
-PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0220.fits 12.00000029058 files after sorting
+PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0220.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
-PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0221.fits 6.000000145272001 files after sorting
-PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0221.fits 8.333333395416 files after sorting
-PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0221.fits 12.00000029058 files after sorting
+PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0221.fits 6.000000145272001 files after sorting
+PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0221.fits 8.333333395416 files after sorting
+PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0221.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
-PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0222.fits 6.000000145272001 files after sorting
+PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0222.fits 6.000000145272001 files after sorting
 PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0222.fits 8.333333395416 files after sorting
-PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0222.fits 12.00000029058 files after sorting
+PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0222.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
-PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0223.fits 6.000000145272001 files after sorting
-PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0223.fits 8.333333395416 files after sorting
-PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0223.fits 12.00000029058 files after sorting
+PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0223.fits 6.000000145272001 files after sorting
+PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0223.fits 8.333333395416 files after sorting
+PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0223.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
-PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0224.fits 6.000000145272001 files after sorting
-PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0224.fits 8.333333395416 files after sorting
-PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0224.fits 12.00000029058 files after sorting
+PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0224.fits 6.000000145272001 files after sorting
+PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0224.fits 8.333333395416 files after sorting
+PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0224.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
 PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0225.fits 6.000000145272001 files after sorting
-PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0225.fits 8.333333395416 files after sorting
-PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0225.fits 12.00000029058 files after sorting
+PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0225.fits 8.333333395416 files after sorting
+PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0225.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
-PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0226.fits 6.000000145272001 files after sorting
-PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0226.fits 8.333333395416 files after sorting
-PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0226.fits 12.00000029058 files after sorting
+PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0226.fits 6.000000145272001 files after sorting
+PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0226.fits 8.333333395416 files after sorting
+PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0226.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
-PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0227.fits 6.000000145272001 files after sorting
-PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0227.fits 8.333333395416 files after sorting
+PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0227.fits 6.000000145272001 files after sorting
+PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0227.fits 8.333333395416 files after sorting
 PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0227.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
 PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0228.fits 6.000000145272001 files after sorting
-PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0228.fits 8.333333395416 files after sorting
-PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0228.fits 12.00000029058 files after sorting
+PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0228.fits 8.333333395416 files after sorting
+PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0228.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
-PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0229.fits 6.000000145272001 files after sorting
-PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0229.fits 8.333333395416 files after sorting
-PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0229.fits 12.00000029058 files after sorting
+PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0229.fits 6.000000145272001 files after sorting
+PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0229.fits 8.333333395416 files after sorting
+PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0229.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
-PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0230.fits 6.000000145272001 files after sorting
+PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0230.fits 6.000000145272001 files after sorting
 PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0230.fits 8.333333395416 files after sorting
-PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0230.fits 12.00000029058 files after sorting
+PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0230.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
 PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0231.fits 6.000000145272001 files after sorting
-PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0231.fits 8.333333395416 files after sorting
-PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0231.fits 12.00000029058 files after sorting
+PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0231.fits 8.333333395416 files after sorting
+PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0231.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
-PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0232.fits 6.000000145272001 files after sorting
+PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0232.fits 6.000000145272001 files after sorting
 PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0232.fits 8.333333395416 files after sorting
-PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0232.fits 12.00000029058 files after sorting
+PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0232.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
-PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0233.fits 6.000000145272001 files after sorting
-PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0233.fits 8.333333395416 files after sorting
-PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0233.fits 12.00000029058 files after sorting
+PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0233.fits 6.000000145272001 files after sorting
+PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0233.fits 8.333333395416 files after sorting
+PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0233.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
-PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0234.fits 6.000000145272001 files after sorting
-PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0234.fits 8.333333395416 files after sorting
-PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0234.fits 12.00000029058 files after sorting
+PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0234.fits 6.000000145272001 files after sorting
+PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0234.fits 8.333333395416 files after sorting
+PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0234.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
-PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0235.fits 6.000000145272001 files after sorting
+PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0235.fits 6.000000145272001 files after sorting
 PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0235.fits 8.333333395416 files after sorting
-PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0235.fits 12.00000029058 files after sorting
+PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0235.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
-PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0236.fits 6.000000145272001 files after sorting
-PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0236.fits 8.333333395416 files after sorting
-PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0236.fits 12.00000029058 files after sorting
+PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0236.fits 6.000000145272001 files after sorting
+PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0236.fits 8.333333395416 files after sorting
+PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0236.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
-PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0237.fits 6.000000145272001 files after sorting
-PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0237.fits 8.333333395416 files after sorting
+PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0237.fits 6.000000145272001 files after sorting
+PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0237.fits 8.333333395416 files after sorting
 PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0237.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
-PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0238.fits 6.000000145272001 files after sorting
-PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0238.fits 8.333333395416 files after sorting
+PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0238.fits 6.000000145272001 files after sorting
+PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0238.fits 8.333333395416 files after sorting
 PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0238.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
-PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0239.fits 6.000000145272001 files after sorting
-PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0239.fits 8.333333395416 files after sorting
+PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0239.fits 6.000000145272001 files after sorting
+PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0239.fits 8.333333395416 files after sorting
 PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0239.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
 PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0240.fits 6.000000145272001 files after sorting
-PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0240.fits 8.333333395416 files after sorting
-PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0240.fits 12.00000029058 files after sorting
+PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0240.fits 8.333333395416 files after sorting
+PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0240.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
 PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0241.fits 6.000000145272001 files after sorting
 PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0241.fits 8.333333395416 files after sorting
 PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0241.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
-PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0242.fits 6.000000145272001 files after sorting
-PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0242.fits 8.333333395416 files after sorting
-PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0242.fits 12.00000029058 files after sorting
+PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0242.fits 6.000000145272001 files after sorting
+PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0242.fits 8.333333395416 files after sorting
+PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0242.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
-PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0243.fits 6.000000145272001 files after sorting
+PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0243.fits 6.000000145272001 files after sorting
 PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0243.fits 8.333333395416 files after sorting
-PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0243.fits 12.00000029058 files after sorting
+PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0243.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
 PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0244.fits 6.000000145272001 files after sorting
-PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0244.fits 8.333333395416 files after sorting
-PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0244.fits 12.00000029058 files after sorting
+PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0244.fits 8.333333395416 files after sorting
+PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0244.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
 PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0245.fits 6.000000145272001 files after sorting
 PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0245.fits 8.333333395416 files after sorting
 PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0245.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
-PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0246.fits 6.000000145272001 files after sorting
+PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0246.fits 6.000000145272001 files after sorting
 PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0246.fits 8.333333395416 files after sorting
-PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0246.fits 12.00000029058 files after sorting
+PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0246.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
 PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0247.fits 6.000000145272001 files after sorting
 PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0247.fits 8.333333395416 files after sorting
@@ -202,172 +202,172 @@ PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0248.fits 8.33333339541
 PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0248.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
 PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0249.fits 6.000000145272001 files after sorting
-PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0249.fits 8.333333395416 files after sorting
-PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0249.fits 12.00000029058 files after sorting
+PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0249.fits 8.333333395416 files after sorting
+PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0249.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
 PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0250.fits 6.000000145272001 files after sorting
-PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0250.fits 8.333333395416 files after sorting
-PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0250.fits 12.00000029058 files after sorting
+PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0250.fits 8.333333395416 files after sorting
+PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0250.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
-PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0251.fits 6.000000145272001 files after sorting
-PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0251.fits 8.333333395416 files after sorting
+PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0251.fits 6.000000145272001 files after sorting
+PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0251.fits 8.333333395416 files after sorting
 PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0251.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
 PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0252.fits 6.000000145272001 files after sorting
 PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0252.fits 8.333333395416 files after sorting
 PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0252.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
-PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0253.fits 6.000000145272001 files after sorting
-PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0253.fits 8.333333395416 files after sorting
-PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0253.fits 12.00000029058 files after sorting
+PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0253.fits 6.000000145272001 files after sorting
+PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0253.fits 8.333333395416 files after sorting
+PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0253.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
-PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0254.fits 6.000000145272001 files after sorting
-PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0254.fits 8.333333395416 files after sorting
+PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0254.fits 6.000000145272001 files after sorting
+PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0254.fits 8.333333395416 files after sorting
 PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0254.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
-PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0255.fits 6.000000145272001 files after sorting
+PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0255.fits 6.000000145272001 files after sorting
 PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0255.fits 8.333333395416 files after sorting
-PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0255.fits 12.00000029058 files after sorting
+PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0255.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
 PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0256.fits 6.000000145272001 files after sorting
-PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0256.fits 8.333333395416 files after sorting
-PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0256.fits 12.00000029058 files after sorting
+PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0256.fits 8.333333395416 files after sorting
+PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0256.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
 PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0257.fits 6.000000145272001 files after sorting
-PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0257.fits 8.333333395416 files after sorting
-PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0257.fits 12.00000029058 files after sorting
+PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0257.fits 8.333333395416 files after sorting
+PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0257.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
-PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0258.fits 6.000000145272001 files after sorting
-PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0258.fits 8.333333395416 files after sorting
-PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0258.fits 12.00000029058 files after sorting
+PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0258.fits 6.000000145272001 files after sorting
+PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0258.fits 8.333333395416 files after sorting
+PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0258.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
 PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0259.fits 6.000000145272001 files after sorting
 PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0259.fits 8.333333395416 files after sorting
 PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0259.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
 PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0260.fits 6.000000145272001 files after sorting
-PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0260.fits 8.333333395416 files after sorting
-PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0260.fits 12.00000029058 files after sorting
+PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0260.fits 8.333333395416 files after sorting
+PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0260.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
-PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0261.fits 6.000000145272001 files after sorting
-PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0261.fits 8.333333395416 files after sorting
-PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0261.fits 12.00000029058 files after sorting
+PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0261.fits 6.000000145272001 files after sorting
+PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0261.fits 8.333333395416 files after sorting
+PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0261.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
-PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0262.fits 6.000000145272001 files after sorting
-PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0262.fits 8.333333395416 files after sorting
+PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0262.fits 6.000000145272001 files after sorting
+PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0262.fits 8.333333395416 files after sorting
 PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0262.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
-PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0263.fits 6.000000145272001 files after sorting
-PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0263.fits 8.333333395416 files after sorting
-PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0263.fits 12.00000029058 files after sorting
+PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0263.fits 6.000000145272001 files after sorting
+PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0263.fits 8.333333395416 files after sorting
+PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0263.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
-PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0264.fits 6.000000145272001 files after sorting
-PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0264.fits 8.333333395416 files after sorting
+PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0264.fits 6.000000145272001 files after sorting
+PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0264.fits 8.333333395416 files after sorting
 PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0264.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
-PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0265.fits 6.000000145272001 files after sorting
+PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0265.fits 6.000000145272001 files after sorting
 PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0265.fits 8.333333395416 files after sorting
-PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0265.fits 12.00000029058 files after sorting
+PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0265.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
-PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0266.fits 6.000000145272001 files after sorting
+PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0266.fits 6.000000145272001 files after sorting
 PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0266.fits 8.333333395416 files after sorting
-PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0266.fits 12.00000029058 files after sorting
+PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0266.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
-PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0267.fits 6.000000145272001 files after sorting
-PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0267.fits 8.333333395416 files after sorting
+PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0267.fits 6.000000145272001 files after sorting
+PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0267.fits 8.333333395416 files after sorting
 PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0267.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
-PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0268.fits 6.000000145272001 files after sorting
-PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0268.fits 8.333333395416 files after sorting
+PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0268.fits 6.000000145272001 files after sorting
+PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0268.fits 8.333333395416 files after sorting
 PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0268.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
-PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0269.fits 6.000000145272001 files after sorting
-PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0269.fits 8.333333395416 files after sorting
-PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0269.fits 12.00000029058 files after sorting
+PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0269.fits 6.000000145272001 files after sorting
+PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0269.fits 8.333333395416 files after sorting
+PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0269.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
 PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0270.fits 6.000000145272001 files after sorting
 PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0270.fits 8.333333395416 files after sorting
 PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0270.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
-PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0271.fits 6.000000145272001 files after sorting
-PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0271.fits 8.333333395416 files after sorting
-PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0271.fits 12.00000029058 files after sorting
+PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0271.fits 6.000000145272001 files after sorting
+PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0271.fits 8.333333395416 files after sorting
+PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0271.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
-PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0272.fits 6.000000145272001 files after sorting
-PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0272.fits 8.333333395416 files after sorting
+PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0272.fits 6.000000145272001 files after sorting
+PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0272.fits 8.333333395416 files after sorting
 PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0272.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
 PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0273.fits 6.000000145272001 files after sorting
-PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0273.fits 8.333333395416 files after sorting
-PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0273.fits 12.00000029058 files after sorting
+PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0273.fits 8.333333395416 files after sorting
+PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0273.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
-PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0274.fits 6.000000145272001 files after sorting
-PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0274.fits 8.333333395416 files after sorting
+PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0274.fits 6.000000145272001 files after sorting
+PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0274.fits 8.333333395416 files after sorting
 PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0274.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
-PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0275.fits 6.000000145272001 files after sorting
+PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0275.fits 6.000000145272001 files after sorting
 PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0275.fits 8.333333395416 files after sorting
-PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0275.fits 12.00000029058 files after sorting
+PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0275.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
-PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0276.fits 6.000000145272001 files after sorting
+PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0276.fits 6.000000145272001 files after sorting
 PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0276.fits 8.333333395416 files after sorting
-PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0276.fits 12.00000029058 files after sorting
+PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0276.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
 PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0277.fits 6.000000145272001 files after sorting
 PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0277.fits 8.333333395416 files after sorting
 PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0277.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
-PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0278.fits 6.000000145272001 files after sorting
+PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0278.fits 6.000000145272001 files after sorting
 PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0278.fits 8.333333395416 files after sorting
-PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0278.fits 12.00000029058 files after sorting
+PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0278.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
 PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0279.fits 6.000000145272001 files after sorting
-PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0279.fits 8.333333395416 files after sorting
-PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0279.fits 12.00000029058 files after sorting
+PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0279.fits 8.333333395416 files after sorting
+PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0279.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
-PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0280.fits 6.000000145272001 files after sorting
-PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0280.fits 8.333333395416 files after sorting
+PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0280.fits 6.000000145272001 files after sorting
+PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0280.fits 8.333333395416 files after sorting
 PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0280.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
-PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0281.fits 6.000000145272001 files after sorting
-PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0281.fits 8.333333395416 files after sorting
-PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0281.fits 12.00000029058 files after sorting
+PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0281.fits 6.000000145272001 files after sorting
+PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0281.fits 8.333333395416 files after sorting
+PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0281.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
-PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0282.fits 6.000000145272001 files after sorting
-PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0282.fits 8.333333395416 files after sorting
-PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0282.fits 12.00000029058 files after sorting
+PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0282.fits 6.000000145272001 files after sorting
+PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0282.fits 8.333333395416 files after sorting
+PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0282.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
-PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0283.fits 6.000000145272001 files after sorting
+PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0283.fits 6.000000145272001 files after sorting
 PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0283.fits 8.333333395416 files after sorting
-PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0283.fits 12.00000029058 files after sorting
+PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0283.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
-PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0284.fits 6.000000145272001 files after sorting
-PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0284.fits 8.333333395416 files after sorting
-PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0284.fits 12.00000029058 files after sorting
+PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0284.fits 6.000000145272001 files after sorting
+PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0284.fits 8.333333395416 files after sorting
+PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0284.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
-PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0285.fits 6.000000145272001 files after sorting
-PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0285.fits 8.333333395416 files after sorting
-PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0285.fits 12.00000029058 files after sorting
+PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0285.fits 6.000000145272001 files after sorting
+PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0285.fits 8.333333395416 files after sorting
+PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0285.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
-PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0286.fits 6.000000145272001 files after sorting
-PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0286.fits 8.333333395416 files after sorting
-PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0286.fits 12.00000029058 files after sorting
+PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0286.fits 6.000000145272001 files after sorting
+PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0286.fits 8.333333395416 files after sorting
+PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0286.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
-PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0287.fits 6.000000145272001 files after sorting
-PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0287.fits 8.333333395416 files after sorting
-PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0287.fits 12.00000029058 files after sorting
+PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0287.fits 6.000000145272001 files after sorting
+PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0287.fits 8.333333395416 files after sorting
+PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0287.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
-PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0288.fits 6.000000145272001 files after sorting
-PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0288.fits 8.333333395416 files after sorting
+PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0288.fits 6.000000145272001 files after sorting
+PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0288.fits 8.333333395416 files after sorting
 PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0288.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
-PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0289.fits 6.000000145272001 files after sorting
-PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0289.fits 8.333333395416 files after sorting
-PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0289.fits 12.00000029058 files after sorting
+PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0289.fits 6.000000145272001 files after sorting
+PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0289.fits 8.333333395416 files after sorting
+PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0289.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
-PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0290.fits 6.000000145272001 files after sorting
-PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0290.fits 8.333333395416 files after sorting
-PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0290.fits 12.00000029058 files after sorting
+PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0290.fits 6.000000145272001 files after sorting
+PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0290.fits 8.333333395416 files after sorting
+PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0290.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
 PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0291.fits 6.000000145272001 files after sorting
 PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0291.fits 8.333333395416 files after sorting
@@ -385,22 +385,22 @@ PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0294.fits 6.00000014527
 PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0294.fits 8.333333395416 files after sorting
 PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0294.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
-PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0295.fits 6.000000145272001 files after sorting
-PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0295.fits 8.333333395416 files after sorting
+PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0295.fits 6.000000145272001 files after sorting
+PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0295.fits 8.333333395416 files after sorting
 PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0295.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
-PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0296.fits 6.000000145272001 files after sorting
-PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0296.fits 8.333333395416 files after sorting
+PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0296.fits 6.000000145272001 files after sorting
+PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0296.fits 8.333333395416 files after sorting
 PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0296.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
-PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0297.fits 6.000000145272001 files after sorting
-PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0297.fits 8.333333395416 files after sorting
-PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0297.fits 12.00000029058 files after sorting
+PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0297.fits 6.000000145272001 files after sorting
+PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0297.fits 8.333333395416 files after sorting
+PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0297.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
-PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0298.fits 6.000000145272001 files after sorting
-PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0298.fits 8.333333395416 files after sorting
-PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0298.fits 12.00000029058 files after sorting
+PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0298.fits 6.000000145272001 files after sorting
+PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0298.fits 8.333333395416 files after sorting
+PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0298.fits 12.00000029058 files after sorting
 BREAK ---------------------------------------
-PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0299.fits 6.000000145272001 files after sorting
+PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PSW_sim0299.fits 6.000000145272001 files after sorting
 PMW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PMW_sim0299.fits 8.333333395416 files after sorting
-PSW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0299.fits 12.00000029058 files after sorting
+PLW /data/butler/SPIRE/bethermin_sims/a1689/a1689_PLW_sim0299.fits 12.00000029058 files after sorting

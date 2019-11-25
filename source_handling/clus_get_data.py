@@ -33,12 +33,12 @@ def clus_get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
     # place holders for the if statements to work until I add them to the input for get data
     # This will happen when the script is fully functional
     errmsg = False
-    if not bolocam:
-        cols = ['PSW','PMW','PLW']
-        bolocam = 0
-    else:
-        cols = ['PSW','PMW','PLW','BOLOCAM']
-        bolocam = 1
+    # if not bolocam:
+    #     cols = ['PSW','PMW','PLW']
+    #     bolocam = 0
+    # else:
+    #     cols = ['PSW','PMW','PLW','BOLOCAM']
+    #     bolocam = 1
 
 #   If there is no manual path set
     if manpath == 0 and nsim==0:
@@ -129,7 +129,7 @@ def clus_get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
     # print(nfiles, files, 'initial file list')
     for i in range(nfiles):
         if i < 3:
-            maps.append(clus_read_file(files[i], cols[i], clusname, verbose=verbose,simmap=simmap))
+            maps.append(clus_read_file(files[i], clusname, verbose=verbose,simmap=simmap))
 
         else:
             maps[ifile] = np.empty(clus_read_bolocam(clusname,verbose=verbose)) #args need to be filled in bolocam one
@@ -138,34 +138,36 @@ def clus_get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
     #the purpose of the below code is to organize the maps objects so that our program doesn't bork out and think the PSW
     #map is the PLW map or the PLW map is the PMW map, etc.
 
-    for i in range(len(maps)):
-        if 'PSW' in maps[i]['file']:
-            if i == 1:
-                holder = maps[0]
-                maps[0] = maps[i]
-                if 'PMW' in holder['file']:
-                    maps[1] = holder
-                elif 'PLW' in holder['file']:
-                    maps[1] = maps[2]
-                    maps[2] = holder
-            elif i == 2:
-                holder = maps[0]
-                maps[0] = maps[i]
-                if 'PMW' in holder['file']:
-                    maps[2] = maps[1]
-                    maps[1] = holder
-                elif 'PLW' in holder['file']:
-                    maps[2] = holder
-        if 'PMW' in maps[i]['file']:
-            if i == 2:
-                holder = maps[1]
-                maps[1] = maps[i]
-                maps[2] = holder
+    # for i in range(len(maps)):
+    #     if 'PSW' in maps[i]['file']:
+    #         if i == 1:
+    #             holder = maps[0]
+    #             maps[0] = maps[i]
+    #             if 'PMW' in holder['file']:
+    #                 maps[1] = holder
+    #             elif 'PLW' in holder['file']:
+    #                 maps[1] = maps[2]
+    #                 maps[2] = holder
+    #         elif i == 2:
+    #             holder = maps[0]
+    #             maps[0] = maps[i]
+    #             if 'PMW' in holder['file']:
+    #                 maps[2] = maps[1]
+    #                 maps[1] = holder
+    #             elif 'PLW' in holder['file']:
+    #                 maps[2] = holder
+    #     if 'PMW' in maps[i]['file']:
+    #         if i == 2:
+    #             holder = maps[1]
+    #             maps[1] = maps[i]
+    #             maps[2] = holder
 
 
     print('BREAK ---------------------------------------')
 
+    sort_order = {'PSW' : 0, 'PMW' : 1, 'PLW' : 2}
 
+    maps.sort(key = lambda x : sort_order[x['band']])
     #
     for i in range(len(maps)): #this is to test the file organization.
         print(maps[i]['band'], maps[i]['file'], maps[i]['pixsize'], 'files after sorting')
@@ -175,7 +177,7 @@ def clus_get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
 ##################################################################################################
 ##################################################################################################
 
-def clus_read_file(file,band,clusname,verbose=0,simmap=0):
+def clus_read_file(file, clusname, verbose=0, simmap=0):
     '''
     Calfac has been added to config.py as a constant.
     This is the first place it is created a used.
@@ -184,6 +186,14 @@ def clus_read_file(file,band,clusname,verbose=0,simmap=0):
     # This will ultimatly be in the list of constants
     # The rest of the scrpit involves idl_libs stuff that
     # will get grabbed from astropy
+
+    if 'PSW' in file:
+        band = 'PSW'
+    elif 'PMW' in file:
+        band = 'PMW'
+    elif 'PLW' in file:
+        band = 'PLW'
+
     hdul = fits.open(file)
     map = hdul[1]
     err = hdul[2]
@@ -261,6 +271,8 @@ def clus_read_file(file,band,clusname,verbose=0,simmap=0):
 #  Need to generate default mask map
 #  whnan = WHERE(FINITE(map) EQ 0,countnan)
 #  IF countnan GT 0 THEN mask[whnan] = 1
+
+
 
     maps = {'name':clusname, #check
           'file':file, #check

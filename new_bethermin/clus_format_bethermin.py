@@ -15,6 +15,7 @@
 ############################################################################
 import sys, os, math
 sys.path.append('../utilities')
+from save_fits import writefits
 import config
 import numpy as np
 import matplotlib.pyplot as plt
@@ -39,7 +40,7 @@ def clus_format_bethermin(icol,sim_map,maps,band,clusname,pixsize,fwhm,\
     refx = maps[icol]['shead']['CRPIX1']
     refy = maps[icol]['shead']['CRPIX2']
 
-
+ 
     # massage data into new arrays
     xpos = sim_map[icol+3]['x']
     ypos = sim_map[icol+3]['y']

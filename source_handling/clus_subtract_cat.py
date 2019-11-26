@@ -21,7 +21,7 @@ import sys
 import matplotlib.pyplot as plt
 # from clus_get_data import *
 from astropy.io import fits
-sys.path.append('../utilities')
+sys.path.append('/utilities')
 import config
 sys.path.append(config.HOME + 'multiband_pcat')
 from pcat_spire import lion
@@ -32,19 +32,28 @@ def clus_subtract_cat(maps, verbose=1, nsim=0, saveplot=1):
     err = None
 
     # default is to have all of the 3 maps returned
+<<<<<<< Updated upstream
     ob = lion(band0=0, band1=1, band2=2, map_object=maps, auto_resize=True, make_post_plots=False, cblas=False, nsamp=500, residual_samples=100, visual=False)
+=======
+    print(np.amax(maps[2]['signal']))
+    # writefits('testplw.fits', data=maps[2]['signal'])
+    plt.imshow(maps[0]['signal'], origin='lower')
+    plt.show()
+    exit()
+    ob = lion(band0=0, map_object=maps, auto_resize=True, make_post_plots=False, nsamp=500, residual_samples=100, visual=False, cblas=False)
+>>>>>>> Stashed changes
     resid_maps = ob.main()
 
     # plt.imsave('/home/butler/rsz/pcat_resid_0.png',resid_maps[0],format='png')
     # plt.imsave('/home/butler/rsz/pcat_resid_1.png',resid_maps[1],format='png')
     # plt.imsave('/home/butler/rsz/pcat_resid_2.png',resid_maps[2],format='png')
     # np.save('/home/butler/rsz/pcat_resid.npy',resid_maps)
-
-    map1 = np.load('/home/butler/rsz/pcat_resid.npy',allow_pickle=True)
-    map2 = np.load('/home/butler/rsz/pcat_resid1.npy',allow_pickle=True)
-    map3 = np.load('/home/butler/rsz/pcat_resid2.npy',allow_pickle=True)
-
-    resid_maps = [map1[0],map2[0],map3[0]]
+    #
+    # map1 = np.load('/home/butler/rsz/pcat_resid.npy',allow_pickle=True)
+    # map2 = np.load('/home/butler/rsz/pcat_resid1.npy',allow_pickle=True)
+    # map3 = np.load('/home/butler/rsz/pcat_resid2.npy',allow_pickle=True)
+    #
+    # resid_maps = [map1[0],map2[0],map3[0]]
 
     # make sure both input maps exist
     ''' turned off for testing purposes '''
@@ -96,5 +105,7 @@ if __name__ == '__main__' :
     sys.path.append('../source_handling')
     from clus_get_data import clus_get_data
     maps, err = clus_get_data(clusname='a0370')
-    resid_maps = np.load('/home/butler/rsz/pcat_resid.npy',allow_pickle=True)
-    clus_subtract_cat(maps,resid_maps)
+    resid_maps = fits.open('../new_bethermin/lens_model/nonlensedmap_a0370_PSW2.fits')[0].data
+    resid_maps = resid_maps[0:263, 0:243]
+    maps[0]['signal'] = resid_maps
+    clus_subtract_cat(maps)

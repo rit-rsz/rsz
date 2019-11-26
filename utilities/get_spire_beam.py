@@ -133,8 +133,8 @@ def get_spire_beam(band=None, pixsize=0,npixx=0, npixy=0,
 
     # Check if we have been givin the center, if not assume middle
     if xcent == 0:
-        if verbose:
-            print('xcent parameter not supplied, assuming array center')
+        # if verbose:
+        #     print('xcent parameter not supplied, assuming array center')
         ixcent = x_gen / 2
     else:
         # Adjust for oversampling
@@ -143,8 +143,8 @@ def get_spire_beam(band=None, pixsize=0,npixx=0, npixy=0,
             ixcent = ixcent + ioversamp / 2
 
     if ycent == 0:
-        if verbose:
-            print('ycent parameter not supplied, assuming array center')
+        # if verbose:
+        #     print('ycent parameter not supplied, assuming array center')
         iycent = y_gen / 2
     else:
         iycent = ycent * ioversamp
@@ -195,8 +195,8 @@ def rebin(a, new_shape):
     M = int(shape[0])
     N = int(shape[1])
     m, n = new_shape
-    print('M', M, 'N', N, 'm', m, 'n', n)
-    print('M/m', M/m, 'N/n', N/n)
+    # print('M', M, 'N', N, 'm', m, 'n', n)
+    # print('M/m', M/m, 'N/n', N/n)
     if m<M:
         return a.reshape((m,int(M/m),n,int(N/n))).mean(3).mean(1)
     else:

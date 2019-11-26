@@ -29,6 +29,7 @@ def histogram(nsims):
     bands = ['PSW', 'PMW', 'PLW'] #the three different bands
 
     for j in range(len(clusters)):
+        j = 1
         clusname = clusters[j]
         for k in range(len(bands)):
             Isim = np.zeros(nsims)
@@ -38,7 +39,8 @@ def histogram(nsims):
             n = 0
 
             for i in range(200, 200+nsims):
-                file = 'sz/sim/szout__' + clusname + str(i) + '.json'
+                # file = 'sz/sim/szout__' + clusname + str(i) + '.json'
+                file = 'a1689_out/szout__' + clusname + str(i) + '.json'
                 with open(file) as data_file:
                     data = json.load(data_file)
                 # data = scipy.io.readsav(config.CLUSDATA + file,python_dict = True)
@@ -59,9 +61,10 @@ def histogram_test(binsize, k, Isim, xbin, clusname, band):
     bins = np.linspace(np.min(Isim), np.max(Isim), num=binsize)
     average = np.mean(Isim)
     avg = [average, average]
-    with open('sz/sim/szout__' + clusname + 'real.json') as data_file:
+    # with open('sz/sim/szout__' + clusname + 'real.json') as data_file:
+    with open('a1689_out/szout__' + clusname + 'real.json') as data_file:
         data = json.load(data_file)
-    Ireal = data[0]['increment']
+    Ireal = data[k]['increment']
     Ir= [Ireal, Ireal]
 
     weights = np.ones_like(Isim)/float(len(Isim))
@@ -79,5 +82,5 @@ def histogram_test(binsize, k, Isim, xbin, clusname, band):
 
 
 if __name__ == '__main__':
-    nsims =  88
+    nsims =  23
     histogram(nsims)

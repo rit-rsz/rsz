@@ -224,8 +224,8 @@ def clus_read_file(file, clusname, verbose=0, simmap=0):
                         abs(map.header['CD2_1'] + map.header['CD2_2'])])
 
     psf = get_spire_beam(pixsize=pixsize, band=band, verbose=0)
-    widtha = get_spire_beam_fwhm(band) #arcsecs (sigma of gaussian)
-    width = widtha / (sqrt(8 * log(2)) * pixsize) # width in pixels
+    widtha = get_spire_beam_fwhm(band) #arcsecs (fwhm of gaussian)
+    width = widtha / (sqrt(8 * log(2)) / pixsize) # width in pixels #sqrt(8 * log(2)) is conversion to sigma of gauss
     calfac = 1 / (config.calfac * (get_spire_beam_fwhm(band))**2)
 
 #   Gets header information from a fits image. Astropy should be able to do this

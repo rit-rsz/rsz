@@ -110,8 +110,8 @@ class Catsrc():
         if self.simmap == 0:
             self.nsim = 0
 
-        if self.verbose:
-            print('Welcome to SZ fitter v 1.0 Python Version')
+        # if self.verbose:
+        #     print('Welcome to SZ fitter v 1.0 Python Version')
 
         if self.saveplot:
             #this was used to plot some data and graph, but is depreciated in the python
@@ -290,7 +290,7 @@ class Catsrc():
 
 
 if __name__ == '__main__':
-    catsrc = Catsrc('a0370', verbose=1, cattype='PSW',simmap=2,nsim=200, superplot=0)
+    catsrc = Catsrc('a1689', verbose=1, cattype='PSW',simmap=2,nsim=200, superplot=0)
         # SAVEPLOTS=saveplots,\
         # CATTYPE=cattype,\
         # SAVECAT=savecat,\

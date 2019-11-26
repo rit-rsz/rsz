@@ -53,11 +53,13 @@ def clus_subtract_xcomps(maps, simflag=0, verbose=1, superplot=1, nsim=0, savepl
             print('On band %s' %(maps[i]['band']))
 
         #create a new image for the PSW band that is the same shape and beamsize as the reference images
-        width = sqrt(maps[i]['widtha']**2 + maps[0]['widtha']**2) / maps[0]['pixsize']
-        kern = makeGaussian(15, 15, fwhm =width, center=None)
+        print(maps[i]['widtha'], maps[0]['widtha'], maps[0]['pixsize'])
+        width = sqrt(maps[i]['widtha'] **2 + maps[0]['widtha']**2) / maps[0]['pixsize']
+        # kern = makeGaussian(15, 15, fwhm =width, center=None)
+        # kern = kern / np.sum(kern)
+        # kern = padGaussian(inmap,kern)
+        # inmap = convolve_fft(inmap, kern)
         inmap = maps[0]['srcrm']
-        kern = padGaussian(inmap,kern)
-        inmap = convolve_fft(inmap, kern)
         maps[0]['xclean'] = maps[0]['srcrm']
         xmap = inmap
         xmap_align = hcongrid(xmap, maps[0]['shead'], maps[i]['shead'])

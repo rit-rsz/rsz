@@ -31,7 +31,7 @@ def clus_subtract_cat(maps, verbose=1, nsim=0, saveplot=1):
     err = None
 
     # default is to have all of the 3 maps returned
-    ob = lion(band0=0, band1=1, band2=2, map_object=maps, auto_resize=True, make_post_plots=False, nsamp=500, residual_samples=100, visual=False)
+    ob = lion(band0=0, band1=1, band2=2, map_object=maps, auto_resize=True, make_post_plots=False, cblas=False, nsamp=500, residual_samples=100, visual=False)
     resid_maps = ob.main()
 
     plt.imsave('/home/butler/rsz/pcat_resid_0.png',resid_maps[0],format='png')

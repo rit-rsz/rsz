@@ -13,10 +13,10 @@ runmode
 image
 	multfile    0 ahst_15dec.mul
 	forme       0
-	z_m_limit  1 A3 1 0.949 1.206 0.0100 
-	z_m_limit  2 5a 51a 3 0.600 0.090 0.0100 
-	z_m_limit  3 41a 3 1.715 0.170 0.0100 
-	z_m_limit  4 42a 3 1.715 0.170 0.0100 
+	z_m_limit  1 A3 1 0.949 1.206 0.0100
+	z_m_limit  2 51a 3 0.600 0.090 0.0100 
+	z_m_limit  3 41a 3 1.715 0.170 0.0100
+	z_m_limit  4 42a 3 1.715 0.170 0.0100
 	sigposArcsec   0.200000
 	end
 grille

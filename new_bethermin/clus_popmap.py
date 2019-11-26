@@ -80,10 +80,10 @@ def clus_popmap(ltfile,maps,band,name,pixsize,fwhm,loz=None,superplot=0,savemaps
         plt.title('clus_popmap: after skycoord_to_pixel')
         plt.show()
 
-    # x_size = maps['signal'].shape[0]
-    # y_size = maps['signal'].shape[1]
-    x_size = 300
-    y_size = 300
+    x_size = maps['signal'].shape[0]
+    y_size = maps['signal'].shape[1]
+    # x_size = 300
+    # y_size = 300
     outmap = np.zeros((x_size,y_size))
     num = 0
     for i in range(len(flux)):
@@ -106,9 +106,9 @@ def clus_popmap(ltfile,maps,band,name,pixsize,fwhm,loz=None,superplot=0,savemaps
     if savemaps:
         hdx = fits.PrimaryHDU(maps['signal'],maps['shead'])
         sz = fits.PrimaryHDU(outmap,hdx.header)
-        if os.path.isfile(config.SIMBOX + 'lensedmap_' + name + '_' + band + '.fits'):
-            os.remove(config.SIMBOX + 'lensedmap_' + name + '_' + band + '.fits')
-        sz.writeto(config.SIMBOX + 'lensedmap_' + name + '_' + band + '.fits')
+        sz.writeto(config.SIMBOX + 'lensedmap_' + name + '_' + band + '.fits',overwrite=True)
+
+    return outmap
 
 if __name__ == '__main__':
     import sys

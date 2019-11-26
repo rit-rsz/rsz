@@ -45,15 +45,16 @@ def clus_format_bethermin(icol,sim_map,maps,band,clusname,pixsize,fwhm,\
     ypos = sim_map[icol+3]['y']
     zpos = sim_map[icol+3]['z']
     outflux = sim_map[-1]['fluxdens'][:,icol]
-    # convert from mJy to Jy
-    outflux = [x * 1e3 for x in outflux]
+    # convert from Jy to mJy
+    # outflux = [x * 1e3 for x in outflux]
 
     # x_size = sim_map[icol].shape[0]
     # y_size = sim_map[icol].shape[1]
-    # x_size = maps[icol]['signal'].shape[0]
-    # y_size = maps[icol]['signal'].shape[1]
-    x_size = 300
-    y_size = 300
+    x_size = maps[icol]['signal'].shape[0]
+    y_size = maps[icol]['signal'].shape[1]
+    print('maps size:',x_size,y_size)
+    # x_size = 300
+    # y_size = 300
     outmap1 = np.zeros((x_size,y_size))
 
     if savemaps:
@@ -64,11 +65,10 @@ def clus_format_bethermin(icol,sim_map,maps,band,clusname,pixsize,fwhm,\
                 norm = outflux[i]
                 psf = kern * norm
                 outmap1 = outmap1 + psf
+                print('format_bethermin_1: %s' %(i))
         hdx = fits.PrimaryHDU(maps[icol]['signal'],maps[icol]['shead'])
         sz = fits.PrimaryHDU(outmap1,hdx.header)
-        if os.path.isfile(config.SIMBOX + 'nonlensedmap_' + clusname + '_' + band + '2.fits'):
-            os.remove(config.SIMBOX + 'nonlensedmap_' + clusname + '_' + band + '2.fits')
-        sz.writeto(config.SIMBOX + 'nonlensedmap_' + clusname + '_' + band + '2.fits')
+        sz.writeto(config.SIMBOX + 'nonlensedmap_' + clusname + '_' + band + '_presort.fits',overwrite=True)
 
     if superplot :
         plt.scatter(xpos,ypos,s=2)
@@ -90,11 +90,7 @@ def clus_format_bethermin(icol,sim_map,maps,band,clusname,pixsize,fwhm,\
                 np.delete(outz,i)
         nsrc = len(outflux)
 
-    print(nsrc)
-
-    outflux = outflux.tolist()
-    print(len(outz))
-    print(len(outflux))
+    # outflux = outflux.tolist()
     savex = []
     savey = []
     savez = []
@@ -138,13 +134,6 @@ def clus_format_bethermin(icol,sim_map,maps,band,clusname,pixsize,fwhm,\
     houtz = sorted(outz)
 
     print(max(houtflux),min(houtflux))
-    # x_size = sim_map[icol].shape[0]
-    # y_size = sim_map[icol].shape[1]
-    # x_size = maps[icol]['signal'].shape[0]
-    # y_size = maps[icol]['signal'].shape[1]
-
-    x_size = 300
-    y_size = 300
     outmap = np.zeros((x_size,y_size))
 
     for i in range(len(houtflux)):
@@ -154,22 +143,30 @@ def clus_format_bethermin(icol,sim_map,maps,band,clusname,pixsize,fwhm,\
             norm = houtflux[i]
             psf = kern * norm
             outmap = outmap + psf
+            print('format_bethermin_2: %s' %(i))
 
-    plt.imshow(outmap,extent=(0,300,0,300),clim=[0.0,0.15],origin=0)
-    plt.colorbar()
-    # ax2a=ax2.annotate('Field 2',xy=(0,300),xycoords='data',xytext=(0,300), textcoords='data',horizontalalignment='right', verticalalignment='top',color='yellow',fontsize=14)
-    # ax2a.set_path_effects([path_effects.Stroke(linewidth=2, foreground='black'),path_effects.Normal()])
-    # ax2.set_ylabel('arcseconds')
-    # ax2.set_xlabel('arcseconds')
-    plt.title('clus_format_bethermin: Non-lensed map')
-    plt.show()
+    if superplot :
+        plt.imshow(outmap,extent=(0,300,0,300),clim=[0.0,0.15],origin=0)
+        plt.colorbar()
+        # ax2a=ax2.annotate('Field 2',xy=(0,300),xycoords='data',xytext=(0,300), textcoords='data',horizontalalignment='right', verticalalignment='top',color='yellow',fontsize=14)
+        # ax2a.set_path_effects([path_effects.Stroke(linewidth=2, foreground='black'),path_effects.Normal()])
+        # ax2.set_ylabel('arcseconds')
+        # ax2.set_xlabel('arcseconds')
+        plt.title('clus_format_bethermin: Non-lensed map')
+        plt.show()
 
-    # if savemaps:
-    #     hdx = fits.PrimaryHDU(maps[icol]['signal'],maps[icol]['shead'])
-    #     sz = fits.PrimaryHDU(outmap,hdx.header)
-    #     if os.path.isfile(config.SIMBOX + 'nonlensedmap_' + clusname + '_' + band + '.fits'):
-    #         os.remove(config.SIMBOX + 'nonlensedmap_' + clusname + '_' + band + '.fits')
-    #     sz.writeto(config.SIMBOX + 'nonlensedmap_' + clusname + '_' + band + '.fits')
+    if savemaps:
+        error = np.array(maps[icol]['error']).flatten()
+        signal = outmap.flatten()
+        # just to apply the same masking as when the error map exists later
+        for i in range(len(error)):
+            if math.isnan(error[i]):
+                signal[i] = np.nan
+
+        final = signal.reshape(maps[icol]['signal'].shape[0],maps[icol]['signal'].shape[1])
+        hdx = fits.PrimaryHDU(maps[icol]['signal'],maps[icol]['shead'])
+        sz = fits.PrimaryHDU(final,hdx.header)
+        sz.writeto(config.SIMBOX + 'nonlensedmap_' + clusname + '_' + band + '.fits',overwrite=True)
 
     # magnitude instead of flux in Jy
     outmag = [-2.5 * np.log10(x) for x in houtflux]

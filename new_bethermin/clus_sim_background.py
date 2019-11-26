@@ -15,6 +15,7 @@
 #
 ################################################################################
 import numpy as np
+import math
 import sys, time, subprocess, os
 sys.path.append('../utilities')
 sys.path.append('../new_bethermin')
@@ -36,8 +37,6 @@ def clus_sim_background(genbethermin=1,fluxcut=0,saveplots=1,savemaps=0,genpower
               'cl0024','ms0451','ms1054','ms1358','rxj0152','rxj1347']
 
     nclust = len(clusters)
-
-    nsim = 300
     # fluxcut == [[10**(-np.arrage(6)+2))],0] # was used for doing radial average maps
 
     # Welcome the user
@@ -152,45 +151,68 @@ def clus_sim_background(genbethermin=1,fluxcut=0,saveplots=1,savemaps=0,genpower
                 # if icol < 3 :
                 #     whpl = np.where(maps[icol]['flag'] > 0) # check that this is right
                 #     outmap[whpl] = np.nan
-
+                print(maps[icol]['signal'].shape[0])
+                print(maps[icol]['signal'].shape[1])
+                signal_map = np.array(maps[icol]['signal'])
+                # reshape map to original SPIRE size
+                outmap = outmap[0:maps[icol]['signal'].shape[0],0:maps[icol]['signal'].shape[1]]
                 maps[icol]['signal'] = outmap
-                exit()
+
+                if savemaps == 1 :
+                    # create image HDU
+                    hdp = fits.PrimaryHDU(maps[icol]['signal'],maps[icol]['shead'])
+                    hdul = fits.HDUList(hdus=hdp)
+
+
                 # adding random noise to the signal map
                 if addnoise == 1 :
                     print('Adding noise to sim maps')
-
-                    ''' confnoise doesn't appear to be used in IDL version '''
-                    confnoise = 0.0 #[5.8,6.3,6.8] * 1e-3 / 2. #(SQRT(8.))
+                    ''' under the assumption that the error map is exclusively instrument noise'''
+                    # confnoise = [4.8,4.4,4.8] #mJy/beam  #[5.8,6.3,6.8] * 1e-3 / 2. #(SQRT(8.))
                     np.random.seed(102793)
-                    noisemap = np.random.randn((maps[icol]['shead']['NAXIS'][0],maps[icol]['shead']['NAXIS'][1])).flatten()
-                    signal_map = np.array(maps[icol]['signal'])
-                    mask = np.array(maps[icol]['mask']).flatten()
                     error =  np.array(maps[icol]['error']).flatten()
-                    total_noise = ((mask * error) * noisemap)
-                    maps[icol]['signal'] = signal_map + np.reshape(total_noise,(signal_map.shape[0],signal_map.shape[1]))
+                    signal = np.array(maps[icol]['signal']).flatten()
+                    noise = np.random.random((maps[icol]['signal'].shape[0],maps[icol]['signal'].shape[1])).flatten()
+                    new_noise = np.random.random((maps[icol]['signal'].shape[0],maps[icol]['signal'].shape[1])).flatten()
+                    for i in range(len(error)):
+                        if not math.isnan(error[i]) : #Jy/beam
+                            noise[i] = error[i]*noise[i]
+                            new_noise[i] = error[i]*noise[i]*(1.13*fwhm[icol]**2/pixsize[icol])
+                        else :
+                            noise[i] = np.nan
+                            new_noise[i] == np.nan
+                    flat = noise + signal
+                    other = new_noise + signal
+                    maps[icol]['signal'] = flat.reshape(maps[icol]['signal'].shape[0],maps[icol]['signal'].shape[1])
+                    new_map = other.reshape(maps[icol]['signal'].shape[0],maps[icol]['signal'].shape[1])
 
                 if savemaps == 1 :
                     # save the current sim map in /data/sim_clusters
                     print('Savemaps set, saving maps in %s' %(config.SIMBOX+'sim_clusters/'))
-                    savefile = config.SIMBOX + 'sim_clusters/' + clusname + '_' + bands[icol] + '.fits'
-                    hdx = fits.PrimaryHDU(maps[icol]['signal'],maps[icol]['shead'])
-                    if os.path.isfile(savefile):
-                        os.remove(savefile)
-                    hdx.writeto(savefile)
+                    savefile = config.SIMBOX + 'sim_clusters/' + clusters[iclust] + '_' + bands[icol] + '_noise.fits'
+                    # create image HDU
+                    hds = fits.PrimaryHDU(maps[icol]['signal'],maps[icol]['shead'],name='signal+noise')
+                    hdul.append(hds)
+                    hdn = fits.ImageHDU(noise.reshape(maps[icol]['signal'].shape[0],maps[icol]['signal'].shape[1]),maps[icol]['shead'],name='noise')
+                    hdul.append(hdn)
+                    hdnn = fits.ImageHDU(new_map,name='new_noise')
+                    hdul.append(hdnn)
+                    hdul.writeto(savefile,overwrite=True)
 
-                elif savemaps == 2 :
-                    # save the current sim map in the 0200 naming convention in /data/bethermin_sims
-                    print('Savemaps set , saving maps in %s' %(config.CLUSNSIMS))
-                    savefile = config.CLUSNSIMS + clusname + '_' + bands[icol] + '_sim0' + isim + '.fits'
-                    hdx = fits.PrimaryHDU(maps[icol]['signal'],maps[icol]['shead'])
-                    if os.path.isfile(savefile):
-                        os.remove(savefile)
-                    hdx.writeto(savefile)
+                # elif savemaps == 2 :
+                #     # save the current sim map in the 0200 naming convention in /data/bethermin_sims
+                #     print('Savemaps set , saving maps in %s' %(config.CLUSNSIMS))
+                #     savefile = config.CLUSNSIMS + clusters[iclust] + '_' + bands[icol] + '_sim0' + isim + '.fits'
+                #     hdx = fits.PrimaryHDU(maps[icol]['signal'],maps[icol]['shead'])
+                #     if os.path.isfile(savefile):
+                #         os.remove(savefile)
+                #     hdx.writeto(savefile)
 
                 # if saveplots == 1 :
                 #     make some plots
+                exit()
 
 if __name__ == '__main__' :
     clus_sim_background(genbethermin=1,fluxcut=0,saveplots=1,savemaps=1,genpowerlaw=0,\
-                        genradave=1,addnoise=0,yeslens=1,resolution='nr',nsim=1,bolocam=0,\
-                        verbose=0,errmsg=None,superplot=1)
+                        genradave=1,addnoise=1,yeslens=1,resolution='nr',nsim=1,bolocam=0,\
+                        verbose=0,errmsg=None,superplot=0)

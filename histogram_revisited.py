@@ -79,5 +79,5 @@ def histogram_test(binsize, k, Isim, xbin, clusname, band):
 
 
 if __name__ == '__main__':
-    nsims =  50
+    nsims =  88
     histogram(nsims)

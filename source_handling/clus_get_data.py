@@ -23,7 +23,6 @@ import os
 import sys
 #import pyfits
 sys.path.append('utilities/')
-print(sys.path)
 from get_spire_beam import *
 from get_spire_beam_fwhm import *
 import config
@@ -33,14 +32,13 @@ def clus_get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
             verbose = 1, version = '1', manidentifier=None, simmap=0, nsim=0):
     # place holders for the if statements to work until I add them to the input for get data
     # This will happen when the script is fully functional
-    print('clus_get_data')
     errmsg = False
-    if not bolocam:
-        cols = ['PSW','PMW','PLW']
-        bolocam = 0
-    else:
-        cols = ['PSW','PMW','PLW','BOLOCAM']
-        bolocam = 1
+    # if not bolocam:
+    #     cols = ['PSW','PMW','PLW']
+    #     bolocam = 0
+    # else:
+    #     cols = ['PSW','PMW','PLW','BOLOCAM']
+    #     bolocam = 1
 
 #   If there is no manual path set
     if manpath == 0 and nsim==0:
@@ -128,68 +126,58 @@ def clus_get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
 
 
 #   Need to tweek the syntax of this for loop
-    for ifile in range(nfiles):
-        if ifile < 3:
-            if any(col in files[ifile] for col in cols): # checks if name of band is in the filename
-                maps.append(clus_read_file(files[ifile], cols[ifile], clusname, verbose=verbose,simmap=simmap))
+    # print(nfiles, files, 'initial file list')
+    for i in range(nfiles):
+        if i < 3:
+            maps.append(clus_read_file(files[i], clusname, verbose=verbose,simmap=simmap))
 
-            else:
-                errmsg = 'Problem finding ' + cols[ifile] + ' file.'
-                if verbose:
-                    print(errmsg)
         else:
-                maps[ifile] = np.empty(clus_read_bolocam(clusname,verbose=verbose)) #args need to be filled in bolocam one
-
-    new_file = 'None'
-
-    for i in range(len(maps)):
-        print(maps[i]['file'])
-        if 'PSW' in maps[i]['file'] and i != 0:
-            new_file = maps[0]['file']
-            holder = maps[0]
-            maps[0] = maps[i]
-            maps[0]['band'] = 'PSW'
+            maps[ifile] = np.empty(clus_read_bolocam(clusname,verbose=verbose)) #args need to be filled in bolocam one
 
 
-    if 'PMW' in new_file:
-        holder2 = maps[1]
-        maps[1] = holder
-        maps[1]['band'] = 'PMW'
-        new_file = holder2['file']
+    #the purpose of the below code is to organize the maps objects so that our program doesn't bork out and think the PSW
+    #map is the PLW map or the PLW map is the PMW map, etc.
 
-    elif 'PLW' in new_file:
-        holder2 = maps[2]
-        maps[2] = holder
-        maps[2]['band'] = 'PLW'
-        new_file = holder2['file']
+    # for i in range(len(maps)):
+    #     if 'PSW' in maps[i]['file']:
+    #         if i == 1:
+    #             holder = maps[0]
+    #             maps[0] = maps[i]
+    #             if 'PMW' in holder['file']:
+    #                 maps[1] = holder
+    #             elif 'PLW' in holder['file']:
+    #                 maps[1] = maps[2]
+    #                 maps[2] = holder
+    #         elif i == 2:
+    #             holder = maps[0]
+    #             maps[0] = maps[i]
+    #             if 'PMW' in holder['file']:
+    #                 maps[2] = maps[1]
+    #                 maps[1] = holder
+    #             elif 'PLW' in holder['file']:
+    #                 maps[2] = holder
+    #     if 'PMW' in maps[i]['file']:
+    #         if i == 2:
+    #             holder = maps[1]
+    #             maps[1] = maps[i]
+    #             maps[2] = holder
 
-    if 'PLW' in new_file:
-        maps[2] = holder2
-        maps[2]['band'] = 'PLW'
 
+    print('BREAK ---------------------------------------')
 
-    elif 'PMW' in new_file:
-        maps[1] = holder2
-        maps[1]['band'] = 'PMW'
+    sort_order = {'PSW' : 0, 'PMW' : 1, 'PLW' : 2}
 
-    for i in range(len(maps)):
-        if 'PMW' in maps[i]['file']:
-            new_file = maps[1]['file']
-            holder = maps[1]
-            maps[1] = maps[i]
-            maps[1]['band'] = 'PMW'
-
-    if 'PLW' in new_file:
-        maps[2] = holder
-        maps[2]['band'] = 'PLW'
-
+    maps.sort(key = lambda x : sort_order[x['band']])
+    #
+    for i in range(len(maps)): #this is to test the file organization.
+        print(maps[i]['band'], maps[i]['file'], maps[i]['pixsize'], 'files after sorting')
 
     return maps, errmsg
 
 ##################################################################################################
 ##################################################################################################
 
-def clus_read_file(file,band,clusname,verbose=0,simmap=0):
+def clus_read_file(file, clusname, verbose=0, simmap=0):
     '''
     Calfac has been added to config.py as a constant.
     This is the first place it is created a used.
@@ -198,6 +186,14 @@ def clus_read_file(file,band,clusname,verbose=0,simmap=0):
     # This will ultimatly be in the list of constants
     # The rest of the scrpit involves idl_libs stuff that
     # will get grabbed from astropy
+
+    if 'PSW' in file:
+        band = 'PSW'
+    elif 'PMW' in file:
+        band = 'PMW'
+    elif 'PLW' in file:
+        band = 'PLW'
+
     hdul = fits.open(file)
     map = hdul[1]
     err = hdul[2]
@@ -227,7 +223,7 @@ def clus_read_file(file,band,clusname,verbose=0,simmap=0):
                   mean([abs(map.header['CD1_1']+map.header['CD2_1']), \
                         abs(map.header['CD2_1'] + map.header['CD2_2'])])
 
-    psf = get_spire_beam(pixsize=pixsize, band=band)
+    psf = get_spire_beam(pixsize=pixsize, band=band, verbose=0)
     widtha = get_spire_beam_fwhm(band) #arcsecs (sigma of gaussian)
     width = widtha / (sqrt(8 * log(2)) * pixsize) # width in pixels
     calfac = 1 / (config.calfac * (get_spire_beam_fwhm(band))**2)
@@ -275,6 +271,8 @@ def clus_read_file(file,band,clusname,verbose=0,simmap=0):
 #  Need to generate default mask map
 #  whnan = WHERE(FINITE(map) EQ 0,countnan)
 #  IF countnan GT 0 THEN mask[whnan] = 1
+
+
 
     maps = {'name':clusname, #check
           'file':file, #check

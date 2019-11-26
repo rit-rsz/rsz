@@ -17,12 +17,9 @@ import numpy as np
 from astropy.io import fits
 
 def writefits(filename, header_dict=None, data=None):
-    if header_dict:
+    if header_dict and len(data) > 0 :
         header = fits.Header(header_dict)
-    if header and len(data) > 0 :
         hdu = fits.PrimaryHDU(header=header, data=data)
-    elif header:
-        hdu = fits.PrimaryHDU(header=header)
-    elif data:
+    elif len(data) > 0:
         hdu = fits.PrimaryHDU(data=data)
     hdu.writeto(filename)

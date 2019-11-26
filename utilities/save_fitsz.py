@@ -14,6 +14,7 @@
 import json
 import config
 import numpy as np
+import os
 
 def create_template(params):
     szout_template = {'increment' : 0,
@@ -45,10 +46,12 @@ def save_fitsz(increment, offset, radave, params, simflag=1, nsim=0, verbose=1):
         #i have a feeling this may  not work ex: szout[i]['radbin'] = radave[i]['radbin'] but not sure
 
     if not simflag:
-        outfile = config.HOME + 'output/szout/szout__' + params['clusname'] + 'real.json'
+        outfile = config.HOME + 'outputs/szout/szout__' + params['clusname'] + 'real.json'
         print(outfile)
     else:
-        outfile = config.HOME + 'output/szout/szout__' + params['clusname'] + str(nsim) + '.json'
+        outfile = config.HOME + 'outputs/szout/szout__' + params['clusname'] + str(nsim) + '.json'
         print(outfile)
+    if os.path.isfile(outfile):
+        os.remove(outfile)
     with open(outfile, 'w') as f:
         json.dump(szout, f)

@@ -37,7 +37,7 @@ from FITS_tools.hcongrid import hcongrid
 
 
 def clus_add_sziso(maps,yin,tin,params,
-              verbose = 0,):
+              verbose = 0, testflag=0):
     errmsg = False
 
     # Now the bolocam data is in the SPIRE format
@@ -150,7 +150,7 @@ def clus_add_sziso(maps,yin,tin,params,
             # sz = fits.PrimaryHDU(szinp,hdx.header)
             # sz.writeto('test.fits')
             if testflag:
-                if sgen not None:
+                if sgen is not None:
                     filename = config.HOME + 'tests/simulated_sz' + maps[i]['name'] + '_' + maps[i]['band'] + '.fits'
                 else:
                     filename = config.HOME + 'outputs/simulated_sz' + maps[i]['name'] + '_' + maps[i]['band'] + '_' + str(nsim) + '.fits'

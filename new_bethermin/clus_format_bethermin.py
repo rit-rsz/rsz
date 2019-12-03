@@ -24,6 +24,7 @@ from FITS_tools.hcongrid import hcongrid
 from gaussian import makeGaussian
 from astropy.convolution import convolve
 from astropy.convolution import Gaussian2DKernel
+import datetime
 
 def clus_format_bethermin(icol,sim_map,maps,band,clusname,pixsize,fwhm,\
                           fluxcut=0,zzero=0,superplot=0,savemaps=0):
@@ -40,7 +41,7 @@ def clus_format_bethermin(icol,sim_map,maps,band,clusname,pixsize,fwhm,\
     refx = maps[icol]['shead']['CRPIX1']
     refy = maps[icol]['shead']['CRPIX2']
 
- 
+
     # massage data into new arrays
     xpos = sim_map[icol+3]['x']
     ypos = sim_map[icol+3]['y']
@@ -66,7 +67,6 @@ def clus_format_bethermin(icol,sim_map,maps,band,clusname,pixsize,fwhm,\
                 norm = outflux[i]
                 psf = kern * norm
                 outmap1 = outmap1 + psf
-                print('format_bethermin_1: %s' %(i))
         hdx = fits.PrimaryHDU(maps[icol]['signal'],maps[icol]['shead'])
         sz = fits.PrimaryHDU(outmap1,hdx.header)
         sz.writeto(config.SIMBOX + 'nonlensedmap_' + clusname + '_' + band + '_presort.fits',overwrite=True)
@@ -144,7 +144,6 @@ def clus_format_bethermin(icol,sim_map,maps,band,clusname,pixsize,fwhm,\
             norm = houtflux[i]
             psf = kern * norm
             outmap = outmap + psf
-            print('format_bethermin_2: %s' %(i))
 
     if superplot :
         plt.imshow(outmap,extent=(0,300,0,300),clim=[0.0,0.15],origin=0)

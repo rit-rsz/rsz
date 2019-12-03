@@ -116,7 +116,7 @@ def clus_subtract_xcomps(maps, sgen=None, verbose=1, superplot=1, nsim=0, savepl
             plt.show()
 
         if saveplot:
-            if sgen not None:
+            if sgen is not None:
                 filename = config.HOME + 'outputs/correlated_components/' + maps[i]['name'] + '_' + maps[i]['band'] + '_xc.fits'
             else:
                 filename = config.HOME + 'outputs/correlated_components/' + maps[i]['name'] + '_' + maps[i]['band'] + '_' + str(nsim) + '_xc.fits'

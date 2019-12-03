@@ -45,7 +45,7 @@ def save_fitsz(increment, offset, radave, params, sgen=None, nsim=0, verbose=1):
 
         #i have a feeling this may  not work ex: szout[i]['radbin'] = radave[i]['radbin'] but not sure
 
-    if sgen not None:
+    if sgen is not None:
         outfile = config.HOME + 'outputs/szout/szout__' + params['clusname'] + 'real.json'
         print(outfile)
     else:

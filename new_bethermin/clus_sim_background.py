@@ -28,6 +28,7 @@ from clus_get_data import clus_get_data
 from clus_format_bethermin import clus_format_bethermin
 from astropy.io import fits
 from FITS_tools.hcongrid import hcongrid
+import datetime
 
 def clus_sim_background(genbethermin=1,fluxcut=0,saveplots=1,savemaps=0,genpowerlaw=0,\
             genradave=1,addnoise=0,yeslens=1,resolution='nr',nsim=1,bolocam=0,verbose=1,\
@@ -108,15 +109,18 @@ def clus_sim_background(genbethermin=1,fluxcut=0,saveplots=1,savemaps=0,genpower
 
             for icol in range(ncols):
                 print(params['z'])
+                start = datetime.datetime.now()     
                 lozcat = clus_format_bethermin(icol,sim_maps,maps,bands[icol],clusters[iclust],
                                         pixsize[icol],fwhm[icol],fluxcut=fluxcut,zzero=params['z'],superplot=superplot,savemaps=savemaps)
-
+                t = datetime.datetime.now() - start
+                print('Total time elapsed for lenstool is : %s' % t)
                 if yeslens == 1:
                     ''' format bethermin needs to spit out only one cat file for the band it's on
                         then you need to loop through lenstool and make it do a new run for each catfile.
                         lenstool is dumb and doesn't know which band it's on, it just re-reads the same
                         file each time, so we need to make sure we re-write which one we are on
                     '''
+                    start = datetime.datetime.now()
                     print('Starting ', clusters[iclust], ' lens run for ', bands[icol], '...')
 
                     # create output data files for lenstool
@@ -144,6 +148,9 @@ def clus_sim_background(genbethermin=1,fluxcut=0,saveplots=1,savemaps=0,genpower
                 else :
                     ltfile = config.SIM + 'model/' + clusters[iclust] + '/' + clusters[iclust] + '_cat.cat'
 
+                if start:
+                    t = datetime.datetime.now() - start
+                    print('Total time elapsed for lenstool is : %s' % t)
                 # populate the sim maps with sources from lenstool
                 outmap = clus_popmap(ltfile,maps[icol],bands[icol],clusters[iclust],pixsize[icol],fwhm[icol],loz=lozcat,superplot=superplot,savemaps=savemaps)
 

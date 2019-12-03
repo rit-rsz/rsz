@@ -105,7 +105,7 @@ def clus_get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
         nfiles = len(manfiles)
         files = manfiles
 
-    elif sgen not None:
+    elif sgen is not None:
         #this is for looking for simulation data.
         simfiles = []
         simdir = config.CLUSSIMS + clusname + '/'
@@ -143,8 +143,8 @@ def clus_get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
     if testflag:
         for i in range(len(maps)): #this is to test the file organization.
             f = open('tests/test_order.txt', 'w')
-            str = maps[i]['band'] + ' | ' maps[i]['file'] + ' | ' maps[i]['pixsize'] + ' | ' + 'files after sorting'
-            f.write(str)
+            string = maps[i]['band'] + ' | ' + maps[i]['file'] + ' | ' + str(maps[i]['pixsize']) + ' | ' + 'files after sorting'
+            f.write(string)
             f.close()
 
     return maps, errmsg
@@ -176,7 +176,7 @@ def clus_read_file(file, clusname, verbose=0, sgen=None):
     flag = hdul[4] #mask map.
 
     #this adds noise into our map if it's a simulation. (I think we are currently doing this elsewhere.)
-    if sgen not None:
+    if sgen is not None:
         mapsize = img.data.shape
         noisemap = 1.0 * err.data * np.random.standard_normal((mapsize[0], mapsize[1]))
         img.data = img.data + noisemap

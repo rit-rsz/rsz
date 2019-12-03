@@ -84,6 +84,7 @@ class Catsrc():
         self.clusname = clusname
         self.nsim = nsim
         self.resolution = resolution
+        self.testflag = testflag
         self.superplot = superplot
         self.data_retrieval()
         self.source_removal()
@@ -97,7 +98,7 @@ class Catsrc():
         Returns : None
         Class variables : Passes on self.maps (list of 3 dictionaries)
         """
-        if self.sgen not None and self.nsim == 0:
+        if self.sgen is not None and self.nsim == 0:
             if self.verbose:
                 print('sgen set but nsim not supplied! Aborting')
             exit()
@@ -107,7 +108,7 @@ class Catsrc():
 
         if self.verbose:
             print('Welcome to SZ fitter v 1.0 Python Version')
-            print('Fetching cluster parameters')get_data
+            print('Fetching cluster parameters')
         #fetch parameters for our cluster from a master csv file.
         params, err = clus_get_clusparams(self.clusname,verbose=self.verbose)
         if err:
@@ -127,7 +128,7 @@ class Catsrc():
             exit()
 
         # Add the sz effect into the simmulated clusters
-        if self.sgen not None:
+        if self.sgen is not None:
             maps, err = clus_add_sziso(maps,yin=self.yin, tin=self.tin,params=params,verbose=self.verbose, testflag=self.testflag)
             # plt.imshow(maps[2]['signal'])
             # plt.show()

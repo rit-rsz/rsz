@@ -79,7 +79,7 @@ def get_spire_beam(band=None, pixsize=0,npixx=0, npixy=0,
         if band == 'PSW':
             pixsize = 6
         if band == 'PMW':
-            pixsize = 8 + (1/3)
+            pixsize = 8. + (1/3)
         if band == 'PLW':
             pixsize = 12
         else:

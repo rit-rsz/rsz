@@ -174,17 +174,22 @@ def clus_compute_rings(maps, params, binwidth, superplot=0, verbose=1, noconfusi
                 plt.savefig(filename, format='pdf')
                 plt.clf()
 
-            # fig = plt.figure()
-            # new_midbin = [(x/pixsize) + px for x in midbinp]
+            if testflag:
+                fig = plt.figure()
+                new_midbin = [(x/pixsize) + px for x in midbinp]
 
-            # for k in range(nbins):
-            #     circle = plt.Circle((px,py),new_midbin[k]-px,fill=False)
-            #     plt.gca().add_artist(circle)
-            # plt.imshow(tempmap, alpha=0.9)
-            # plt.scatter(new_midbin,[py]*nbins,c='r')
-            # plt.title('Midbins for %s' %(maps[m]['band']))
-            # plt.show()
-
+                for k in range(nbins):
+                    circle = plt.Circle((px,py),new_midbin[k]-px,fill=False)
+                    plt.gca().add_artist(circle)
+                plt.imshow(tempmap, alpha=0.9)
+                plt.scatter(new_midbin,[py]*nbins,c='r')
+                plt.title('Midbins for %s' %(maps[m]['band']))
+                if nsim != 0:
+                    filename = config.HOME + 'tests/rings' + maps[m]['name'] + '_' + maps[m]['band'] + '_' + str(nsim) + '.pdf'
+                else:
+                    filename = config.HOME + 'tests/rings' + maps[m]['name'] + '_' + maps[m]['band'] + '_' + '.pdf'
+                plt.savefig(filename, format='pdf')
+                plt.clf()
     return radave
 
 

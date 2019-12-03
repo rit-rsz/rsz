@@ -47,7 +47,7 @@ def clus_add_sziso(maps,yin,tin,params,
 
     if verbose:
         print('Fetching BOLOCAM maps')
-
+    #fetch bolocam data from .sav files in bolocam directory.
     data_file = str('bolocam/data/' + maps[0]['name'] + '.sav')
     data_dict = scipy.io.readsav(CLUSDATA + data_file,python_dict = True)
     cluster_struct = list(data_dict.values())
@@ -111,7 +111,7 @@ def clus_add_sziso(maps,yin,tin,params,
 
 
     for imap in range(mapsize):
-        # Applying the effect to the 500um band
+        # Applying the effect to the 500 um and 350 um bands.
         if imap == 2 or imap == 1:
             # yin_coeff = [2.50,1.91,2.26,3.99,1.36,2.42,1.59,1.90,3.99]
             # yin = [x*1e-4 for x in yin_coeff]
@@ -142,12 +142,28 @@ def clus_add_sziso(maps,yin,tin,params,
             hdx = fits.PrimaryHDU(maps[imap]['signal'],maps[imap]['shead'])
 
             szinp = hcongrid(hdu.data,hdu.header,hdx.header)
+
+            # plt.imshow(szinp)
+            # plt.scatter(hdx.header['CRPIX1'], hdx.header['CRPIX2'], marker='x', c='red')
+            # plt.show()
             # Used to check the alligned sz effect image
             # sz = fits.PrimaryHDU(szinp,hdx.header)
             # sz.writeto('test.fits')
+            if testflag:
+                if sgen not None:
+                    filename = config.HOME + 'tests/simulated_sz' + maps[i]['name'] + '_' + maps[i]['band'] + '.fits'
+                else:
+                    filename = config.HOME + 'outputs/simulated_sz' + maps[i]['name'] + '_' + maps[i]['band'] + '_' + str(nsim) + '.fits'
+
+                if os.path.isfile(filename):
+                    os.remove(filename)
+                writefits(filename, data=szinp, header_dict=maps[i]['shead'])
 
             # Combine the original signal with the sz effect
             maps[imap]['signal'] = maps[imap]['signal'] + szinp
+
+            # plt.imshow(maps[imap]['signal'])
+            # plt.show()
             # maps[imap]['signal'] = szinp
             # plt.imshow(szinp)
             # plt.show()

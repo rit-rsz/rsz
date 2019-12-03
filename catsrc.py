@@ -29,20 +29,16 @@ from math import *
 import sys
 # from clus_sz_template import *
 sys.path.append('utilities')
-from config import * #(this line will give me access to all directory variables)
 # from clus_get_tfs import * #this isn't being used right now
 from clus_get_clusparams import *
 # from clus_pcat_setup import *
 # This is no longer being used
-# from get_simmaps import *
 sys.path.append('source_handling')
 from clus_subtract_cat import *
 from clus_subtract_xcomps import *
 from clus_get_data import *
 import config
-from clus_get_xid import *
 sys.path.append('reduc')
-from clus_get_cats import *
 sys.path.append('sz')
 from clus_add_sziso import *
 from clus_compute_rings import *
@@ -50,40 +46,39 @@ from clus_fitsz import *
 from save_fitsz import *
 sys.path.append('multiband_pcat')
 import os
-# from multiband_pcat import *
+from multiband_pcat import *
 
 class Catsrc():
 
-    def __init__(self, clusname, saveplot=1, cattype="24um", savecat=0,
-                 savemap=0, maketf=0, simmap=0, nsim=0, s2n=3, verbose=1, resolution='nr', superplot=1,
-                 yin=False, tin=False):
+    def __init__(self, clusname, saveplot=1, maketf=0, sgen=None, nsim=0, verbose=1, resolution='nr', superplot=1,
+                 yin=False, tin=False, testflag=0):
         """
         initializing function for catsrc class
         Purpose: read in arguments to be passed to functions in catsrc.
         Inputs : Clusname   - the name of the galaxy cluster
                  saveplot   - flag to set if you want to save plots to a file
-                 cattype    - the catalog type (this might be changed in the future when pcat is integrated)
-                 savecat    - flag to save the catalogs (this might change with pcat)
-                 savemap    - flag to save the map object
                  maketf     - make transfer function flag (currently not used)
-                 simmap     - flag for looking at which rev of sims
+                 sgen       - flag for looking at which rev of sims (None = real data, 0 = 0-99, 1 = 100 - 199, 2 = 200 - 299, etc.)
                  nsim       - the sim number
-                 s2n        - s2n the signal to noise ratio
                  verbose    - verbosity flag
                  resolution - the resolution for our image
-        Outputs : None
+                 superplot  - flag to plot outputs to terminal during run
+                 yin        - input compton y parameter
+                 tin        - input temperature
+                 testflag   - boolean flag for determining if you want to show tests for various parts of the pipeline
+                              such as if the maps object is in the right order or if the rings
+                              in compute rings are computed properly.
+        Outputs :
+                 szout - file containing the increment and offset as well as other information from
+                 our analysis.
         """
         self.beam = [get_spire_beam_fwhm('PSW'), #arcsec
                 get_spire_beam_fwhm('PMW'),
                 get_spire_beam_fwhm('PLW')]
         self.verbose = verbose
-        self.cattype = cattype
-        self.savecat = savecat
-        self.savemap = savemap
         self.saveplot = saveplot
         self.maketf = maketf
-        self.simmap = simmap
-        self.s2n = s2n
+        self.sgen = sgen
         self.yin = yin
         self.tin = tin
         self.clusname = clusname
@@ -102,26 +97,18 @@ class Catsrc():
         Returns : None
         Class variables : Passes on self.maps (list of 3 dictionaries)
         """
-        if self.simmap > 0 and self.nsim == 0:
+        if self.sgen not None and self.nsim == 0:
             if self.verbose:
-                print('Simmap set but nsim not supplied! Aborting')
+                print('sgen set but nsim not supplied! Aborting')
             exit()
 
-        if self.simmap == 0:
+        if self.sgen is None:
             self.nsim = 0
 
-        # if self.verbose:
-        #     print('Welcome to SZ fitter v 1.0 Python Version')
-
-        if self.saveplot:
-            #this was used to plot some data and graph, but is depreciated in the python
-            #version maybe we want to add it back?
-            pass
-
-
-
         if self.verbose:
-            print('Fetching cluster parameters')
+            print('Welcome to SZ fitter v 1.0 Python Version')
+            print('Fetching cluster parameters')get_data
+        #fetch parameters for our cluster from a master csv file.
         params, err = clus_get_clusparams(self.clusname,verbose=self.verbose)
         if err:
             if self.verbose:
@@ -131,8 +118,8 @@ class Catsrc():
         if self.verbose:
             print('Fetching SPIRE maps')
 
-        # This step now is for both sims and real data
-        maps, err = clus_get_data(self.clusname,verbose=self.verbose,simmap=self.simmap,nsim=self.nsim)
+        # fetch data from fits files and put them into a maps object.
+        maps, err = clus_get_data(self.clusname,verbose=self.verbose,sgen=self.sgen,nsim=self.nsim, testflag=self.testflag)
 
         if err:
             if self.verbose:
@@ -140,8 +127,8 @@ class Catsrc():
             exit()
 
         # Add the sz effect into the simmulated clusters
-        if self.simmap:
-            maps, err = clus_add_sziso(maps,yin=self.yin, tin=self.tin,params=params,verbose=self.verbose)
+        if self.sgen not None:
+            maps, err = clus_add_sziso(maps,yin=self.yin, tin=self.tin,params=params,verbose=self.verbose, testflag=self.testflag)
             # plt.imshow(maps[2]['signal'])
             # plt.show()
 
@@ -155,7 +142,7 @@ class Catsrc():
         # if self.verbose:
         #     print('Fetching transfer functions')
         # ignore for now as this is only like a 2% correction and we are way off
-        # if not self.maketf and not self.simmap:
+        # if not self.maketf and not self.sgen:
         #     tf_maps, err = get_tfs(self.clusname)
         #     if err:
         #         tf_maps, err = clus_get_data(self.clusname)
@@ -210,7 +197,7 @@ class Catsrc():
         if self.verbose:
             print('Subtracting correlated componenets')
 
-        maps, err = clus_subtract_xcomps(maps, simflag=self.simmap, verbose=self.verbose, superplot=self.superplot, saveplot=self.saveplot, nsim=self.nsim)
+        maps, err = clus_subtract_xcomps(maps, sgen=self.sgen, verbose=self.verbose, superplot=self.superplot, saveplot=self.saveplot, nsim=self.nsim)
         if err:
             if self.verbose:
                 print('clus_subtract_xcomps exited with error: ' + err)
@@ -219,15 +206,15 @@ class Catsrc():
         if self.verbose:
             print('Saving processed images')
 
-        # err = clus_save_data(maps,yin=self.yin, tin=self.tin, simflag=self.simmap, verbose=self.verbose)
+        #this is likely depreciated with the adittion of the saveplot flag.
+        #it saves our maps object, but I don't think this is particularly useful.
+        # err = clus_save_data(maps,yin=self.yin, tin=self.tin, sgen=self.sgen, verbose=self.verbose)
         # if err:
         #     if self.verbose:
         #         print('clus_save_data exited with error: ' + err)
         #     exit()
 
-        if self.simmap == 0:
-            if self.verbose:
-                print('Computing radial averages nsim=200')
+
         self.maps = maps
         return maps
 
@@ -238,9 +225,12 @@ class Catsrc():
         Outputs : None
         Class Variables : self.maps gets passed. and passed out.
         """
+        if self.verbose:
+            print('Computing radial averages!')
+
         radave = clus_compute_rings(self.maps,self.params,30.0,verbose=self.verbose, superplot=self.superplot, saveplot=self.saveplot, nsim=self.nsim)  #should superplot be a flag in catsrc?
         #unclear at the moment why we need to have two different calls to compute_rings
-        # if self.simmap == None:  # don't see the difference between if simmap == 0 and if not simmap ??
+        # if self.sgen == None:  # don't see the difference between if sgen == 0 and if not sgen ??
         #     tfave, err = clus_compute_rings(tf_maps, params, 30.0, verbose=self.verbose)
         #     if err:
         #         if self.verbose:
@@ -263,7 +253,7 @@ class Catsrc():
         print(increment)
         offsets = fit[:,1]
 
-        # if not self.simmap: #again not really sure if this is right.
+        # if not self.sgen: #again not really sure if this is right.
         #     if self.clusname == 'ms0451':
         #         maxlim = 300
         #     else:
@@ -275,7 +265,7 @@ class Catsrc():
 
             # increment = increment / tfamp # i don't think tfamp is defined?
 
-        err = save_fitsz(increment, offsets, radave, self.params, simflag=self.simmap, verbose=self.verbose, nsim=self.nsim)
+        err = save_fitsz(increment, offsets, radave, self.params, sgen=self.sgen, verbose=self.verbose, nsim=self.nsim)
         if err:
             if self.verbose:
                 print('clus_save_szfits exited with error: ' + err)
@@ -290,15 +280,4 @@ class Catsrc():
 
 
 if __name__ == '__main__':
-    catsrc = Catsrc('a1689', verbose=1, cattype='PSW',simmap=2,nsim=200, superplot=0)
-        # SAVEPLOTS=saveplots,\
-        # CATTYPE=cattype,\
-        # SAVECAT=savecat,\
-        # SAVEMAP=savemap,\
-        # MAKETF=maketf,\
-        # SIMMAP=simmap,\
-        # NSIM=nsim,\
-        # S2N=s2n,\
-        # YIN=yin,\
-        # TIN=tin,\
-# VERBOSE=verbose,SUCCESS=success,ERRMSG=errmsg)
+    catsrc = Catsrc('a1689', verbose=1, sgen=2,nsim=200, superplot=0, tin=4)

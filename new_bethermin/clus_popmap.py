@@ -24,7 +24,9 @@ import matplotlib.pyplot as plt
 from astropy.io import fits
 from FITS_tools.hcongrid import hcongrid
 import numpy as np
-
+from astropy.convolution import convolve_fft
+from PIL import Image
+from datetime import datetime
 def clus_popmap(ltfile,maps,band,name,pixsize,fwhm,loz=None,superplot=0,savemaps=0):
 
     # read in the image.dat file
@@ -60,6 +62,8 @@ def clus_popmap(ltfile,maps,band,name,pixsize,fwhm,loz=None,superplot=0,savemaps
     dec = [((y / 3600.0) + refy) for y in dec]
     flux = [10.0**(-k/2.5) for k in mag]
 
+
+
     # if len(loz) == 8 :
     #     flux = [flux,loz['f']]
 
@@ -86,6 +90,9 @@ def clus_popmap(ltfile,maps,band,name,pixsize,fwhm,loz=None,superplot=0,savemaps
     # y_size = 300
     outmap = np.zeros((x_size,y_size))
     num = 0
+    fig, axs = plt.subplots(1, 2)
+
+    # print(datetime.now(), 'Time before manually multiplying through gaussians')
     for i in range(len(flux)):
         if x[i] > 0 and x[i] < y_size and y[i] > 0 and y[i] < x_size:
             kern = makeGaussian(y_size,x_size, fwhm = fwhm/pixsize, center=(int(x[i]),int(y[i])))
@@ -95,6 +102,26 @@ def clus_popmap(ltfile,maps,band,name,pixsize,fwhm,loz=None,superplot=0,savemaps
             outmap = outmap + psf
         else :
             num += 1
+    # axs[0].imshow(outmap)
+    #
+    # print(datetime.now(), 'Time after manually multiplying through gaussians')
+
+    # emptymap = np.zeros((x_size, y_size))
+    # img = Image.fromarray(emptymap)
+    # for i in range(len(flux)):
+    #     img.putpixel((x[i],y[i]), flux[i])
+
+
+    # im = np.asarray(img)
+    #
+    # kern = makeGaussian(15, 15, fwhm= fwhm / pixsize)
+    # kern = kern / np.max(kern)
+    # kern = padGaussian(im, kern)
+    #
+    # outmap = convolve_fft(outmap, kern)
+    #
+    # axs[1].imshow(outmap)
+
     print('number of sources outside map: ',num)
 
     if superplot:
@@ -125,4 +152,4 @@ if __name__ == '__main__':
     band = maps[0]['band']
     ltfile = config.SIMBOX + 'a0370' + '_image_' + band + '.dat'
     # ltfile = '/data/zemcov/clusters/sandbox/a0370_image_PSW.dat'
-    clus_popmap(ltfile,maps[0],band,'a0370',pixsize[0],superplot=1,savemaps=1)
+    clus_popmap(ltfile,maps[0],band,'a0370',pixsize[0], 18, superplot=1,savemaps=1)

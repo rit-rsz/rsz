@@ -29,7 +29,7 @@ from gaussian import makeGaussian, padGaussian
 from clus_make_noise_mask import clus_make_noise_mask
 import config
 
-def clus_subtract_xcomps(maps, simflag=0, verbose=1, superplot=1, nsim=0, saveplot=1):
+def clus_subtract_xcomps(maps, sgen=None, verbose=1, superplot=1, nsim=0, saveplot=1):
 
     err =  None
     ncols = len(maps)
@@ -40,6 +40,7 @@ def clus_subtract_xcomps(maps, simflag=0, verbose=1, superplot=1, nsim=0, savepl
             print(err)
         return None, err
 
+    #make a noise mask and populate source removed map with nans where mask is 1 so they don't effect the fit.
     for i in range(len(maps)):
         mask = clus_make_noise_mask(maps, i)
         maps[i]['mask'] = maps[i]['mask'] + mask
@@ -55,6 +56,7 @@ def clus_subtract_xcomps(maps, simflag=0, verbose=1, superplot=1, nsim=0, savepl
         #create a new image for the PSW band that is the same shape and beamsize as the reference images
         print(maps[i]['widtha'], maps[0]['widtha'], maps[0]['pixsize'])
         width = sqrt(maps[i]['widtha'] **2 + maps[0]['widtha']**2) / maps[0]['pixsize']
+        #don't think this is needed.
         # kern = makeGaussian(15, 15, fwhm =width, center=None)
         # kern = kern / np.sum(kern)
         # kern = padGaussian(inmap,kern)
@@ -114,7 +116,7 @@ def clus_subtract_xcomps(maps, simflag=0, verbose=1, superplot=1, nsim=0, savepl
             plt.show()
 
         if saveplot:
-            if not simflag:
+            if sgen not None:
                 filename = config.HOME + 'outputs/correlated_components/' + maps[i]['name'] + '_' + maps[i]['band'] + '_xc.fits'
             else:
                 filename = config.HOME + 'outputs/correlated_components/' + maps[i]['name'] + '_' + maps[i]['band'] + '_' + str(nsim) + '_xc.fits'

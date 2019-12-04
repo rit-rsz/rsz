@@ -33,11 +33,13 @@ from clus_get_relsz import *
 from astropy.io import fits
 # from astropy import units as u
 from FITS_tools.hcongrid import hcongrid
+from IB_model import *
+
 
 
 
 def clus_add_sziso(maps,yin,tin,params,
-              verbose = 0, testflag=0):
+              verbose = 0, testflag=0, saveplot=0):
     errmsg = False
 
     # Now the bolocam data is in the SPIRE format
@@ -104,15 +106,27 @@ def clus_add_sziso(maps,yin,tin,params,
     # Set up the spectral shape of the sz effect to be appled to the 500um map
     # plt.imshow(bolocam[0]['deconvolved_image'][0])
     # plt.show()
-    szmap = -1 * bolocam[0]['deconvolved_image'][0]
-    szmap = (np.array(szmap)).flatten()
-    szmap = szmap - np.mean(szmap[outer])
-    szmap = [x/max(szmap) for x in szmap]
+    if testflag == 0:
+        szmap = -1 * bolocam[0]['deconvolved_image'][0]
+        szmap = (np.array(szmap)).flatten()
+        szmap = szmap - np.mean(szmap[outer])
+        szmap = [x/max(szmap) for x in szmap]
+
+
 
 
     for imap in range(mapsize):
         # Applying the effect to the 500 um and 350 um bands.
         if imap == 2 or imap == 1:
+            if testflag == 1:
+                szmap,err = IB_model(maps[imap],params,verbose)
+                #added this as a case for testing add_sziso with our IB model to make sure things are correct.
+                szmap = np.array(szmap)
+                naxis = szmap.shape
+                # plt.imshow(szmap)
+                # plt.show()
+                # print(naxis)
+                szmap = szmap.flatten()
             # yin_coeff = [2.50,1.91,2.26,3.99,1.36,2.42,1.59,1.90,3.99]
             # yin = [x*1e-4 for x in yin_coeff]
             # tin = [7.2,10.1,7.7,9.8,4.5,8.6,7.8,5.5,10.9]
@@ -142,14 +156,14 @@ def clus_add_sziso(maps,yin,tin,params,
             hdx = fits.PrimaryHDU(maps[imap]['signal'],maps[imap]['shead'])
 
             szinp = hcongrid(hdu.data,hdu.header,hdx.header)
-
-            # plt.imshow(szinp)
+            #
+            # plt.imshow(szin)
             # plt.scatter(hdx.header['CRPIX1'], hdx.header['CRPIX2'], marker='x', c='red')
             # plt.show()
             # Used to check the alligned sz effect image
             # sz = fits.PrimaryHDU(szinp,hdx.header)
             # sz.writeto('test.fits')
-            if testflag:
+            if saveplot:
                 if sgen is not None:
                     filename = config.HOME + 'tests/simulated_sz' + maps[i]['name'] + '_' + maps[i]['band'] + '.fits'
                 else:

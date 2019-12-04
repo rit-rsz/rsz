@@ -281,4 +281,4 @@ class Catsrc():
 
 
 if __name__ == '__main__':
-    catsrc = Catsrc('a1689', verbose=1, sgen=2,nsim=200, superplot=0, tin=4)
+    catsrc = Catsrc('a1689', verbose=1, sgen=2,nsim=200, superplot=0, tin=4, testflag=1)

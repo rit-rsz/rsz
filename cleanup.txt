@@ -1,0 +1,19 @@
+This is only for the catsrc pipeline not the sim pipeline.
+The lines are lines that have something to look at that might be a potential issue.
+
+File                 Lines
+catsrc               248, 223, 200, 179, 132
+get_params           None
+get_data             190, 216
+convert_bolocam      38
+add_sziso            89-104
+subtract_cats        None
+subtract_xcomps      58, 130
+compute_rings        None
+fitsz                None
+get_spire_beam       None
+get_spire_beam fwhm  None
+get_lambdas          None
+get_relsz            None
+IB_model             None
+Gaussian             None

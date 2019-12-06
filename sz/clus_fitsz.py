@@ -21,7 +21,6 @@ from clus_compute_rings import *
 from clus_get_data import *
 from scipy.stats import linregress
 from astropy.convolution import convolve_fft
-from scipy.interpolate import splrep
 from scipy.optimize import curve_fit
 from gaussian import *
 from get_spire_beam_fwhm import *
@@ -64,7 +63,6 @@ def clus_fitsz(radave, params, beam=None, maxlim=3600, minlim=0, noweight=1, sup
             plt.xlabel('Radius (arcsec)')
             plt.title(params['clusname'] + '  ' + radave[i]['band'] + '  RC:' + str(rc) + '  Beta:' + str(beta))
             plt.xlim((0,600))
-            # plt.ylim((0.0,0.3))
             plt.errorbar(radave[i]['midbin'],radave[i]['fluxbin'],yerr=radave[i]['errbin'])
             plt.scatter(radave[i]['midbin'], radave[i]['fluxbin'],marker='o')
             if superplot:
@@ -109,16 +107,13 @@ def clus_fitsz(radave, params, beam=None, maxlim=3600, minlim=0, noweight=1, sup
             plt.ylabel('Radial Average (MJy/sr)')
             plt.legend()
 
-            # ax[1].set_xlabel(r"R($\theta^\prime$)")
-            # ax[1].set_ylabel('Radial Average (MJy/sr)')
-            # ax[1].plot(xrad, roftprimep,label='Data')
-            # ax[1].plot(xrad, p(roftprimep),label='Best Linear Fit')
-            # ax[1].set_xlabel(r"R($\theta^\prime$)")
-            # ax[1].set_ylabel('Radial Average (MJy/sr)')
-            # ax[1].legend()
+            ax[1].set_xlabel(r"R($\theta^\prime$)")
+            ax[1].set_ylabel('Radial Average (MJy/sr)')
+            ax[1].plot(xrad, roftprimep,label='Data')
+            ax[1].plot(xrad, p(roftprimep),label='Best Linear Fit')
+            ax[1].legend()
 
             plt.title(params['clusname'] + '  ' + radave[i]['band'] + '  Slope: %.4f  Intercept: %.4f' %(slope,intercept))
-            # fig.tight_layout()
             if superplot:
                 plt.show()
             if saveplot:

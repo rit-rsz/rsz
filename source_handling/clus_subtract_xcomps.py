@@ -13,16 +13,13 @@
 # REVISION HISTORY :
 ################################################################################
 from math import *
-from scipy import signal
 from math import *
 import sys
 sys.path.append('../utilities')
-from astropy.stats import sigma_clipped_stats
 import matplotlib.pyplot as plt
 from FITS_tools.hcongrid import hcongrid , hastrom
 from clus_get_data import *
 from astropy.convolution import convolve_fft
-# from scipy import optimize.least_squares
 from scipy.stats import linregress
 from save_fits import writefits
 from gaussian import makeGaussian, padGaussian
@@ -56,11 +53,14 @@ def clus_subtract_xcomps(maps, sgen=None, verbose=1, superplot=1, nsim=0, savepl
         #create a new image for the PSW band that is the same shape and beamsize as the reference images
         print(maps[i]['widtha'], maps[0]['widtha'], maps[0]['pixsize'])
         width = sqrt(maps[i]['widtha'] **2 + maps[0]['widtha']**2) / maps[0]['pixsize']
-        #don't think this is needed.
+
+        ###don't think this is needed, need to prove in a concrete way that this is not what we want to do.
+
         # kern = makeGaussian(15, 15, fwhm =width, center=None)
         # kern = kern / np.sum(kern)
         # kern = padGaussian(inmap,kern)
         # inmap = convolve_fft(inmap, kern)
+
         inmap = maps[0]['srcrm']
         maps[0]['xclean'] = maps[0]['srcrm']
         xmap = inmap
@@ -126,14 +126,11 @@ def clus_subtract_xcomps(maps, sgen=None, verbose=1, superplot=1, nsim=0, savepl
                 os.remove(filename)
             writefits(filename, data=datasub, header_dict=maps[i]['shead'])
 
-    #subtract the mean of the new map from itself.
+    #subtract the mean of the new map from itself. Why do we do this? we need to figure out what the purpose of this step is.
     # for i in range(maps[0]['xclean'].shape[0]):
     #     for j in range(maps[0]['xclean'].shape[1]):
     #         maps[0]['xclean'][i,j] = maps[0]['xclean'][i,j] - np.mean(maps[0]['xclean'])
 
-    # plt.imshow(maps[0]['xclean'])
-    # plt.title('PSW map - mean')
-    # plt.show()
 
     return maps, err
 

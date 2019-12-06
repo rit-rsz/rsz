@@ -118,21 +118,14 @@ def clus_add_sziso(maps,yin,tin,params,
     for imap in range(mapsize):
         # Applying the effect to the 500 um and 350 um bands.
         if imap == 2 or imap == 1:
+            #added this as a case for testing add_sziso with our IB model to make sure things are correct.
             if testflag == 1:
                 szmap,err = IB_model(maps[imap],params,verbose)
-                #added this as a case for testing add_sziso with our IB model to make sure things are correct.
                 szmap = np.array(szmap)
                 naxis = szmap.shape
-                # plt.imshow(szmap)
-                # plt.show()
-                # print(naxis)
                 szmap = szmap.flatten()
-            # yin_coeff = [2.50,1.91,2.26,3.99,1.36,2.42,1.59,1.90,3.99]
-            # yin = [x*1e-4 for x in yin_coeff]
-            # tin = [7.2,10.1,7.7,9.8,4.5,8.6,7.8,5.5,10.9]
             nu = 3e5 / clus_get_lambdas((maps[imap]['band']))
             dI,errmsg = clus_get_relsz(nu,y=yin,te=tin,vpec=0.0) # dI = [MJy/sr]
-            # dI = 0.265244 / maps[imap]['calfac']
             if errmsg:
                 if verbose:
                     new_errmsg = 'Clus_get_relSZ exited with error'+errmsg
@@ -146,8 +139,6 @@ def clus_add_sziso(maps,yin,tin,params,
             # converted to Jy/pixel  ***Confirm these Units***
             szin = [x * dI / maps[imap]['calfac'] for x in szmap]
             szin = np.reshape(szin,(naxis[0],naxis[1]))
-            # plt.imshow(szin)
-            # plt.show()
 
             # Have to interpolate to SPIRE map size
             # Using hcongrid from astropy's FITS_tools to replace HASTROM
@@ -156,10 +147,7 @@ def clus_add_sziso(maps,yin,tin,params,
             hdx = fits.PrimaryHDU(maps[imap]['signal'],maps[imap]['shead'])
 
             szinp = hcongrid(hdu.data,hdu.header,hdx.header)
-            #
-            # plt.imshow(szin)
-            # plt.scatter(hdx.header['CRPIX1'], hdx.header['CRPIX2'], marker='x', c='red')
-            # plt.show()
+
             # Used to check the alligned sz effect image
             # sz = fits.PrimaryHDU(szinp,hdx.header)
             # sz.writeto('test.fits')
@@ -176,15 +164,9 @@ def clus_add_sziso(maps,yin,tin,params,
             # Combine the original signal with the sz effect
             maps[imap]['signal'] = maps[imap]['signal'] + szinp
 
-            # plt.imshow(maps[imap]['signal'])
-            # plt.show()
-            # maps[imap]['signal'] = szinp
-            # plt.imshow(szinp)
-            # plt.show()
             # Used to check the final output map
             # sz = fits.PrimaryHDU(maps[imap]['signal'],hdx.header)
             # sz.writeto('a0370_sim200PLW_sz_only.fits')
-            # exit()
 
     return maps, None
 

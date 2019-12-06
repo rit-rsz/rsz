@@ -24,10 +24,7 @@ from clus_get_data import clus_get_data
 from clus_get_clusparams import *
 from astropy.wcs.utils import skycoord_to_pixel
 import config
-# from FITS_tools.load_header import load_header
 import matplotlib.pyplot as plt
-import matplotlib
-# matplotlib.use('TkAgg')
 
 def clus_compute_rings(maps, params, binwidth, superplot=0, verbose=1, noconfusion=None, saveplot=1, nsim=0):
     # init params
@@ -128,6 +125,8 @@ def clus_compute_rings(maps, params, binwidth, superplot=0, verbose=1, noconfusi
                         fluxbin[rad] = fluxbin[rad] + ( maps[m]['signal'][ipix, jpix] / thiserr**2)
                         '''
 
+
+        #this is code for testing our compute rings scrpit.
         # =========================================================================================
         # file = config.FITSOUT + 'radmap_' + bands[m] + '_' + maps[m]['name'] + '.fits'
         # if os.path.isfile(file):

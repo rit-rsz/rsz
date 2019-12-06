@@ -22,31 +22,21 @@
 # OUTPUTS :
 # REVISION HISTORY :
 ################################################################################
-import scipy.io
 import numpy as np
-import matplotlib.pyplot as plt
 from math import *
 import sys
-# from clus_sz_template import *
 sys.path.append('utilities')
-# from clus_get_tfs import * #this isn't being used right now
-from clus_get_clusparams import *
-# from clus_pcat_setup import *
-# This is no longer being used
 sys.path.append('source_handling')
-from clus_subtract_cat import *
-from clus_subtract_xcomps import *
-from clus_get_data import *
-import config
 sys.path.append('reduc')
 sys.path.append('sz')
+from clus_get_clusparams import *
+from clus_get_data import *
 from clus_add_sziso import *
+from clus_subtract_cat import *
+from clus_subtract_xcomps import *
 from clus_compute_rings import *
 from clus_fitsz import *
 from save_fitsz import *
-sys.path.append('multiband_pcat')
-import os
-from multiband_pcat import *
 
 class Catsrc():
 
@@ -130,8 +120,6 @@ class Catsrc():
         # Add the sz effect into the simmulated clusters
         if self.sgen is not None:
             maps, err = clus_add_sziso(maps,yin=self.yin, tin=self.tin,params=params,verbose=self.verbose, testflag=self.testflag)
-            # plt.imshow(maps[2]['signal'])
-            # plt.show()
 
         if err:
             if self.verbose:
@@ -139,7 +127,6 @@ class Catsrc():
             exit()
 
         #transfer function is not in use currently.
-        ncols = len(maps)
         # if self.verbose:
         #     print('Fetching transfer functions')
         # ignore for now as this is only like a 2% correction and we are way off
@@ -173,7 +160,7 @@ class Catsrc():
         if self.verbose:
             print('Regressing and subtracting catalogs')
 
-        maps, err = clus_subtract_cat(self.maps, verbose=self.verbose, saveplot=self.saveplot, nsim=self.nsim)
+        maps, err = clus_subtract_cat(self.maps, verbose=self.verbose, saveplot=self.saveplot, nsim=self.nsim, superplot=self.superplot)
         if err:
             if self.verbose:
                 print('clus_subtract_cat exited with error: ' + err)
@@ -254,7 +241,9 @@ class Catsrc():
         print(increment)
         offsets = fit[:,1]
 
-        # if not self.sgen: #again not really sure if this is right.
+
+        #this is to do a specific case for ms0451, but I think we are cutting this cluster so I don't know if we need this.
+        # if self.sgen is None:
         #     if self.clusname == 'ms0451':
         #         maxlim = 300
         #     else:
@@ -264,8 +253,6 @@ class Catsrc():
         #         increment = fit[1,:]
         #         offsets = fit[0,:]
 
-            # increment = increment / tfamp # i don't think tfamp is defined?
-
         err = save_fitsz(increment, offsets, radave, self.params, sgen=self.sgen, verbose=self.verbose, nsim=self.nsim)
         if err:
             if self.verbose:
@@ -273,9 +260,6 @@ class Catsrc():
             exit()
         self.offsets = offsets
         self.increment = increment
-        # if self.saveplots:
-        #     pass
-            #we want to save some plots from the pipeline here.
         return fit
 
 

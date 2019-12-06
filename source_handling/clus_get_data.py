@@ -13,15 +13,12 @@
 # REVISION HISTORY :
 #   Victoria Butler - 7/19 - edits to calfac for unit conversion
 ################################################################################
-import scipy.io
 import numpy as np
-# from config import * #(this line will give me access to all directory variables)
 import matplotlib.pyplot as plt
 from math import *
 from astropy.io import fits
 import os
 import sys
-#import pyfits
 sys.path.append('utilities/')
 from get_spire_beam import *
 from get_spire_beam_fwhm import *
@@ -190,7 +187,7 @@ def clus_read_file(file, clusname, verbose=0, sgen=None):
         img.header['cd_2'] = 0
         img.header['cd_1'] = 0
         img.header['cd_2'] = img.header['CDELT2']
-        #don't think we need to do this for the header as well.
+        #don't think we need to do this for the error header as well.
         # err.header['cd_1'] = err.header['CDELT1']
         # err.header['cd_2'] = 0
         # err.header['cd_1'] = 0

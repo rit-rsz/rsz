@@ -12,9 +12,7 @@
 # OUTPUTS :
 # REVISION HISTORY :
 ################################################################################
-import scipy.io
 import numpy as np
-# from config import * #(this line will give me access to all directory variables)
 from astropy.io.ascii import read
 import config
 
@@ -89,11 +87,8 @@ def clus_get_clusparams(clusname_in,
     'cirrus':param_data['cirrus'][whpl]}
 
 
-#   print(clusparams['clusname'])
 
-#   Hand off clusparams back to catsrc
     return clusparams, errmsg
 
-#For debugging, used to call this file directly
 if __name__ == '__main__':
     clus_get_clusparams('rxj1347')

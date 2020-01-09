@@ -122,6 +122,9 @@ def clus_popmap(ltfile,maps,band,name,pixsize,fwhm,loz=None,superplot=0,savemaps
 
 
     num = 0
+    fig, axs = plt.subplots(1, 2)
+
+    # print(datetime.now(), 'Time before manually multiplying through gaussians')
     for i in range(len(flux)):
         if x[i] > 0 and x[i] < y_size and y[i] > 0 and y[i] < x_size:
             sigma,kern = makeGaussian(y_size,x_size, fwhm = fwhm/pixsize, center=(x[i],y[i]))

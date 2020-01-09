@@ -113,15 +113,16 @@ def clus_sim_background(genbethermin=1,fluxcut=0,saveplots=1,savemaps=0,genpower
                 sim_maps = gm.generate(0.25,verbose=True)
 
             for icol in range(ncols):
+
                 lozcat = clus_format_bethermin(icol,sim_maps,maps,bands[icol],clusters[iclust],
                                         pixsize[icol],fwhm[icol],fluxcut=fluxcut,zzero=params['z'],superplot=superplot,savemaps=savemaps)
-
                 if yeslens == 1:
                     ''' format bethermin needs to spit out only one cat file for the band it's on
                         then you need to loop through lenstool and make it do a new run for each catfile.
                         lenstool is dumb and doesn't know which band it's on, it just re-reads the same
                         file each time, so we need to make sure we re-write which one we are on
                     '''
+                    start = datetime.datetime.now()
                     print('Starting ', clusters[iclust], ' lens run for ', bands[icol], '...')
 
                     # create output data files for lenstool

@@ -82,13 +82,13 @@ def clus_get_relsz(nu,y,te, vpec=0.0, ngrid=100):
         xout = []
         JofXout = []
         for line in range(len(output)-1):
-            vals = output[line].strip(' x=').split(' ')
+            vals = output[line].strip(' x=').split(' ')        # plt.plot(xout,JofXout)
+
             vals = [float(i) for i in vals]
             xout.append(vals[0]) # frequency
             JofXout.append(vals[2]) # sz intensity [MJy/sr]
             # second column has kompaneets equation sz intensity [x^3*Dn(x)]
             # see Birkinshaw(1998) , pg.19
-        # plt.plot(xout,JofXout)
 
         ''' If reading from an archived data file '''
         # file = open('/home/butler/rsz/lookup/SZ_CNSN_basis.dat')
@@ -113,6 +113,7 @@ def clus_get_relsz(nu,y,te, vpec=0.0, ngrid=100):
         # find the SZ intensity at a specific SPIRE frequency
         bigJ = interpolate.interp1d(xout,JofXout, kind='linear')
         deltaI = float(bigJ(thisx))
+        #This is plots for testing to see if this code is working.
         # plt.scatter(thisx,deltaI,color='orange')
         # plt.title('RUN_SZPACK SZE @ %s GHZ : %0.4f [MJy/sr]' %(nu,deltaI))
         # plt.xlabel('Dimensionless Frequency')

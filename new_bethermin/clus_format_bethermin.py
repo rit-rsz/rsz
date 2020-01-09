@@ -15,6 +15,7 @@
 ############################################################################
 import sys, os, math
 sys.path.append('../utilities')
+from save_fits import writefits
 import config
 import numpy as np
 import matplotlib.pyplot as plt
@@ -23,6 +24,7 @@ from FITS_tools.hcongrid import hcongrid
 from gaussian import makeGaussian
 from astropy.convolution import convolve
 from astropy.convolution import Gaussian2DKernel
+import datetime
 
 def clus_format_bethermin(icol,sim_map,maps,band,clusname,pixsize,fwhm,\
                           fluxcut=0,zzero=0,superplot=0,savemaps=0):
@@ -60,7 +62,6 @@ def clus_format_bethermin(icol,sim_map,maps,band,clusname,pixsize,fwhm,\
                 norm = outflux[i]
                 psf = kern * norm
                 outmap1 = outmap1 + psf
-                print('format_bethermin_1: %s' %(i))
         hdx = fits.PrimaryHDU(maps[icol]['signal'],maps[icol]['shead'])
         sz = fits.PrimaryHDU(outmap1,hdx.header)
         sz.writeto(config.SIMBOX + 'nonlensedmap_' + clusname + '_' + band + '_presort.fits',overwrite=True)

@@ -13,15 +13,12 @@
 # REVISION HISTORY :
 #   Victoria Butler - 7/19 - edits to calfac for unit conversion
 ################################################################################
-import scipy.io
 import numpy as np
-# from config import * #(this line will give me access to all directory variables)
 import matplotlib.pyplot as plt
 from math import *
 from astropy.io import fits
 import os
 import sys
-#import pyfits
 sys.path.append('utilities/')
 from get_spire_beam import *
 from get_spire_beam_fwhm import *
@@ -29,28 +26,21 @@ import config
 import matplotlib.pyplot as plt
 
 def clus_get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
-            verbose = 1, version = '1', manidentifier=None, simmap=0, nsim=0):
-    # place holders for the if statements to work until I add them to the input for get data
-    # This will happen when the script is fully functional
-    errmsg = False
-    # if not bolocam:
-    #     cols = ['PSW','PMW','PLW']
-    #     bolocam = 0
-    # else:
-    #     cols = ['PSW','PMW','PLW','BOLOCAM']
-    #     bolocam = 1
+            verbose = 1, version = '1', manidentifier=None, sgen=None, nsim=0, testflag=0):
 
-#   If there is no manual path set
-    if manpath == 0 and nsim==0:
+    errmsg = False
+    #if the manual path flag is not set then go the normal route.
+    if manpath == 0 and sgen is None:
         hermfiles = []
         hermdir = config.CLUSDATA + 'hermes_clusters/'
         hermcount = 0
+        #check in the HerMES directory.
         for x in os.listdir(hermdir):
             if x.startswith(clusname):
                 if resolution in x and version in x:
                     hermfiles.append(hermdir + x) #this SHOULD work
                     hermcount += 1
-
+        #check in the HLS directory.
         hlsdir = config.CLUSDATA + 'hls_clusters/'
         hlsfiles = []
         hlscount = 0
@@ -59,7 +49,7 @@ def clus_get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
                 if x.startswith(clusname):
                     hlsfiles.append(hlsdir + x)
                     hlscount += 1
-
+        #check in the snapshot directory.
         snapdir = config.CLUSDATA + 'snapshot_clusters/'
         snapfiles = []
         snapcount = 0
@@ -68,28 +58,34 @@ def clus_get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
                 snapfiles.append(snapdir + x)
                 snapcount += 1
 
+        #if it did not find a PSw, PMW, and PLW file for the given cluster in any of these directories then return an error.
         if snapcount ^ hermcount ^ hlscount != 3 :
-            errmsg = ('Problem finding exclusive files, file dump is:', \
-                        snapfiles, hermfiles, hlsfiles)
+            errmsg = ('Problem finding exclusive files, file dump is: %s %s %s' %
+                        (snapfiles, hermfiles, hlsfiles))
             if verbose:
                 print(errmsg)
             return None, errmsg
-        if hermcount == 3:
+
+
+        elif hermcount == 3:
             files = hermfiles
             nfiles = hermcount
+            #we are using HerMES data.
             print('hermes data')
 
-        if hlscount == 3:
+        elif hlscount == 3:
             files = hlsfiles
             nfiles = hlscount
+            #we are using HLS data.
             print('hls data')
 
-        if snapcount == 3:
+        elif snapcount == 3:
             files = snapfiles
             nfiles = snapcount
+            #we are using snapshot data.
             print('snap data')
 
-    #   Manual Path option
+    #this is in the case there is a manual path that needs to be specified. (currently I don't think we need this functionality.)
     elif manpath == 1:
         mancount = 0
         manfiles = []
@@ -106,8 +102,8 @@ def clus_get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
         nfiles = len(manfiles)
         files = manfiles
 
-    elif simmap == 2:
-
+    elif sgen is not None:
+        #this is for looking for simulation data.
         simfiles = []
         simdir = config.CLUSSIMS + clusname + '/'
         simcount = 0
@@ -125,11 +121,10 @@ def clus_get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
     maps = []
 
 
-#   Need to tweek the syntax of this for loop
-    # print(nfiles, files, 'initial file list')
+
     for i in range(nfiles):
         if i < 3:
-            maps.append(clus_read_file(files[i], clusname, verbose=verbose,simmap=simmap))
+            maps.append(clus_read_file(files[i], clusname, verbose=verbose,sgen=sgen))
 
         else:
             maps[ifile] = np.empty(clus_read_bolocam(clusname,verbose=verbose)) #args need to be filled in bolocam one
@@ -137,56 +132,32 @@ def clus_get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
 
     #the purpose of the below code is to organize the maps objects so that our program doesn't bork out and think the PSW
     #map is the PLW map or the PLW map is the PMW map, etc.
-
-    # for i in range(len(maps)):
-    #     if 'PSW' in maps[i]['file']:
-    #         if i == 1:
-    #             holder = maps[0]
-    #             maps[0] = maps[i]
-    #             if 'PMW' in holder['file']:
-    #                 maps[1] = holder
-    #             elif 'PLW' in holder['file']:
-    #                 maps[1] = maps[2]
-    #                 maps[2] = holder
-    #         elif i == 2:
-    #             holder = maps[0]
-    #             maps[0] = maps[i]
-    #             if 'PMW' in holder['file']:
-    #                 maps[2] = maps[1]
-    #                 maps[1] = holder
-    #             elif 'PLW' in holder['file']:
-    #                 maps[2] = holder
-    #     if 'PMW' in maps[i]['file']:
-    #         if i == 2:
-    #             holder = maps[1]
-    #             maps[1] = maps[i]
-    #             maps[2] = holder
-
-
-    print('BREAK ---------------------------------------')
-
     sort_order = {'PSW' : 0, 'PMW' : 1, 'PLW' : 2}
 
     maps.sort(key = lambda x : sort_order[x['band']])
-    #
-    for i in range(len(maps)): #this is to test the file organization.
-        print(maps[i]['band'], maps[i]['file'], maps[i]['pixsize'], 'files after sorting')
+
+    #this is test code.
+    if testflag:
+        for i in range(len(maps)): #this is to test the file organization.
+            f = open('tests/test_order.txt', 'w')
+            string = maps[i]['band'] + ' | ' + maps[i]['file'] + ' | ' + str(maps[i]['pixsize']) + ' | ' + 'files after sorting'
+            f.write(string)
+            f.close()
 
     return maps, errmsg
 
 ##################################################################################################
 ##################################################################################################
 
-def clus_read_file(file, clusname, verbose=0, simmap=0):
+def clus_read_file(file, clusname, verbose=0, sgen=None):
     '''
     Calfac has been added to config.py as a constant.
     This is the first place it is created a used.
     '''
-    # calfac = (pi/180.0) * (1/3600.0)**2 * (pi / (4.0 * log(2.0))) * (1e6)
-    # This will ultimatly be in the list of constants
-    # The rest of the scrpit involves idl_libs stuff that
-    # will get grabbed from astropy
+    # calfac = (pi/180.0) * (1/3600.0)**2 * (pi / (4.0 * log(2.0))) * (1e6) (keeping this incase we need it.)
 
+
+    #set the band based off of what is in the filename
     if 'PSW' in file:
         band = 'PSW'
     elif 'PMW' in file:
@@ -194,90 +165,90 @@ def clus_read_file(file, clusname, verbose=0, simmap=0):
     elif 'PLW' in file:
         band = 'PLW'
 
+    #collect data from the files file.
     hdul = fits.open(file)
-    map = hdul[1]
-    err = hdul[2]
-    exp = hdul[3]
-    flag = hdul[4]
+    img = hdul[1] #image object
+    err = hdul[2] #error map
+    exp = hdul[3] #exposure map (don't think we need)
+    flag = hdul[4] #mask map.
 
-    if simmap:
-        mapsize = map.data.shape
+    #this adds noise into our map if it's a simulation. (I think we are currently doing this elsewhere.)
+    if sgen is not None:
+        mapsize = img.data.shape
         noisemap = 1.0 * err.data * np.random.standard_normal((mapsize[0], mapsize[1]))
-        map.data = map.data + noisemap
-        map.data = map.data - np.nanmean(map.data)
-        # maps.append(thismap['thismap'])
+        img.data = img.data + noisemap
+        img.data = img.data - np.nanmean(img.data)
 
-    if 'CDELT1' in map.header.keys():
-        pixsize = 3600 * mean([abs(map.header['CDELT1']),abs(map.header['CDELT2'])])
-        map.header['cd_1'] = map.header['CDELT1']
-        map.header['cd_2'] = 0
-        map.header['cd_1'] = 0
-        map.header['cd_2'] = map.header['CDELT2']
+    if 'CDELT1' in img.header.keys():
+        #calculating the pixsize based off of astrometry parameters.
+        pixsize = 3600 * mean([abs(img.header['CDELT1']),abs(img.header['CDELT2'])])
+        #if the given astrometry has CDELT values and not a cd matrix create a cd matrix.
+        img.header['cd_1'] = img.header['CDELT1']
+        img.header['cd_2'] = 0
+        img.header['cd_1'] = 0
+        img.header['cd_2'] = img.header['CDELT2']
+        #don't think we need to do this for the error header as well.
         # err.header['cd_1'] = err.header['CDELT1']
         # err.header['cd_2'] = 0
         # err.header['cd_1'] = 0
         # err.header['cd_2'] = err.header['CDELT2']
 
     else:
+        #if the astrometry is given with a cd matrix calculate the pixsize this way.
         pixsize = 3600 * \
-                  mean([abs(map.header['CD1_1']+map.header['CD2_1']), \
-                        abs(map.header['CD2_1'] + map.header['CD2_2'])])
+                  mean([abs(img.header['CD1_1']+img.header['CD2_1']), \
+                        abs(img.header['CD2_1'] + img.header['CD2_2'])])
 
-    psf = get_spire_beam(pixsize=pixsize, band=band, verbose=0)
-    widtha = get_spire_beam_fwhm(band) #arcsecs (sigma of gaussian)
-    width = widtha / (sqrt(8 * log(2)) * pixsize) # width in pixels
-    calfac = 1 / (config.calfac * (get_spire_beam_fwhm(band))**2)
+    psf = get_spire_beam(pixsize=pixsize, band=band, verbose=0) #creates a 2D gaussian as our psf.
+    widtha = get_spire_beam_fwhm(band) #arcsecs (fwhm of gaussian)
+    width = widtha / (sqrt(8 * log(2)) / pixsize) # width in pixels #sqrt(8 * log(2)) is conversion to sigma of gauss
+    calfac = 1 / (config.calfac * (get_spire_beam_fwhm(band))**2) #calibration factor based off of FWHM of our beam.
 
 #   Gets header information from a fits image. Astropy should be able to do this
+    #This is potentially depreciated.
     astr = {}
     try:
-        cd11 = map.header['CD1_1']
-        cd12 = map.header['CD1_2']
-        cd21 = map.header['CD2_1']
-        cd22 = map.header['CD2_2']
+        cd11 = img.header['CD1_1']
+        cd12 = img.header['CD1_2']
+        cd21 = img.header['CD2_1']
+        cd22 = img.header['CD2_2']
     except KeyError:
         pass # i don't like the way this is coded probably have to change it later
-    for keys in map.header.keys():
+    for keys in img.header.keys():
         if 'NAXIS' in keys:
-            astr.update({keys : map.shape})
+            astr.update({keys : img.shape})
         if 'CD1_1' in keys:
             x =  np.array([[cd11, cd12], [cd21, cd22]])
             astr.update({'CD' : x})
         if 'CDELT' in keys:
-            astr.update({keys : map.header[keys]})
+            astr.update({keys : img.header[keys]})
         if 'CRPIX1' in keys:
-            x = np.array([map.header['CRPIX1'], map.header['CRPIX2']])
+            x = np.array([img.header['CRPIX1'], img.header['CRPIX2']])
             astr.update({'CRPIX' : x})
         if 'CTYPE1' in keys:
-            x = np.array([map.header['CTYPE1'], map.header['CTYPE2']])
+            x = np.array([img.header['CTYPE1'], img.header['CTYPE2']])
             astr.update({'CTYPE' : x})
         if 'CRVAL1' in keys:
-            x = np.array([map.header['CRVAL1'], map.header['CRVAL2']])
+            x = np.array([img.header['CRVAL1'], img.header['CRVAL2']])
             astr.update({'CRVAL' : x})
         if 'LONGPOLE' in keys:
-            astr.update({keys : map.header[keys]})
+            astr.update({keys : img.header[keys]})
         if 'LATPOLE' in keys:
-            astr.update({keys : map.header[keys]})
+            astr.update({keys : img.header[keys]})
 
 
-    head = map.header
+    head = img.header
     herr = err.header
 
-#   Not sure if this is the correct syntax for astr naxis
-    srcrm = np.zeros(astr['NAXIS'])
-    xclean = np.zeros(astr['NAXIS'])
-    mask = np.zeros(astr['NAXIS'])
+    srcrm = np.zeros(head['NAXIS'])
+    xclean = np.zeros(head['NAXIS'])
+    mask = np.zeros(head['NAXIS'])
 
-#  Need to generate default mask map
-#  whnan = WHERE(FINITE(map) EQ 0,countnan)
-#  IF countnan GT 0 THEN mask[whnan] = 1
-
-
-
+    #put everything into a dictionary.
     maps = {'name':clusname, #check
           'file':file, #check
           'band':band, #check
-          'signal':map.data, #check
+          'signal':img.data, #check
           'srcrm':srcrm, #check
           'xclean':xclean, #check
           'error':err.data, #check
@@ -288,7 +259,7 @@ def clus_read_file(file, clusname, verbose=0, simmap=0):
           'ehead':herr, #nope
           'astr':astr, #check
           'pixsize':pixsize, #check
-          'psf':psf, #check    hdu = fits.PrimaryHDU(maps['signal'], map.header)
+          'psf':psf, #check
           'width':width, #check
           'widtha':widtha, #check
           'calfac':calfac, #check

@@ -24,8 +24,9 @@ yin = [yi * 10**-4 for yi in y]
 names = ['a0370', 'a1689', 'rxj1347', 'rxj0152']
 
 #ben
-for i in range(0, 1, 1):
-    x = c(names[i], saveplot=1, nsim=0, verbose=0, superplot=0, cattype='PSW', yin=yin[i], tin=t[i])
+for i in range(1):
+    # i=1
+    # x = c(names[i], saveplot=1, nsim=0, verbose=0, superplot=0, cattype='PSW', yin=yin[i], tin=t[i])
     for j in range(100):
         x = c(names[i], simmap=2, nsim=sim[j], verbose=0, superplot=0, saveplot=1, cattype='PSW', yin=yin[i], tin=t[i])
 

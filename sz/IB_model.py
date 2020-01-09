@@ -12,7 +12,6 @@
 # OUTPUTS :
 # REVISION HISTORY :
 ################################################################################
-import scipy.io
 import numpy as np
 from math import *
 import os

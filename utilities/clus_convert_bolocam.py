@@ -14,7 +14,6 @@
 ################################################################################
 import scipy.io
 import numpy as np
-# from config import * #(this line will give me access to all directory variables)
 from math import *
 from astropy.io import fits
 import os
@@ -26,7 +25,7 @@ import matplotlib.pyplot as plt
 def clus_convert_bolocam(bolocam, verbose=0):
     # Converts mK to MJy/sr
     bolocam[0]['deconvolved_image'] = clus_dTtoDI(143,1e-6*(bolocam[0]['deconvolved_image']))
-
+    # Converts mK to MJy/sr
     bolocam[0]['deconvolved_image_smooth_trim_sn'] = \
         clus_dTtoDI(143,1e-6*bolocam[0]['deconvolved_image_smooth_trim_sn'])
 
@@ -36,11 +35,11 @@ def clus_convert_bolocam(bolocam, verbose=0):
 
     # for ib in range(bolocamsize[2]):
     # This still needs to be reformed inorder to matcht the idl version. It should be
+    # Is this working now?
     # a 1-D array
     bolocam[0]['deconvolved_image_noise_realizations'] = \
         clus_dTtoDI(143,1e-6*bolocam[0]['deconvolved_image_noise_realizations'])
     bolocam[0]['deconvolved_image_noise_realizations'] = bolocam[0]['deconvolved_image_noise_realizations'].flatten()
 
-    # print('bolocamsize = ', bolocam[0]['deconvolved_image_noise_realizations'][0])
 
     return bolocam,None

@@ -43,15 +43,12 @@
 #           beamkern (float) = array size npixx x npixy containing
 # REVISION HISTORY :
 ################################################################################
-import scipy.io
 import numpy as np
-# from config import * #(this line will give me access to all directory variables)
 import matplotlib.pyplot as plt
 from math import *
 from astropy.io import fits
 import scipy.signal
 import os
-# from astropy.modeling import models, fitting
 from astropy.convolution import Gaussian2DKernel, Gaussian1DKernel
 from get_spire_beam_fwhm import *
 
@@ -79,7 +76,7 @@ def get_spire_beam(band=None, pixsize=0,npixx=0, npixy=0,
         if band == 'PSW':
             pixsize = 6
         if band == 'PMW':
-            pixsize = 8 + (1/3)
+            pixsize = 8. + (1/3)
         if band == 'PLW':
             pixsize = 12
         else:
@@ -87,14 +84,12 @@ def get_spire_beam(band=None, pixsize=0,npixx=0, npixy=0,
         if verbose:
             print('pixsize paramter not supplied assuming %s arcsec' , (pixsize))
 
-    # Figure out which color this is
-    # Units should be in arcsec
+
     if len(fwhm) == 0:
         beamFWHM = get_spire_beam_fwhm(band)
     else:
         beamFWHM = fwhm
 
-    # This seems to be redundent but is in the idl script
     if beamFWHM < 0:
         print('Invalid Beam FWHM value'+ str(beamFWHM))
 
@@ -133,8 +128,8 @@ def get_spire_beam(band=None, pixsize=0,npixx=0, npixy=0,
 
     # Check if we have been givin the center, if not assume middle
     if xcent == 0:
-        if verbose:
-            print('xcent parameter not supplied, assuming array center')
+        # if verbose:
+        #     print('xcent parameter not supplied, assuming array center')
         ixcent = x_gen / 2
     else:
         # Adjust for oversampling
@@ -143,8 +138,8 @@ def get_spire_beam(band=None, pixsize=0,npixx=0, npixy=0,
             ixcent = ixcent + ioversamp / 2
 
     if ycent == 0:
-        if verbose:
-            print('ycent parameter not supplied, assuming array center')
+        # if verbose:
+        #     print('ycent parameter not supplied, assuming array center')
         iycent = y_gen / 2
     else:
         iycent = ycent * ioversamp
@@ -175,11 +170,10 @@ def get_spire_beam(band=None, pixsize=0,npixx=0, npixy=0,
 
 
 
-    # print('RIGHT HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!', beamkern)
     # # Use for debugging
-    # # plt.plot for 1d
-    # # plt.plot(beamkern, drawstyle='steps')
-    # # plt.imshow for 2d & colorbar
+    # plt.plot for 1d
+    # plt.plot(beamkern, drawstyle='steps')
+    # plt.imshow for 2d & colorbar
     # plt.imshow(beamkern, interpolation='none', origin='lower')
     # plt.colorbar()
     # plt.xlabel('x [pixels]')
@@ -195,35 +189,10 @@ def rebin(a, new_shape):
     M = int(shape[0])
     N = int(shape[1])
     m, n = new_shape
-    print('M', M, 'N', N, 'm', m, 'n', n)
-    print('M/m', M/m, 'N/n', N/n)
     if m<M:
         return a.reshape((m,int(M/m),n,int(N/n))).mean(3).mean(1)
     else:
         return np.repeat(np.repeat(a, m/M, axis=0), n/N, axis=1)
-
-
-# def rebin(beamkern, *args):
-    # shape = beamkern.shape
-    # lenShape = len(shape)
-    # factor = np.asarray(shape)/np.asarray(args)
-    # evList = ['beamkern.reshape('] + \
-    #          ['args[%d],factor[%d],'%(i,i) for i in range(lenShape)] + \
-    #          [')'] + ['.mean(%d)'%(i+1) for i in range(lenShape)] + \
-    #          ['/factor[%d]'%i for i in range(lenShape)]
-    # return eval(''.join(evList))
-
-
-# def rebin2(a, *args):
-#     shape = a.shape
-#     lenShape = len(shape)
-#     factor = asarray(shape)/asarray(args)
-#     evList = ['a.reshape('] + \
-#              ['args[%d],factor[%d],'%(i,i) for i in range(lenShape)] + \
-#              [')'] + ['.sum(%d)'%(i+1) for i in range(lenShape)] + \
-#              ['/factor[%d]'%i for i in range(lenShape)]
-#     print ''.join(evList)
-#     return eval(''.join(evList)
 
 if __name__ == '__main__':
     get_spire_beam(norm=1,factor = 0)

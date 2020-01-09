@@ -20,6 +20,7 @@ import sys, time, subprocess, os
 sys.path.append('../utilities')
 sys.path.append('../new_bethermin')
 sys.path.append('../source_handling')
+sys.path.append('../sz')
 from genmap import genmap_gauss
 import config
 from clus_popmap import clus_popmap
@@ -28,13 +29,17 @@ from clus_get_data import clus_get_data
 from clus_format_bethermin import clus_format_bethermin
 from astropy.io import fits
 from FITS_tools.hcongrid import hcongrid
+from astropy.convolution import convolve, Gaussian2DKernel, Tophat2DKernel
+from astropy.modeling.models import Gaussian2D
+from clus_add_sziso import clus_add_sziso
+import matplotlib.pyplot as plt
 
 def clus_sim_background(genbethermin=1,fluxcut=0,saveplots=1,savemaps=0,genpowerlaw=0,\
             genradave=1,addnoise=0,yeslens=1,resolution='nr',nsim=1,bolocam=0,verbose=1,\
             errmsg=None,superplot=0):
 
-    clusters = ['a0370','a1689','a1835','a2218','a2219','a2390',
-              'cl0024','ms0451','ms1054','ms1358','rxj0152','rxj1347']
+    clusters = ['a0370']#,'a1689','a1835','a2218','a2219','a2390',
+             # 'cl0024','ms0451','ms1054','ms1358','rxj0152','rxj1347']
 
     nclust = len(clusters)
     # fluxcut == [[10**(-np.arrage(6)+2))],0] # was used for doing radial average maps
@@ -96,6 +101,7 @@ def clus_sim_background(genbethermin=1,fluxcut=0,saveplots=1,savemaps=0,genpower
             else:
                 bands[icol] = 'BOLOCAM'
 
+        print('made it out of clus_get_data')
         for isim in range(nsim):
             print('Starting sim %s of %s sims' %(isim,nsim))
 
@@ -107,7 +113,6 @@ def clus_sim_background(genbethermin=1,fluxcut=0,saveplots=1,savemaps=0,genpower
                 sim_maps = gm.generate(0.25,verbose=True)
 
             for icol in range(ncols):
-                print(params['z'])
                 lozcat = clus_format_bethermin(icol,sim_maps,maps,bands[icol],clusters[iclust],
                                         pixsize[icol],fwhm[icol],fluxcut=fluxcut,zzero=params['z'],superplot=superplot,savemaps=savemaps)
 
@@ -123,7 +128,7 @@ def clus_sim_background(genbethermin=1,fluxcut=0,saveplots=1,savemaps=0,genpower
                     lnfile = config.HOME + 'model/' + clusters[iclust] + '/' + clusters[iclust] + '_cat.cat'
                     ltfile = config.SIMBOX + clusters[iclust] + '_image_' + bands[icol] + '.dat'
                     #
-                    #
+                    # os.remove(lnfile)
                     # # creates a symbolic link to this file in the current working directory
                     subprocess.Popen(['ln -s %s' %(lnfile)],shell=True)
                     #
@@ -134,7 +139,6 @@ def clus_sim_background(genbethermin=1,fluxcut=0,saveplots=1,savemaps=0,genpower
                     subprocess.call(['mv image.all %s' %(ltfile)],shell=True)
 
                     # post process cleanup
-                    # os.remove(config.SIM + clusters[iclust] + '_cat.cat')
                     # os.remove(config.SIM + 'mu.fits')
                     # os.remove(config.SIM + 'image.dat')
                     # os.remove(config.SIM + 'pot.dat')
@@ -142,27 +146,27 @@ def clus_sim_background(genbethermin=1,fluxcut=0,saveplots=1,savemaps=0,genpower
                     # os.remove(config.SIM + 'para.out')
 
                 else :
-                    ltfile = config.SIM + 'model/' + clusters[iclust] + '/' + clusters[iclust] + '_cat.cat'
+                    ltfile = config.SIMBOX + clusters[iclust] + '_image_' + bands[icol] + '.dat'
+                    # ltfile = config.SIMBOX + 'a0370_image_PSW_test.dat'
 
+                print('fwhm_sim: ',pixsize[icol],fwhm[icol])
                 # populate the sim maps with sources from lenstool
                 outmap = clus_popmap(ltfile,maps[icol],bands[icol],clusters[iclust],pixsize[icol],fwhm[icol],loz=lozcat,superplot=superplot,savemaps=savemaps)
-
+                # os.remove(ltfile)
                 # modify the outmap to remove pixels that have been flagged
                 # if icol < 3 :
                 #     whpl = np.where(maps[icol]['flag'] > 0) # check that this is right
                 #     outmap[whpl] = np.nan
-                print(maps[icol]['signal'].shape[0])
-                print(maps[icol]['signal'].shape[1])
-                signal_map = np.array(maps[icol]['signal'])
+
                 # reshape map to original SPIRE size
-                outmap = outmap[0:maps[icol]['signal'].shape[0],0:maps[icol]['signal'].shape[1]]
+                # outmap = outmap[0:maps[icol]['signal'].shape[0],0:maps[icol]['signal'].shape[1]]
+                # kern = Gaussian2DKernel(3.0)
+                # outmap_smooth = convolve(outmap,kern)
+                # maps[icol]['signal'] = outmap_smooth
                 maps[icol]['signal'] = outmap
-
-                if savemaps == 1 :
-                    # create image HDU
-                    hdp = fits.PrimaryHDU(maps[icol]['signal'],maps[icol]['shead'])
-                    hdul = fits.HDUList(hdus=hdp)
-
+                print('map size:',maps[icol]['signal'].shape[0],maps[icol]['signal'].shape[1])
+                plt.imshow(outmap)
+                plt.savefig('sim_map_%s.png' %(bands[icol]))
 
                 # adding random noise to the signal map
                 if addnoise == 1 :
@@ -172,47 +176,85 @@ def clus_sim_background(genbethermin=1,fluxcut=0,saveplots=1,savemaps=0,genpower
                     np.random.seed(102793)
                     error =  np.array(maps[icol]['error']).flatten()
                     signal = np.array(maps[icol]['signal']).flatten()
-                    noise = np.random.random((maps[icol]['signal'].shape[0],maps[icol]['signal'].shape[1])).flatten()
-                    new_noise = np.random.random((maps[icol]['signal'].shape[0],maps[icol]['signal'].shape[1])).flatten()
-                    for i in range(len(error)):
+                    noise = np.random.normal(scale=1.0,size=(maps[icol]['signal'].shape[0],maps[icol]['signal'].shape[1])).flatten()
+
+                    for i in range(len(signal)):
                         if not math.isnan(error[i]) : #Jy/beam
                             noise[i] = error[i]*noise[i]
-                            new_noise[i] = error[i]*noise[i]*(1.13*fwhm[icol]**2/pixsize[icol])
+                            # signal[i] = signal[i] * maps[icol]['calfac'] / 1e6
+                            # signal[i] = signal[i]*(1.13*(fwhm[icol]/pixsize[icol])**2)
+                            signal[i] = signal[i]*6.0
+                            # if bands[icol] == 'PMW':
+                            #     signal[i] = signal[i]*1.9
+                            # if bands[icol] == 'PLW':
+                            #     signal[i] = signal[i]*4.0
                         else :
+                            signal[i] = np.nan
                             noise[i] = np.nan
-                            new_noise[i] == np.nan
+
+                    print('lenght',len(noise),len(signal))
                     flat = noise + signal
-                    other = new_noise + signal
+                    noise_map = noise.reshape(maps[icol]['signal'].shape[0],maps[icol]['signal'].shape[1])
                     maps[icol]['signal'] = flat.reshape(maps[icol]['signal'].shape[0],maps[icol]['signal'].shape[1])
-                    new_map = other.reshape(maps[icol]['signal'].shape[0],maps[icol]['signal'].shape[1])
+                    signal_map = signal.reshape(maps[icol]['signal'].shape[0],maps[icol]['signal'].shape[1])
 
-                if savemaps == 1 :
-                    # save the current sim map in /data/sim_clusters
-                    print('Savemaps set, saving maps in %s' %(config.SIMBOX+'sim_clusters/'))
-                    savefile = config.SIMBOX + 'sim_clusters/' + clusters[iclust] + '_' + bands[icol] + '_noise.fits'
-                    # create image HDU
-                    hds = fits.PrimaryHDU(maps[icol]['signal'],maps[icol]['shead'],name='signal+noise')
-                    hdul.append(hds)
-                    hdn = fits.ImageHDU(noise.reshape(maps[icol]['signal'].shape[0],maps[icol]['signal'].shape[1]),maps[icol]['shead'],name='noise')
-                    hdul.append(hdn)
-                    hdnn = fits.ImageHDU(new_map,name='new_noise')
-                    hdul.append(hdnn)
-                    hdul.writeto(savefile,overwrite=True)
+                    if savemaps == 1 or savemaps == 2 :
+                        # save the current sim map in /data/sim_clusters
+                        print('Savemaps set, saving maps in %s' %(config.SIMBOX+'sim_clusters/'))
+                        savefile = config.SIMBOX + 'sim_clusters/' + clusters[iclust] + '_' + bands[icol] + '_noise.fits'
+                        # create image HDU
+                        hda = fits.PrimaryHDU(signal_map,maps[icol]['shead'])
+                        hdul = fits.HDUList(hdus=hda)
+                        hds = fits.ImageHDU(maps[icol]['signal'],maps[icol]['shead'],name='s+n')
+                        hdul.append(hds)
+                        hdn = fits.ImageHDU(noise_map,maps[icol]['shead'],name='noise')
+                        hdul.append(hdn)
+                        hdul.writeto(savefile,overwrite=True)
 
-                # elif savemaps == 2 :
-                #     # save the current sim map in the 0200 naming convention in /data/bethermin_sims
-                #     print('Savemaps set , saving maps in %s' %(config.CLUSNSIMS))
-                #     savefile = config.CLUSNSIMS + clusters[iclust] + '_' + bands[icol] + '_sim0' + isim + '.fits'
-                #     hdx = fits.PrimaryHDU(maps[icol]['signal'],maps[icol]['shead'])
-                #     if os.path.isfile(savefile):
-                #         os.remove(savefile)
-                #     hdx.writeto(savefile)
+                        # TESTING ######################################################
+                        hdun = fits.PrimaryHDU(noise_map,maps[icol]['shead'])
+                        hdun.writeto(config.SIMBOX+'noise_%s.fits' %(bands[icol]),overwrite=True)
+                        hdun = fits.PrimaryHDU(signal_map,maps[icol]['shead'])
+                        hdun.writeto(config.SIMBOX+'sim_%s.fits' %(bands[icol]),overwrite=True)
+                        hdun = fits.PrimaryHDU(maps[icol]['signal'],maps[icol]['shead'])
+                        hdun.writeto(config.SIMBOX+'both_%s.fits' %(bands[icol]),overwrite=True)
+                        ###############################################################
 
-                # if saveplots == 1 :
-                #     make some plots
-                exit()
+                    # if savemaps == 1 :
+                    #     # save the current sim map in the 0200 naming convention in /data/bethermin_sims
+                    #     print('Savemaps set , saving maps in %s' %(config.CLUSNSIMS))
+                    #     savefile = config.CLUSNSIMS + clusters[iclust] + '_' + bands[icol] + '_sim0' + str(isim) + '.fits'
+                    #     # hdx = fits.PrimaryHDU(maps[icol]['signal'],maps[icol]['shead'])
+                    #     hdx = fits.PrimaryHDU(third_map,maps[icol]['shead'])
+                    #     if os.path.isfile(savefile):
+                    #         os.remove(savefile)
+                    #     hdx.writeto(savefile,overwrite=True)
+
+                    # if saveplots == 1 :
+                    #     make some plots
+                    # maps[icol]['signal'] = fits.getdata(config.SIMBOX+'both_%s.fits' %(bands[icol]))
+                    # signal = maps[icol]['signal'].flatten()
+                    # for i in range(len(signal)):
+                    #     if bands[icol] == 'PMW':
+                    #         signal[i] = signal[i]*1.9
+                    #     if bands[icol] == 'PLW':
+                    #         signal[i] = signal[i]*4.0
+                    # maps[icol]['signal'] = signal.reshape(maps[icol]['signal'].shape[0],maps[icol]['signal'].shape[1])
+
+            # yin_coeff = [2.50,1.91,2.26,3.99,1.36,2.42,1.59,1.90,3.99]
+            # yin = [x*1e-4 for x in yin_coeff]
+            # tin = [7.2,10.1,7.7,9.8,4.5,8.6,7.8,5.5,10.9]
+            # new_maps,junk = clus_add_sziso(maps,yin=yin,tin=tin)
+            # print(len(new_maps))
+            # hdun = fits.PrimaryHDU(new_maps[0]['signal'],maps[0]['shead'])
+            # hdun.writeto(config.SIMBOX+'sz_%s.fits' %(bands[0]),overwrite=True)
+            # hdun = fits.PrimaryHDU(new_maps[1]['signal'],maps[1]['shead'])
+            # hdun.writeto(config.SIMBOX+'sz_%s.fits' %(bands[1]),overwrite=True)
+            # hdun = fits.PrimaryHDU(new_maps[2]['signal'],maps[2]['shead'])
+            # hdun.writeto(config.SIMBOX+'sz_%s.fits' %(bands[2]),overwrite=True)
+            exit()
 
 if __name__ == '__main__' :
     clus_sim_background(genbethermin=1,fluxcut=0,saveplots=1,savemaps=1,genpowerlaw=0,\
-                        genradave=1,addnoise=1,yeslens=1,resolution='nr',nsim=1,bolocam=0,\
+                        genradave=1,addnoise=1,yeslens=0,resolution='nr',nsim=25,bolocam=0,\
                         verbose=0,errmsg=None,superplot=0)

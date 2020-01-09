@@ -220,6 +220,7 @@ class Gencat:
         del sigmas
         del w
 
+        print('wave:',wave)
         if not wave is None:
             nwave = len(wave)
             fluxes = np.empty((ngen, nwave), dtype=np.float32)

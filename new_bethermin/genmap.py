@@ -74,8 +74,8 @@ class genmap_gauss :
     """ Generates simulated maps from the Bethermin et al. 2012 model
     using a Gaussian beam"""
 
-    def __init__(self, wave=[250.0, 350, 500], pixsize=[6.0, 8.33333, 12.0],
-                 fwhm=[17.6, 23.9, 35.2], nfwhm=5.0, bmoversamp=5,
+    def __init__(self, wave=[250.0, 350.0, 500.0], pixsize=[6.0, 8.33333, 12.0],
+                 fwhm=[17.6, 23.9, 35.2], nfwhm=3.0, bmoversamp=5,
                  gensize=150000, truthtable=True, log10Mb=11.2,
                  alpha=1.3, log10Mmin=8.5, log10Mmax=12.75, ninterpm=2000,
                  zmin=0.1, zmax=10.0, Om0=0.315, H0=67.7, phib0=-3.02,
@@ -419,6 +419,8 @@ class genmap_gauss :
 
             # Get fluxes (in Jy)
             cat = self._gencat_stuff.generate(nsrc, wave=self._wave)
+            print(i,nsrc)
+            print(cat[-1][0:5])
             fluxes = cat[-1].copy()
 
             # Set up truth table if needed
@@ -471,7 +473,7 @@ class genmap_gauss :
 
             beam = self.get_gauss_beam(mapidx)
             maps[mapidx] = convolve(maps[mapidx], beam, boundary='wrap')
-
+            print('int_sigma:',int_sigma)
             if int_sigma[mapidx] > 0:
                 if verbose:
                     msg = "  Adding instrument noise: {:0.4f} [Jy]"
@@ -485,7 +487,7 @@ class genmap_gauss :
         # plt.imshow(maps[2])
         # plt.title('500 micron')
         # plt.show()
-        print(len(maps[-1]['fluxdens'])) # shows the truthtable
+        # print(len(maps[-1]['fluxdens'])) # shows the truthtable
         # print(maps[2].shape)
         return maps
 

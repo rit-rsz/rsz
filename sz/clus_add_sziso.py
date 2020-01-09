@@ -36,7 +36,7 @@ from FITS_tools.hcongrid import hcongrid
 
 
 
-def clus_add_sziso(maps,yin,tin,params,
+def clus_add_sziso(maps,yin,tin,
               verbose = 0,):
     errmsg = False
 
@@ -84,6 +84,7 @@ def clus_add_sziso(maps,yin,tin,params,
     temphead.set('CTYPE1' , 'RA---TAN')
     temphead.set('CTYPE2' , 'DEC--TAN')
 
+    # 14.5  = full size of the bolocam image in pixels ?
     x = np.arange(naxis[0]) - 14.5
     y = np.arange(naxis[1]) - 14.5
 
@@ -112,10 +113,10 @@ def clus_add_sziso(maps,yin,tin,params,
 
     for imap in range(mapsize):
         # Applying the effect to the 500um band
-        if imap == 2:
-            # yin_coeff = [2.50,1.91,2.26,3.99,1.36,2.42,1.59,1.90,3.99]
-            # yin = [x*1e-4 for x in yin_coeff]
-            # tin = [7.2,10.1,7.7,9.8,4.5,8.6,7.8,5.5,10.9]
+        if imap == 2 or imap == 1:
+            yin_coeff = [2.50,1.91,2.26,3.99,1.36,2.42,1.59,1.90,3.99]
+            yin = [x*1e-4 for x in yin_coeff]
+            tin = [7.2,10.1,7.7,9.8,4.5,8.6,7.8,5.5,10.9]
             nu = 3e5 / clus_get_lambdas((maps[imap]['band']))
             dI,errmsg = clus_get_relsz(nu,y=yin,te=tin,vpec=0.0) # dI = [MJy/sr]
             # dI = 0.265244 / maps[imap]['calfac']
@@ -130,7 +131,7 @@ def clus_add_sziso(maps,yin,tin,params,
             ###########################################################################
 
             # Combine the spectral shape of the SZ effect, and combine with the peak intensity
-            # converted to Jy/pixel  ***Confirm these Units***
+            # converted to Jy/beam  ***Confirm these Units***
             szin = [x * dI / maps[imap]['calfac'] for x in szmap]
             szin = np.reshape(szin,(naxis[0],naxis[1]))
             # plt.imshow(szin)
@@ -157,12 +158,12 @@ def clus_add_sziso(maps,yin,tin,params,
             # sz = fits.PrimaryHDU(maps[imap]['signal'],hdx.header)
             # sz.writeto('a0370_sim200PLW_sz_only.fits')
             # exit()
-
+    print('len of maps :',len(maps))
     return maps, None
 
 if __name__ == '__main__' :
-    yin_coeff = [2.50,1.91,2.26,3.99,1.36,2.42,1.59,1.90,3.99]
-    yin = [x*1e-4 for x in yin_coeff]
-    tin = [7.2,10.1,7.7,9.8,4.5,8.6,7.8,5.5,10.9]
+    yin_coeff = [2.50*1e-4]#,1.91,2.26,3.99,1.36,2.42,1.59,1.90,3.99]
+    # yin = [x*1e-4 for x in yin_coeff]
+    tin = [7.2]#,10.1,7.7,9.8,4.5,8.6,7.8,5.5,10.9]
     maps,err = clus_get_data('a0370')
     clus_add_sziso(maps,yin=yin,tin=tin)

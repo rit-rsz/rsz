@@ -33,8 +33,8 @@ def clus_get_relsz(nu,y,te, vpec=0.0, ngrid=100):
 
         # constants
         # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-        tau = []
-        tau.append(float(y) * (420.0 / float(te)**0.9)) # optical depth
+        # tau = []
+        tau=[float(y[0]) * (420.0 / float(te[0])**0.9)] # optical depth
         T_0     = 2.725                   #CMB temperature, K
         k_B     = 1.3806503e-23           #Boltzmann constant, J/K
         h       = 6.626068e-34            #Planck constant, J s
@@ -52,8 +52,8 @@ def clus_get_relsz(nu,y,te, vpec=0.0, ngrid=100):
               '30.0', # xmax
               ngrid, # x grid n_pts
               ' ', # space
-              tau, # optical depth
-              te, # electron temperature
+              tau[0], # optical depth
+              te[0], # electron temperature
               ' ', # space
               vpecp, # peculiar velocity in c
               '1.0', # direction cos of cluster v

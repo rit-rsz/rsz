@@ -34,7 +34,7 @@ def makeGaussian(x_size, y_size, fwhm = 3, center=None):
         x0 = center[0]
         y0 = center[1]
 
-    return np.exp(-1 * ((x-x0)**2 + (y-y0)**2) / (2*sigma**2)) / (2*np.pi*sigma)
+    return sigma,np.exp(-1 * ((x-x0)**2 + (y-y0)**2) / (2*sigma**2))# / (2*np.pi*sigma**2)
 
 def padGaussian(reference_map, kernel):
     reference_size = reference_map.shape

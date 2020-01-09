@@ -150,6 +150,8 @@ class Catsrc():
                 print('clus_add_sziso exited with error: '+ err)
             exit()
 
+        for i in range(len(maps)): #this is to test the file organization.
+            print(maps[i]['band'], maps[i]['file'], maps[i]['pixsize'], 'after clus_add_sziso')
         #transfer function is not in use currently.
         ncols = len(maps)
         # if self.verbose:

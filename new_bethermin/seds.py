@@ -139,6 +139,7 @@ class sed_model:
         be all starburst, or all main sequence"""
 
         # Simple scalar case
+        print(np.isscalar(z),z,'is z scalar')
         if np.isscalar(z):
             if not np.isscalar(U):
                 raise ValueError("U must be scalar if z is")
@@ -218,4 +219,3 @@ class sed_model:
                     retarr[idx, :] = ldfac[idx] *\
                         interp(U[idx], wave / opz[idx]).flatten()
             return retarr
-

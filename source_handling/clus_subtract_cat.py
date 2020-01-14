@@ -26,15 +26,35 @@ import config
 sys.path.append(config.HOME + 'multiband_pcat')
 from pcat_spire import lion
 from save_fits import writefits
-import os
+import os, time
+import multiprocessing as mp
+from multiprocessing import Pool
 
 def clus_subtract_cat(maps, verbose=1, nsim=0, saveplot=0, superplot=0):
     err = None
 
     # default is to have all of the 3 maps returned
-    ob = lion(band0=0, band1=1, band2=2, map_object=maps, auto_resize=True, make_post_plots=False, cblas=False, nsamp=500, residual_samples=100, visual=False)
-    resid_maps = ob.main()
-
+    manager = mp.Manager()
+    ret_maps = manager.dict()
+    resid_maps = []
+    a = time.time()
+    p1 = mp.Process(target=run_pcat, args=(maps,ret_maps))
+    resid_maps.append(p1)
+    p2 = mp.Process(target=run_pcat, args=(maps,ret_maps))
+    p3 = mp.Process(target=run_pcat, args=(maps,ret_maps))
+    p4 = mp.Process(target=run_pcat, args=(maps,ret_maps))
+    p1.start()
+    p2.start()
+    p3.start()
+    # p4.start()
+    p1.join()
+    p2.join()
+    p3.join()
+    # p4.join()
+    b = time.time()
+    print('###########################')
+    print('TIME ELAPSED:' , b-a)
+    print('###########################')
     ### This is for saving residuals from pcat so we can do testing without having to rerun through pcat.
     # plt.imsave('/home/butler/rsz/pcat_resid_0.png',resid_maps[0],format='png')
     # plt.imsave('/home/butler/rsz/pcat_resid_1.png',resid_maps[1],format='png')
@@ -63,21 +83,23 @@ def clus_subtract_cat(maps, verbose=1, nsim=0, saveplot=0, superplot=0):
 
         if superplot:
             # plotting for debugging purposes
-            # fig1, ax1 = plt.subplots()
-            # fig1, ax2 = plt.subplots()
-            # cp1 = ax1.contour(datafull)
-            # ax1.set_title('clus_subtract_cat: Signal map for %s' %(maps[i]['band']))
-            # cp2 = ax2.contour(datasub)
-            # ax2.set_title('clus_subtract_cat: Catalog subtracted map for %s' %(maps[i]['band']))
-            # plt.show()
+            fig1, ax1 = plt.subplots()
+            fig1, ax2 = plt.subplots()
+            cp1 = ax1.contour(datafull)
+            ax1.set_title('clus_subtract_cat: Signal map for %s' %(maps[i]['band']))
+            cp2 = ax2.contour(datasub)
+            ax2.set_title('clus_subtract_cat: Catalog subtracted map for %s' %(maps[i]['band']))
+            plt.show()
 
-            # plt.imshow(datasub)
-            # plt.colorbar()
-            # plt.title('clus_subtract_cat: Catalog subtracted map for %s' %(maps[i]['band']))
-            # plt.show()
+            plt.imshow(datasub)
+            plt.colorbar()
+            plt.title('clus_subtract_cat: Catalog subtracted map for %s' %(maps[i]['band']))
+            plt.show()
+
             # save new subtracted signal to map
             # reshape pcat square map to original SPIRE size
         maps[i]['srcrm'] = datasub[0:maps[i]['signal'].shape[0],0:maps[i]['signal'].shape[1]]
+
         if saveplot:
             if nsim != 0:
                 filename = config.HOME + 'outputs/pcat_residuals/' + maps[i]['name'] + '_' + maps[i]['band'] + '_' + str(nsim) + '.fits'
@@ -87,10 +109,14 @@ def clus_subtract_cat(maps, verbose=1, nsim=0, saveplot=0, superplot=0):
                 os.remove(filename)
             writefits(filename, data=maps[i]['srcrm'])
 
-
     return maps, err
 
-
+def run_pcat(maps,ret_maps):
+    # ob = lion(band0=0, band1=1, band2=2, map_object=maps, auto_resize=True, make_post_plots=False, openblas=True, cblas=False, nsamp=500, residual_samples=100, visual=False)
+    ob = lion(band0=0, band1=1, band2=2, map_object=maps, auto_resize=True, make_post_plots=False, openblas=True, cblas=False, nsamp=500, residual_samples=100, visual=False)
+    resid_maps = ob.main()
+    ret_maps[0] = resid_maps
+    return
 
 if __name__ == '__main__' :
     import sys

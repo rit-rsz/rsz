@@ -36,15 +36,9 @@ from FITS_tools.hcongrid import hcongrid
 from IB_model import *
 
 
-
-
-<<<<<<< HEAD
-def clus_add_sziso(maps,yin,tin,
-              verbose = 0,):
-=======
 def clus_add_sziso(maps,yin,tin,params,
               verbose = 0, testflag=0, saveplot=0):
->>>>>>> 841fb7c686abf06222e85be1316e8c418c699a72
+
     errmsg = False
 
     # Now the bolocam data is in the SPIRE format
@@ -122,13 +116,6 @@ def clus_add_sziso(maps,yin,tin,params,
 
 
     for imap in range(mapsize):
-<<<<<<< HEAD
-        # Applying the effect to the 500um band
-        if imap == 2 or imap == 1:
-            yin_coeff = [2.50,1.91,2.26,3.99,1.36,2.42,1.59,1.90,3.99]
-            yin = [x*1e-4 for x in yin_coeff]
-            tin = [7.2,10.1,7.7,9.8,4.5,8.6,7.8,5.5,10.9]
-=======
         # Applying the effect to the 500 um and 350 um bands.
         if imap == 2 or imap == 1:
             #added this as a case for testing add_sziso with our IB model to make sure things are correct.
@@ -137,7 +124,7 @@ def clus_add_sziso(maps,yin,tin,params,
                 szmap = np.array(szmap)
                 naxis = szmap.shape
                 szmap = szmap.flatten()
->>>>>>> 841fb7c686abf06222e85be1316e8c418c699a72
+
             nu = 3e5 / clus_get_lambdas((maps[imap]['band']))
             dI,errmsg = clus_get_relsz(nu,y=yin,te=tin,vpec=0.0) # dI = [MJy/sr]
             if errmsg:
@@ -181,12 +168,7 @@ def clus_add_sziso(maps,yin,tin,params,
             # Used to check the final output map
             # sz = fits.PrimaryHDU(maps[imap]['signal'],hdx.header)
             # sz.writeto('a0370_sim200PLW_sz_only.fits')
-<<<<<<< HEAD
-            # exit()
-    print('len of maps :',len(maps))
-=======
 
->>>>>>> 841fb7c686abf06222e85be1316e8c418c699a72
     return maps, None
 
 if __name__ == '__main__' :

@@ -37,11 +37,11 @@ from clus_subtract_xcomps import *
 from clus_compute_rings import *
 from clus_fitsz import *
 from save_fitsz import *
+import config
 
 class Catsrc():
 
-    def __init__(self, clusname, saveplot=1, maketf=0, sgen=None, nsim=0, verbose=1, resolution='nr', superplot=1,
-                 yin=False, tin=False, testflag=0):
+    def __init__(self, clusname, saveplot=1, maketf=0, sgen=None, nsim=0, verbose=1, resolution='nr', superplot=1, testflag=0):
         """
         initializing function for catsrc class
         Purpose: read in arguments to be passed to functions in catsrc.
@@ -69,8 +69,8 @@ class Catsrc():
         self.saveplot = saveplot
         self.maketf = maketf
         self.sgen = sgen
-        self.yin = yin
-        self.tin = tin
+        self.yin = config.yin
+        self.tin = config.tin
         self.clusname = clusname
         self.nsim = nsim
         self.resolution = resolution
@@ -126,8 +126,9 @@ class Catsrc():
                 print('clus_add_sziso exited with error: '+ err)
             exit()
 
-        for i in range(len(maps)): #this is to test the file organization.
-            print(maps[i]['band'], maps[i]['file'], maps[i]['pixsize'], 'after clus_add_sziso')
+        # for i in range(len(maps)): #this is to test the file organization.
+        #     print(maps[i]['band'], maps[i]['file'], maps[i]['pixsize'], 'after clus_add_sziso')
+
         #transfer function is not in use currently.
         # if self.verbose:
         #     print('Fetching transfer functions')
@@ -146,9 +147,6 @@ class Catsrc():
         self.maps = maps
         self.params = params
         return
-
-
-
 
     def source_removal(self):
         """
@@ -175,6 +173,7 @@ class Catsrc():
             if self.verbose:
                 print('Require a string array of cluster names as input, aborting!')
 
+        exit()
         #This is commented out because the function hasn't been made yet.
         #The idea is to use residual mask to do some manual masking, but we haven't
         #encountered the need to do that in our pipeline
@@ -267,4 +266,4 @@ class Catsrc():
 
 
 if __name__ == '__main__':
-    catsrc = Catsrc('a1689', verbose=1, sgen=2,nsim=200, superplot=0, tin=4, testflag=1)
+    catsrc = Catsrc('a0370', verbose=1, sgen=2,nsim=200, superplot=0, testflag=1)

@@ -33,6 +33,7 @@ def clus_popmap(ltfile,maps,band,name,pixsize,fwhm,loz=None,superplot=0,savemaps
     ra = []
     dec = []
     mag = []
+    k = []
     with open(ltfile,'r') as f :
         data = f.readlines()
         print('length of popmap data:',len(data))
@@ -45,15 +46,15 @@ def clus_popmap(ltfile,maps,band,name,pixsize,fwhm,loz=None,superplot=0,savemaps
                 ra.append(float(val[1]))
                 dec.append(float(val[2]))
                 mag.append(float(val[-1]))
+                k.append(val[0])
     f.close()
 
-    print('mags:',mag[0:10])
+    print('len of k:',len(k))
+    np.save('output_k_%s.npy'%(band),k)
     # if len(loz) == 8 :
     #     ra = [ra,loz['x']]
     #     dec = [dec,loz['y']]
 
-    # refx = maps['shead']['CRVAL1']
-    # refy = maps['shead']['CRVAL2']
     refx = float(racent)
     refy = float(deccent)
 
@@ -68,51 +69,29 @@ def clus_popmap(ltfile,maps,band,name,pixsize,fwhm,loz=None,superplot=0,savemaps
     # if superplot:
     plt.scatter(ra,dec,s=2,c=flux)
     plt.colorbar()
-    plt.xlim((39.25,40.25))
-    plt.ylim((-2.0,-1.1))
     plt.title('Start of Clus Popmap')
-    plt.savefig('popmap_beg_%s' %(band))
+    plt.savefig('popmap_before_%s.png' %(band))
     plt.clf()
 
     header = maps['shead']
     wcs = WCS(header)
-    print('len of data array before',len(ra),len(dec))
     coords = SkyCoord(ra=ra*u.deg,dec=dec*u.deg)
     x,y = skycoord_to_pixel(coords, wcs)
-    print('len of data array after',len(x),len(y))
 
     # if superplot:
     plt.scatter(x,y,s=2,c=flux)
     plt.colorbar()
-    plt.title('clus_popmap: after skycoord_to_pixel')
-    plt.savefig('popmap_end_%s' %(band))
+    plt.title('Start of Clus Popmap')
+    plt.savefig('popmap_after_%s.png' %(band))
     plt.clf()
 
-    x_size = maps['signal'].shape[0]
-    y_size = maps['signal'].shape[1]
-    # x_size = 300
-    # y_size = 300
-    # outmap = np.zeros((x_size,y_size),dtype=np.float32)
-    # num = 0
-    # for i in range(len(flux)):
-    #     if x[i] > 0 and x[i] < y_size and y[i] > 0 and y[i] < x_size:
-    #         sigma,kern = makeGaussian(y_size,x_size, fwhm = fwhm/pixsize, center=(x[i],y[i]))
-    #         norm = kern / np.max(kern)
-    #         psf = norm * flux[i]
-    #         outmap = outmap + psf
-    #         print(i,len(flux))
-    #     else :
-    #         num += 1
-    # print('number of sources outside map: ',num)
-
     pixscale = [6.0, 8.33333, 12.0]
-    cmap = np.zeros((300,300),dtype=np.float32)
+    map_size = [300,220,150]
 
     if band == 'PSW':
-        # xf = np.floor(xpos)
-        # yf = np.floor(ypos)
         xf = np.floor(x)
         yf = np.floor(y)
+        cmap = np.zeros((map_size[0],map_size[0]),dtype=np.float32)
         nx, ny = cmap.shape
         np.place(xf, xf > nx-1, nx-1)
         np.place(yf, yf > ny-1, ny-1)
@@ -122,18 +101,21 @@ def clus_popmap(ltfile,maps,band,name,pixsize,fwhm,loz=None,superplot=0,savemaps
     # Other bands, with pixel scale adjustment
     else :
         if band == 'PMW':
-            posrescale = pixscale[0] / pixscale[1]
+            cmap = np.zeros((map_size[1],map_size[1]),dtype=np.float32)
+            # posrescale = pixscale[0] / pixscale[1]
         if band == 'PLW':
-            posrescale = pixscale[0] / pixscale[2]
+            cmap = np.zeros((map_size[2],map_size[2]),dtype=np.float32)
+            # posrescale = pixscale[0] / pixscale[2]
 
-        xf = np.floor(posrescale * x)
-        yf = np.floor(posrescale * y)
+        # xf = np.floor(posrescale * x)
+        # yf = np.floor(posrescale * y)
+        xf = np.floor(x)
+        yf = np.floor(y)
         nx, ny = cmap.shape
         np.place(xf, xf > nx-1, nx-1)
         np.place(yf, yf > ny-1, ny-1)
         for cx, cy, cf in zip(xf, yf, flux):
             cmap[int(cy), int(cx)] += cf  # Note transpose
-        del posrescale
 
     beam = get_gauss_beam(fwhm,pixsize,band)
     sim_map = convolve(cmap, beam, boundary='wrap')
@@ -154,8 +136,6 @@ def clus_popmap(ltfile,maps,band,name,pixsize,fwhm,loz=None,superplot=0,savemaps
     return sim_map
 
 def get_gauss_beam(fwhm, pixscale, band, nfwhm=5.0, oversamp=1):
-    # print('get_gauss_beam: fwhm',fwhm)
-    # print('get_gauss_beam: pixscale',pixscale)
     retext = round(fwhm * nfwhm / pixscale)
     if retext % 2 == 0:
         retext += 1
@@ -166,8 +146,6 @@ def get_gauss_beam(fwhm, pixscale, band, nfwhm=5.0, oversamp=1):
                             y_size=retext, mode='oversample',
                             factor=oversamp)
     beam *= 1.0 / beam.array.max()
-    # plt.imshow(beam)
-    # plt.savefig('beam_%s.png' %(band))
     return beam
 
 if __name__ == '__main__':

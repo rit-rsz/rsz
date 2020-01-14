@@ -399,7 +399,6 @@ class genmap_gauss :
         else:
             # Recall this is python 3 -- floating point division
             nchunks = math.ceil(nsources / self._gensize)
-            print(nchunks,nsources,self._gensize)
             chunks = self._gensize * np.ones(int(nchunks), dtype=np.int64)
             chunks[-1] = nsources - (nchunks - 1) * self._gensize
             assert chunks.sum() == nsources
@@ -419,8 +418,6 @@ class genmap_gauss :
 
             # Get fluxes (in Jy)
             cat = self._gencat_stuff.generate(nsrc, wave=self._wave)
-            print(i,nsrc)
-            print(cat[-1][0:5])
             fluxes = cat[-1].copy()
 
             # Set up truth table if needed
@@ -473,7 +470,6 @@ class genmap_gauss :
 
             beam = self.get_gauss_beam(mapidx)
             maps[mapidx] = convolve(maps[mapidx], beam, boundary='wrap')
-            print('int_sigma:',int_sigma)
             if int_sigma[mapidx] > 0:
                 if verbose:
                     msg = "  Adding instrument noise: {:0.4f} [Jy]"
@@ -484,11 +480,6 @@ class genmap_gauss :
             if self._returntruth:
                 maps.append(truthtable)
 
-        # plt.imshow(maps[2])
-        # plt.title('500 micron')
-        # plt.show()
-        # print(len(maps[-1]['fluxdens'])) # shows the truthtable
-        # print(maps[2].shape)
         return maps
 
 if __name__ == '__main__':

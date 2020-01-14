@@ -5,7 +5,7 @@ Chi2formey: 0.000
 Chi2l: 0.000
 log(Evidence) : -130.918
 runmode
-	reference     3 39.971152 -1.582262
+	reference     3 39.967751 -1.582183
 	source    1 a0370_cat.cat
 	inverse   0 0.010000 3363
 	ampli	  1 1800 1.5  mu.fits

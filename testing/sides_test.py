@@ -28,7 +28,7 @@ def map_selector(m_size, s_size, n_samp):
 
     #calculate needed floating point values to generate centers within the correct
     #area
-    n_shape = (m_size[0] - floor(s_size[0]), m_size[1] - 2*floor(s_size[1] / 2))
+    n_shape = (m_size[0] - floor(s_size[0]), m_size[1] - floor(s_size[1]))
     #generate random center pixels with x, y coordinates
     ### testing code
     c_pix = []
@@ -36,11 +36,18 @@ def map_selector(m_size, s_size, n_samp):
         cx = np.random.random() * n_shape[0] + floor(s_size[0] / 2)
         cy = np.random.random() * n_shape[1] + floor(s_size[1] / 2)
         #check the newly generated coordinates with a list of previously generated coordinates
-        c = check_c(c_pix, [cx, cy], n_shape, s_size)
+        # c = check_c(c_pix, [cx, cy], n_shape, s_size)
         #plotting squares for testing purposes
-        plot_squares([c[0], c[1]], s_size)
+        # plot_squares([c[0], c[1]], s_size)
         #append the center pixel to our list
-        c_pix.append(c)
+        c_pix.append([cx, cy])
+    g, b = g_or_b(c_pix, .5)
+    print(g, 'gooder')
+    print(b, 'baddie')
+    print(len(g))
+    print(len(b))
+
+    # final_ds(c_pix)
     c_pix = np.asarray(c_pix)
 
     #plot the greater map
@@ -98,9 +105,38 @@ def calc_ds(c_list, c_pix):
     d_list = []
     for c in c_list:
         d = abs(c[0] - c_pix[0]) + abs(c[1] - c_pix[1])
-        if d < 25:
+        if d < 2:
             d_list.append(d)
     return d_list
+
+def final_ds(c_list):
+    #check the manhattan distances for all points
+    ds = []
+    i = 0
+    for c1 in c_list:
+        i += 1
+        j = 0
+        for c2 in c_list:
+            j += 1
+            d = abs(c1[0] - c2[0]) + abs(c1[1] - c2[1])
+            print('object %s with coordinates %s compared to object %s with coordinates %s' % (i, c1, j, c2), d)
+
+def g_or_b(c_list, d_check):
+    bad = {}
+    i = 0
+    for c1 in c_list:
+        i += 1
+        j = 0
+        for c2 in c_list:
+            j += 1
+            if i is not j:
+                d = abs(c1[0] - c2[0]) + abs(c1[1] - c2[1])
+                if d <= d_check:
+                    bad.append(i)
+    bad  = np.unique(np.asarray(bad))
+    good = [i for i in range(len(c_list)) if i not in bad]
+    return good, bad
+
 
 def check_c(c_list, c_pix, n_shape, s_size):
     iter = 0
@@ -114,9 +150,10 @@ def check_c(c_list, c_pix, n_shape, s_size):
             cx = np.random.random() * n_shape[0] + floor(s_size[0] / 2)
             cy = np.random.random() * n_shape[1] + floor(s_size[1] / 2)
             d_list = calc_ds(c_list, [cx, cy])
+        print('check')
         return c_pix
     else:
         return c_pix
 
 if __name__ == '__main__':
-    map_selector((1000,1000), (100,100), 100)
+    map_selector((10,10), (5,5), 7)

@@ -16,6 +16,27 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from math import *
+from astropy.io import fits
+from astropy.wcs.utils import pixel_to_skycoord, skycoord_to_pixel
+from astropy.wcs import WCS as world
+from astropy.coordinates import SkyCoord
+import astropy.units as u
+import sys
+sys.path.append('../source_handling')
+from clus_get_data import *
+
+def create_catalogues(maps, sides_size):
+    x_size = y_size = sqrt(sides_size)
+    for i in range(len(maps)):
+        pixsize = maps[0][i]['pixsize']
+        p_x_size = x_size * 3600 / pixsize
+        p_y_size = y_size * 3600 / pixsize
+        cutout_size = maps[0][i]['signal'].shape
+        sides_p_size = [p_x_size, p_y_size]
+
+        x, y = map_selector(sides_p_size, cutout_size, 100)
+        c_pix = np.asarray(zip(x,y))
+
 
 def map_selector(m_size, s_size, n_samp):
     """
@@ -23,33 +44,33 @@ def map_selector(m_size, s_size, n_samp):
     s_size : cut out size
     n_samp : number of cuttouts
     """
+    print(s_size, m_size)
     #create a new map that allows us to select center pixels for potential SPIRE
     #maps that don't overextend the edges of the SIDES map.
 
     #calculate needed floating point values to generate centers within the correct
     #area
-    n_shape = (m_size[0] - floor(s_size[0]), m_size[1] - floor(s_size[1]))
+    half_f = [floor(s_size[0] / 2), floor(s_size[1] / 2)]
+    n_shape = [m_size[0] - half_f[0], m_size[1] - half_f[1]]
     #generate random center pixels with x, y coordinates
-    ### testing code
-    c_pix = []
+    # c_pix = []
+    # for i in range(n_samp):
+    #     cx = np.random.random() * n_shape[0] + floor(s_size[0] / 2)
+    #     cy = np.random.random() * n_shape[1] + floor(s_size[1] / 2)
+    #     c_pix.append([cx, cy])
+    # # final_ds(c_pix)
+    # c_pix = np.asarray(c_pix)
+
+    #for generating a grid instead
+    #create a square grid
+    num_x = num_y = int(sqrt(n_samp))
+    x = np.linspace(half_f[0], n_shape[0], num_x, dtype=np.float32)
+    y = np.linspace(half_f[1], n_shape[1], num_y, dtype=np.float32)
+    coords = np.stack(np.meshgrid(x, y), -1).reshape(-1,2)
+    plt.scatter(coords[:,0], coords[:,1], label='coordinate center')
     for i in range(n_samp):
-        cx = np.random.random() * n_shape[0] + floor(s_size[0] / 2)
-        cy = np.random.random() * n_shape[1] + floor(s_size[1] / 2)
-        #check the newly generated coordinates with a list of previously generated coordinates
-        # c = check_c(c_pix, [cx, cy], n_shape, s_size)
-        #plotting squares for testing purposes
-        # plot_squares([c[0], c[1]], s_size)
-        #append the center pixel to our list
-        c_pix.append([cx, cy])
-    g, b = g_or_b(c_pix, .5)
-    print(g, 'gooder')
-    print(b, 'baddie')
-    print(len(g))
-    print(len(b))
-
-    # final_ds(c_pix)
-    c_pix = np.asarray(c_pix)
-
+        c_pix = coords[i,0], coords[i,1]
+        plot_squares(c_pix, s_size)
     #plot the greater map
     g_ux = m_size[0] #upper x
     g_dx = 0 #lower x
@@ -71,11 +92,13 @@ def map_selector(m_size, s_size, n_samp):
     iy = [i_dy, i_uy, i_uy, i_dy, i_dy]
 
 
-    plt.plot(ix, iy)
-    plt.scatter(c_pix[:,0], c_pix[:,1])
+    plt.plot(ix, iy, c='green', label='inner square')
 
-    plt.plot(gx, gy, c='red')
+    plt.plot(gx, gy, c='red', label='outer square')
     plt.show()
+    px = coords[:,0]
+    py = coords[:,1]
+    return px, py
 
 def plot_squares(c_pix, s_size):
     """
@@ -99,61 +122,79 @@ def plot_squares(c_pix, s_size):
     #plot the grid
     plt.plot(ix, iy, c='blue')
 
+def populate_cutouts(sides_catalogue, nsamples, c_pix, s_size):
+    #####code for testing
+    # x = np.random.random_sample(nsamples)
+    # y = np.random.random_sample(nsamples)
+    # px = [xi * m_shape[0] for xi in x]
+    # py = [yi * m_shape[1] for yi in y]
+    # px = np.asarray(px)
+    # py = np.asarray(py)
+    # plt.scatter(px, py)
+    # plt.title('Test Source Field')
+    # plt.show()
+    #find splices for the cutout
+    cx = c_pix[0]
+    cy = c_pix[1]
+    sx_2 = s_size[0] / 2.
+    sy_2 = s_size[1] / 2.
+    ux = cx + sx_2
+    dx = cx - sx_2
+    uy = cy + sy_2
+    dy = cy - sy_2
 
-def calc_ds(c_list, c_pix):
-    #calculate manhattan distance and return a list of distances
-    d_list = []
-    for c in c_list:
-        d = abs(c[0] - c_pix[0]) + abs(c[1] - c_pix[1])
-        if d < 2:
-            d_list.append(d)
-    return d_list
-
-def final_ds(c_list):
-    #check the manhattan distances for all points
-    ds = []
-    i = 0
-    for c1 in c_list:
-        i += 1
-        j = 0
-        for c2 in c_list:
-            j += 1
-            d = abs(c1[0] - c2[0]) + abs(c1[1] - c2[1])
-            print('object %s with coordinates %s compared to object %s with coordinates %s' % (i, c1, j, c2), d)
-
-def g_or_b(c_list, d_check):
-    bad = {}
-    i = 0
-    for c1 in c_list:
-        i += 1
-        j = 0
-        for c2 in c_list:
-            j += 1
-            if i is not j:
-                d = abs(c1[0] - c2[0]) + abs(c1[1] - c2[1])
-                if d <= d_check:
-                    bad.append(i)
-    bad  = np.unique(np.asarray(bad))
-    good = [i for i in range(len(c_list)) if i not in bad]
-    return good, bad
+    #splice of the map would be: cx-sx_2:cx+sx_2, cy-sy_2:cy+sy_2
+    #cutouts of map
+    good_x = np.where(np.logical_and(px >= dx, px <= ux))[0]
+    good_y = np.where(np.logical_and(py >= dy, py <= uy))[0]
+    good = [gx for gx in good_x if gx in good_y]
+    return px[good], py[good]
 
 
-def check_c(c_list, c_pix, n_shape, s_size):
-    iter = 0
-    if len(c_list) > 0:
-        d_list = calc_ds(c_list, c_pix)
-        while len(d_list) > 0:
-            if iter > 100:
-                print('Error: exceeded iteration limit.')
-                break #break the while loop if it goes over 100 iterations
-            iter += 1
-            cx = np.random.random() * n_shape[0] + floor(s_size[0] / 2)
-            cy = np.random.random() * n_shape[1] + floor(s_size[1] / 2)
-            d_list = calc_ds(c_list, [cx, cy])
-        print('check')
-        return c_pix
-    else:
-        return c_pix
+
+##########################################Old version of generating cutouts might want this later
+# def calc_ds(c_list, c_pix):
+#     #calculate manhattan distance and return a list of distances
+#     d_list = []
+#     for c in c_list:
+#         d = abs(c[0] - c_pix[0]) + abs(c[1] - c_pix[1])
+#         if d < 2:
+#             d_list.append(d)
+#     return d_list
+#
+# def final_ds(c_list):
+#     #check the manhattan distances for all points
+#     ds = []
+#     i = 0
+#     for c1 in c_list:
+#         i += 1
+#         j = 0
+#         for c2 in c_list:
+#             j += 1
+#             d = abs(c1[0] - c2[0]) + abs(c1[1] - c2[1])
+#             print('object %s with coordinates %s compared to object %s with coordinates %s' % (i, c1, j, c2), d)
+#
+# def check_c(c_list, c_pix, n_shape, s_size):
+#     iter = 0
+#     if len(c_list) > 0:
+#         d_list = calc_ds(c_list, c_pix)
+#         while len(d_list) > 0:
+#             if iter > 100:
+#                 print('Error: exceeded iteration limit.')
+#                 break #break the while loop if it goes over 100 iterations
+#             iter += 1
+#             cx = np.random.random() * n_shape[0] + floor(s_size[0] / 2)
+#             cy = np.random.random() * n_shape[1] + floor(s_size[1] / 2)
+#             d_list = calc_ds(c_list, [cx, cy])
+#         print('check')
+#         return c_pix
+#     else:
+#         return c_pix
 
 if __name__ == '__main__':
-    map_selector((10,10), (5,5), 7)
+    # map_selector((50,50), (5,5), 100)
+    maps = clus_get_data('rxj1347', manpath=0, resolution = 'nr', bolocam=None,
+                verbose = 1, version = '1', manidentifier=None, sgen=None, nsim=0, testflag=0)
+    create_catalogues(maps, 2)
+
+    # populate_cutouts_test((50,50), 5000, (10,15), (5,5))

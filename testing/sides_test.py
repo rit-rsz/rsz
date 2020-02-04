@@ -15,6 +15,7 @@
 ################################################################################
 import numpy as np
 import matplotlib.pyplot as plt
+import time
 from math import *
 from astropy.io import fits
 from astropy.wcs.utils import pixel_to_skycoord, skycoord_to_pixel
@@ -24,6 +25,7 @@ import astropy.units as u
 import sys
 sys.path.append('../source_handling')
 from clus_get_data import *
+from read_sides import ret_sides
 
 def create_catalogues(maps, sides_size):
     x_size = y_size = sqrt(sides_size)
@@ -35,8 +37,10 @@ def create_catalogues(maps, sides_size):
         sides_p_size = [p_x_size, p_y_size]
 
         x, y = map_selector(sides_p_size, cutout_size, 100)
-        c_pix = np.asarray(zip(x,y))
-
+        cx = [xi * pixsize / 3600. for xi in x]
+        cy = [yi * pixsize / 3600. for yi in y]
+        c_pix = np.asarray([[cx[i], cy[i]] for i in range(len(cx))])
+        return c_pix
 
 def map_selector(m_size, s_size, n_samp):
     """
@@ -44,7 +48,6 @@ def map_selector(m_size, s_size, n_samp):
     s_size : cut out size
     n_samp : number of cuttouts
     """
-    print(s_size, m_size)
     #create a new map that allows us to select center pixels for potential SPIRE
     #maps that don't overextend the edges of the SIDES map.
 
@@ -67,10 +70,10 @@ def map_selector(m_size, s_size, n_samp):
     x = np.linspace(half_f[0], n_shape[0], num_x, dtype=np.float32)
     y = np.linspace(half_f[1], n_shape[1], num_y, dtype=np.float32)
     coords = np.stack(np.meshgrid(x, y), -1).reshape(-1,2)
-    plt.scatter(coords[:,0], coords[:,1], label='coordinate center')
-    for i in range(n_samp):
-        c_pix = coords[i,0], coords[i,1]
-        plot_squares(c_pix, s_size)
+    # plt.scatter(coords[:,0], coords[:,1], label='coordinate center')
+    # for i in range(n_samp):
+    #     c_pix = coords[i,0], coords[i,1]
+    #     plot_squares(c_pix, s_size)
     #plot the greater map
     g_ux = m_size[0] #upper x
     g_dx = 0 #lower x
@@ -92,15 +95,15 @@ def map_selector(m_size, s_size, n_samp):
     iy = [i_dy, i_uy, i_uy, i_dy, i_dy]
 
 
-    plt.plot(ix, iy, c='green', label='inner square')
-
-    plt.plot(gx, gy, c='red', label='outer square')
-    plt.show()
+    # plt.plot(ix, iy, c='green', label='inner square')
+    #
+    # plt.plot(gx, gy, c='red', label='outer square')
+    # plt.show()
     px = coords[:,0]
     py = coords[:,1]
     return px, py
 
-def plot_squares(c_pix, s_size):
+def plot_squares(c_pix, sq_list):
     """
     c_pix : center pix coordinates
     s_size: cut out size
@@ -109,20 +112,27 @@ def plot_squares(c_pix, s_size):
     #break up inputs into individual values
     cx = c_pix[0]
     cy = c_pix[1]
-    sx_2 = s_size[0] / 2.
-    sy_2 = s_size[1] / 2.
+
     #find the corner pieces of the square
-    ux = cx + sx_2
-    dx = cx - sx_2
-    uy = cy + sy_2
-    dy = cy - sy_2
+    ux = sq_list[0]
+    dx = sq_list[1]
+    uy = sq_list[2]
+    dy = sq_list[3]
     #create a list of points to draw the grid
     ix = [dx, dx, ux, ux, dx]
     iy = [dy, uy, uy, dy, dy]
     #plot the grid
     plt.plot(ix, iy, c='blue')
 
-def populate_cutouts(sides_catalogue, nsamples, c_pix, s_size):
+def populate_cutouts(sides_catalogue, c_pix, map):
+    pixsize = map['pixsize']
+    band = map['band']
+    if band == 'PSW':
+        b = 3
+    elif band == 'PMW':
+        b = 4
+    elif band == 'PLW':
+        b = 5
     #####code for testing
     # x = np.random.random_sample(nsamples)
     # y = np.random.random_sample(nsamples)
@@ -133,22 +143,37 @@ def populate_cutouts(sides_catalogue, nsamples, c_pix, s_size):
     # plt.scatter(px, py)
     # plt.title('Test Source Field')
     # plt.show()
+    py = sides_catalogue[1]
+    px = sides_catalogue[0]
+    f  = sides_catalogue[b]
+    z  = sides_catalogue[2]
+
+    s_size = map['signal'].shape
     #find splices for the cutout
     cx = c_pix[0]
     cy = c_pix[1]
-    sx_2 = s_size[0] / 2.
-    sy_2 = s_size[1] / 2.
+    sx_2 = s_size[0] / 2. * pixsize / 3600.
+    sy_2 = s_size[1] / 2. * pixsize / 3600.
     ux = cx + sx_2
     dx = cx - sx_2
     uy = cy + sy_2
     dy = cy - sy_2
 
+    sq_list = [ux, dx, uy, dy] #this is for testing
     #splice of the map would be: cx-sx_2:cx+sx_2, cy-sy_2:cy+sy_2
     #cutouts of map
+    a = time.time()
     good_x = np.where(np.logical_and(px >= dx, px <= ux))[0]
+    b = time.time()
+    print('Found suitable x values after:', b-a, "Start :", a, "Finish :", b)
     good_y = np.where(np.logical_and(py >= dy, py <= uy))[0]
-    good = [gx for gx in good_x if gx in good_y]
-    return px[good], py[good]
+    c = time.time()
+    print('Found suitable y values after:', c-b, "Start :", b, "Finish :", c)
+    good = np.intersect1d(good_x, good_y)
+    d = time.time()
+    print('Intersection between both lists finished after:', d-c, "Start :", c, "Finish :", d)
+    print('Number of sources found:', len(f[good]))
+    return px[good], py[good], f[good], z[good], sq_list
 
 
 
@@ -193,8 +218,16 @@ def populate_cutouts(sides_catalogue, nsamples, c_pix, s_size):
 
 if __name__ == '__main__':
     # map_selector((50,50), (5,5), 100)
-    maps = clus_get_data('rxj1347', manpath=0, resolution = 'nr', bolocam=None,
-                verbose = 1, version = '1', manidentifier=None, sgen=None, nsim=0, testflag=0)
-    create_catalogues(maps, 2)
+    a = time.time()
+    maps = clus_get_data('rxj1347', manpath=0, resolution = 'nr', bolocam=None, verbose = 1, version = '1', manidentifier=None, sgen=None, nsim=0, testflag=0)
+    master_list = ret_sides()
+    c_pix_list = create_catalogues(maps, 2)
+    x, y, f, z, sq_list = populate_cutouts(master_list, c_pix_list[0], maps[0][0])
+    plt.scatter(c_pix_list[0,0], c_pix_list[0,1])
+    plt.scatter(x, y)
+    plot_squares(c_pix_list[0], sq_list)
+    b = time.time()
+    print('Total Runtime :', b-a, "Start :", a, "Finish :", b)
+    plt.show()
 
     # populate_cutouts_test((50,50), 5000, (10,15), (5,5))

@@ -46,8 +46,8 @@ def clus_make_noise_mask(maps, col):
     for j in range(mapsize[0]):
         for k in range(mapsize[1]):
             if fixed_image[j,k] == 0 or fixed_image[j,k] <= 1e-10 or np.isfinite(fixed_image[j,k]) == False:
-                fixed_image[j,k] = 0.005
-            if fixed_image[j,k] >= 0.004:
+                fixed_image[j,k] = 0.004
+            if fixed_image[j,k] >= 0.003:
                 mask[j,k] = int(1)
 
     ''' Temp fix for edge effects '''

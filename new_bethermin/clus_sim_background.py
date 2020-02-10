@@ -33,8 +33,9 @@ def clus_sim_background(genbethermin=1,fluxcut=0,saveplots=1,savemaps=0,genpower
             genradave=1,addnoise=0,yeslens=1,resolution='nr',nsim=1,bolocam=0,verbose=1,\
             errmsg=None,superplot=0):
 
-    clusters = ['a0370','a1689','a1835','a2218','a2219','a2390',
-              'cl0024','ms0451','ms1054','ms1358','rxj0152','rxj1347']
+    # clusters = ['a0370','a1689','a1835','a2218','a2219','a2390',
+              # 'cl0024','ms0451','ms1054','ms1358','rxj0152','rxj1347']
+    clusters = ['rxj1347']
 
     nclust = len(clusters)
 
@@ -78,6 +79,7 @@ def clus_sim_background(genbethermin=1,fluxcut=0,saveplots=1,savemaps=0,genpower
         ncols =  len(maps)
         wave = [250.,350.,500.] # In units of microns
         fwhm = [17.6, 23.9, 35.2]
+        map_size = [300,220,150] # set by Conley sim maps generation
         bands = ncols * [0]
 
         if resolution == 'fr':
@@ -108,51 +110,52 @@ def clus_sim_background(genbethermin=1,fluxcut=0,saveplots=1,savemaps=0,genpower
                 gm = genmap_gauss(wave=wave, pixsize=pixsize, fwhm=fwhm)
                 sim_maps = gm.generate(0.25,verbose=True)
 
+            else :
+                ''' TEMP for USING SIDES '''
+                PLW = np.load(config.HOME + 'sides_sims/sides_PLW_sim%s.npy' %(isim),allow_pickle=True)
+                PMW = np.load(config.HOME + 'sides_sims/sides_PMW_sim%s.npy' %(isim),allow_pickle=True)
+                PSW = np.load(config.HOME + 'sides_sims/sides_PSW_sim%s.npy' %(isim),allow_pickle=True)
+                sim_maps = [PSW,PMW,PLW]
+
             for icol in range(ncols):
                 # if bands[icol] == 'PLW' :
-                lozcat = clus_format_bethermin(icol,sim_maps,maps,bands[icol],clusters[iclust],
-                                        pixsize[0],fwhm[icol],fluxcut=fluxcut,zzero=params['z'],superplot=superplot,savemaps=savemaps)
+                print('im making it to bethermin')
+                retcat,truthtable = clus_format_bethermin(icol,sim_maps,maps,map_size[icol],bands[icol],clusters[iclust],
+                                        pixsize[0],fwhm[icol],fluxcut=fluxcut,zzero=params['z'],superplot=superplot,savemaps=savemaps,genbethermin=genbethermin)
 
                 if yeslens == 1:
-                    ''' format bethermin needs to spit out only one cat file for the band it's on
-                        then you need to loop through lenstool and make it do a new run for each catfile.
-                        lenstool is dumb and doesn't know which band it's on, it just re-reads the same
-                        file each time, so we need to make sure we re-write which one we are on
-                    '''
                     print('Starting ', clusters[iclust], ' lens run for ', bands[icol], '...')
 
                     # create output data files for lenstool
                     lnfile = config.HOME + 'model/' + clusters[iclust] + '/' + clusters[iclust] + '_cat.cat'
                     ltfile = config.SIMBOX + clusters[iclust] + '_image_' + bands[icol] + '.dat'
-                    #
-                    #
+
                     # # creates a symbolic link to this file in the current working directory
                     subprocess.Popen(['ln -s %s' %(lnfile)],shell=True)
-                    #
+
+                    # Important Note: Lenstool will not process any sources with arcsecond positional coordinates over ~1800
                     # # calling lenstool program, waiting to continue until program finishes
                     subprocess.call(['/usr/local/bin/lenstool %s -n' %(config.HOME + 'model/' + clusters[iclust] + '/bestopt.par')],shell=True)
-                    #
+
                     # this moves the output from lenstool to the directory SIMBOX and renames it
                     subprocess.call(['mv -f image.all %s' %(ltfile)],shell=True)
 
-                    # post process cleanup
-                    os.remove(config.SIM + 'mu.fits')
-                    os.remove(config.SIM + 'image.dat')
-                    os.remove(config.SIM + 'dist.dat')
-                    os.remove(config.SIM + 'pot.dat')
-                    os.remove(config.SIM + 'clump.dat')
-                    os.remove(config.SIM + 'para.out')
-                    os.remove(config.SIM + 'sipos.dat')
-                    os.remove(config.SIM + 'source.dat')
-                    os.remove(config.SIM + 'sort.dat')
+                    # post process cleanup, lenstool makes these files
+                    # os.remove(config.SIM + 'mu.fits')
+                    # os.remove(config.SIM + 'image.dat')
+                    # os.remove(config.SIM + 'dist.dat')
+                    # os.remove(config.SIM + 'pot.dat')
+                    # os.remove(config.SIM + 'clump.dat')
+                    # os.remove(config.SIM + 'para.out')
+                    # os.remove(config.SIM + 'sipos.dat')
+                    # os.remove(config.SIM + 'source.dat')
+                    # os.remove(config.SIM + 'sort.dat')
 
                 else :
                     ltfile = config.SIMBOX + clusters[iclust] + '_image_' + bands[icol] + '.dat'
-                    # ltfile = config.SIMBOX + 'a0370_image_PSW_test.dat'
-                    # ltfile = config.HOME + 'model/' + clusters[iclust] + '/' + clusters[iclust] + '_cat.cat'
 
                 # populate the sim maps with sources from lenstool
-                outmap = clus_popmap(ltfile,maps[icol],bands[icol],clusters[iclust],pixsize[icol],fwhm[icol],loz=lozcat,superplot=superplot,savemaps=savemaps)
+                outmap = clus_popmap(ltfile,maps[icol],map_size[icol],bands[icol],clusters[iclust],pixsize[icol],fwhm[icol],loz=retcat,superplot=superplot,savemaps=savemaps)
 
                 # modify the outmap to remove pixels that have been flagged
                 # if icol < 3 :
@@ -162,25 +165,20 @@ def clus_sim_background(genbethermin=1,fluxcut=0,saveplots=1,savemaps=0,genpower
                 # reshape map to original SPIRE size
                 outmap = outmap[0:maps[icol]['signal'].shape[0],0:maps[icol]['signal'].shape[1]]
                 maps[icol]['signal'] = outmap
-                plt.imshow(outmap)
-                plt.savefig('sim_map_%s.png' %(bands[icol]))
-                plt.clf()
 
                 # adding random noise to the signal map
                 if addnoise == 1 :
                     print('Adding noise to sim maps')
-                    ''' under the assumption that the error map is exclusively instrument noise'''
-                    # confnoise = [4.8,4.4,4.8] #mJy/beam  #[5.8,6.3,6.8] * 1e-3 / 2. #(SQRT(8.))
                     np.random.seed(102793)
                     error =  np.array(maps[icol]['error']).flatten()
                     signal = np.array(maps[icol]['signal']).flatten()
                     noise = np.random.normal(scale=1.0,size=(maps[icol]['signal'].shape[0],maps[icol]['signal'].shape[1])).flatten()
-                    solid_angle = 2*np.pi*((3)/2.355)**2
+                    normalization = 2*np.pi*((3)/2.355)**2
 
                     for i in range(len(signal)):
                         if not math.isnan(error[i]) : #Jy/beam
                             noise[i] = error[i]*noise[i]
-                            signal[i] = signal[i]*solid_angle
+                            signal[i] = signal[i]*normalization
 
                         else :
                             signal[i] = np.nan
@@ -191,30 +189,21 @@ def clus_sim_background(genbethermin=1,fluxcut=0,saveplots=1,savemaps=0,genpower
                     maps[icol]['signal'] = flat.reshape(maps[icol]['signal'].shape[0],maps[icol]['signal'].shape[1])
                     signal_map = signal.reshape(maps[icol]['signal'].shape[0],maps[icol]['signal'].shape[1])
 
-                    if savemaps == 1 or savemaps == 2 :
-                        # save the current sim map in /data/sim_clusters
-                        print('Savemaps set, saving maps in %s' %(config.SIMBOX+'sim_clusters/'))
-                        savefile = config.SIMBOX + 'sim_clusters/' + clusters[iclust] + '_' + bands[icol] + '_noise.fits'
-                        # create image HDU
-                        hda = fits.PrimaryHDU(signal_map,maps[icol]['shead'])
-                        hdul = fits.HDUList(hdus=hda)
-                        hds = fits.ImageHDU(maps[icol]['signal'],maps[icol]['shead'],name='s+n')
-                        hdul.append(hds)
-                        hdn = fits.ImageHDU(noise_map,maps[icol]['shead'],name='noise')
-                        hdul.append(hdn)
-                        hdul.writeto(savefile,overwrite=True)
+                    # save the current sim map in /data/sim_clusters
+                    print('Savemaps set, saving maps in %s' %(config.SIMBOX+'sim_clusters/'))
+                    savefile = config.SIMBOX + 'sim_clusters/' + clusters[iclust] + '_' + bands[icol] + '_sides_%02d.fits' %(isim)
+                    # create image HDU
 
-                    # TESTING ######################################################
-                    hdun = fits.PrimaryHDU(noise_map,maps[icol]['shead'])
-                    hdun.writeto(config.SIMBOX+'noise_%s.fits' %(bands[icol]),overwrite=True)
-                    hdun = fits.PrimaryHDU(signal_map,maps[icol]['shead'])
-                    hdun.writeto(config.SIMBOX+'sim_%s.fits' %(bands[icol]),overwrite=True)
-                    hdun = fits.PrimaryHDU(maps[icol]['signal'],maps[icol]['shead'])
-                    hdun.writeto(config.SIMBOX+'both_%s.fits' %(bands[icol]),overwrite=True)
-                    ###############################################################
-            exit()
+                    hda = fits.PrimaryHDU(signal_map,maps[icol]['shead'])
+                    hda.writeto(savefile,overwrite=True)
+                    hdul = fits.HDUList(hdus=hda)
+                    hds = fits.ImageHDU(maps[icol]['signal'],maps[icol]['shead'],name='s+n')
+                    hdul.append(hds)
+                    hdn = fits.ImageHDU(noise_map,maps[icol]['shead'],name='noise')
+                    hdul.append(hdn)
+                    hdul.writeto(savefile,overwrite=True)
 
 if __name__ == '__main__' :
-    clus_sim_background(genbethermin=1,fluxcut=0,saveplots=0,savemaps=0,genpowerlaw=0,\
-                        genradave=1,addnoise=1,yeslens=0,resolution='nr',nsim=1,bolocam=0,\
+    clus_sim_background(genbethermin=0,fluxcut=0,saveplots=0,savemaps=0,genpowerlaw=0,\
+                        genradave=1,addnoise=1,yeslens=1,resolution='nr',nsim=99,bolocam=0,\
                         verbose=0,errmsg=None,superplot=0)

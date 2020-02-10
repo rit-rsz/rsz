@@ -37,6 +37,21 @@ def clus_subtract_xcomps(maps, sgen=None, verbose=1, superplot=1, nsim=0, savepl
             print(err)
         return None, err
 
+    plt.imshow(maps[0]['srcrm'])
+    plt.colorbar()
+    plt.clim(-0.03,0.04)
+    plt.savefig('before_mask_%s.png' %(maps[0]['band']))
+    plt.clf()
+    plt.imshow(maps[1]['srcrm'])
+    plt.colorbar()
+    plt.clim(-0.03,0.04)
+    plt.savefig('before_mask_%s.png' %(maps[1]['band']))
+    plt.clf()
+    plt.imshow(maps[2]['srcrm'])
+    plt.colorbar()
+    plt.clim(-0.03,0.04)
+    plt.savefig('before_mask_%s.png' %(maps[2]['band']))
+    plt.clf()
     #make a noise mask and populate source removed map with nans where mask is 1 so they don't effect the fit.
     for i in range(len(maps)):
         mask = clus_make_noise_mask(maps, i)
@@ -45,26 +60,32 @@ def clus_subtract_xcomps(maps, sgen=None, verbose=1, superplot=1, nsim=0, savepl
             for k in range(maps[i]['signal'].shape[1]):
                 if maps[i]['mask'][j,k] == 1:
                     maps[i]['srcrm'][j,k] = np.nan
-
+        plt.imshow(maps[i]['srcrm'])
+        plt.colorbar()
+        plt.clim(-0.03,0.04)
+        plt.savefig('after_mask_%s.png' %(maps[i]['band']))
+        plt.clf()
     for i in range(1, ncols):
         if verbose:
             print('On band %s' %(maps[i]['band']))
 
         #create a new image for the PSW band that is the same shape and beamsize as the reference images
-        print(maps[i]['widtha'], maps[0]['widtha'], maps[0]['pixsize'])
-        width = sqrt(maps[i]['widtha'] **2 + maps[0]['widtha']**2) / maps[0]['pixsize']
-
-        ###don't think this is needed, need to prove in a concrete way that this is not what we want to do.
-
-        # kern = makeGaussian(15, 15, fwhm =width, center=None)
-        # kern = kern / np.sum(kern)
-        # kern = padGaussian(inmap,kern)
-        # inmap = convolve_fft(inmap, kern)
+        width = sqrt(maps[i]['widtha']**2 - maps[0]['widtha']**2) / maps[0]['pixsize']
+        kern = makeGaussian(15, 15, fwhm =width, center=None)
+        kern = kern / np.sum(kern)
+        kern = padGaussian(maps[0]['srcrm'],kern)
+        inmap = convolve_fft(maps[0]['srcrm'], kern)
 
         inmap = maps[0]['srcrm']
         maps[0]['xclean'] = maps[0]['srcrm']
         xmap = inmap
         xmap_align = hcongrid(xmap, maps[0]['shead'], maps[i]['shead'])
+
+        plt.imshow(xmap_align)
+        plt.colorbar()
+        plt.clim(-0.03,0.04)
+        plt.savefig('xmap_align_%s.png' %(maps[i]['band']))
+        plt.clf()
 
         for j in range(xmap_align.shape[0]):
             for k in range(xmap_align.shape[1]):
@@ -109,12 +130,17 @@ def clus_subtract_xcomps(maps, sgen=None, verbose=1, superplot=1, nsim=0, savepl
                     maps[i]['xclean'][j,k] = maps[i]['srcrm'][j,k] - slope * xmap_align[j,k] + intercept
 
         datasub = maps[i]['xclean']
+        plt.imshow(maps[i]['xclean'])
+        plt.clim(-0.03,0.04)
+        plt.colorbar()
+        plt.savefig('xmap_final_%s.png' %(maps[i]['band']))
+        plt.clf()
 
         if superplot:
             plt.imshow(maps[i]['xclean'])
             plt.title('xclean map')
             plt.show()
-
+        print('saveplot: ',saveplot)
         if saveplot:
             if sgen is not None:
                 filename = config.HOME + 'outputs/correlated_components/' + maps[i]['name'] + '_' + maps[i]['band'] + '_xc.fits'

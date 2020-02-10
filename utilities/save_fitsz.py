@@ -40,7 +40,7 @@ def save_fitsz(increment, offset, radave, params, sgen=None, nsim=0, verbose=1):
         szout[i]['offset'] = offset[i].tolist()
         szout[i]['band'] = radave[i]['band']
         szout[i]['midbin'] = radave[i]['midbin'].tolist()
-        szout[i]['fluxbin'] = radave[i]['fluxbin'].tolist()
+        szout[i]['fluxbin'] = radave[i]['fluxbin']
         szout[i]['errbin'] = radave[i]['errbin'].tolist()
 
         #i have a feeling this may  not work ex: szout[i]['radbin'] = radave[i]['radbin'] but not sure

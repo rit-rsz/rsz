@@ -30,31 +30,34 @@ import os, time
 import multiprocessing as mp
 from multiprocessing import Pool
 
-def clus_subtract_cat(maps, verbose=1, nsim=0, saveplot=0, superplot=0):
+def clus_subtract_cat(maps, dI, verbose=1, nsim=0, saveplot=0, superplot=0):
     err = None
 
+    ''' Multithreading PCAT Setup
     # default is to have all of the 3 maps returned
-    manager = mp.Manager()
-    ret_maps = manager.dict()
-    resid_maps = []
-    a = time.time()
-    p1 = mp.Process(target=run_pcat, args=(maps,ret_maps))
-    resid_maps.append(p1)
-    p2 = mp.Process(target=run_pcat, args=(maps,ret_maps))
-    p3 = mp.Process(target=run_pcat, args=(maps,ret_maps))
-    p4 = mp.Process(target=run_pcat, args=(maps,ret_maps))
-    p1.start()
-    p2.start()
-    p3.start()
+    # manager = mp.Manager()
+    # ret_maps = manager.dict()
+    # resid_maps = []
+    # a = time.time()
+    # p1 = mp.Process(target=run_pcat, args=(maps,ret_maps))
+    # resid_maps.append(p1)
+    # p2 = mp.Process(target=run_pcat, args=(maps,ret_maps))
+    # p3 = mp.Process(target=run_pcat, args=(maps,ret_maps))
+    # p4 = mp.Process(target=run_pcat, args=(maps,ret_maps))
+    # p1.start()
+    # p2.start()
+    # p3.start()
     # p4.start()
-    p1.join()
-    p2.join()
-    p3.join()
+    # p1.join()
+    # p2.join()
+    # p3.join()
     # p4.join()
-    b = time.time()
-    print('###########################')
-    print('TIME ELAPSED:' , b-a)
-    print('###########################')
+    # b = time.time()
+    # print('###########################')
+    # print('TIME ELAPSED:' , b-a)
+    # print('###########################')
+    '''
+
     ### This is for saving residuals from pcat so we can do testing without having to rerun through pcat.
     # plt.imsave('/home/butler/rsz/pcat_resid_0.png',resid_maps[0],format='png')
     # plt.imsave('/home/butler/rsz/pcat_resid_1.png',resid_maps[1],format='png')
@@ -66,10 +69,11 @@ def clus_subtract_cat(maps, verbose=1, nsim=0, saveplot=0, superplot=0):
     # map2 = np.load('/home/butler/rsz/pcat_resid1.npy',allow_pickle=True)
     # map3 = np.load('/home/butler/rsz/pcat_resid2.npy',allow_pickle=True)
     # resid_maps = [map1[0],map2[0],map3[0]]
+    resid_maps = run_pcat(maps)
 
     # make sure both input maps exist
-    if maps.any() == None or resid_maps.any() == None :
-        return None, 'clus or pcat_spire map structure input is absent'
+    # if maps.any() == None or resid_maps.any() == None :
+    #     return None, 'clus or pcat_spire map structure input is absent'
 
     for i in range(len(resid_maps)): # only loop through how many residuals we have
         if verbose==1:
@@ -100,23 +104,27 @@ def clus_subtract_cat(maps, verbose=1, nsim=0, saveplot=0, superplot=0):
             # reshape pcat square map to original SPIRE size
         maps[i]['srcrm'] = datasub[0:maps[i]['signal'].shape[0],0:maps[i]['signal'].shape[1]]
 
-        if saveplot:
-            if nsim != 0:
-                filename = config.HOME + 'outputs/pcat_residuals/' + maps[i]['name'] + '_' + maps[i]['band'] + '_' + str(nsim) + '.fits'
-            else:
-                filename = config.HOME + 'outputs/pcat_residuals/' + maps[i]['name'] + '_' + maps[i]['band'] + '_' + '.fits'
-            if os.path.isfile(filename):
-                os.remove(filename)
-            writefits(filename, data=maps[i]['srcrm'])
+        ''' Testing '''
+        filename = config.HOME + 'outputs/pcat_residuals/' + maps[i]['name'] + '_' + maps[i]['band'] + '_dI_x125' + '.fits'
+        writefits(filename, data=maps[i]['srcrm'])
+
+        # if saveplot:
+        #     if nsim != 0:
+        #         filename = config.HOME + 'outputs/pcat_residuals/' + maps[i]['name'] + '_' + maps[i]['band'] + '_' + str(nsim) + '.fits'
+        #     else:
+        #         filename = config.HOME + 'outputs/pcat_residuals/' + maps[i]['name'] + '_' + maps[i]['band'] + '_' + '.fits'
+        #     if os.path.isfile(filename):
+        #         os.remove(filename)
+        #     writefits(filename, data=maps[i]['srcrm'])
 
     return maps, err
 
-def run_pcat(maps,ret_maps):
-    # ob = lion(band0=0, band1=1, band2=2, map_object=maps, auto_resize=True, make_post_plots=False, openblas=True, cblas=False, nsamp=500, residual_samples=100, visual=False)
+# def run_pcat(maps,ret_maps):
+def run_pcat(maps):
     ob = lion(band0=0, band1=1, band2=2, map_object=maps, auto_resize=True, make_post_plots=False, openblas=True, cblas=False, nsamp=500, residual_samples=100, visual=False)
     resid_maps = ob.main()
-    ret_maps[0] = resid_maps
-    return
+    # ret_maps[0] = resid_maps
+    return resid_maps
 
 if __name__ == '__main__' :
     import sys

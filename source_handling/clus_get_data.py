@@ -150,12 +150,6 @@ def clus_get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
 ##################################################################################################
 
 def clus_read_file(file, clusname, verbose=0, sgen=None):
-    '''
-    Calfac has been added to config.py as a constant.
-    This is the first place it is created a used.
-    '''
-    # calfac = (pi/180.0) * (1/3600.0)**2 * (pi / (4.0 * log(2.0))) * (1e6) (keeping this incase we need it.)
-
 
     #set the band based off of what is in the filename
     if 'PSW' in file:
@@ -169,8 +163,8 @@ def clus_read_file(file, clusname, verbose=0, sgen=None):
     hdul = fits.open(file)
     img = hdul[1] #image object
     err = hdul[2] #error map
-    exp = hdul[3] #exposure map (don't think we need)
-    flag = hdul[4] #mask map.
+    exp = hdul[3] #exposure map
+    flag = hdul[4] #mask map
 
     #this adds noise into our map if it's a simulation. (I think we are currently doing this elsewhere.)
     if sgen is not None:
@@ -240,9 +234,9 @@ def clus_read_file(file, clusname, verbose=0, sgen=None):
     head = img.header
     herr = err.header
 
-    srcrm = np.zeros(head['NAXIS'])
-    xclean = np.zeros(head['NAXIS'])
-    mask = np.zeros(head['NAXIS'])
+    srcrm = np.zeros(img.shape)
+    xclean = np.zeros(img.shape)
+    mask = np.zeros(img.shape)
 
     #put everything into a dictionary.
     maps = {'name':clusname, #check

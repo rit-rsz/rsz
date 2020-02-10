@@ -24,24 +24,32 @@ import math
 from astropy.convolution import Gaussian2DKernel
 from astropy.convolution import convolve_fft as convolve
 
-def clus_format_bethermin(icol,sim_map,maps,band,clusname,pixsize,fwhm,\
-                          fluxcut=0,zzero=0,superplot=0,savemaps=0):
-
+def clus_format_bethermin(icol,sim_map,maps,map_size,band,clusname,pixsize,fwhm,\
+                          fluxcut=0,zzero=0,superplot=0,savemaps=0,genbethermin=0):
 
     # trimming num sources for lenstool limit
     msrc = 50000 - 1
-
-    # 3,4,5 are 250,350,500 truthtables
-    cat = sim_map[icol+3]
-    nsrc = len(cat['fluxdens']) # pulls len of truthtable
     refx = maps[0]['shead']['CRPIX1']
-    refy = maps[0]['shead']['CRPIX2']
+    refy = maps[0]['shead']['CRPIX2'] # needs to be based on PSW map since all coordinates are referenced by pixel to maps[0] size
 
-    # massage data into new arrays
-    xpos = sim_map[icol+3]['x']
-    ypos = sim_map[icol+3]['y']
-    zpos = sim_map[icol+3]['z']
-    outflux = sim_map[-1]['fluxdens'][:,icol]
+    if genbethermin :
+        # 3,4,5 are 250,350,500 truthtables
+        cat = sim_map[icol+3]
+        nsrc = len(cat['fluxdens']) # pulls len of truthtable
+
+        # massage data into new arrays
+        xpos = sim_map[icol+3]['x']
+        ypos = sim_map[icol+3]['y']
+        zpos = sim_map[icol+3]['z']
+        outflux = sim_map[-1]['fluxdens'][:,icol] # all three tables are the same, so just use the last one
+
+    else :
+        xpos = sim_map[icol].item().get('RA')
+        ypos = sim_map[icol].item().get('DEC')
+        outflux = sim_map[icol].item().get('Flux')
+        zpos = sim_map[icol].item().get('Redshift')
+        nsrc = len(zpos)
+
 
     if superplot :
         plt.scatter(xpos,ypos,s=2,c=outflux)
@@ -53,11 +61,6 @@ def clus_format_bethermin(icol,sim_map,maps,band,clusname,pixsize,fwhm,\
     outy = [pixsize * (y - refy) for y in ypos]
     outz = [float(np.ceil(10.0 * z)) / 10.0 for z in zpos]
 
-    plt.scatter(outx,outy,s=2,c=outflux)
-    plt.colorbar()
-    plt.title('Bethermin SIM (pre-format)')
-    plt.savefig('format_top_%s.png' %(band))
-    plt.clf()
     # lets do some fluxcuts
     if fluxcut > 0.0 :
         print('Cutting input catalog at flux %s' %(fluxcut))
@@ -110,41 +113,17 @@ def clus_format_bethermin(icol,sim_map,maps,band,clusname,pixsize,fwhm,\
     houtz = sorted(outz)
 
     if savemaps:
-        pixscale = [6.0, 8.33333, 12.0]
-        cmap = np.zeros((300,300),dtype=np.float32)
+        cmap = np.zeros((map_size,map_size),dtype=np.float32)
+        xf = np.floor(x)
+        yf = np.floor(y)
+        nx, ny = cmap.shape
+        np.place(xf, xf > nx-1, nx-1)
+        np.place(yf, yf > ny-1, ny-1)
+        for cx, cy, cf in zip(xf, yf, flux):
+            cmap[int(cy), int(cx)] += cf  # Note transpose
 
-        if band == 'PSW':
-            xf = np.floor(x)
-            yf = np.floor(y)
-            nx, ny = cmap.shape
-            np.place(xf, xf > nx-1, nx-1)
-            np.place(yf, yf > ny-1, ny-1)
-            for cx, cy, cf in zip(xf, yf, flux):
-                cmap[int(cy), int(cx)] += cf  # Note transpose
-
-        # Other bands, with pixel scale adjustment
-        else :
-            if band == 'PMW':
-                posrescale = pixscale[0] / pixscale[1]
-            if band == 'PLW':
-                posrescale = pixscale[0] / pixscale[2]
-
-            xf = np.floor(posrescale * x)
-            yf = np.floor(posrescale * y)
-            nx, ny = cmap.shape
-            np.place(xf, xf > nx-1, nx-1)
-            np.place(yf, yf > ny-1, ny-1)
-            for cx, cy, cf in zip(xf, yf, flux):
-                cmap[int(cy), int(cx)] += cf  # Note transpose
-            del posrescale
-
-        beam = get_gauss_beam(fwhm,pixsize,band)
+        beam = get_gauss_beam(fwhm,pixsize,band,oversamp=5)
         sim_map = convolve(cmap, beam, boundary='wrap')
-
-        # plt.imshow(sim_map,extent=(0,300,0,300),clim=[0.0,0.15],origin=0)
-        # plt.colorbar()
-        # plt.title('clus_format_bethermin: Non-lensed map')
-        # plt.show()
 
         hdx = fits.PrimaryHDU(maps[icol]['signal'],maps[icol]['shead'])
         sz = fits.PrimaryHDU(sim_map,hdx.header)
@@ -153,26 +132,30 @@ def clus_format_bethermin(icol,sim_map,maps,band,clusname,pixsize,fwhm,\
     # magnitude instead of flux in Jy
     outmag = [-2.5 * np.log10(x) for x in houtflux]
 
-    if superplot:
-        plt.scatter(houtx,houty,s=2,c=houtflux)
+    if superplot and sim_map != None:
+        plt.imshow(sim_map,extent=(0,300,0,300),clim=[0.0,0.15],origin=0)
         plt.colorbar()
-        plt.title('end of format bethermin')
+        plt.title('clus_format_bethermin: Non-lensed map')
         plt.show()
+    # else :
+    #     plt.scatter(houtx,houty,s=2,c=houtflux)
+    #     plt.colorbar()
+    #     plt.title('end of format bethermin')
+    #     plt.show()
 
     # write everything to file for lenstool to ingest
-    lensfile = (config.HOME + 'model/' + clusname + '/' + clusname + '_cat.cat')
-    new_k = []
-    with open(lensfile,'w') as f :
-        f.write('#REFERENCE 3 %.6f %.6f \n' %(maps[icol]['shead']['CRVAL1'], maps[icol]['shead']['CRVAL2']))
-        for k in range(len(outmag)):
-            new_k.append(k)
-            f.write('%i %.3f %.3f 0.5 0.5 0.0 %0.6f %0.6f \n' \
-                    %(k,houtx[k],houty[k],houtz[k],outmag[k]))
-        f.close()
+    # lensfile = (config.HOME + 'model/' + clusname + '/' + clusname + '_cat.cat')
+    # with open(lensfile,'w') as f :
+    #     f.write('#REFERENCE 3 %.6f %.6f \n' %(maps[icol]['shead']['CRVAL1'], maps[icol]['shead']['CRVAL2']))
+    #     for k in range(len(outmag)):
+    #         f.write('%i %.3f %.3f 0.5 0.5 0.0 %0.6f %0.6f \n' \
+    #                 %(k,houtx[k],houty[k],houtz[k],outmag[k]))
+    #     f.close()
 
-    np.save('k_%s.npy' %(band),new_k)
+    truthtable = {'x': houtx, 'y': houty,
+                  'z': houtz, 'log10M': outmag}
 
-    return retcat
+    return retcat, truthtable
 
 def get_gauss_beam(fwhm, pixscale, band, nfwhm=5.0, oversamp=1):
     retext = round(fwhm * nfwhm / pixscale)

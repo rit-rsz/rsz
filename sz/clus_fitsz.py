@@ -69,12 +69,12 @@ def clus_fitsz(radave, params, beam=None, maxlim=3600, minlim=0, noweight=1, sup
                 plt.show()
             elif saveplot:
                 if nsim != 0:
-                    filename = config.HOME + 'outputs/IB_fits/ra_v_r_' + params['clusname'] + '_' + radave[i]['band'] + '_' + str(nsim) + '.pdf'
+                    filename = config.HOME + 'outputs/IB_fits/ra_v_r_' + params['clusname'] + '_' + radave[i]['band'] + '_' + str(nsim) + '.png'
                 else:
-                    filename = config.HOME + 'outputs/IB_fits/ra_v_r_' + params['clusname'] + '_' + radave[i]['band'] + '_' + '.pdf'
+                    filename = config.HOME + 'outputs/IB_fits/ra_v_r_' + params['clusname'] + '_' + radave[i]['band'] + '_' + '.png'
                 if os.path.isfile(filename):
                     os.remove(filename)
-                plt.savefig(filename, format='pdf')
+                plt.savefig(filename, format='png')
                 plt.clf()
 
         # ignore values above radius of 600
@@ -94,36 +94,40 @@ def clus_fitsz(radave, params, beam=None, maxlim=3600, minlim=0, noweight=1, sup
                 roft[k] = 0
 
         #create a linear fit for r(t) vs fluxbin
+        np.place(roft, roft<0.1, 0.0)
+        roft = [x for x in roft if x != 0]
+        radave[i]['fluxbin'] = [y for y in radave[i]['fluxbin'] if y != 0][:len(roft)]
         z, cov = curve_fit(fitting_func, roft, radave[i]['fluxbin'])
         intercept = z[1]
         slope = z[0]
         fit[i] = z
-        line = slope * roft + intercept
+        line = [(slope*x) + intercept for x in roft]
 
         if superplot or saveplot:
-            plt.plot(roft, radave[i]['fluxbin'],label='Data')
+            plt.scatter(roft, radave[i]['fluxbin'],label='Data')
             plt.plot(roft, line,label='Best Linear Fit')
             plt.xlabel(r'R($\theta$)')
             plt.ylabel('Radial Average (MJy/sr)')
+            plt.ylim((-0.1,0.1))
             plt.legend()
 
-            ax[1].set_xlabel(r"R($\theta^\prime$)")
-            ax[1].set_ylabel('Radial Average (MJy/sr)')
-            ax[1].plot(xrad, roftprimep,label='Data')
-            ax[1].plot(xrad, p(roftprimep),label='Best Linear Fit')
-            ax[1].legend()
+            # ax[1].set_xlabel(r"R($\theta^\prime$)")
+            # ax[1].set_ylabel('Radial Average (MJy/sr)')
+            # ax[1].plot(xrad, roftprimep,label='Data')
+            # ax[1].plot(xrad, p(roftprimep),label='Best Linear Fit')
+            # ax[1].legend()
 
             plt.title(params['clusname'] + '  ' + radave[i]['band'] + '  Slope: %.4f  Intercept: %.4f' %(slope,intercept))
             if superplot:
                 plt.show()
             if saveplot:
                 if nsim != 0:
-                    filename = config.HOME + 'outputs/IB_fits/dI_fit_' + params['clusname'] + '_' + radave[i]['band'] + '_' + str(nsim) + '.pdf'
+                    filename = config.HOME + 'outputs/IB_fits/dI_fit_' + params['clusname'] + '_' + radave[i]['band'] + '_' + str(nsim) + '.png'
                 else:
-                    filename = config.HOME + 'outputs/IB_fits/dI_fit_' + params['clusname'] + '_' + radave[i]['band'] + '_' + '.pdf'
+                    filename = config.HOME + 'outputs/IB_fits/dI_fit_' + params['clusname'] + '_' + radave[i]['band'] + '_' + '.png'
                 if os.path.isfile(filename):
                     os.remove(filename)
-                plt.savefig(filename, format='pdf')
+                plt.savefig(filename, format='png')
                 plt.clf()
 
     return fit

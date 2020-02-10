@@ -15,7 +15,7 @@
 import numpy as np
 import scipy.io
 import sys
-sys.path.append('utilities/')
+sys.path.append('../utilities/')
 import config
 import matplotlib.pyplot as plt
 import json

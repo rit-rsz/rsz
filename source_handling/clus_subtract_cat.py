@@ -105,17 +105,19 @@ def clus_subtract_cat(maps, dI, verbose=1, nsim=0, saveplot=0, superplot=0):
         maps[i]['srcrm'] = datasub[0:maps[i]['signal'].shape[0],0:maps[i]['signal'].shape[1]]
 
         ''' Testing '''
-        filename = config.HOME + 'outputs/pcat_residuals/' + maps[i]['name'] + '_' + maps[i]['band'] + '_dI_x125' + '.fits'
-        writefits(filename, data=maps[i]['srcrm'])
+        filename = config.HOME + 'outputs/pcat_residuals/' + maps[i]['name'] + '_' + maps[i]['band'] + 'test' + '.fits'
+        hda = fits.PrimaryHDU(maps[i]['srcrm'],maps[i]['shead'])
+        hda.writeto(filename,overwrite=True)
 
         # if saveplot:
         #     if nsim != 0:
         #         filename = config.HOME + 'outputs/pcat_residuals/' + maps[i]['name'] + '_' + maps[i]['band'] + '_' + str(nsim) + '.fits'
         #     else:
         #         filename = config.HOME + 'outputs/pcat_residuals/' + maps[i]['name'] + '_' + maps[i]['band'] + '_' + '.fits'
-        #     if os.path.isfile(filename):
-        #         os.remove(filename)
-        #     writefits(filename, data=maps[i]['srcrm'])
+        #
+        #     hda = fits.PrimaryHDU(maps[i]['srcrm'],maps[i]['shead'])
+        #     hda.writeto(filename,overwrite=True)
+
 
     return maps, err
 

@@ -20,6 +20,7 @@ SIM = '/home/butler/rsz/new_bethermin/'
 FITSOUT = '/home/butler/rsz/fits_files/'
 CLUSSIMS = '/data/butler/SPIRE/bethermin_sims/'
 CLUSNSIMS = '/data/butler/SPIRE/new_bethermin_sims/'
+CLUSSIDES = '/data/butler/SPIRE/sides_sims/'
 SIMBOX = '/home/butler/rsz/new_bethermin/lens_model/'
 
 calfac  = (pi/180.0)**2 * (1/3600.0)**2 * (pi / (4.0 * log(2.0))) * (1e6)

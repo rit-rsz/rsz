@@ -104,12 +104,17 @@ def clus_get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
 
     elif sgen is not None:
         #this is for looking for simulation data.
+        '''
+        sgen =  1: old bethermin (bad)
+                2: old bethermin (good)
+                3: SIDES or Conley
+        '''
         simfiles = []
         simdir = config.CLUSSIMS + clusname + '/'
         simcount = 0
         for x in os.listdir(simdir):
             if x.startswith(clusname):
-                if str(nsim) in x and 'fits' in x and 'BOLOCAM' not in x:
+                if ('0'+str(sgen)+'00') in x and 'fits' in x and 'BOLOCAM' not in x:
                     simfiles.append(simdir + x)
                     simcount += 1
         files = simfiles
@@ -119,8 +124,6 @@ def clus_get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
         nfiles = nfiles +1
 
     maps = []
-
-
 
     for i in range(nfiles):
         if i < 3:
@@ -167,10 +170,12 @@ def clus_read_file(file, clusname, verbose=0, sgen=None):
     flag = hdul[4] #mask map
 
     #this adds noise into our map if it's a simulation. (I think we are currently doing this elsewhere.)
-    if sgen is not None:
+    if sgen == 1 or sgen == 2: # if using the old pipeline bethermin sims
         mapsize = img.data.shape
         noisemap = 1.0 * err.data * np.random.standard_normal((mapsize[0], mapsize[1]))
         img.data = img.data + noisemap
+        img.data = img.data - np.nanmean(img.data)
+    if sgen == 3:
         img.data = img.data - np.nanmean(img.data)
 
     if 'CDELT1' in img.header.keys():

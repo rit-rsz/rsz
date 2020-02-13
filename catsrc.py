@@ -167,7 +167,7 @@ class Catsrc():
 
         maps, err = clus_subtract_cat(self.maps, self.dI, verbose=self.verbose, saveplot=self.saveplot, nsim=self.nsim, superplot=self.superplot)
         err = None
-
+        exit()
         if err:
             if self.verbose:
                 print('clus_subtract_cat exited with error: ' + err)

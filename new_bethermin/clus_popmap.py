@@ -74,6 +74,8 @@ def clus_popmap(ltfile,maps,map_size,band,name,pixsize,fwhm,loz=None,superplot=0
     coords = SkyCoord(ra=ra*u.deg,dec=dec*u.deg)
     x,y = skycoord_to_pixel(coords, wcs)
 
+    truthtable = {'x': x, 'y': y,'flux': flux}
+
     if superplot:
         plt.scatter(x,y,s=2,c=flux)
         plt.colorbar()
@@ -117,7 +119,7 @@ def clus_popmap(ltfile,maps,map_size,band,name,pixsize,fwhm,loz=None,superplot=0
             os.remove(config.SIMBOX + 'lensedmap_' + name + '_' + band + '.fits')
         sz.writeto(config.SIMBOX + 'lensedmap_' + name + '_' + band + '.fits')
 
-    return sim_map
+    return sim_map, truthtable
 
 def get_gauss_beam(fwhm, pixscale, band, nfwhm=5.0, oversamp=1):
     retext = round(fwhm * nfwhm / pixscale)

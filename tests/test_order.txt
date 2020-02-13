@@ -1,1 +1,1 @@
-PLW | /data/butler/SPIRE/bethermin_sims/rxj1347/rxj1347_PLW_sim0100.fits | 12.00000029058 | files after sorting
+PLW | /data/butler/SPIRE/bethermin_sims/rxj1347/rxj1347_PLW_sim0300.fits | 12.00000029058 | files after sorting

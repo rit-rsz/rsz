@@ -69,9 +69,9 @@ def clus_fitsz(radave, params, beam=None, maxlim=3600, minlim=0, noweight=1, sup
                 plt.show()
             elif saveplot:
                 if nsim != 0:
-                    filename = config.HOME + 'outputs/IB_fits/ra_v_r_' + params['clusname'] + '_' + radave[i]['band'] + '_' + str(nsim) + '.png'
+                    filename = config.HOME + 'outputs/radial_averages/ra_v_r_' + params['clusname'] + '_' + radave[i]['band'] + '_' + str(nsim) + '.png'
                 else:
-                    filename = config.HOME + 'outputs/IB_fits/ra_v_r_' + params['clusname'] + '_' + radave[i]['band'] + '_' + '.png'
+                    filename = config.HOME + 'outputs/radial_averages/ra_v_r_' + params['clusname'] + '_' + radave[i]['band'] + '_' + '.png'
                 if os.path.isfile(filename):
                     os.remove(filename)
                 plt.savefig(filename, format='png')

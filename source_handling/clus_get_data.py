@@ -25,7 +25,7 @@ from get_spire_beam_fwhm import *
 import config
 import matplotlib.pyplot as plt
 
-def clus_get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
+def clus_get_data(clusname, isim,manpath=0, resolution = 'nr', bolocam=None,
             verbose = 1, version = '1', manidentifier=None, sgen=None, nsim=0, testflag=0):
 
     errmsg = False
@@ -114,7 +114,7 @@ def clus_get_data(clusname, manpath=0, resolution = 'nr', bolocam=None,
         simcount = 0
         for x in os.listdir(simdir):
             if x.startswith(clusname):
-                if ('0'+str(sgen)+'00') in x and 'fits' in x and 'BOLOCAM' not in x:
+                if ('0'+str(sgen)+'%.2'%(isim)) in x and 'fits' in x and 'BOLOCAM' not in x:
                     simfiles.append(simdir + x)
                     simcount += 1
         files = simfiles

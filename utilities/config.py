@@ -12,16 +12,16 @@
 ################################################################################
 from math import *
 
-CLUSDATA = '/data/butler/SPIRE/'
-CLUSSBOX = '/data/butler/SPIRE/sandbox/'
-CLUSHOME = '/home/butler/bitten/SPIRE/'
-HOME = '/home/butler/rsz/'
-SIM = '/home/butler/rsz/new_bethermin/'
+CLUSDATA = '/home/vlb9398/data/SPIRE'
+# CLUSSBOX = '/data/butler/SPIRE/sandbox/'
+CLUSHOME = '/home/vlb9398/bitten/SPIRE/'
+HOME = '/home/vlb9398/rsz/'
+SIM = '/home/vlb9398/rsz/new_bethermin/'
 FITSOUT = '/home/butler/rsz/fits_files/'
-CLUSSIMS = '/data/butler/SPIRE/bethermin_sims/'
-CLUSNSIMS = '/data/butler/SPIRE/new_bethermin_sims/'
-CLUSSIDES = '/data/butler/SPIRE/sides_sims/'
-SIMBOX = '/home/butler/rsz/new_bethermin/lens_model/'
+CLUSSIMS = '/home/vlb9398/bethermin_sims/'
+# CLUSNSIMS = '/data/butler/SPIRE/new_bethermin_sims/'
+# CLUSSIDES = '/data/butler/SPIRE/sides_sims/'
+# SIMBOX = '/home/butler/rsz/new_bethermin/lens_model/'
 
 calfac  = (pi/180.0)**2 * (1/3600.0)**2 * (pi / (4.0 * log(2.0))) * (1e6)
 JY2MJy = 1e6 # Janskys to Mega Janskys

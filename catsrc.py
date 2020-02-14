@@ -41,7 +41,7 @@ import config
 
 class Catsrc():
 
-    def __init__(self, clusname, saveplot=1, maketf=0, sgen=None, nsim=0, verbose=1, resolution='nr', superplot=1, testflag=0):
+    def __init__(self, clusname, isim=None, saveplot=1, maketf=0, sgen=None, nsim=0, verbose=1, resolution='nr', superplot=1, testflag=0):
         """
         initializing function for catsrc class
         Purpose: read in arguments to be passed to functions in catsrc.
@@ -76,6 +76,7 @@ class Catsrc():
         self.resolution = resolution
         self.testflag = testflag
         self.superplot = superplot
+        self.isim = isim
         self.dI = []
         self.fit = []
         self.data_retrieval()
@@ -106,7 +107,8 @@ class Catsrc():
             print('Welcome to SZ fitter v 1.0 Python Version')
             print('Fetching cluster parameters')
         #fetch parameters for our cluster from a master csv file.
-        params, err = clus_get_clusparams(self.clusname,verbose=self.verbose)
+        params, err = clus_get_clusparams(self.clusname,self.isim,verbose=self.verbose)
+        exit()
         if err:
             if self.verbose:
                 print('clus_get_clusparams exited with error: ' + err)
@@ -116,7 +118,7 @@ class Catsrc():
             print('Fetching SPIRE maps')
 
         # fetch data from fits files and put them into a maps object.
-        maps, err = clus_get_data(self.clusname,verbose=self.verbose,sgen=self.sgen,nsim=self.nsim, testflag=self.testflag)
+        maps, err = clus_get_data(self.clusname,self.isim,verbose=self.verbose,sgen=self.sgen,nsim=self.nsim, testflag=self.testflag)
 
         if err:
             if self.verbose:

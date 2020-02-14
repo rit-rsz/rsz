@@ -29,11 +29,10 @@ sim = [nsim + i for i in range(length)]
 # names = 'a0370'
 names = 'rxj1347'
 
-for i in range(1):
-    # c(names, saveplot=1,maketf=0,sgen=None,verbose=1,resolution='nr',superplot=0,testflag=1)
-    # for j in range(100):
-        #c(names, saveplot=1,maketf=0,sgen=2,nsim=sim[j],verbose=1,resolution='nr',superplot=0,testflag=0)
-    c(names, saveplot=1,maketf=0,sgen=3,nsim=99,verbose=1,resolution='nr',superplot=0,testflag=1)
+if sys.argv[1] == 'real' : # run the real maps
+    c(names, isim = None, saveplot=1,maketf=0,sgen=None,verbose=1,resolution='nr',superplot=0,testflag=1)
+else : # run the simulated maps
+    c(names, isim = sys.argv[1] ,saveplot=1,maketf=0,sgen=3,nsim=99,verbose=1,resolution='nr',superplot=0,testflag=1)
 
 #yt_grid and sz_grid should be indexed the same
 if os.path.isfile(config.HOME + 'outputs/%s_sz_grid.npy' %(names)):

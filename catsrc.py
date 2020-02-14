@@ -38,6 +38,7 @@ from clus_compute_rings import *
 from clus_fitsz import *
 from save_fitsz import *
 import config
+import argparse
 
 class Catsrc():
 
@@ -281,5 +282,13 @@ class Catsrc():
         self.fit = fit
 
 if __name__ == '__main__':
-    # catsrc = Catsrc('a0370', verbose=1, sgen=2,nsim=200, superplot=0, testflag=1)
-    catsrc = Catsrc('rxj1347', saveplot=1,maketf=0,sgen=None,verbose=1,resolution='nr',superplot=0,testflag=0)
+    #clusname, saveplot=1, maketf=0, sgen=None, nsim=0, verbose=1, resolution='nr', superplot=1, testflag=0
+	parser = argparse.ArgumentParser()
+	parser.add_argument("-run", help="runs catsrc on a single simulation of a clusetr", nargs=4, metavar='clusname', 'sgen', 'nsim', 'resolution')
+    args = parser.parse_args()
+    if args.run:
+        clusname = args.run[0]
+        sgen = args.run[1]
+        nsim = args.run[2]
+        resolution = args.run[3]
+        catsrc = Catsrc(clusname, sgen=sgen, nsim=nsim, resolution=resolution)

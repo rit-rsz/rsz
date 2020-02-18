@@ -140,8 +140,8 @@ def clus_add_sziso(maps,yin,tin,params,
 
             # Combine the spectral shape of the SZ effect, and combine with the peak intensity
             # converted to Jy/beam  ***Confirm these Units***
-            szin = [x * dI / maps[imap]['calfac'] for x in szmap]
-            final_dI.append(dI / maps[imap]['calfac'])
+            szin = [x * dI*25.0 / maps[imap]['calfac'] for x in szmap]
+            final_dI.append(dI*25.0 / maps[imap]['calfac'])
             szin = np.reshape(szin,(naxis[0],naxis[1]))
 
             # Have to interpolate to SPIRE map size
@@ -160,7 +160,7 @@ def clus_add_sziso(maps,yin,tin,params,
                 filename = config.HOME + 'outputs/sim_sz/' + maps[imap]['name'] + '_' + maps[imap]['band'] + '_' + str(nsim) + '.fits'
                 writefits(filename, data=szinp, header_dict=maps[imap]['shead'],overwrite=True)
 
-            filename = config.HOME + 'outputs/sim_sz/' + maps[imap]['name'] + '_' + maps[imap]['band'] + '_' + str(nsim) + '.png'
+            filename = config.HOME + 'outputs/sim_sz/' + maps[imap]['name'] + '_' + maps[imap]['band'] + '_' + str(nsim) + '_x25.png'
             plt.imshow(maps[imap]['signal'])
             plt.savefig(filename)
             plt.clf()

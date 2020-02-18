@@ -29,6 +29,7 @@ from save_fits import writefits
 import os, time
 import multiprocessing as mp
 from multiprocessing import Pool
+from clus_make_noise_mask import clus_make_noise_mask
 
 def clus_subtract_cat(maps, dI, verbose=1, nsim=0, saveplot=0, superplot=0):
     err = None
@@ -69,6 +70,21 @@ def clus_subtract_cat(maps, dI, verbose=1, nsim=0, saveplot=0, superplot=0):
     # map2 = np.load('/home/butler/rsz/pcat_resid1.npy',allow_pickle=True)
     # map3 = np.load('/home/butler/rsz/pcat_resid2.npy',allow_pickle=True)
     # resid_maps = [map1[0],map2[0],map3[0]]
+
+    #make a noise mask and populate error map with nans where mask is 1 so they don't effect the fit.
+    for i in range(len(maps)):
+        mask = clus_make_noise_mask(maps, i)
+        maps[i]['mask'] = maps[i]['mask'] + mask
+        for j in range(maps[i]['signal'].shape[0]):
+            for k in range(maps[i]['signal'].shape[1]):
+                if maps[i]['mask'][j,k] == 1:
+                    maps[i]['error'][j,k] = 0.0
+
+    plt.imshow(maps[i]['error'])
+    plt.colorbar()
+    plt.savefig('checking_pcat.png')
+    plt.clf()
+
     resid_maps = run_pcat(maps)
 
     # make sure both input maps exist
@@ -105,9 +121,12 @@ def clus_subtract_cat(maps, dI, verbose=1, nsim=0, saveplot=0, superplot=0):
         maps[i]['srcrm'] = datasub[0:maps[i]['signal'].shape[0],0:maps[i]['signal'].shape[1]]
 
         ''' Testing '''
-        filename = config.HOME + 'outputs/pcat_residuals/' + maps[i]['name'] + '_' + maps[i]['band'] + 'test' + '.fits'
+        filename = config.HOME + 'outputs/pcat_residuals/' + maps[i]['name'] + '_' + maps[i]['band'] + '_residx25' + '.fits'
         hda = fits.PrimaryHDU(maps[i]['srcrm'],maps[i]['shead'])
         hda.writeto(filename,overwrite=True)
+        plt.imshow(maps[i]['srcrm'])
+        plt.savefig('after_pcat_%s.png'%(maps[i]['band']))
+        plt.clf()
 
         # if saveplot:
         #     if nsim != 0:
@@ -123,7 +142,7 @@ def clus_subtract_cat(maps, dI, verbose=1, nsim=0, saveplot=0, superplot=0):
 
 # def run_pcat(maps,ret_maps):
 def run_pcat(maps):
-    ob = lion(band0=0, band1=1, band2=2, map_object=maps, auto_resize=True, make_post_plots=False, openblas=True, cblas=False, nsamp=500, residual_samples=100, visual=False)
+    ob = lion(band0=0, band1=1, band2=2, map_object=maps, auto_resize=True, make_post_plots=True, openblas=True, cblas=False, nsamp=10, residual_samples=1, visual=False)
     resid_maps = ob.main()
     # ret_maps[0] = resid_maps
     return resid_maps

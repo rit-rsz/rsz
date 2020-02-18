@@ -37,25 +37,8 @@ def clus_subtract_xcomps(maps, sgen=None, verbose=1, superplot=1, nsim=0, savepl
             print(err)
         return None, err
 
-    plt.imshow(maps[0]['srcrm'])
-    plt.colorbar()
-    plt.clim(-0.03,0.04)
-    plt.savefig('before_mask_%s.png' %(maps[0]['band']))
-    plt.clf()
-    plt.imshow(maps[1]['srcrm'])
-    plt.colorbar()
-    plt.clim(-0.03,0.04)
-    plt.savefig('before_mask_%s.png' %(maps[1]['band']))
-    plt.clf()
-    plt.imshow(maps[2]['srcrm'])
-    plt.colorbar()
-    plt.clim(-0.03,0.04)
-    plt.savefig('before_mask_%s.png' %(maps[2]['band']))
-    plt.clf()
-    #make a noise mask and populate source removed map with nans where mask is 1 so they don't effect the fit.
+    # Use the noise mask and populate source removed map with nans where mask is 1 so they don't effect the fit.
     for i in range(len(maps)):
-        mask = clus_make_noise_mask(maps, i)
-        maps[i]['mask'] = maps[i]['mask'] + mask
         for j in range(maps[i]['signal'].shape[0]):
             for k in range(maps[i]['signal'].shape[1]):
                 if maps[i]['mask'][j,k] == 1:

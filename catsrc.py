@@ -41,7 +41,7 @@ import config
 
 class Catsrc():
 
-    def __init__(self, clusname, saveplot=1, maketf=0, sgen=None, nsim=0, verbose=1, resolution='nr', superplot=1, testflag=0):
+    def __init__(self, clusname, saveplot=1, maketf=0, sgen=None, nsim=0, verbose=1, resolution='nr', superplot=1, testflag=0, lense_only = 0):
         """
         initializing function for catsrc class
         Purpose: read in arguments to be passed to functions in catsrc.
@@ -76,6 +76,7 @@ class Catsrc():
         self.resolution = resolution
         self.testflag = testflag
         self.superplot = superplot
+        self.lense_only = lense_only
         self.dI = []
         self.fit = []
         self.data_retrieval()
@@ -105,6 +106,7 @@ class Catsrc():
         if self.verbose:
             print('Welcome to SZ fitter v 1.0 Python Version')
             print('Fetching cluster parameters')
+
         #fetch parameters for our cluster from a master csv file.
         params, err = clus_get_clusparams(self.clusname,verbose=self.verbose)
         if err:
@@ -124,7 +126,7 @@ class Catsrc():
             exit()
 
         # Add the sz effect into the simmulated clusters
-        if self.sgen is not None:
+        if self.sgen is not None and not self.lense_only:
             maps, err, dI = clus_add_sziso(maps,yin=self.yin, tin=self.tin,params=params,verbose=self.verbose, testflag=self.testflag,nsim=self.nsim)
             self.dI = dI
         if err:
@@ -215,15 +217,6 @@ class Catsrc():
         if self.verbose:
             print('Saving processed images')
 
-        #this is likely depreciated with the adittion of the saveplot flag.
-        #it saves our maps object, but I don't think this is particularly useful.
-        # err = clus_save_data(maps,yin=self.yin, tin=self.tin, sgen=self.sgen, verbose=self.verbose)
-        # if err:
-        #     if self.verbose:
-        #         print('clus_save_data exited with error: ' + err)
-        #     exit()
-
-
         self.maps = maps
 
     def data_analysis(self):
@@ -236,9 +229,9 @@ class Catsrc():
         if self.verbose:
             print('Computing radial averages!')
 
-        radave = clus_compute_rings(self.maps,self.params,30.0,verbose=self.verbose, superplot=self.superplot, saveplot=self.saveplot, nsim=self.nsim, testflag=self.testflag)  #should superplot be a flag in catsrc?
-        #unclear at the moment why we need to have two different calls to compute_rings
-        # if self.sgen == None:  # don't see the difference between if sgen == 0 and if not sgen ??
+        radave = clus_compute_rings(self.maps,self.params,30.0,verbose=self.verbose, superplot=self.superplot, saveplot=self.saveplot, nsim=self.nsim, testflag=self.testflag, lense_only=self.lense_only)  #should superplot be a flag in catsrc?
+
+        # if self.sgen == None:
         #     tfave, err = clus_compute_rings(tf_maps, params, 30.0, verbose=self.verbose)
         #     if err:
         #         if self.verbose:
@@ -254,31 +247,33 @@ class Catsrc():
             maxlim = 300
         else:
             maxlim = 450
+            
+        # don't need to run fitsz if we don't have sz
+        if not self.lense_only :
+            fit = clus_fitsz(radave, self.params,self.beam, superplot=self.superplot, saveplot=self.saveplot, nsim=self.nsim)
+            fit = np.asarray(fit)
+            increment = fit[:,0]
+            offsets = fit[:,1]
 
-        fit = clus_fitsz(radave, self.params,self.beam, superplot=self.superplot, saveplot=self.saveplot, nsim=self.nsim)
-        fit = np.asarray(fit)
-        increment = fit[:,0]
-        offsets = fit[:,1]
+            #this is to do a specific case for ms0451, but I think we are cutting this cluster so I don't know if we need this.
+            # if self.sgen is None:
+            #     if self.clusname == 'ms0451':
+            #         maxlim = 300
+            #     else:
+            #         maxlim = 450
+            #
+            #         fit = clus_fitsz(radave, params, self.beam)
+            #         increment = fit[1,:]
+            #         offsets = fit[0,:]
 
-        #this is to do a specific case for ms0451, but I think we are cutting this cluster so I don't know if we need this.
-        # if self.sgen is None:
-        #     if self.clusname == 'ms0451':
-        #         maxlim = 300
-        #     else:
-        #         maxlim = 450
-        #
-        #         fit = clus_fitsz(radave, params, self.beam)
-        #         increment = fit[1,:]
-        #         offsets = fit[0,:]
-
-        err = save_fitsz(increment, offsets, radave, self.params, sgen=self.sgen, verbose=self.verbose, nsim=self.nsim)
-        if err:
-            if self.verbose:
-                print('clus_save_szfits exited with error: ' + err)
-            exit()
-        self.offsets = offsets
-        self.increment = increment
-        self.fit = fit
+            err = save_fitsz(increment, offsets, radave, self.params, sgen=self.sgen, verbose=self.verbose, nsim=self.nsim)
+            if err:
+                if self.verbose:
+                    print('clus_save_szfits exited with error: ' + err)
+                exit()
+            self.offsets = offsets
+            self.increment = increment
+            self.fit = fit
 
 if __name__ == '__main__':
     # catsrc = Catsrc('a0370', verbose=1, sgen=2,nsim=200, superplot=0, testflag=1)

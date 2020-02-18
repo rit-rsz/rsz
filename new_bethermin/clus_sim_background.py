@@ -153,7 +153,7 @@ def clus_sim_background(genbethermin=1,fluxcut=0,saveplots=1,savemaps=0,genpower
 
                 # populate the sim maps with sources from lenstool
                 outmap,table = clus_popmap(ltfile,maps[icol],map_size[icol],bands[icol],clusters[iclust],pixsize[icol],fwhm[icol],loz=retcat,superplot=superplot,savemaps=savemaps)
-                np.save(config.HOME + 'sides_cat_%s_%s.npy'%(bands[icol],isim),table,allow_pickle=True)
+                np.save(config.HOME + 'bethermin_cat_%s_%s.npy'%(bands[icol],isim),table,allow_pickle=True)
                 # modify the outmap to remove pixels that have been flagged
                 # if icol < 3 :
                 #     whpl = np.where(maps[icol]['flag'] > 0) # check that this is right

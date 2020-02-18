@@ -91,7 +91,6 @@ def clus_compute_rings(maps, params, binwidth, superplot=0, verbose=1, noconfusi
         # retrieve noise mask and set base noise level of map
         conv = pixsize / binwidth
         confnoise = confusionnoise[m]
-        mask = clus_make_noise_mask(maps, m)
         # ===============================================================
         # once filled, shows the radial bins from thisrad
         tempmap = np.zeros((int(mapsize[0]), int(mapsize[1])))
@@ -99,7 +98,6 @@ def clus_compute_rings(maps, params, binwidth, superplot=0, verbose=1, noconfusi
         # find the flux that falls closest a given radius (thisrad) for a given pixel (ipix,jpix)
         for ipix in range(0, mapsize[0]-1):
             for jpix in range(0, mapsize[1]-1):
-                maps[m]['mask'][ipix,jpix] = maps[m]['mask'][ipix,jpix] + mask[ipix,jpix]
                 thisrad = pixsize * sqrt((ipix - py)**2+(jpix - px)**2)
                 tempmap[ipix,jpix] = thisrad
 
@@ -120,11 +118,6 @@ def clus_compute_rings(maps, params, binwidth, superplot=0, verbose=1, noconfusi
                         fluxbin[rad] = fluxbin[rad] + (maps[m]['calfac'] * maps[m]['xclean'][ipix,jpix] / thiserr**2)
                         #summing up 1 / sigma^2
                         hitbin[rad] = hitbin[rad] + 1.0 / thiserr**2
-                        ''' for testing without real subtracted map
-                        thiserr = 1
-                        fluxbin[rad] = fluxbin[rad] + ( maps[m]['signal'][ipix, jpix] / thiserr**2)
-                        '''
-
 
         #this is code for testing our compute rings scrpit.
         # =========================================================================================
@@ -191,6 +184,10 @@ def clus_compute_rings(maps, params, binwidth, superplot=0, verbose=1, noconfusi
                 filename = config.HOME + 'outputs/rings' + maps[m]['name'] + '_' + maps[m]['band'] + '_' + '.pdf'
             plt.savefig(filename, format='pdf')
             plt.clf()
+
+    if lense_only :
+        np.save(config.HOME + '/lense_radave/' + maps[0]['name'] + '_' + str(nsim) + '.npy',radave)
+
     return radave
 
 

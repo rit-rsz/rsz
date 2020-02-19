@@ -12,6 +12,7 @@ nsims=1
 resolution='nr'
 sgen='4'
 
+mkdir -p output
 
 for nsim in $(seq 1 $lim_b); do
     job=$jobname-$name-$sgen$nsim-$resolution

@@ -25,7 +25,6 @@ def clus_get_clusparams(clusname_in,isim,
 #   Since cluster name is an easy search we choose to set it early
 #   Needs to be set like this because calling param_data[1] doesn't seem to work as intended
     param_name = param_data[';Cluster Name']
-
 #   Header information
     fielddesc = ['clusname: clus descriptor',\
                    'longname: official NED field name',\
@@ -52,8 +51,9 @@ def clus_get_clusparams(clusname_in,isim,
     count = 0
     for i in range(param_len):
         place = str(param_name[i])
-
-        if place == clusname_in :
+        print(place, type(place))
+        print(clusname_in, type(clusname_in))
+        if place == str(clusname_in):
             whpl = i
             count += 1
 #           Where place, This will indicate the position of the cluster in the sav file,
@@ -85,8 +85,6 @@ def clus_get_clusparams(clusname_in,isim,
     'yup':param_data['yup'][whpl] ,\
     'ydin':param_data['ydn'][whpl] ,\
     'cirrus':param_data['cirrus'][whpl]}
-
-
 
     return clusparams, errmsg
 

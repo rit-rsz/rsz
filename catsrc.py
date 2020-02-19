@@ -77,7 +77,7 @@ class Catsrc():
         self.resolution = resolution
         self.testflag = testflag
         self.superplot = superplot
-        self.isim = isim
+        self.isim = self.nsim
         self.dI = []
         self.fit = []
         self.data_retrieval()
@@ -109,8 +109,8 @@ class Catsrc():
             print('Fetching cluster parameters')
         #fetch parameters for our cluster from a master csv file.
         params, err = clus_get_clusparams(self.clusname,self.isim,verbose=self.verbose)
-        exit()
         if err:
+            print(err)
             if self.verbose:
                 print('clus_get_clusparams exited with error: ' + err)
             exit()
@@ -289,6 +289,7 @@ if __name__ == '__main__':
     parser.add_argument("-run", help="runs catsrc on a single simulation of a clusetr", nargs=4, metavar=('clusname', 'sgen', 'nsim', 'resolution'))
     args = parser.parse_args()
     if args.run:
+        print(args.run)
         clusname = args.run[0]
         sgen = args.run[1]
         nsim = args.run[2]

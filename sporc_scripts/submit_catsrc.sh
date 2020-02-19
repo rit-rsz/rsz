@@ -11,4 +11,4 @@
 cd ~/rsz
 echo 'starting on:' 
 echo $name $sgen-$nsim $resolution
-python3 catsrc.py $name $sgen $nsim $resolution
+python3 catsrc.py -run $name $sgen $nsim $resolution

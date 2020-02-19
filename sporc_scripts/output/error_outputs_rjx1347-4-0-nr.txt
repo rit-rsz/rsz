@@ -1,0 +1,24 @@
+Traceback (most recent call last):
+  File "catsrc.py", line 296, in <module>
+    catsrc = Catsrc(clusname, sgen=sgen, nsim=nsim, resolution=resolution)
+  File "catsrc.py", line 83, in __init__
+    self.data_retrieval()
+  File "catsrc.py", line 111, in data_retrieval
+    params, err = clus_get_clusparams(self.clusname,self.isim,verbose=self.verbose)
+  File "utilities/clus_get_clusparams.py", line 24, in clus_get_clusparams
+    param_data = read(config.CLUSDATA + 'lookup/cluster_master_list_150327_%s.csv'%(isim))
+  File "/.autofs/tools/spack/opt/spack/linux-rhel7-skylake_avx512/gcc-7.4.0/py-astropy-3.2.1-v2mcsedqts7q3vmk7iz64owluwugpczo/lib/python3.6/site-packages/astropy/io/ascii/ui.py", line 287, in read
+    dat = _guess(table, new_kwargs, format, fast_reader)
+  File "/.autofs/tools/spack/opt/spack/linux-rhel7-skylake_avx512/gcc-7.4.0/py-astropy-3.2.1-v2mcsedqts7q3vmk7iz64owluwugpczo/lib/python3.6/site-packages/astropy/io/ascii/ui.py", line 446, in _guess
+    dat = reader.read(table)
+  File "/.autofs/tools/spack/opt/spack/linux-rhel7-skylake_avx512/gcc-7.4.0/py-astropy-3.2.1-v2mcsedqts7q3vmk7iz64owluwugpczo/lib/python3.6/site-packages/astropy/io/ascii/core.py", line 1164, in read
+    self.lines = self.inputter.get_lines(table)
+  File "/.autofs/tools/spack/opt/spack/linux-rhel7-skylake_avx512/gcc-7.4.0/py-astropy-3.2.1-v2mcsedqts7q3vmk7iz64owluwugpczo/lib/python3.6/site-packages/astropy/io/ascii/core.py", line 305, in get_lines
+    encoding=self.encoding) as fileobj:
+  File "/.autofs/tools/spack/opt/spack/linux-rhel7-x86_64/gcc-7.4.0/python-3.6.8-r3ohs7zjve5ld3h76ta4hkosgqxywnco/lib/python3.6/contextlib.py", line 81, in __enter__
+    return next(self.gen)
+  File "/.autofs/tools/spack/opt/spack/linux-rhel7-skylake_avx512/gcc-7.4.0/py-astropy-3.2.1-v2mcsedqts7q3vmk7iz64owluwugpczo/lib/python3.6/site-packages/astropy/utils/data.py", line 193, in get_readable_fileobj
+    fileobj = io.FileIO(name_or_obj, 'r')
+FileNotFoundError: [Errno 2] No such file or directory: '/home/bjv7945/data/SPIRE/lookup/cluster_master_list_150327_None.csv'
+
+###

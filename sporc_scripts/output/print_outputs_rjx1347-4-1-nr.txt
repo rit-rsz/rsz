@@ -1,0 +1,4 @@
+starting on:
+rjx1347 4-1 nr
+Welcome to SZ fitter v 1.0 Python Version
+Fetching cluster parameters

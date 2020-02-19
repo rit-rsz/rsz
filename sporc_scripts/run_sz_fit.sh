@@ -13,8 +13,7 @@ resolution='nr'
 sgen='4'
 
 
-for n in $(seq 1 $lim_b); do
-    nsim=$(($n-1))
+for nsim in $(seq 1 $lim_b); do
     job=$jobname-$name-$sgen$nsim-$resolution
     outfile=output/print_outputs_$name-$sgen-$nsim-$resolution.txt
     efile=output/error_outputs_$name-$sgen-$nsim-$resolution.txt

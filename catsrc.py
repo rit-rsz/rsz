@@ -285,8 +285,8 @@ class Catsrc():
 
 if __name__ == '__main__':
     #clusname, saveplot=1, maketf=0, sgen=None, nsim=0, verbose=1, resolution='nr', superplot=1, testflag=0
-	parser = argparse.ArgumentParser()
-	parser.add_argument("-run", help="runs catsrc on a single simulation of a clusetr", nargs=4, metavar='clusname', 'sgen', 'nsim', 'resolution')
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-run", help="runs catsrc on a single simulation of a clusetr", nargs=4, metavar=('clusname', 'sgen', 'nsim', 'resolution'))
     args = parser.parse_args()
     if args.run:
         clusname = args.run[0]

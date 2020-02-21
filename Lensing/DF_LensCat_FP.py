@@ -223,21 +223,103 @@ def lenscat(map_size, c_z, pixsize=0.06, searchlensed=0.75, SLregime=[2,2,2],Def
     for i in range(NSources):
     # Some code here for timeing that we can skip
         '''
-	   ti = systime(/seconds)          ; don't worry about this, it's only to know when the lensing analysis started
-	   PRINT, 'Lensing source = ', ii+1, ' / ', NSources      ; don't worry about this, it just prints which source you are dealing with
-       '''
-    # begin dealing with foreground sources (we don't need to lens these) ---------------------
+   ti = systime(/seconds)          ; don't worry about this, it's only to know when the lensing analysis started
+   PRINT, 'Lensing source = ', ii+1, ' / ', NSources      ; don't worry about this, it just prints which source you are dealing with
+   '''
+# begin dealing with foreground sources (we don't need to lens these) ---------------------
 
-        if len_z > dfredz:
-            print('Source ',i+1,' is a foreground source')
-            mindX = xx[i]
-            mindY = yy[i]
-            mmu = 1.0
-        else:
-    # Finish dealing with foreground sources --------------------------------------------------
+	    if len_z > dfredz:
+	        print('Source ',i+1,' is a foreground source')
+	        mindX = xx[i]
+	        mindY = yy[i]
+	        mmu = 1.0
+	    else:
+	    # Finish dealing with foreground sources --------------------------------------------------
 
-    # Begin dealing with background sources (we do need to lens these)
-            # Estimate angular diameter distance to source (z = dfredz)
-            DS2 = cos_model.luminosity_distance(dfredz[i]) / (1.0+dfredz[i])**2
-            # Estimate distance between the lensing cluster and source
-            DLS2 = (DS2*(1.+dfredz[i]) - DL1*(1.+Lens_z)
+	    # Begin dealing with background sources (we do need to lens these)
+	        # Estimate angular diameter distance to source (z = dfredz)
+	        DS2 = cos_model.luminosity_distance(dfredz[i]) / (1.0+dfredz[i])**2
+	        # Estimate distance between the lensing cluster and source
+	        DLS2 = (DS2*(1.+dfredz[i]) - DL1*(1.+Lens_z)
+			#this is the factor to scale the deflection field to different source redshifts.
+			scaling_factor = (DLS2/DS2) / DLS1_DS1
+
+
+	# ; begin SL regime analysis
+				# print('time 1 = %s',                ;don't worry about this
+	# ;			IF SQRT(dfxx[ii]^2.+dfyy[ii]^2.) LE SLregime*60. THEN BEGIN    ;don't worry about this
+
+				#check if source is within strong lensing region, need to have a better understanding of what the 60 and 2 mean?
+				#2 is since we are looking at the center of the strong lensing regime and that gives us the distance to an edge
+				#60 is a conversion to arc minutes ?
+				if abs(dfxx[i]) < SLregime[0] * 60. / 2. and abs(dfyy[i]) < SLregime[1] * 60 / 2.:
+					print('Starting on SL regime')
+					#estimate source position in SL frame
+					source_x = (dfxx[i] + SLregime * 60 / 2.) / pixsize #we might need to add 1 here -Alfredo
+					source_y = (dfyy[i] + SLregime * 60 / 2.) / pixsize #we might need to add 1 here -Alfredo
+					#estimate the magnifications (from lensing eq.), adding sl_day_dx and sl_day_dy element by element
+					poission = np.add(sl_dax_dx, sl_day_dy) * scaling_factor
+					magnification = abs(1 / (1 - poission + (np.matmul(sl_dax_dx, sl_day_dy) - np.matmul(sl_day_dy,sl_dax_dx)) * scaling_factor))
+					#will need to double check that these matrix operations work on sl_day_dx and sl_dax_dx
+					#find the pixels where lensed image (or images) end up
+					source_dist = sqrt( (SLX-sl_alpha_x*scaling_factor - source_x)**2 + (SLY-sl_alpha_y * scaling_factor - source_y)**2)
+					indXY = np.where(source_dist < searchlensed) #this may have to change for a 2D array
+
+					#if a lensed source was found within searched lensed do this
+					if len(indXY) > 0:
+						#cannot find an ij function in IDL anywhere but this is supposed to find indices for i and j corresponding to image pixels
+						indXY = ij( indXY, sl_lengthx)
+
+						#here we check for multiplicity
+						#if more than 1 pixel satisfy the source_dst < searchlensed arg we might have multiplicty
+						if len(indXY) > 1:
+							#cut a square sub-map including all pixels with "source_dist < searchlensed" for easy computation
+							min_x = min(indXY[:,0])
+							min_y = min(indXY[:,1]) #not sure here i feel like this should be [0,:]
+							max_x = max(indXY[:,0])
+							max_y = max(indXY[:,1]) #ditto
+
+							temp_multi_x = max_x - min_x
+							temp_multi_y = max_y - min_y
+							if temp_multi_x - temp_multi_y >= 0:
+								multi_ll = temp_multi_x
+							else:
+								multi_ll = temp_multi_y
+
+							#there are a bunch of if cases to consider here
+							if min_x + multi_ll) < len(source_dist[:,0]):
+								if min_y + multi_ll < len(source_dist[0,:]):
+
+									regmap = source_dist[min_x:min_x + multi_ll, min_y:min_y+multi_ll]
+								else:
+									regmap = source_dist[min_x:min_x + multi_ll, min_y-1:len(source_dist[:,0])-1]
+							elif min_y + multi < len(source_dist[0,:]):
+								regmap = source_dist[min_x-1:len(source_dist[:,0]), min_y:min_y + multi_ll]
+							else:
+								regmap = source_dist[min_x-1:len(source_dist[:,0])-1, min_y-1:len(source_dist[0,:])-1]
+
+							#indXY2 -the second one (we should come up with a better name maybe)
+							indXY2 = np.where(regmap < searchlensed) #again, still unsure how this will pan out for 2D arrays
+
+							indXY2 = ij( indXY2, len(regmap[:,0])) #still can't find documenation for an ij function in idl
+							#don't understand what this is supposed to be doing aside from surface level finding i,j indices
+							#corresponding to image pixels
+							reg_centroids = np.zeros(2, len(indXY[:,0])) #create an empty array to put stuff in
+
+							for j in range(len(indXY2[:,0])):
+								#----------------- some idl code here
+								#region = SEARCH2D(regmap, indXY2[jj,0], inXY2[jj,1], 0, searchlensed, /DIAGONAL)
+								#regmap is the input map
+								#indXY2[j,0] is initial x position
+								#indXY2[j,1] is initial y position
+								#0 is the lower limit
+								#searchlensed is the upper limit
+								#link to documentation for SEARCH2D https://www.harrisgeospatial.com/docs/SEARCH2D.html
+
+								#initial an empty array structure to put stuff in!
+								regmask = np.zeros(len(regmap[:,0]), len(regmap[:,0]))
+								#give a value of 1 to all pixels in our region !
+								regmask[region] = 1.0
+
+								#find the center of mass with mask applied !
+								reg_centroids[:, j] =

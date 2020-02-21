@@ -37,7 +37,7 @@ from IB_model import *
 import matplotlib.pyplot as plt
 
 
-def clus_add_sziso(maps,yin,tin,params,
+def clus_add_sziso(maps,isim,yin,tin,params,
               verbose = 0, testflag=0, saveplot=0,nsim=0):
 
     errmsg = False
@@ -122,17 +122,18 @@ def clus_add_sziso(maps,yin,tin,params,
                 szmap,err = IB_model(maps[imap],params,verbose)
                 szmap = np.array(szmap)
                 plt.imshow(szmap)
-                plt.savefig('%s_ibmodel_%s.png' %(maps[imap]['name'],maps[imap]['band']))
+                plt.savefig(config.OUTPUT + 'add_sz/%s_ibmodel_%s_%s.png' %(maps[imap]['name'],maps[imap]['band'],isim))
                 naxis = szmap.shape
                 szmap = szmap.flatten()
 
             nu = 3e5 / clus_get_lambdas((maps[imap]['band']))
 
-            # if nsim == 100 :
-            dI,errmsg = clus_get_relsz(nu,imap,y=yin[-1],te=tin[-1],vpec=0.0) # dI = [MJy/sr]
-            np.save('sim_dI_%s.npy' %(maps[imap]['band']),dI)
-            # else :
-            #     dI = np.load('sim_dI_%s.npy' %(maps[imap]['band']))
+            if isim == 0 : # dI only needs to be calculated once...
+                dI,errmsg = clus_get_relsz(isim,nu,imap,y=yin[-1],te=tin[-1],vpec=0.0) # dI = [MJy/sr]
+                np.save(config.OUTPUT + 'add_sz/sim_dI_%s.npy' %(maps[imap]['band']),dI)
+            else :
+                dI = np.load(config.OUTPUT + 'add_sz/sim_dI_%s.npy' %(maps[imap]['band']))
+
             if errmsg:
                 if verbose:
                     new_errmsg = 'Clus_get_relSZ exited with error'+errmsg
@@ -157,13 +158,10 @@ def clus_add_sziso(maps,yin,tin,params,
 
             # Used to check the alligned sz effect image
             if saveplot:
-                filename = config.HOME + 'outputs/sim_sz/' + maps[imap]['name'] + '_' + maps[imap]['band'] + '_' + str(nsim) + '.fits'
-                writefits(filename, data=szinp, header_dict=maps[imap]['shead'],overwrite=True)
-
-            filename = config.HOME + 'outputs/sim_sz/' + maps[imap]['name'] + '_' + maps[imap]['band'] + '_' + str(nsim) + '.png'
-            plt.imshow(maps[imap]['signal'])
-            plt.savefig(filename)
-            plt.clf()
+                filename = config.HOME + 'outputs/sim_sz/' + maps[imap]['name'] + '_sze_' + maps[imap]['band'] + '_' + str(isim) + '.png'
+                plt.imshow(maps[imap]['signal'])
+                plt.savefig(filename)
+                plt.clf()
 
     return maps, None, final_dI
 

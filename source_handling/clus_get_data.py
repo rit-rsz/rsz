@@ -114,7 +114,7 @@ def clus_get_data(clusname, isim,manpath=0, resolution = 'nr', bolocam=None,
         simcount = 0
         for x in os.listdir(simdir):
             if x.startswith(clusname):
-                if ('0'+str(sgen)+'%.2'%(isim)) in x and 'fits' in x and 'BOLOCAM' not in x:
+                if ('0' + str(sgen)+ str(isim.zfill(2))) in x and 'fits' in x and 'BOLOCAM' not in x:
                     simfiles.append(simdir + x)
                     simcount += 1
         files = simfiles
@@ -138,14 +138,6 @@ def clus_get_data(clusname, isim,manpath=0, resolution = 'nr', bolocam=None,
     sort_order = {'PSW' : 0, 'PMW' : 1, 'PLW' : 2}
 
     maps.sort(key = lambda x : sort_order[x['band']])
-
-    #this is test code.
-    if testflag:
-        for i in range(len(maps)): #this is to test the file organization.
-            f = open('tests/test_order.txt', 'w')
-            string = maps[i]['band'] + ' | ' + maps[i]['file'] + ' | ' + str(maps[i]['pixsize']) + ' | ' + 'files after sorting'
-            f.write(string)
-            f.close()
 
     return maps, errmsg
 

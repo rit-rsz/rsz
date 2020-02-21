@@ -23,16 +23,14 @@ from scipy.stats import chisquare, chi2
 import config
 from scipy.ndimage.filters import gaussian_filter
 
-nsim = 200
-length = 100
-sim = [nsim + i for i in range(length)]
+nsim = 99
 # names = 'a0370'
 names = 'rxj1347'
 
 if sys.argv[1] == 'real' : # run the real maps
-    c(names, isim = None, saveplot=1,maketf=0,sgen=None,verbose=1,resolution='nr',superplot=0,testflag=1)
+    c(names, isim = None, saveplot=1,maketf=0,sgen=None,verbose=1,resolution='nr',superplot=0,testflag=0)
 else : # run the simulated maps
-    c(names, isim = sys.argv[1] ,saveplot=1,maketf=0,sgen=3,nsim=99,verbose=1,resolution='nr',superplot=0,testflag=1)
+    c(names, isim = sys.argv[1] ,saveplot=1,maketf=0,sgen=3,nsim=99,verbose=1,resolution='nr',superplot=0,testflag=0)
 
 #yt_grid and sz_grid should be indexed the same
 if os.path.isfile(config.HOME + 'outputs/%s_sz_grid.npy' %(names)):

@@ -51,8 +51,8 @@ def clus_get_clusparams(clusname_in,isim,
     count = 0
     for i in range(param_len):
         place = str(param_name[i])
-        print(place, type(place))
-        print(clusname_in, type(clusname_in))
+        # print(place, type(place))
+        # print(clusname_in, type(clusname_in))
         if place == str(clusname_in):
             whpl = i
             count += 1

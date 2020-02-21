@@ -12,13 +12,14 @@
 ################################################################################
 from math import *
 
-CLUSDATA = '/home/bjv7945/data/SPIRE/'
+CLUSDATA = '/home/vlb9398/data/SPIRE/'
 # CLUSSBOX = '/data/butler/SPIRE/sandbox/'
-CLUSHOME = '/home/bjv7945/bitten/SPIRE/'
-HOME = '/home/bjv7945/rsz/'
-SIM = '/home/bjv7945/rsz/new_bethermin/'
-FITSOUT = '/home/bjv7945/rsz/fits_files/'
-CLUSSIMS = '/home/bjv7945/bethermin_sims/'
+CLUSHOME = '/home/vlb9398/bitten/SPIRE/'
+HOME = '/home/vlb9398/rsz/'
+SIM = '/home/vlb9398/rsz/new_bethermin/'
+CLUSSIMS = '/home/vlb9398/bethermin_sims/'
+ROOT = '/home/vlb9398/'
+OUTPUT = '/home/vlb9398/rsz/outputs/'
 # CLUSNSIMS = '/data/butler/SPIRE/new_bethermin_sims/'
 # CLUSSIDES = '/data/butler/SPIRE/sides_sims/'
 # SIMBOX = '/home/butler/rsz/new_bethermin/lens_model/'

@@ -77,7 +77,7 @@ class Catsrc():
         self.resolution = resolution
         self.testflag = testflag
         self.superplot = superplot
-        self.isim = self.nsim
+        self.isim = isim
         self.dI = []
         self.fit = []
         self.data_retrieval()
@@ -125,10 +125,9 @@ class Catsrc():
             if self.verbose:
                 print('clus_get_data exited with error: ' + err)
             exit()
-
         # Add the sz effect into the simmulated clusters
         if self.sgen is not None:
-            maps, err, dI = clus_add_sziso(maps,yin=self.yin, tin=self.tin,params=params,verbose=self.verbose, testflag=self.testflag,nsim=self.nsim)
+            maps, err, dI = clus_add_sziso(maps,self.isim,yin=self.yin, tin=self.tin,params=params,verbose=self.verbose, testflag=self.testflag,nsim=self.nsim)
             self.dI = dI
         if err:
             if self.verbose:
@@ -170,7 +169,7 @@ class Catsrc():
 
         maps, err = clus_subtract_cat(self.maps, self.dI, verbose=self.verbose, saveplot=self.saveplot, nsim=self.nsim, superplot=self.superplot)
         err = None
-        exit()
+
         if err:
             if self.verbose:
                 print('clus_subtract_cat exited with error: ' + err)

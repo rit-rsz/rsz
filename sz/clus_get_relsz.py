@@ -29,7 +29,7 @@ from scipy import interpolate
 sys.path.append('../lookup')
 import matplotlib.pyplot as plt
 ##########################################################################################################
-def clus_get_relsz(nu,band,y=0,te=0,vpec=0.0, ngrid=100):
+def clus_get_relsz(isim,nu,band,y=0,te=0,vpec=0.0, ngrid=100):
 
         # constants
         # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -71,7 +71,7 @@ def clus_get_relsz(nu,band,y=0,te=0,vpec=0.0, ngrid=100):
         np.savetxt(config.HOME + 'lookup/szparams_%s.txt'%(band),sz_params,"%s",newline='\n')
 
         # run & parse 3 columns of stdout from run_SZpack into frequency and SZ signal arrays
-        out = check_output(['/usr/local/bin/run_SZpack','CNSN',config.HOME + 'lookup/szparams_%s.txt'%(band)])
+        out = check_output([config.ROOT + 'SZpack.v1.1.1/run_SZpack','CNSN',config.HOME + 'lookup/szparams_%s_%s.txt'%(isim,band)])
         output = out.decode("utf-8") #convert from bytes to unicode
         # print(output[:output.index('x=')-1]) # print header to screen
         output = output[output.index('x=')-1:] # remove header information before parsing

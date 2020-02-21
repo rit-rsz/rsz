@@ -19,7 +19,6 @@
 import numpy as np
 import sys
 import matplotlib.pyplot as plt
-# from clus_get_data import *
 from astropy.io import fits
 sys.path.append('/utilities')
 import config
@@ -27,10 +26,8 @@ sys.path.append(config.HOME + 'multiband_pcat/multiband_pcat')
 from pcat_spire import lion
 from save_fits import writefits
 import os, time
-import multiprocessing as mp
-from multiprocessing import Pool
 
-def clus_subtract_cat(maps, dI, verbose=1, nsim=0, saveplot=0, superplot=0):
+def clus_subtract_cat(maps, dI, nsim, sgen=None, verbose=1, saveplot=0, superplot=0):
     err = None
 
     resid_maps = run_pcat(maps)
@@ -43,7 +40,6 @@ def clus_subtract_cat(maps, dI, verbose=1, nsim=0, saveplot=0, superplot=0):
         datasub = resid_maps[i]
         # make full data map object
         datafull = maps[i]['signal']
-
 
         if superplot:
             # plotting for debugging purposes
@@ -60,18 +56,20 @@ def clus_subtract_cat(maps, dI, verbose=1, nsim=0, saveplot=0, superplot=0):
             plt.title('clus_subtract_cat: Catalog subtracted map for %s' %(maps[i]['band']))
             plt.show()
 
-            # save new subtracted signal to map
-            # reshape pcat square map to original SPIRE size
+        # save new subtracted signal to map
+        # reshape pcat square map to original SPIRE size
         maps[i]['srcrm'] = datasub[0:maps[i]['signal'].shape[0],0:maps[i]['signal'].shape[1]]
 
         if saveplot:
-            if nsim != 0:
-                filename = config.HOME + 'outputs/pcat_residuals/' + maps[i]['name'] + '_' + maps[i]['band'] + '_' + str(nsim) + '.fits'
+            if sgen != None:
+                filename = config.OUTPUT + 'pcat_residuals/' + maps[i]['name'] + '_resid_' + maps[i]['band'] + '_' + str(nsim) + '.png'
             else:
-                filename = config.HOME + 'outputs/pcat_residuals/' + maps[i]['name'] + '_' + maps[i]['band'] + '_' + 'real.fits'
+                filename = config.OUTPUT + 'pcat_residuals/' + maps[i]['name'] + '_resid_' + maps[i]['band'] + '_' + 'real.png'
 
-            hda = fits.PrimaryHDU(maps[i]['srcrm'],maps[i]['shead'])
-            hda.writeto(filename,overwrite=True)
+            plt.imshow(maps[i]['srcrm'])
+            plt.colorbar()
+            plt.savefig(filename)
+            plt.clf()
 
 
     return maps, err
@@ -80,14 +78,3 @@ def run_pcat(maps):
     ob = lion(band0=0, band1=1, band2=2, map_object=maps, auto_resize=True, make_post_plots=True, openblas=False, cblas=False, nsamp=1, residual_samples=1, visual=False)
     resid_maps = ob.main()
     return resid_maps
-
-if __name__ == '__main__' :
-    import sys
-    sys.path.append('../utilities')
-    sys.path.append('../source_handling')
-    from clus_get_data import clus_get_data
-    maps, err = clus_get_data(clusname='a0370')
-    resid_maps = fits.open('../new_bethermin/lens_model/nonlensedmap_a0370_PSW2.fits')[0].data
-    resid_maps = resid_maps[0:263, 0:243]
-    maps[0]['signal'] = resid_maps
-    clus_subtract_cat(maps)

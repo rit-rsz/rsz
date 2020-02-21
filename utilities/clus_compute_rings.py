@@ -26,7 +26,7 @@ from astropy.wcs.utils import skycoord_to_pixel
 import config
 import matplotlib.pyplot as plt
 
-def clus_compute_rings(maps, params, binwidth, superplot=0, verbose=1, noconfusion=None, saveplot=1, nsim=0, testflag=None):
+def clus_compute_rings(maps, params, binwidth, sgen = None, superplot=0, verbose=1, noconfusion=None, saveplot=1, nsim=0, testflag=None):
     # init params
     bands = ['PSW', 'PMW', 'PLW']
     ncols = len(maps)
@@ -125,17 +125,6 @@ def clus_compute_rings(maps, params, binwidth, superplot=0, verbose=1, noconfusi
                         fluxbin[rad] = fluxbin[rad] + ( maps[m]['signal'][ipix, jpix] / thiserr**2)
                         '''
 
-
-        #this is code for testing our compute rings scrpit.
-        # =========================================================================================
-        # file = config.FITSOUT + 'radmap_' + bands[m] + '_' + maps[m]['name'] + '.fits'
-        # if os.path.isfile(file):
-        #     os.remove(file)
-        # x = load_header(str(maps[m]['shead']))
-        # hdu = fits.PrimaryHDU(tempmap,x)
-        # hdu.writeto(file)
-        # ===========================================================================================
-
         #finding averages and changing some value to nan if error points to that.
         for i in range(nbins):
             if midwei[i] > 1.0 :
@@ -164,37 +153,29 @@ def clus_compute_rings(maps, params, binwidth, superplot=0, verbose=1, noconfusi
             if superplot:
                 plt.show()
             if saveplot:
-                if nsim != 0:
-                    filename = config.HOME + 'outputs/radial_averages/' + maps[m]['name'] + '_' + maps[m]['band'] + '_' + str(nsim) + '.pdf'
+                if sgen != None:
+                    filename = config.OUTPUT + 'radial_averages/' + maps[m]['name'] + '_radav_' + maps[m]['band'] + '_' + str(nsim) + '.png'
                 else:
-                    filename = config.HOME + 'outputs/radial_averages/' + maps[m]['name'] + '_' + maps[m]['band'] + '_' + '.pdf'
-                if os.path.isfile(filename):
-                    os.remove(filename)
-                plt.savefig(filename, format='pdf')
+                    filename = config.OUTPUT + 'radial_averages/' + maps[m]['name'] + '_radav_' + maps[m]['band'] + 'real.png'
+
+                plt.savefig(filename)
                 plt.clf()
 
-            # if testflag:
-            fig = plt.figure()
             new_midbin = [(x/pixsize) + px for x in midbinp]
 
             for k in range(nbins):
                 circle = plt.Circle((px,py),new_midbin[k]-px,fill=False)
                 plt.gca().add_artist(circle)
             plt.imshow(maps[m]['signal'], alpha=0.9)
-            plt.colorbar()
             plt.scatter(new_midbin,[py]*nbins,c='r')
-
             plt.title('Midbins for %s' %(maps[m]['band']))
-            if nsim != 0:
-                filename = config.HOME + 'outputs/rings' + maps[m]['name'] + '_' + maps[m]['band'] + '_' + str(nsim) + '.pdf'
+
+            if sgen != None:
+                filename = config.OUTPUT + 'rings/' + maps[m]['name'] + '_rings_' + maps[m]['band'] + '_' + str(nsim) + '.png'
             else:
-                filename = config.HOME + 'outputs/rings' + maps[m]['name'] + '_' + maps[m]['band'] + '_' + '.pdf'
-            plt.savefig(filename, format='pdf')
+                filename = config.OUTPUT + 'rings/' + maps[m]['name'] + '_rings_' + maps[m]['band'] + '_' + '.png'
+
+            plt.savefig(filename)
             plt.clf()
+
     return radave
-
-
-if __name__ == '__main__' :
-    maps,err = clus_get_data('a0370')
-    params,err = clus_get_clusparams('a0370')
-    clus_compute_rings(maps,params,30.0)

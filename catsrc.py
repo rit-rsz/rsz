@@ -37,12 +37,13 @@ from clus_subtract_xcomps import *
 from clus_compute_rings import *
 from clus_fitsz import *
 from save_fitsz import *
+from save_final_im import *
 import config
 import argparse
 
 class Catsrc():
 
-    def __init__(self, clusname, isim=None, saveplot=1, maketf=0, sgen=None, nsim=0, verbose=1, resolution='nr', superplot=1, testflag=0):
+    def __init__(self, clusname, isim=None, saveplot=1, maketf=0, sgen=None, verbose=1, resolution='nr', superplot=0, testflag=0):
         """
         initializing function for catsrc class
         Purpose: read in arguments to be passed to functions in catsrc.
@@ -73,20 +74,16 @@ class Catsrc():
         self.yin = config.yin
         self.tin = config.tin
         self.clusname = clusname
-        self.nsim = nsim
+        self.nsim = isim
         self.resolution = resolution
         self.testflag = testflag
         self.superplot = superplot
-        self.isim = isim
         self.dI = []
-        self.fit = []
         self.data_retrieval()
         self.source_removal()
         self.data_analysis()
-
-        # save final output to file
-        np.save(config.HOME + 'outputs/%s_fit.npy'%(clusname),self.fit)
-        np.save(config.HOME + 'outputs/%s_dI.npy'%(clusname),self.dI)
+        # compile all figures and
+        save_final_im(self.sgen,self.nsim,testflag=self.testflag)
 
     def data_retrieval(self):
         """
@@ -108,7 +105,7 @@ class Catsrc():
             print('Welcome to SZ fitter v 1.0 Python Version')
             print('Fetching cluster parameters')
         #fetch parameters for our cluster from a master csv file.
-        params, err = clus_get_clusparams(self.clusname,self.isim,verbose=self.verbose)
+        params, err = clus_get_clusparams(self.clusname,self.nsim,verbose=self.verbose)
         if err:
             print(err)
             if self.verbose:
@@ -119,7 +116,7 @@ class Catsrc():
             print('Fetching SPIRE maps')
 
         # fetch data from fits files and put them into a maps object.
-        maps, err = clus_get_data(self.clusname,self.isim,verbose=self.verbose,sgen=self.sgen,nsim=self.nsim, testflag=self.testflag)
+        maps, err = clus_get_data(self.clusname,self.nsim,verbose=self.verbose,sgen=self.sgen,nsim=self.nsim, testflag=self.testflag)
 
         if err:
             if self.verbose:
@@ -127,7 +124,7 @@ class Catsrc():
             exit()
         # Add the sz effect into the simmulated clusters
         if self.sgen is not None:
-            maps, err, dI = clus_add_sziso(maps,self.isim,yin=self.yin, tin=self.tin,params=params,verbose=self.verbose, testflag=self.testflag,nsim=self.nsim)
+            maps, err, dI = clus_add_sziso(maps,self.nsim,yin=self.yin, tin=self.tin,params=params,verbose=self.verbose, testflag=self.testflag,nsim=self.nsim)
             self.dI = dI
         if err:
             if self.verbose:
@@ -167,7 +164,7 @@ class Catsrc():
         if self.verbose:
             print('Regressing and subtracting catalogs')
 
-        maps, err = clus_subtract_cat(self.maps, self.dI, verbose=self.verbose, saveplot=self.saveplot, nsim=self.nsim, superplot=self.superplot)
+        maps, err = clus_subtract_cat(self.maps, self.dI, self.nsim, sgen=self.sgen, verbose=self.verbose, saveplot=self.saveplot, superplot=self.superplot)
         err = None
 
         if err:
@@ -190,20 +187,6 @@ class Catsrc():
         #     if self.verbose:
         #         print('clus_residual_mask exited with error: ' + err)
         #         exit()
-
-        # ''' TEMPORARY ###############################################################################################'''
-        # from astropy.io import fits
-        # file1 = config.HOME + 'outputs/pcat_residuals/' + self.maps[0]['name'] + '_' + self.maps[0]['band'] + '_dI_x5' + '.fits'
-        # file2 = config.HOME + 'outputs/pcat_residuals/' + self.maps[1]['name'] + '_' + self.maps[1]['band'] + '_dI_x5' + '.fits'
-        # file3 = config.HOME + 'outputs/pcat_residuals/' + self.maps[2]['name'] + '_' + self.maps[2]['band'] + '_dI_x5' + '.fits'
-        # self.maps[0]['srcrm']= fits.open(file1)[0].data
-        # self.maps[1]['srcrm']= fits.open(file2)[0].data
-        # self.maps[2]['srcrm']= fits.open(file3)[0].data
-        # maps = self.maps
-        # plt.imshow(self.maps[0]['srcrm'])
-        # plt.savefig('pcat_maps.png')
-        # plt.clf()
-        # ''' ##########################################################################################################'''
 
         if self.verbose:
             print('Subtracting correlated components')
@@ -238,7 +221,7 @@ class Catsrc():
         if self.verbose:
             print('Computing radial averages!')
 
-        radave = clus_compute_rings(self.maps,self.params,30.0,verbose=self.verbose, superplot=self.superplot, saveplot=self.saveplot, nsim=self.nsim, testflag=self.testflag)  #should superplot be a flag in catsrc?
+        radave = clus_compute_rings(self.maps,self.params,30.0,sgen=self.sgen,verbose=self.verbose, superplot=self.superplot, saveplot=self.saveplot, nsim=self.nsim, testflag=self.testflag)  #should superplot be a flag in catsrc?
         #unclear at the moment why we need to have two different calls to compute_rings
         # if self.sgen == None:  # don't see the difference between if sgen == 0 and if not sgen ??
         #     tfave, err = clus_compute_rings(tf_maps, params, 30.0, verbose=self.verbose)
@@ -257,7 +240,7 @@ class Catsrc():
         else:
             maxlim = 450
 
-        fit = clus_fitsz(radave, self.params,self.beam, superplot=self.superplot, saveplot=self.saveplot, nsim=self.nsim)
+        fit = clus_fitsz(radave, self.params,self.beam, sgen=self.sgen, superplot=self.superplot, saveplot=self.saveplot, nsim=self.nsim)
         fit = np.asarray(fit)
         increment = fit[:,0]
         offsets = fit[:,1]
@@ -278,12 +261,8 @@ class Catsrc():
             if self.verbose:
                 print('clus_save_szfits exited with error: ' + err)
             exit()
-        self.offsets = offsets
-        self.increment = increment
-        self.fit = fit
 
 if __name__ == '__main__':
-    #clusname, saveplot=1, maketf=0, sgen=None, nsim=0, verbose=1, resolution='nr', superplot=1, testflag=0
     parser = argparse.ArgumentParser()
     parser.add_argument("-run", help="runs catsrc on a single simulation of a clusetr", nargs=4, metavar=('clusname', 'sgen', 'nsim', 'resolution'))
     args = parser.parse_args()

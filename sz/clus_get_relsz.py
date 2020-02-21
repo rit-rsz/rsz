@@ -114,8 +114,8 @@ def clus_get_relsz(isim,nu,band,y=0,te=0,vpec=0.0, ngrid=100):
         print('SZE @ %s GHZ : %0.4f [MJy/sr] %0.6f %0.4f' %(nu,deltaI,y,te)) # print current return
 
         #remove old config file ...
-        if os.path.exists(config.HOME + 'lookup/szparams_%s.txt'%(band)):
-            os.remove(config.HOME + 'lookup/szparams_%s.txt'%(band))
+        if os.path.exists(config.HOME + 'lookup/szparams_%s_%s.txt'%(isim,band)):
+            os.remove(config.HOME + 'lookup/szparams_%s_%s.txt'%(isim,band))
 
         return deltaI, None
 

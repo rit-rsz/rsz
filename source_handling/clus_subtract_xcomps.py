@@ -37,21 +37,6 @@ def clus_subtract_xcomps(maps, sgen=None, verbose=1, superplot=1, nsim=0, savepl
             print(err)
         return None, err
 
-    plt.imshow(maps[0]['srcrm'])
-    plt.colorbar()
-    plt.clim(-0.03,0.04)
-    plt.savefig('before_mask_%s.png' %(maps[0]['band']))
-    plt.clf()
-    plt.imshow(maps[1]['srcrm'])
-    plt.colorbar()
-    plt.clim(-0.03,0.04)
-    plt.savefig('before_mask_%s.png' %(maps[1]['band']))
-    plt.clf()
-    plt.imshow(maps[2]['srcrm'])
-    plt.colorbar()
-    plt.clim(-0.03,0.04)
-    plt.savefig('before_mask_%s.png' %(maps[2]['band']))
-    plt.clf()
     #make a noise mask and populate source removed map with nans where mask is 1 so they don't effect the fit.
     for i in range(len(maps)):
         mask = clus_make_noise_mask(maps, i)
@@ -60,11 +45,17 @@ def clus_subtract_xcomps(maps, sgen=None, verbose=1, superplot=1, nsim=0, savepl
             for k in range(maps[i]['signal'].shape[1]):
                 if maps[i]['mask'][j,k] == 1:
                     maps[i]['srcrm'][j,k] = np.nan
-        plt.imshow(maps[i]['srcrm'])
-        plt.colorbar()
-        plt.clim(-0.03,0.04)
-        plt.savefig('after_mask_%s.png' %(maps[i]['band']))
-        plt.clf()
+
+        if saveplot :
+            if sgen != None :
+                filename = config.OUTPUT + 'pcat_residuals/' + maps[i]['name'] + '_mask_resid_' + maps[i]['band'] + '_' + str(nsim) + '.png'
+            else :
+                filename = config.OUTPUT + 'pcat_residuals/' + maps[i]['name'] + '_mask_resid_' + maps[i]['band'] + '_real' + '.png'
+            plt.imshow(maps[i]['srcrm'])
+            plt.colorbar()
+            plt.savefig(filename)
+            plt.clf()
+
     for i in range(1, ncols):
         if verbose:
             print('On band %s' %(maps[i]['band']))
@@ -81,11 +72,11 @@ def clus_subtract_xcomps(maps, sgen=None, verbose=1, superplot=1, nsim=0, savepl
         xmap = inmap
         xmap_align = hcongrid(xmap, maps[0]['shead'], maps[i]['shead'])
 
-        plt.imshow(xmap_align)
-        plt.colorbar()
-        plt.clim(-0.03,0.04)
-        plt.savefig('xmap_align_%s.png' %(maps[i]['band']))
-        plt.clf()
+        # plt.imshow(xmap_align)
+        # plt.colorbar()
+        # plt.clim(-0.03,0.04)
+        # plt.savefig('xmap_align_%s.png' %(maps[i]['band']))
+        # plt.clf()
 
         for j in range(xmap_align.shape[0]):
             for k in range(xmap_align.shape[1]):
@@ -108,16 +99,16 @@ def clus_subtract_xcomps(maps, sgen=None, verbose=1, superplot=1, nsim=0, savepl
             plt.title('clus_subtract_xcomps: PSW vs. %s' %(maps[i]['band']))
             plt.xlabel('PSW')
             plt.ylabel('%s' %(maps[i]['band']))
+
             if superplot:
                 plt.show()
             elif saveplot:
-                if nsim != 0:
-                    filename = config.HOME + 'outputs/correlated_components/' + maps[i]['name'] + '_' + maps[i]['band'] + '_' + str(nsim) + '.pdf'
+                if sgen != None:
+                    filename = config.OUTPUT + 'corr_comps/' + maps[i]['name'] + '_xcomps_' + maps[i]['band'] + '_' + str(nsim) + '.png'
                 else:
-                    filename = config.HOME + 'outputs/correlated_components/' + maps[i]['name'] + '_' + maps[i]['band'] + '_' + str(nsim) + '.pdf'
-                if os.path.isfile(filename):
-                    os.remove(filename)
-                plt.savefig(filename, format='pdf')
+                    filename = config.OUTPUT + 'corr_comps/' + maps[i]['name'] + '_xcomps_' + maps[i]['band'] + '_real.png'
+
+                plt.savefig(filename)
                 plt.clf()
 
         #subtract the correlated components from the image
@@ -129,59 +120,20 @@ def clus_subtract_xcomps(maps, sgen=None, verbose=1, superplot=1, nsim=0, savepl
                 else:
                     maps[i]['xclean'][j,k] = maps[i]['srcrm'][j,k] - slope * xmap_align[j,k] + intercept
 
-        datasub = maps[i]['xclean']
-        plt.imshow(maps[i]['xclean'])
-        plt.clim(-0.03,0.04)
-        plt.colorbar()
-        plt.savefig('xmap_final_%s.png' %(maps[i]['band']))
-        plt.clf()
-
         if superplot:
             plt.imshow(maps[i]['xclean'])
             plt.title('xclean map')
             plt.show()
         print('saveplot: ',saveplot)
         if saveplot:
-            if sgen is not None:
-                filename = config.HOME + 'outputs/correlated_components/' + maps[i]['name'] + '_' + maps[i]['band'] + '_xc.fits'
+            if sgen != None:
+                filename = config.OUTPUT + 'corr_comps/' + maps[i]['name'] + '_xclean_' + maps[i]['band'] + '_' + str(nsim) + '.png'
             else:
-                filename = config.HOME + 'outputs/correlated_components/' + maps[i]['name'] + '_' + maps[i]['band'] + '_' + str(nsim) + '_xc.fits'
-
-            filename = 'correlated_comp_test_%s.fits' % (maps[i]['band'])
-            if os.path.isfile(filename):
-                os.remove(filename)
-            writefits(filename, data=datasub, header_dict=maps[i]['shead'])
+                filename = config.OUTPUT + 'corr_comps/' + maps[i]['name'] + '_xclean_' + maps[i]['band'] + '_real.png'
 
     #subtract the mean of the new map from itself. Why do we do this? we need to figure out what the purpose of this step is.
     # for i in range(maps[0]['xclean'].shape[0]):
     #     for j in range(maps[0]['xclean'].shape[1]):
     #         maps[0]['xclean'][i,j] = maps[0]['xclean'][i,j] - np.mean(maps[0]['xclean'])
 
-
     return maps, err
-
-
-
-if __name__ == '__main__':
-    from clus_get_data import clus_get_data
-    maps, err = clus_get_data('a0370')
-
-    # psw = fits.open('../fits_files/xid_9_subtracted_a0370_PSW.fits')
-    # pmw = fits.open('../fits_files/xid_9_subtracted_a0370_PMW.fits')
-    # plw = fits.open('../fits_files/xid_9_subtracted_a0370_PLW.fits')
-    # maps[0]['srcrm'] = psw[0].data
-    # maps[1]['srcrm'] = pmw[0].data
-    # maps[2]['srcrm'] = plw[0].data
-
-    import sys
-    sys.path.append('../utilities')
-    sys.path.append('../source_handling')
-    import numpy as np
-    map = np.load('/home/butler/rsz/pcat_resid.npy',allow_pickle=True)
-    map1 = np.load('/home/butler/rsz/pcat_resid1.npy',allow_pickle=True)
-    map2 = np.load('/home/butler/rsz/pcat_resid2.npy',allow_pickle=True)
-    maps[0]['srcrm'] = map[0][0:maps[0]['signal'].shape[0],0:maps[0]['signal'].shape[1]]
-    maps[1]['srcrm'] = map1[0][0:maps[1]['signal'].shape[0],0:maps[1]['signal'].shape[1]]
-    maps[2]['srcrm'] = map2[0][0:maps[2]['signal'].shape[0],0:maps[2]['signal'].shape[1]]
-    from clus_subtract_xcomps import clus_subtract_xcomps
-    clus_subtract_xcomps(maps)

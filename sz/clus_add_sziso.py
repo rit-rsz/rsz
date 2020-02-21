@@ -158,7 +158,7 @@ def clus_add_sziso(maps,isim,yin,tin,params,
 
             # Used to check the alligned sz effect image
             if saveplot:
-                filename = config.HOME + 'outputs/sim_sz/' + maps[imap]['name'] + '_sze_' + maps[imap]['band'] + '_' + str(isim) + '.png'
+                filename = config.OUTPUT + 'sim_sz/' + maps[imap]['name'] + '_sze_' + maps[imap]['band'] + '_' + str(isim) + '.png'
                 plt.imshow(maps[imap]['signal'])
                 plt.savefig(filename)
                 plt.clf()

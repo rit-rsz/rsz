@@ -30,28 +30,20 @@ def create_template(params):
 
 def save_fitsz(increment, offset, radave, params, sgen=None, nsim=0, verbose=1):
     ncols = len(radave)
-
-
-    #szout = REPLICATE(szout, ncols)
     szout = []
+
     for i in range(ncols):
         szout.append(create_template(params))
-        szout[i]['increment'] = increment[i].tolist()
-        szout[i]['offset'] = offset[i].tolist()
+        szout[i]['increment'] = increment[i]
+        szout[i]['offset'] = offset[i]
         szout[i]['band'] = radave[i]['band']
-        szout[i]['midbin'] = radave[i]['midbin'].tolist()
+        szout[i]['midbin'] = radave[i]['midbin']
         szout[i]['fluxbin'] = radave[i]['fluxbin']
-        szout[i]['errbin'] = radave[i]['errbin'].tolist()
-
-        #i have a feeling this may  not work ex: szout[i]['radbin'] = radave[i]['radbin'] but not sure
+        szout[i]['errbin'] = radave[i]['errbin']
 
     if sgen is not None:
-        outfile = config.HOME + 'outputs/szout/szout__' + params['clusname'] + 'real.json'
-        print(outfile)
+        outfile = config.OUTPUT + 'szout/' + params['clusname'] + 'szout_' + str(nsim) + '.npy'
     else:
-        outfile = config.HOME + 'outputs/szout/szout__' + params['clusname'] + str(nsim) + '.json'
-        print(outfile)
-    if os.path.isfile(outfile):
-        os.remove(outfile)
-    with open(outfile, 'w') as f:
-        json.dump(szout, f)
+        outfile = config.OUTPUT + 'szout/' + params['clusname'] + 'szout_' + 'real.npy'
+
+    np.save(outfile,szout,allow_pickle=True)

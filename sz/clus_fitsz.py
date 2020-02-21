@@ -28,7 +28,7 @@ from get_spire_beam_fwhm import *
 def fitting_func(a, x, b):
     return a*x + b
 
-def clus_fitsz(radave, params, beam=None, maxlim=3600, minlim=0, noweight=1, superplot=1, verbose=1, nsim=0, saveplot=1):
+def clus_fitsz(radave, params, sgen=None, beam=None, maxlim=3600, minlim=0, noweight=1, superplot=1, verbose=1, nsim=0, saveplot=1):
 
     # init params
     ncols = len(radave)
@@ -68,13 +68,12 @@ def clus_fitsz(radave, params, beam=None, maxlim=3600, minlim=0, noweight=1, sup
             if superplot:
                 plt.show()
             elif saveplot:
-                if nsim != 0:
-                    filename = config.HOME + 'outputs/radial_averages/ra_v_r_' + params['clusname'] + '_' + radave[i]['band'] + '_' + str(nsim) + '.png'
+                if sgen != None:
+                    filename = config.OUTPUT + 'radial_averages/' + params['clusname'] + '_ra_v_r_' + radave[i]['band'] + '_' + str(nsim) + '.png'
                 else:
-                    filename = config.HOME + 'outputs/radial_averages/ra_v_r_' + params['clusname'] + '_' + radave[i]['band'] + '_' + '.png'
-                if os.path.isfile(filename):
-                    os.remove(filename)
-                plt.savefig(filename, format='png')
+                    filename = config.OUTPUT + 'radial_averages/' + params['clusname'] + '_ra_v_r_' + radave[i]['band'] + '_real.png'
+
+                plt.savefig(filename)
                 plt.clf()
 
         # ignore values above radius of 600
@@ -110,30 +109,16 @@ def clus_fitsz(radave, params, beam=None, maxlim=3600, minlim=0, noweight=1, sup
             plt.ylabel('Radial Average (MJy/sr)')
             plt.ylim((-0.1,0.1))
             plt.legend()
-
-            # ax[1].set_xlabel(r"R($\theta^\prime$)")
-            # ax[1].set_ylabel('Radial Average (MJy/sr)')
-            # ax[1].plot(xrad, roftprimep,label='Data')
-            # ax[1].plot(xrad, p(roftprimep),label='Best Linear Fit')
-            # ax[1].legend()
-
             plt.title(params['clusname'] + '  ' + radave[i]['band'] + '  Slope: %.4f  Intercept: %.4f' %(slope,intercept))
             if superplot:
                 plt.show()
             if saveplot:
                 if nsim != 0:
-                    filename = config.HOME + 'outputs/IB_fits/dI_fit_' + params['clusname'] + '_' + radave[i]['band'] + '_' + str(nsim) + '.png'
+                    filename = config.OUTPUT + 'IB_fits/' + params['clusname'] + '_dI_fit_' + radave[i]['band'] + '_' + str(nsim) + '.png'
                 else:
-                    filename = config.HOME + 'outputs/IB_fits/dI_fit_' + params['clusname'] + '_' + radave[i]['band'] + '_' + '.png'
-                if os.path.isfile(filename):
-                    os.remove(filename)
-                plt.savefig(filename, format='png')
+                    filename = config.OUTPUT + 'IB_fits/' + params['clusname'] + '_dI_fit_' + radave[i]['band'] + '_' + 'real.png'
+
+                plt.savefig(filename)
                 plt.clf()
 
     return fit
-
-if __name__ == '__main__':
-    maps,err = clus_get_data('a0370')
-    params,err = clus_get_clusparams('a0370')
-    radave = clus_compute_rings(maps,params,30.0)
-    fit = clus_fitsz(maps,radave, params)

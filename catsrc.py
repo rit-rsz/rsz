@@ -83,8 +83,8 @@ class Catsrc():
         self.data_retrieval()
         self.source_removal()
         self.data_analysis()
-        # compile all figures and
-        # save_final_im(self.sgen,self.nsim,self.clusname,testflag=self.testflag)
+        # compile all figures and save to monolithic plot
+        save_final_im(self.sgen,self.nsim,self.clusname,testflag=self.testflag)
 
     def data_retrieval(self):
         """

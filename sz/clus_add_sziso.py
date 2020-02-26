@@ -122,13 +122,15 @@ def clus_add_sziso(maps,isim,yin,tin,params,
                 szmap,err = IB_model(maps[imap],params,verbose)
                 szmap = np.array(szmap)
                 plt.imshow(szmap)
+                plt.colorbar()
+                plt.title('IB_model for %s' %(maps[imap]['name']))
                 plt.savefig(config.OUTPUT + 'add_sz/%s_ibmodel_%s_%s.png' %(maps[imap]['name'],maps[imap]['band'],isim))
                 naxis = szmap.shape
                 szmap = szmap.flatten()
 
             nu = 3e5 / clus_get_lambdas((maps[imap]['band']))
 
-            if isim == 0 : # dI only needs to be calculated once...
+            if int(isim) == 0 : # dI only needs to be calculated once...
                 dI,errmsg = clus_get_relsz(isim,nu,imap,y=yin[-1],te=tin[-1],vpec=0.0) # dI = [MJy/sr]
                 np.save(config.OUTPUT + 'add_sz/sim_dI_%s.npy' %(maps[imap]['band']),dI)
             else :
@@ -141,8 +143,15 @@ def clus_add_sziso(maps,isim,yin,tin,params,
 
             # Combine the spectral shape of the SZ effect, and combine with the peak intensity
             # converted to Jy/beam  ***Confirm these Units***
-            szin = [x * dI / maps[imap]['calfac'] for x in szmap]
-            final_dI.append(dI / maps[imap]['calfac'])
+            ''' TESTING ############################################'''
+            if int(isim) == 0 :
+                szin = [x * dI / maps[imap]['calfac'] for x in szmap]
+                final_dI.append(dI / maps[imap]['calfac'])
+            else :
+                szin = [x * dI*(2.0*int(isim)) / maps[imap]['calfac'] for x in szmap]
+                final_dI.append(dI*(2.0*int(isim)) / maps[imap]['calfac'])
+            ''' ##################################################### '''
+
             szin = np.reshape(szin,(naxis[0],naxis[1]))
 
             # Have to interpolate to SPIRE map size
@@ -154,12 +163,16 @@ def clus_add_sziso(maps,isim,yin,tin,params,
                 # Combine the original signal with the sz effect
                 maps[imap]['signal'] = maps[imap]['signal'] + szinp
             else :
-                maps[imap]['signal'] = maps[imap]['signal'] + szin
+                '''THIS IS JUST FOR TESTING WITH SZ SIGNAL'''
+                # maps[imap]['signal'] = maps[imap]['signal'] + szin
+                maps[imap]['signal'] = maps[imap]['error'] + szin
 
             # Used to check the alligned sz effect image
             if saveplot:
                 filename = config.OUTPUT + 'sim_sz/' + maps[imap]['name'] + '_sze_' + maps[imap]['band'] + '_' + str(isim) + '.png'
                 plt.imshow(maps[imap]['signal'])
+                plt.title('CLUS_ADD_SZISO SZE + Signal Map')
+                plt.colorbar()
                 plt.savefig(filename)
                 plt.clf()
 

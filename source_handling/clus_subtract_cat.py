@@ -30,7 +30,7 @@ import os, time
 def clus_subtract_cat(maps, dI, nsim, sgen=None, verbose=1, saveplot=0, superplot=0):
     err = None
 
-    resid_maps = run_pcat(maps)
+    resid_maps = run_pcat(maps,nsim)
 
     for i in range(len(resid_maps)): # only loop through how many residuals we have
         if verbose==1:
@@ -74,7 +74,7 @@ def clus_subtract_cat(maps, dI, nsim, sgen=None, verbose=1, saveplot=0, superplo
 
     return maps, err
 
-def run_pcat(maps):
-    ob = lion(band0=0, band1=1, band2=2, map_object=maps, auto_resize=True, make_post_plots=True, openblas=False, cblas=False, nsamp=1, residual_samples=1, visual=False)
+def run_pcat(maps,nsim):
+    ob = lion(band0=0, band1=1, band2=2, isim=nsim, map_object=maps, auto_resize=True, make_post_plots=True, openblas=False, cblas=False, nsamp=500, residual_samples=100, visual=False)
     resid_maps = ob.main()
     return resid_maps

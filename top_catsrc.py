@@ -30,8 +30,9 @@ names = 'rxj1347'
 if sys.argv[1] == 'real' : # run the real maps
     c(names, isim = None, saveplot=1,maketf=0,sgen=None,verbose=1,resolution='nr',superplot=0,testflag=0)
 else : # run the simulated maps
-    c(names, isim = sys.argv[1] ,saveplot=1,maketf=0,sgen=3,nsim=99,verbose=1,resolution='nr',superplot=0,testflag=0)
+    c(names, isim = sys.argv[1] ,saveplot=1,maketf=0,sgen=3,verbose=1,resolution='nr',superplot=0,testflag=1)
 
+exit()
 #yt_grid and sz_grid should be indexed the same
 if os.path.isfile(config.HOME + 'outputs/%s_sz_grid.npy' %(names)):
     sz_grid = np.load(config.HOME + 'outputs/%s_sz_grid.npy' %(names),allow_pickle=True)

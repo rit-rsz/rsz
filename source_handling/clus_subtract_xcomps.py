@@ -120,16 +120,19 @@ def clus_subtract_xcomps(maps, sgen=None, verbose=1, superplot=1, nsim=0, savepl
                 else:
                     maps[i]['xclean'][j,k] = maps[i]['srcrm'][j,k] - slope * xmap_align[j,k] + intercept
 
+        plt.imshow(maps[i]['xclean'])
+        plt.title('xclean map')
+
         if superplot:
-            plt.imshow(maps[i]['xclean'])
-            plt.title('xclean map')
             plt.show()
-        print('saveplot: ',saveplot)
-        if saveplot:
+        elif saveplot:
             if sgen != None:
                 filename = config.OUTPUT + 'corr_comps/' + maps[i]['name'] + '_xclean_' + maps[i]['band'] + '_' + str(nsim) + '.png'
             else:
                 filename = config.OUTPUT + 'corr_comps/' + maps[i]['name'] + '_xclean_' + maps[i]['band'] + '_real.png'
+
+            plt.savefig(filename)
+            plt.clf()
 
     #subtract the mean of the new map from itself. Why do we do this? we need to figure out what the purpose of this step is.
     # for i in range(maps[0]['xclean'].shape[0]):

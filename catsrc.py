@@ -29,6 +29,7 @@ sys.path.append('utilities')
 sys.path.append('source_handling')
 sys.path.append('reduc')
 sys.path.append('sz')
+sys.path.append('outputs')
 from clus_get_clusparams import *
 from clus_get_data import *
 from clus_add_sziso import *
@@ -43,7 +44,7 @@ import argparse
 
 class Catsrc():
 
-    def __init__(self, clusname, isim=None, saveplot=1, maketf=0, sgen=None, verbose=1, resolution='nr', superplot=0, testflag=0):
+    def __init__(self, clusname, isim=None, saveplot=1, maketf=0, sgen=None, verbose=1, resolution='nr', superplot=0, testflag=1):
         """
         initializing function for catsrc class
         Purpose: read in arguments to be passed to functions in catsrc.
@@ -74,7 +75,7 @@ class Catsrc():
         self.yin = config.yin
         self.tin = config.tin
         self.clusname = clusname
-        self.nsim = isim
+        self.nsim = int(isim) - 1
         self.resolution = resolution
         self.testflag = testflag
         self.superplot = superplot
@@ -83,7 +84,7 @@ class Catsrc():
         self.source_removal()
         self.data_analysis()
         # compile all figures and
-        save_final_im(self.sgen,self.nsim,testflag=self.testflag)
+        # save_final_im(self.sgen,self.nsim,self.clusname,testflag=self.testflag)
 
     def data_retrieval(self):
         """
@@ -93,13 +94,6 @@ class Catsrc():
         Returns : None
         Class variables : Passes on self.maps (list of 3 dictionaries)
         """
-        if self.sgen is not None and self.nsim == 0:
-            if self.verbose:
-                print('sgen set but nsim not supplied! Aborting')
-            exit()
-
-        if self.sgen is None:
-            self.nsim = 0
 
         if self.verbose:
             print('Welcome to SZ fitter v 1.0 Python Version')
@@ -124,7 +118,7 @@ class Catsrc():
             exit()
         # Add the sz effect into the simmulated clusters
         if self.sgen is not None:
-            maps, err, dI = clus_add_sziso(maps,self.nsim,yin=self.yin, tin=self.tin,params=params,verbose=self.verbose, testflag=self.testflag,nsim=self.nsim)
+            maps, err, dI = clus_add_sziso(maps,self.nsim,yin=self.yin, tin=self.tin,params=params,verbose=self.verbose, testflag=self.testflag,nsim=self.nsim,saveplot=self.saveplot)
             self.dI = dI
         if err:
             if self.verbose:
@@ -264,7 +258,7 @@ class Catsrc():
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument("-run", help="runs catsrc on a single simulation of a clusetr", nargs=4, metavar=('clusname', 'sgen', 'nsim', 'resolution'))
+    parser.add_argument("-run", help="This runs real or sim map through the pipeline for a single map on a specific cluster.", nargs=4, metavar=('clusname', 'sgen', 'nsim', 'resolution'))
     args = parser.parse_args()
     if args.run:
         print(args.run)
@@ -272,4 +266,4 @@ if __name__ == '__main__':
         sgen = args.run[1]
         nsim = args.run[2]
         resolution = args.run[3]
-        catsrc = Catsrc(clusname, sgen=sgen, nsim=nsim, resolution=resolution)
+        catsrc = Catsrc(clusname, sgen=sgen, isim=nsim, resolution=resolution)

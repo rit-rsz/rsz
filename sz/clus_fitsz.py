@@ -28,7 +28,7 @@ from get_spire_beam_fwhm import *
 def fitting_func(a, x, b):
     return a*x + b
 
-def clus_fitsz(radave, params, sgen=None, beam=None, maxlim=3600, minlim=0, noweight=1, superplot=1, verbose=1, nsim=0, saveplot=1):
+def clus_fitsz(radave, params, beam, sgen=None, maxlim=3600, minlim=0, noweight=1, superplot=1, verbose=1, nsim=0, saveplot=1):
 
     # init params
     ncols = len(radave)
@@ -107,7 +107,7 @@ def clus_fitsz(radave, params, sgen=None, beam=None, maxlim=3600, minlim=0, nowe
             plt.plot(roft, line,label='Best Linear Fit')
             plt.xlabel(r'R($\theta$)')
             plt.ylabel('Radial Average (MJy/sr)')
-            plt.ylim((-0.1,0.1))
+            # plt.ylim((-0.1,0.1))
             plt.legend()
             plt.title(params['clusname'] + '  ' + radave[i]['band'] + '  Slope: %.4f  Intercept: %.4f' %(slope,intercept))
             if superplot:

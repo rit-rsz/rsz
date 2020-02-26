@@ -5,7 +5,7 @@ jobfile='submit_catsrc.sh'
 #cluster names need to be changed to accomodate multiple clusters at some point
 name='rxj1347'
 #this should be number of sims we want
-nsims=1
+nsims=10
 #resolution and sgen need to be set before each run
 resolution='nr'
 sgen='3'

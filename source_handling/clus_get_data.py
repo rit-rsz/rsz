@@ -114,7 +114,7 @@ def clus_get_data(clusname, isim,manpath=0, resolution = 'nr', bolocam=None,
         simcount = 0
         for x in os.listdir(simdir):
             if x.startswith(clusname):
-                if ('0' + str(sgen)+ str(isim.zfill(2))) in x and 'fits' in x and 'BOLOCAM' not in x:
+                if ('0' + str(sgen)+ str(isim).zfill(2)) in x and 'fits' in x and 'BOLOCAM' not in x:
                     simfiles.append(simdir + x)
                     simcount += 1
         files = simfiles

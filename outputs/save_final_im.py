@@ -41,34 +41,31 @@ def save_final_im(sgen,nsim,clusname,testflag=0):
 
         list_im = [config.OUTPUT + s for s in list_im] # add the full file path at the start of each file name
 
+        # create first set of 3 horizontal images
+        for j in range(3):
+            imgs = [PIL.Image.open(i) for i in list_im[j,j+3]]
+            # pick the image which is the smallest, and resize the others to match it (can be arbitrary image shape here)
+            min_shape = sorted([(np.sum(i.size), i.size) for i in imgs])[0][1]
+            imgs_comb = np.hstack((np.asarray(i.resize(min_shape)) for i in imgs))
 
-    '''
-        We need a good way of deciding what to do with the last, 10th
-        plot in case the testing IB model is used.
-        This code will only do the 9 case.
-    '''
-    # create first set of 3 horizontal images
-    for j in range(3):
-        imgs = [PIL.Image.open(i) for i in list_im[j,j+3]]
-        # pick the image which is the smallest, and resize the others to match it (can be arbitrary image shape here)
-        min_shape = sorted([(np.sum(i.size), i.size) for i in imgs])[0][1]
-        imgs_comb = np.hstack((np.asarray(i.resize(min_shape)) for i in imgs))
+            # save that beautiful picture
+            imgs_comb = PIL.Image.fromarray(imgs_comb)
+            imgs_comb.save(config.OUTPUT + 'final/rsz_comp_%s.png'%(j))
 
-        # save that beautiful picture
-        imgs_comb = PIL.Image.fromarray(imgs_comb)
-        imgs_comb.save(config.OUTPUT + 'final/rsz_comp_%s.png'%(j))
+        # maybe put a check in here to make sure these files get made...
+        imgs_horz = [config.OUTPUT + 'final/rsz_comp_0.png',
+                        config.OUTPUT + 'final/rsz_comp_1.png',
+                        config.OUTPUT + 'final/rsz_comp_2.png'
+                    ]
+        if len(list_im) == 10 : # just stick 10th image at the bottom of hstack
+            imgs_horz.append(list_im[-1])
 
-    # maybe put a check in here to make sure these files get made...
-    imgs_horz = [config.OUTPUT + 'final/rsz_comp_0.png',
-                    config.OUTPUT + 'final/rsz_comp_1.png',
-                    config.OUTPUT + 'final/rsz_comp_2.png'
-                ]
-    # vertically stack the 3 horizontal saved images we made
-    imgs_h = [PIL.Image.open(i) for i in imgs_horz]
-    min_shapeh = sorted([(np.sum(i.size), i.size) for i in imgs_h])[0][1]
-    imgs_combh = np.vstack((np.asarray(i.resize(min_shape)) for i in imgs_h))
-    imgs_combh = PIL.Image.fromarray(imgs_combh)
-    imgs_combh.save(config.OUTPUT + 'final/rsz_comp_final.pdf')
+        # vertically stack the 3 horizontal saved images we made
+        imgs_h = [PIL.Image.open(i) for i in imgs_horz]
+        min_shapeh = sorted([(np.sum(i.size), i.size) for i in imgs_h])[0][1]
+        imgs_combh = np.vstack((np.asarray(i.resize(min_shapeh)) for i in imgs_h))
+        imgs_combh = PIL.Image.fromarray(imgs_combh)
+        imgs_combh.save(config.OUTPUT + 'final/rsz_comp_final_%s.pdf' %(bands[i]))
 
     # go through and delete all of the files that we no longer need
     ''' Lets wait on this until we actually test that the final figure comes out okay

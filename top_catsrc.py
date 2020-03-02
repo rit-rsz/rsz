@@ -24,8 +24,8 @@ import config
 from scipy.ndimage.filters import gaussian_filter
 
 nsim = 99
-# names = 'a0370'
-names = 'rxj1347'
+names = 'a0370'
+# names = 'rxj1347'
 
 if sys.argv[1] == 'real' : # run the real maps
     c(names, isim = None, saveplot=1,maketf=0,sgen=None,verbose=1,resolution='nr',superplot=0,testflag=0)

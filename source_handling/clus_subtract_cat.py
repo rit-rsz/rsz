@@ -67,7 +67,8 @@ def clus_subtract_cat(maps, dI, nsim, sgen=None, verbose=1, saveplot=0, superplo
                 filename = config.OUTPUT + 'pcat_residuals/' + maps[i]['name'] + '_resid_' + maps[i]['band'] + '_' + 'real.png'
 
             plt.imshow(maps[i]['srcrm'])
-            plt.colorbar()
+            plt.colorbar().set_label('[Jy]')
+            plt.title('Clus Subtract Cat : PCAT Residual %s' %(maps[i]['band']))
             plt.savefig(filename)
             plt.clf()
 

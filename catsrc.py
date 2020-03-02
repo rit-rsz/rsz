@@ -44,7 +44,7 @@ import argparse
 
 class Catsrc():
 
-    def __init__(self, clusname, isim=None, saveplot=1, maketf=0, sgen=None, verbose=1, resolution='nr', superplot=0, testflag=1):
+    def __init__(self, clusname, isim=None, saveplot=1, maketf=0, sgen=None, verbose=1, resolution='nr', superplot=0, testflag=1, lense_only= 1):
         """
         initializing function for catsrc class
         Purpose: read in arguments to be passed to functions in catsrc.
@@ -79,12 +79,13 @@ class Catsrc():
         self.resolution = resolution
         self.testflag = testflag
         self.superplot = superplot
+        self.lense_only = lense_only
         self.dI = []
         self.data_retrieval()
         self.source_removal()
         self.data_analysis()
         # compile all figures and save to monolithic plot
-        save_final_im(self.sgen,self.nsim,self.clusname,testflag=self.testflag)
+        # save_final_im(self.sgen,self.nsim,self.clusname,testflag=self.testflag)
 
     def data_retrieval(self):
         """
@@ -117,7 +118,7 @@ class Catsrc():
                 print('clus_get_data exited with error: ' + err)
             exit()
         # Add the sz effect into the simmulated clusters
-        if self.sgen is not None:
+        if self.sgen is not None and not self.lense_only:
             maps, err, dI = clus_add_sziso(maps,self.nsim,yin=self.yin, tin=self.tin,params=params,verbose=self.verbose, testflag=self.testflag,nsim=self.nsim,saveplot=self.saveplot)
             self.dI = dI
         if err:
@@ -215,7 +216,7 @@ class Catsrc():
         if self.verbose:
             print('Computing radial averages!')
 
-        radave = clus_compute_rings(self.maps,self.params,30.0,sgen=self.sgen,verbose=self.verbose, superplot=self.superplot, saveplot=self.saveplot, nsim=self.nsim, testflag=self.testflag)  #should superplot be a flag in catsrc?
+        radave = clus_compute_rings(self.maps,self.params,30.0,sgen=self.sgen,verbose=self.verbose, superplot=self.superplot, saveplot=self.saveplot, nsim=self.nsim, testflag=self.testflag, lense_only=self.lense_only)  #should superplot be a flag in catsrc?
         #unclear at the moment why we need to have two different calls to compute_rings
         # if self.sgen == None:  # don't see the difference between if sgen == 0 and if not sgen ??
         #     tfave, err = clus_compute_rings(tf_maps, params, 30.0, verbose=self.verbose)
@@ -234,10 +235,11 @@ class Catsrc():
         else:
             maxlim = 450
 
-        fit = clus_fitsz(radave, self.params,self.beam, sgen=self.sgen, superplot=self.superplot, saveplot=self.saveplot, nsim=self.nsim)
-        fit = np.asarray(fit)
-        increment = fit[:,0]
-        offsets = fit[:,1]
+        if not self.lense_only :
+            fit = clus_fitsz(radave, self.params,self.beam, sgen=self.sgen, superplot=self.superplot, saveplot=self.saveplot, nsim=self.nsim)
+            fit = np.asarray(fit)
+            increment = fit[:,0]
+            offsets = fit[:,1]
 
         #this is to do a specific case for ms0451, but I think we are cutting this cluster so I don't know if we need this.
         # if self.sgen is None:

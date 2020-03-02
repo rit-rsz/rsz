@@ -61,7 +61,7 @@ def clus_fitsz(radave, params, beam, sgen=None, maxlim=3600, minlim=0, noweight=
             plt.plot(radave[i]['midbin'], radave[i]['fluxbin'])
             plt.ylabel('Radial Average (MJy/sr)')
             plt.xlabel('Radius (arcsec)')
-            plt.title(params['clusname'] + '  ' + radave[i]['band'] + '  RC:' + str(rc) + '  Beta:' + str(beta))
+            plt.title('Clus Fitsz : ' + params['clusname'] + '  ' + radave[i]['band'] + '  RC:' + str(rc) + '  Beta:' + str(beta))
             plt.xlim((0,600))
             plt.errorbar(radave[i]['midbin'],radave[i]['fluxbin'],yerr=radave[i]['errbin'])
             plt.scatter(radave[i]['midbin'], radave[i]['fluxbin'],marker='o')
@@ -109,7 +109,7 @@ def clus_fitsz(radave, params, beam, sgen=None, maxlim=3600, minlim=0, noweight=
             plt.ylabel('Radial Average (MJy/sr)')
             # plt.ylim((-0.1,0.1))
             plt.legend()
-            plt.title(params['clusname'] + '  ' + radave[i]['band'] + '  Slope: %.4f  Intercept: %.4f' %(slope,intercept))
+            plt.title('Clus Fitsz : ' + params['clusname'] + '  ' + radave[i]['band'] + '  Slope: %.4f  Intercept: %.4f' %(slope,intercept))
             if superplot:
                 plt.show()
             if saveplot:

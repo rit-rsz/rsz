@@ -52,7 +52,8 @@ def clus_subtract_xcomps(maps, sgen=None, verbose=1, superplot=1, nsim=0, savepl
             else :
                 filename = config.OUTPUT + 'pcat_residuals/' + maps[i]['name'] + '_mask_resid_' + maps[i]['band'] + '_real' + '.png'
             plt.imshow(maps[i]['srcrm'])
-            plt.colorbar()
+            plt.colorbar().set_label('[Jy]')
+            plt.title('Clus Subtract Xcomps : Masked PCAT Residual %s' %(maps[i]['band']))
             plt.savefig(filename)
             plt.clf()
 
@@ -94,11 +95,12 @@ def clus_subtract_xcomps(maps, sgen=None, verbose=1, superplot=1, nsim=0, savepl
 
 
         if superplot or saveplot:
-            plt.plot(PSW_array, ref_array, 'x')
-            plt.plot(PSW_array, y, c='red')
-            plt.title('clus_subtract_xcomps: PSW vs. %s' %(maps[i]['band']))
-            plt.xlabel('PSW')
-            plt.ylabel('%s' %(maps[i]['band']))
+            plt.plot(PSW_array, ref_array, 'x',label='Raw Intensities')
+            plt.plot(PSW_array, y, c='red', label='Linear Regression Fit')
+            plt.legend()
+            plt.title('Clus Subtract Xcomps : PSW vs. %s' %(maps[i]['band']))
+            plt.xlabel('PSW [Jy]')
+            plt.ylabel('%s [Jy]' %(maps[i]['band']))
 
             if superplot:
                 plt.show()
@@ -121,7 +123,8 @@ def clus_subtract_xcomps(maps, sgen=None, verbose=1, superplot=1, nsim=0, savepl
                     maps[i]['xclean'][j,k] = maps[i]['srcrm'][j,k] - slope * xmap_align[j,k] + intercept
 
         plt.imshow(maps[i]['xclean'])
-        plt.title('xclean map')
+        plt.colorbar().set_label('[Jy]')
+        plt.title('Clus Subtract Xcomp : Correlated Components Removed')
 
         if superplot:
             plt.show()

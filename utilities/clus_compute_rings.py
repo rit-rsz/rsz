@@ -26,7 +26,7 @@ from astropy.wcs.utils import skycoord_to_pixel
 import config
 import matplotlib.pyplot as plt
 
-def clus_compute_rings(maps, params, binwidth, sgen = None, superplot=0, verbose=1, noconfusion=None, saveplot=1, nsim=0, testflag=None):
+def clus_compute_rings(maps, params, binwidth, sgen = None, superplot=0, verbose=1, noconfusion=None, saveplot=1, nsim=0, testflag=None, lense_only= 0):
     # init params
     bands = ['PSW', 'PMW', 'PLW']
     ncols = len(maps)
@@ -167,8 +167,9 @@ def clus_compute_rings(maps, params, binwidth, sgen = None, superplot=0, verbose
                 circle = plt.Circle((px,py),new_midbin[k]-px,fill=False)
                 plt.gca().add_artist(circle)
             plt.imshow(maps[m]['signal'], alpha=0.9)
+            plt.colorbar().set_label('[Jy]')
             plt.scatter(new_midbin,[py]*nbins,c='r')
-            plt.title('Midbins for %s' %(maps[m]['band']))
+            plt.title('Clus Compute Rings : Radial Mid Bins %s' %(maps[m]['band']))
 
             if sgen != None:
                 filename = config.OUTPUT + 'rings/' + maps[m]['name'] + '_rings_' + maps[m]['band'] + '_' + str(nsim) + '.png'
@@ -177,5 +178,8 @@ def clus_compute_rings(maps, params, binwidth, sgen = None, superplot=0, verbose
 
             plt.savefig(filename)
             plt.clf()
+
+    if lense_only :
+        np.save(config.OUTPUT + '/lense_model/' + maps[0]['name'] + '_' + str(nsim) + '.npy',radave)
 
     return radave

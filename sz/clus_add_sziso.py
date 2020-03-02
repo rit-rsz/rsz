@@ -122,9 +122,10 @@ def clus_add_sziso(maps,isim,yin,tin,params,
                 szmap,err = IB_model(maps[imap],params,verbose)
                 szmap = np.array(szmap)
                 plt.imshow(szmap)
-                plt.colorbar()
-                plt.title('IB_model for %s' %(maps[imap]['name']))
+                plt.colorbar().set_label(['Jy'])
+                plt.title('Clus Add Sziso : IB Model for %s' %(maps[imap]['name']))
                 plt.savefig(config.OUTPUT + 'add_sz/%s_ibmodel_%s_%s.png' %(maps[imap]['name'],maps[imap]['band'],isim))
+                plt.clf()
                 naxis = szmap.shape
                 szmap = szmap.flatten()
 
@@ -171,8 +172,8 @@ def clus_add_sziso(maps,isim,yin,tin,params,
             if saveplot:
                 filename = config.OUTPUT + 'sim_sz/' + maps[imap]['name'] + '_sze_' + maps[imap]['band'] + '_' + str(isim) + '.png'
                 plt.imshow(maps[imap]['signal'])
-                plt.title('CLUS_ADD_SZISO SZE + Signal Map')
-                plt.colorbar()
+                plt.title('Clus Add Sziso : SZE + Signal Map %s' %(maps[imap]['band']))
+                plt.colorbar().set_label('[Jy]')
                 plt.savefig(filename)
                 plt.clf()
 

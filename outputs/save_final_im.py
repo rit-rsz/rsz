@@ -8,6 +8,8 @@ import matplotlib.pyplot as plt
 def save_final_im(sgen,nsim,clusname,testflag=0):
 
     bands = ['PSW','PMW','PLW']
+    sgen = str(sgen)
+    nsim = str(nsim)
 
     for i in range(3): # make one set of figs for each band
         # this is all to just make a stupid white figure so things line up
@@ -72,7 +74,7 @@ def save_final_im(sgen,nsim,clusname,testflag=0):
             imgs = [Image.open(i) for i in list_im[j:j+3]]
 
             # pick the image which is the smallest, and resize the others to match it
-            min_shape = sorted([(np.sum(i.size), i.size) for i in imgs])[0][1]
+            min_shape = sorted([(np.sum(i.size), i.size) for i in imgs])[-1][1]
             imgs_comb = np.hstack((np.asarray(i.resize(min_shape)) for i in imgs))
 
             # save that beautiful picture
@@ -99,5 +101,5 @@ def save_final_im(sgen,nsim,clusname,testflag=0):
 if __name__ == '__main__' :
     sgen = 3
     nsim = 0
-    clusname = 'rxj1347'
+    clusname = 'a0370'
     save_final_im(str(sgen),str(nsim),clusname,testflag=1)

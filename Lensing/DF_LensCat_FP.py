@@ -272,54 +272,279 @@ def lenscat(map_size, c_z, pixsize=0.06, searchlensed=0.75, SLregime=[2,2,2],Def
 
 						#here we check for multiplicity
 						#if more than 1 pixel satisfy the source_dst < searchlensed arg we might have multiplicty
-						if len(indXY) > 1:
-							#cut a square sub-map including all pixels with "source_dist < searchlensed" for easy computation
-							min_x = min(indXY[:,0])
-							min_y = min(indXY[:,1]) #not sure here i feel like this should be [0,:]
-							max_x = max(indXY[:,0])
-							max_y = max(indXY[:,1]) #ditto
+						if indXY[0] != -1:
+							if len(indXY) >= 1:
+								#cut a square sub-map including all pixels with "source_dist < searchlensed" for easy computation
+								min_x = min(indXY[:,0])
+								min_y = min(indXY[:,1]) #not sure here i feel like this should be [0,:]
+								max_x = max(indXY[:,0])
+								max_y = max(indXY[:,1]) #ditto
 
-							temp_multi_x = max_x - min_x
-							temp_multi_y = max_y - min_y
-							if temp_multi_x - temp_multi_y >= 0:
-								multi_ll = temp_multi_x
-							else:
-								multi_ll = temp_multi_y
-
-							#there are a bunch of if cases to consider here
-							if min_x + multi_ll) < len(source_dist[:,0]):
-								if min_y + multi_ll < len(source_dist[0,:]):
-
-									regmap = source_dist[min_x:min_x + multi_ll, min_y:min_y+multi_ll]
+								temp_multi_x = max_x - min_x
+								temp_multi_y = max_y - min_y
+								if temp_multi_x - temp_multi_y >= 0:
+									multi_ll = temp_multi_x
 								else:
-									regmap = source_dist[min_x:min_x + multi_ll, min_y-1:len(source_dist[:,0])-1]
-							elif min_y + multi < len(source_dist[0,:]):
-								regmap = source_dist[min_x-1:len(source_dist[:,0]), min_y:min_y + multi_ll]
+									multi_ll = temp_multi_y
+
+								#there are a bunch of if cases to consider here
+								if min_x + multi_ll) < len(source_dist[:,0]):
+									if min_y + multi_ll < len(source_dist[0,:]):
+
+										regmap = source_dist[min_x:min_x + multi_ll, min_y:min_y+multi_ll]
+									else:
+										regmap = source_dist[min_x:min_x + multi_ll, min_y-1:len(source_dist[:,0])-1]
+								elif min_y + multi < len(source_dist[0,:]):
+									regmap = source_dist[min_x-1:len(source_dist[:,0]), min_y:min_y + multi_ll]
+								else:
+									regmap = source_dist[min_x-1:len(source_dist[:,0])-1, min_y-1:len(source_dist[0,:])-1]
+
+								#indXY2 -the second one (we should come up with a better name maybe)
+								indXY2 = np.where(regmap < searchlensed) #again, still unsure how this will pan out for 2D arrays
+
+								indXY2 = ij( indXY2, len(regmap[:,0])) #still can't find documenation for an ij function in idl
+								#don't understand what this is supposed to be doing aside from surface level finding i,j indices
+								#corresponding to image pixels
+								reg_centroids = np.zeros(2, len(indXY[:,0])) #create an empty array to put stuff in
+
+								for j in range(len(indXY2[:,0])):
+									#----------------- some idl code here
+									#region = SEARCH2D(regmap, indXY2[jj,0], inXY2[jj,1], 0, searchlensed, /DIAGONAL)
+									#regmap is the input map
+									#indXY2[j,0] is initial x position
+									#indXY2[j,1] is initial y position
+									#0 is the lower limit
+									#searchlensed is the upper limit
+									#link to documentation for SEARCH2D https://www.harrisgeospatial.com/docs/SEARCH2D.html
+
+									#initial an empty array structure to put stuff in!
+									regmask = np.zeros(len(regmap[:,0]), len(regmap[:,0]))
+									#give a value of 1 to all pixels in our region !
+									regmask[region] = 1.0
+
+									#find the centroids within the masked region
+									reg_centroids[:, j] = placeholder#need a function to do this can't find equiv
+
+								n_centroids = 0 #this is a counter initialized at 0.
+								for j in range(len(reg_centroids[0,:])):
+									i1 = np.where(reg_centroids[0,:] == reg_centroids[0,j])
+									i2 = np.where(reg_centroids[1,:] == reg_centroids[1,j])
+									ic = np.intersect1d(i1, i2) #find whree i1 and i2 overlap (effectivley an and operator)
+									if len(ic) != 0 and n_centroids > 0:
+										print('we found multiples')
+										n_centroids += 1
+										j = j + len(ic) - 1 #dont double count centroids
+
+										#sav mindX, mindY and magnification of each image
+										temp_indX = mindX
+										temp_indY = mindY
+										temp_mu = mmu
+
+	 									mindX = np.zeros(len(n_centroids))
+										mindY = np.zeros(len(n_centroids))
+										mmu = np.zeros(len(n_centroids))
+
+										mindX[0:n_centroids-2] = temp_indX
+										mindX[n_centroids-1] = np.mean(indXY2[ic,0] + min(indXY[:,0])) + pos_shift
+										mindY[0:n_centroids-2] = temp_indY
+										mindY[n_centroids-1] = np.mean(indXY2[ic,1] + min(indXY[:,1])) + pos_shift
+										mmu[0:n_centroids-2] = temp_mu
+										mmu[n_centroids-1] = np.mean(magnification[indXY2[ic, 0] + min(indXY[:,0]), indXY2[ic, 1] + min(indXY[:,1]))
+
+									elif ic[0] != -1 and n_centroids == 0:
+										n_centroids += 1
+										j = j + len(ic) - 1 #no double counting centroids !
+
+										mindX = np.mean(indXY2[ic,0] + min(indXY[:,0]))
+										mindY = np.mean(indXY2[ic,1] + min(indXY[:,1]))
+										#on line 351 (322 in IDL) magnification was being indexed but below here it was being called as if it was
+										#a function.
+										mmu = np.mean(magnification[indXY2[ic, 0] + min(indXY[:,0]), indXY2[ic, 1] + min(indXY[:,1]))
+										mindX = mindX + pos_shift
+										mindY = mindY + pos_shift
+
 							else:
-								regmap = source_dist[min_x-1:len(source_dist[:,0])-1, min_y-1:len(source_dist[0,:])-1]
+								mindX = np.mean(indXY[:,0])
+								mindY = np.mean(indXY[:,1])
+								mmu = np.mean(magnification[mindX, mindY])
 
-							#indXY2 -the second one (we should come up with a better name maybe)
-							indXY2 = np.where(regmap < searchlensed) #again, still unsure how this will pan out for 2D arrays
+								mindX = mindX + pos_shift
+								mindY = mindY + pos_shift
 
-							indXY2 = ij( indXY2, len(regmap[:,0])) #still can't find documenation for an ij function in idl
-							#don't understand what this is supposed to be doing aside from surface level finding i,j indices
-							#corresponding to image pixels
-							reg_centroids = np.zeros(2, len(indXY[:,0])) #create an empty array to put stuff in
+						else:
+							print('No images found in the SL regime, now checking for WL image')
+							source_x = xx[i]
+							source_y = yy[i]
+							if dfxx[i] <= 0 and dfyy[i] <= 0:
+								xi = source_x - WLmask
+								xf = source_x + WLmask / 2.
+								yi = source_y - WLmask
+								yf = source_y + WLmask / 2.
+							elif dfxx[i] < 0 and dfyy[i] > 0:
+								xi = source_x - WLmask / 2.
+								xf = source_x + WLmask
+								yi = source_y - WLmask / 2.
+								yf = source_y + WLmask
+							elif dfxx[i] > 0 and dfyy[i] > 0:
+								xi = source_x - WLmask / 2.
+								xf = source_x + WLmask
+								yi = source_y - WLmask / 2.
+								yf = source_y + WLmask
+							elif dfxx[i] > 0 and dfyy[i] < 0:
+								xi = source_x - WLmask / 2.
+								xf = source_X + WLmask
+								yi = source_y - WLmask
+								yf = source_y + Wlmask / 2.
 
-							for j in range(len(indXY2[:,0])):
-								#----------------- some idl code here
-								#region = SEARCH2D(regmap, indXY2[jj,0], inXY2[jj,1], 0, searchlensed, /DIAGONAL)
-								#regmap is the input map
-								#indXY2[j,0] is initial x position
-								#indXY2[j,1] is initial y position
-								#0 is the lower limit
-								#searchlensed is the upper limit
-								#link to documentation for SEARCH2D https://www.harrisgeospatial.com/docs/SEARCH2D.html
+							if xi <= 0:
+								xi = 0
+							if yi <= 0:
+								yi = 0
+							if xf >= len(wl_dax_dx[:,0])-1:
+								xf = len(wl_dax_dx[:,0])- 1
+							if yf >= len(wl_dax_dx[0,:])-1:
+								yf = len(wl_dax_dx[0,:1])-1
 
-								#initial an empty array structure to put stuff in!
-								regmask = np.zeros(len(regmap[:,0]), len(regmap[:,0]))
-								#give a value of 1 to all pixels in our region !
-								regmask[region] = 1.0
+							#not sure if we are concatenating these arrays or adding element by element
+							#estimating magnifications
+							poisson = (wl_dax_dx[xi:xf, yi:yf] + wl_day_dy[xi:xf,yi:yf])*scaling_factor
+							magnification = abs(1 / (1 - poisson + (wl_dax_dx[xi:xf,yi:yf]*wl_day_dy[xi:xf,yi:yf]-wl_dax_dy[xi:xf,yi:yf]*wl_day_dx[xi:xf,yi:yf])*scaling_factor )
 
-								#find the center of mass with mask applied !
-								reg_centroids[:, j] =
+							#find the pixels where the lensed images end up
+							source_dist = sqrt(( WLX[xi:xf, yi:yf]-wl_alpha_x[xi:xf, yi:yf] -wl_alpha_x[xi:xf, yi:yf]*scaling_factor-source_x)**2 +(WLY[xi:xf,yi:yf]-wl_alpha_y[xi:xf,yi:yf]*scaling_factor-source_y)**2)
+							indXY = np.where(source_dist < searchlensed)
+
+							if indXY[0] != -1:
+								indXY = ij(indXy, len(poisson[:,0])) #still need to find a function for ij
+								indX = indXY[:,0]
+								indY = indXY[:,1]
+								mu = magnification(indX, indY) #so magnification is also a function?
+								indX = indXY[:,0] + xi
+								indY = indXY[:,1] + yi
+
+							else:
+								indX = -999999.0
+								indY = -999999.0
+								mu = 0.0
+
+							mindX = np.mean(indX)
+							mindY = np.mean(indY)
+							mmu = np.mean(mu)
+
+					else:
+						print('WL regime')
+						source_x = xx[i]
+						source_y = yy[i]
+
+						if dfxx[i] <= 0 and dfyy[i] <= 0:
+							xi = source_x - WLmask
+							xf = source_X + WLmask / 2.
+							yi = source_y - WLmask
+							yf = source_y + WLmask / 2.
+
+						elif dfxx[i] < 0 and dfyy[i] > 0:
+							xi = source_x-WLmask
+							xf = source_x+WLmask/2.
+							yi = source_y-WLmask/2.
+							yf = source_y+WLmask
+
+						elif dfxx[i] > 0.0 and dfyy[i] > 0.0:
+							xi = source_x-WLmask/2.
+							xf = source_x+WLmask
+							yi = source_y-WLmask/2.
+							yf = source_y+WLmask
+
+						elif dfxx[i] > 0.0 and dfyy[i] < 0.0:
+							xi = source_x-WLmask/2.
+							xf = source_x+WLmask
+							yi = source_y-WLmask
+							yf = source_y+WLmask/2.
+
+						if xi < 0:
+							xi = 0
+						if yi < 0:
+							yi = 0
+						if xf >= len(wl_dax_dx[:,0])-1:
+							xf = len(wl_dax_dx[:,0])-1
+						if yf >= len(wl_dax_dx[0,:])-1:
+							yf = len(wl_dax_dx[0,:])-1
+
+						poisson = (wl_dax_dx[xi:xf, yi:yf] + wl_day_dy[xi:xf, yi:yf])*scaling_factor
+						magnification = abs(1 / (1 - poisson + (wl_dax_dx[xi:xf,yi:yf]*wl_day_dy[xi:xf,yi:yf]-wl_dax_dy[xi:xf,yi:yf]*wl_day_dx[xi:xf,yi:yf])*scaling_factor ))
+
+						source_dist = sqrt( (WLX[xi:xf,yi:yf]-wl_alpha_x[xi:xf,yi:yf]*scaling_factor-source_x)**2.+(WLY[xi:xf,yi:yf]-wl_alpha_y[xi:xf,yi:yf]*scaling_factor-source_y)**2.)
+						indXY = np.where(source_dist < searchlensed)
+
+						if indXY[0] != -1:
+							indXY = ij(indXy, len(poisson)) #still need this function equivalent
+
+							indX = indXY[:,0]
+							indY = indXY[:,1]
+							mu = magnification(indX, indY)
+							indX = indXy[:,0] + xi
+							indY = indXY[:,1] + yi
+
+						else:
+							#if we are here it means there is no image (probably outside of the map)
+							#nonsense position + mag of zero
+							indX = -999999.0
+							indY = -999999.0
+							mu = 0
+						mindX = np.mean(indX)
+						mindY = np.mean(indY)
+						mmu = np.mean(mu)
+					#--- done with WL regime
+				#---- finished lensing analysis
+				if i == 0:
+					#constructing output arrays
+					x_out = mindX
+					y_out = mindY
+					mu_out = mmu
+					id_in = np.arange(0, len(mindX))
+					id_in[:] = dfid[i]
+					x_in = np.zeros(len(mindX))
+					x_in[:] = dfxx[i]
+
+					y_in = np.zeros(len(mindX))
+					y_in[:] = dfyy[i]
+
+					z_in = np.zeros(len(mindX))
+					z_in[:] = dfredz[i]
+
+					f_in = np.zeros(len(mindX))
+					f_in[:] = dfflux[i]
+
+				else:
+					x_temp = np.zeros( len(mindX) + len(x_out))
+					x_temp[0:len(x_out)-1] = x_out
+					x_temp[len(x_out):-1] = mindX
+					x_out = x_temp
+
+					y_temp = np.zeros(len(mindY) + len(y_out))
+					y_temp[0:len(y_out)-1] = y_out
+					y_temp[len(y_out):-1] = mindY
+					y_out = y_temp
+
+					id_temp = np.arange(0, len(mindX) + len(id_in))
+					id_temp[0:len(id_in)-1] = id_in
+					id_temp[len(id_in):-1] = dfid[i]
+					id_in = id_temp
+
+					xi_temp = np.zeros(len(mindX) + len(x_in))
+					xi_temp[0:len(x_in)-1] = x_in
+					xi_temp[len(x_in):-1] = dfxx[i]
+					x_in = xi_temp
+
+					yi_temp = np.zeros(len(mindX) + len(y_in))
+					yi_temp[0:len(y_in)-1] = y_in
+					yi_temp[len(y_in):-1] = dfyy[i]
+					y_in = yi_temp
+
+					fi_temp = np.zeros(len(mindX) + len(f_in))
+					fi_temp[0:len(f_in)-1] = f_in
+					fi_temp[len(f_in):-1] = dfflux[i]
+					f_in = fi_temp
+
+				print('done')
+
+			return #need to return a transpose of all our stuff.

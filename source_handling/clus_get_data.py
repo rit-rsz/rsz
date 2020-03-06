@@ -194,7 +194,6 @@ def clus_read_file(file, clusname, verbose=0, sgen=None):
     widtha = get_spire_beam_fwhm(band) #arcsecs (fwhm of gaussian)
     width = widtha / (sqrt(8 * log(2)) / pixsize) # width in pixels #sqrt(8 * log(2)) is conversion to sigma of gauss
     calfac = 1 / (config.calfac * (get_spire_beam_fwhm(band))**2) #calibration factor based off of FWHM of our beam.
-
 #   Gets header information from a fits image. Astropy should be able to do this
     #This is potentially depreciated.
     astr = {}

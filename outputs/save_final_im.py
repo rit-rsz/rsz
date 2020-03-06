@@ -101,5 +101,5 @@ def save_final_im(sgen,nsim,clusname,testflag=0):
 if __name__ == '__main__' :
     sgen = 3
     nsim = 0
-    clusname = 'a0370'
-    save_final_im(str(sgen),str(nsim),clusname,testflag=1)
+    clusname = 'rxj1347'
+    save_final_im(str(sgen),str(nsim),clusname,testflag=0)

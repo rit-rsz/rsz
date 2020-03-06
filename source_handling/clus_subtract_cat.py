@@ -25,12 +25,16 @@ import config
 sys.path.append(config.HOME + 'multiband_pcat/multiband_pcat')
 from pcat_spire import lion
 from save_fits import writefits
-import os, time
+import os, time, math
 
 def clus_subtract_cat(maps, dI, nsim, sgen=None, verbose=1, saveplot=0, superplot=0):
     err = None
-
-    resid_maps = run_pcat(maps,nsim)
+    offsets = 3*[0]
+    offsets[0] = np.median([x for x in maps[0]['signal'].flatten() if not math.isnan(x)])
+    offsets[1] = np.median([x for x in maps[1]['signal'].flatten() if not math.isnan(x)])
+    offsets[2] = np.median([x for x in maps[2]['signal'].flatten() if not math.isnan(x)])
+    print('map offsets: ', offsets)
+    resid_maps = run_pcat(maps,nsim,offsets)
 
     for i in range(len(resid_maps)): # only loop through how many residuals we have
         if verbose==1:
@@ -72,10 +76,13 @@ def clus_subtract_cat(maps, dI, nsim, sgen=None, verbose=1, saveplot=0, superplo
             plt.savefig(filename)
             plt.clf()
 
+            ''' For making hists for Jack '''
+            hda = fits.PrimaryHDU(maps[i]['srcrm'],maps[i]['shead'])
+            hda.writeto(config.OUTPUT + 'pcat_residuals/' + maps[i]['name'] + '_resid_' + maps[i]['band'] + '_' + str(nsim) + '.fits',overwrite=True)
 
     return maps, err
 
-def run_pcat(maps,nsim):
-    ob = lion(band0=0, band1=1, band2=2, isim=nsim, map_object=maps, auto_resize=True, make_post_plots=True, openblas=False, cblas=False, nsamp=500, residual_samples=100, visual=False)
+def run_pcat(maps,nsim,offsets):
+    ob = lion(band0=0, band1=1, band2=2, mean_offsets = offsets, isim=nsim, map_object=maps, auto_resize=True, make_post_plots=True, openblas=False, cblas=False, nsamp=500, residual_samples=100, visual=False)
     resid_maps = ob.main()
     return resid_maps

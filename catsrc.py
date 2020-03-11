@@ -65,6 +65,8 @@ class Catsrc():
                  szout - file containing the increment and offset as well as other information from
                  our analysis.
         """
+        clusters = ['a0370','a1689','a1835','a2218','a2219','a2390',
+                  'cl0024','ms0451','ms1054','ms1358','rxj0152','rxj1347']
         self.beam = [get_spire_beam_fwhm('PSW'), #arcsec
                 get_spire_beam_fwhm('PMW'),
                 get_spire_beam_fwhm('PLW')]
@@ -72,8 +74,8 @@ class Catsrc():
         self.saveplot = saveplot
         self.maketf = maketf
         self.sgen = sgen
-        self.yin = config.yin
-        self.tin = config.tin
+        self.yin = config.yin[clusters.index(clusname)]
+        self.tin = config.tin[clusters.index(clusname)]
         self.clusname = clusname
         self.nsim = int(isim) - 1
         self.resolution = resolution

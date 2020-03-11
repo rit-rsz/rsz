@@ -162,7 +162,7 @@ def clus_add_sziso(maps,isim,yin,tin,params,
             nu = 3e5 / clus_get_lambdas((maps[imap]['band']))
 
             if int(isim) == 0 : # dI only needs to be calculated once...
-                dI,errmsg = clus_get_relsz(isim,nu,imap,y=yin[-1],te=tin[-1],vpec=0.0) # dI = [MJy/sr]
+                dI,errmsg = clus_get_relsz(isim,nu,imap,y=yin,te=tin,vpec=0.0) # dI = [MJy/sr]
                 np.save(config.OUTPUT + 'add_sz/sim_dI_%s.npy' %(maps[imap]['band']),dI)
             else :
                 dI = np.load(config.OUTPUT + 'add_sz/sim_dI_%s.npy' %(maps[imap]['band']))

@@ -28,18 +28,22 @@ from clus_get_data import *
 from clus_get_relsz import *
 import multiprocessing as mp
 
-def clus_szgf():
-    yin_coeff = [2.50,1.91,2.26,3.99,1.36,2.42,1.59,1.90,3.99]
-    yin = [x*1e-4 for x in yin_coeff]
+def clus_szgf(nsim,name,samples,step):
+    yin_coeff = [4.56,8.5,8.7,4.45,7.43,8.96,0.93,7.42,5.63,3.53,3.72,14.08]
+    f_yin = [x*1e-4 for x in yin_coeff]
 
-    tin = [7.2,10.1,7.7,9.8,4.5,8.6,7.8,5.5,10.9]
+    f_tin = [7.2,10.1,7.65,6.7,9.81,9.16,4.5,8.62,7.8,7.2,5.5,10.88]
+
     clusters = ['a0370','a1689','a1835','a2218','a2219','a2390',
               'cl0024','ms0451','ms1054','ms1358','rxj0152','rxj1347']
 
+    tin = f_tin[clusters.index(name)]
+    yin = f_yin[clusters.index(name)]
+
     # for i in range(len(clusters)):
-    maps,err = clus_get_data(clusters[-1])
-    ys = np.linspace(yin[-1]-(0.1*10/2.0*1e-4),yin[-1]+(0.1*10/2.0*1e-4),10) # 10 samples, 0.1 step
-    ts = np.linspace(tin[-1]-(0.1*10/2.0),tin[-1]+(0.1*10/2.0),10)
+    maps,err = clus_get_data(name,nsim)
+    ys = np.linspace(yin - (step*samples/2.0*1e-4), yin + (step*samples/2.0*1e-4), samples) # 100 samples, 0.01 step
+    ts = np.linspace(tin - (step*samples/2.0), tin + (step*samples/2.0), samples)
     param_grid = np.array(np.meshgrid(ys,ts)).T.reshape(-1,2) #[0,0] = ys,ts
     a = time.time()
     master_sz = []
@@ -51,9 +55,9 @@ def clus_szgf():
         # default is to have all of the 3 maps returned
         manager = mp.Manager()
         sz_amp = manager.dict()
-        p1 = mp.Process(target=run_szpack, args=(maps,sz_amp,0,y_c,t_c))
-        p2 = mp.Process(target=run_szpack, args=(maps,sz_amp,1,y_c,t_c))
-        p3 = mp.Process(target=run_szpack, args=(maps,sz_amp,2,y_c,t_c))
+        p1 = mp.Process(target=run_szpack, args=(maps,sz_amp,0,nsim,y_c,t_c))
+        p2 = mp.Process(target=run_szpack, args=(maps,sz_amp,1,nsim,y_c,t_c))
+        p3 = mp.Process(target=run_szpack, args=(maps,sz_amp,2,nsim,y_c,t_c))
         p1.start()
         p2.start()
         p3.start()
@@ -66,9 +70,9 @@ def clus_szgf():
     master_yt = []
     mngr = mp.Manager()
     input_yt = mngr.dict()
-    p1 = mp.Process(target=run_szpack, args=(maps,input_yt,0,yin[-1],tin[-1]))
-    p2 = mp.Process(target=run_szpack, args=(maps,input_yt,1,yin[-1],tin[-1]))
-    p3 = mp.Process(target=run_szpack, args=(maps,input_yt,2,yin[-1],tin[-1]))
+    p1 = mp.Process(target=run_szpack, args=(maps,input_yt,0,nsim,yin,tin))
+    p2 = mp.Process(target=run_szpack, args=(maps,input_yt,1,nsim,yin,tin))
+    p3 = mp.Process(target=run_szpack, args=(maps,input_yt,2,nsim,yin,tin))
     p1.start()
     p2.start()
     p3.start()
@@ -79,16 +83,16 @@ def clus_szgf():
 
     b = time.time()
     print('TIME ELAPSED:' , b-a)
-    np.save(config.HOME + '/outputs/%s_sz_grid.npy'%(clusters[-1]),master_sz,allow_pickle=True)
-    np.save(config.HOME + '/outputs/%s_input_grid.npy'%(clusters[-1]),master_yt,allow_pickle=True)
-    np.save(config.HOME + '/outputs/%s_y.npy'%(clusters[-1]),ys)
-    np.save(config.HOME + '/outputs/%s_t.npy'%(clusters[-1]),ts)
+    np.save(config.HOME + '/outputs/%s_sz_grid.npy'%(name),master_sz,allow_pickle=True)
+    np.save(config.HOME + '/outputs/%s_input_grid.npy'%(name),master_yt,allow_pickle=True)
+    np.save(config.HOME + '/outputs/%s_y.npy'%(name),ys)
+    np.save(config.HOME + '/outputs/%s_t.npy'%(name),ts)
 
     return master_sz, master_yt, ys, ts
 
-def run_szpack(maps,sz_amp,band,y_c,t_c):
+def run_szpack(maps,sz_amp,band,isim,y_c,t_c):
     nu = 3e5 / clus_get_lambdas((maps[band]['band']))
-    dI,errmsg = clus_get_relsz(nu,band,y=y_c,te=t_c) # dI = [MJy/sr]
+    dI,errmsg = clus_get_relsz(isim,nu,band,y=y_c,te=t_c) # dI = [MJy/sr]
     szin = dI / maps[band]['calfac'] # converts to Jy/beam
     sz_amp[band] = szin
     return

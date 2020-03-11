@@ -2813,11 +2813,5 @@ No handles with labels found to put in legend.
 No handles with labels found to put in legend.
 No handles with labels found to put in legend.
 No handles with labels found to put in legend.
-Traceback (most recent call last):
-  File "catsrc.py", line 271, in <module>
-    catsrc = Catsrc(clusname, sgen=sgen, isim=nsim, resolution=resolution)
-  File "catsrc.py", line 86, in __init__
-    self.data_analysis()
-  File "catsrc.py", line 255, in data_analysis
-    err = save_fitsz(increment, offsets, radave, self.params, sgen=self.sgen, verbose=self.verbose, nsim=self.nsim)
-UnboundLocalError: local variable 'increment' referenced before assignment
+/var/spool/slurmd/job11492514/slurm_script: line 13: 27727 Killed                  python3 catsrc.py -run $name $sgen $nsim $resolution
+slurmstepd: error: Detected 1 oom-kill event(s) in step 11492514.batch cgroup. Some of your processes may have been killed by the cgroup out-of-memory handler.

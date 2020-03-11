@@ -22,37 +22,23 @@ import json
 from math import *
 
 def clus_sim_hist(nsims,clusname):
-
+    tot_sims = 10
     bands = ['PSW','PMW','PLW']
     sz_avg = []
     for k in range(len(bands)):
-        Isim = np.zeros(nsims)
+        Isim = np.zeros(tot_sims)
         band = bands[k]
-
-        ''' Turned off for testing'''
-        # n = 0
-        # for i in range(200, 200+nsims):
-        #     file = config.HOME + 'output/szout__' + clusname + str(i) + '.json'
-        #     with open(file) as data_file:
-        #         data = json.load(data_file)
-        #     Isim[n] = data[k]['increment']
-
-            # n += 1
-
-        average = histogram_sim(25, k, Isim, clusname, band,nsims)
+        average = histogram_sim(25, k, Isim, clusname, band, nsims)
         sz_avg.append(average)
     return sz_avg
 
 def histogram_sim(binsize, k, Isim, clusname, band, nsims):
     # open the real SZ amplitude for given cluster
-    with open(config.HOME + 'outputs/szout/szout__' + clusname + 'real.json') as data_file:
-        data = json.load(data_file)
+    data_file = config.OUTPUT + 'szout/' + clusname + 'szout_' + 'real.npy'
+    data = np.load(data_file)
 
-    ''' for testing... load the one sim we have and make it the average dI '''
-    with open(config.HOME + 'outputs/szout/szout__' + clusname + '0' + '.json') as data_file:
-        sim_data = json.load(data_file)
-
-
+    data_file_sim = config.OUTPUT + 'szout/' + clusname + 'szout_' + str(nsims) + '.npy'
+    sim_data = np.load(data_file_sim)
 
     Ireal = data[k]['increment']
     Ifake = sim_data[k]['increment']

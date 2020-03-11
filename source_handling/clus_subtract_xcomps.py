@@ -57,6 +57,10 @@ def clus_subtract_xcomps(maps, sgen=None, verbose=1, superplot=1, nsim=0, savepl
             plt.savefig(filename)
             plt.clf()
 
+            ''' For making hists for Jack '''
+            hda = fits.PrimaryHDU(maps[i]['srcrm'],maps[i]['shead'])
+            hda.writeto(config.OUTPUT + 'pcat_residuals/' + maps[i]['name'] + '_mask_resid_' + maps[i]['band'] + '_' + str(nsim) + '.fits',overwrite=True)
+
     for i in range(1, ncols):
         if verbose:
             print('On band %s' %(maps[i]['band']))

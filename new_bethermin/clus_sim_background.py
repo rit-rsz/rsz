@@ -169,7 +169,7 @@ def clus_sim_background(genbethermin=1,fluxcut=0,saveplots=1,savemaps=0,genpower
                     np.random.seed(102793)
                     error =  np.array(maps[icol]['error']).flatten()
                     signal = np.array(maps[icol]['signal']).flatten()
-                    noise = np.random.normal(scale=1.0,size=(maps[icol]['signal'].shape[0],maps[icol]['signal'].shape[1])).flatten()
+                    noise = np.random.normal(loc=0.0,scale=1.0,size=(maps[icol]['signal'].shape[0],maps[icol]['signal'].shape[1])).flatten()
                     normalization = 2*np.pi*((3)/2.355)**2
 
                     for i in range(len(signal)):

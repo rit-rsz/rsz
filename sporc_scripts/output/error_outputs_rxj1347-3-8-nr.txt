@@ -2813,11 +2813,3 @@ No handles with labels found to put in legend.
 No handles with labels found to put in legend.
 No handles with labels found to put in legend.
 No handles with labels found to put in legend.
-Traceback (most recent call last):
-  File "catsrc.py", line 271, in <module>
-    catsrc = Catsrc(clusname, sgen=sgen, isim=nsim, resolution=resolution)
-  File "catsrc.py", line 86, in __init__
-    self.data_analysis()
-  File "catsrc.py", line 255, in data_analysis
-    err = save_fitsz(increment, offsets, radave, self.params, sgen=self.sgen, verbose=self.verbose, nsim=self.nsim)
-UnboundLocalError: local variable 'increment' referenced before assignment

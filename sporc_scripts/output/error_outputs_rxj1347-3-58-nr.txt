@@ -2813,5 +2813,3 @@ No handles with labels found to put in legend.
 No handles with labels found to put in legend.
 No handles with labels found to put in legend.
 No handles with labels found to put in legend.
-/var/spool/slurmd/job10419988/slurm_script: line 13: 23344 Killed                  python3 catsrc.py -run $name $sgen $nsim $resolution
-slurmstepd: error: Detected 1 oom-kill event(s) in step 10419988.batch cgroup. Some of your processes may have been killed by the cgroup out-of-memory handler.

@@ -19,28 +19,90 @@ sys.path.append('sz')
 from catsrc import Catsrc as c
 from clus_szgf import *
 from clus_sim_hist import *
-from scipy.stats import chisquare, chi2
 import config
 from scipy.ndimage.filters import gaussian_filter
+from scipy.stats import norm, chi2
+from matplotlib.patches import Ellipse
+import matplotlib.transforms as transforms
 
-nsim = 99
-names = 'a0370'
-# names = 'rxj1347'
+def confidence_ellipse(x, y, ax, n_std=1.0, facecolor='none', **kwargs):
+    """
+    Create a plot of the covariance confidence ellipse of *x* and *y*.
 
-if sys.argv[1] == 'real' : # run the real maps
-    c(names, isim = None, saveplot=1,maketf=0,sgen=None,verbose=1,resolution='nr',superplot=0,testflag=0)
-else : # run the simulated maps
-    c(names, isim = sys.argv[1] ,saveplot=1,maketf=0,sgen=3,verbose=1,resolution='nr',superplot=0,testflag=1)
+    Parameters
+    ----------
+    x, y : array-like, shape (n, )
+        Input data.
 
-exit()
+    ax : matplotlib.axes.Axes
+        The axes object to draw the ellipse into.
+
+    n_std : float
+        The number of standard deviations to determine the ellipse's radiuses.
+
+    Returns
+    -------
+    matplotlib.patches.Ellipse
+
+    Other parameters
+    ----------------
+    kwargs : `~matplotlib.patches.Patch` properties
+    """
+    if x.size != y.size:
+        raise ValueError("x and y must be the same size")
+
+    cov = np.cov(x, y)
+    pearson = cov[0, 1]/np.sqrt(cov[0, 0] * cov[1, 1])
+    # Using a special case to obtain the eigenvalues of this
+    # two-dimensionl dataset.
+    ell_radius_x = np.sqrt(1 + pearson)
+    ell_radius_y = np.sqrt(1 - pearson)
+    ellipse = Ellipse((0, 0), width=ell_radius_x * 2, height=ell_radius_y * 2,
+                      facecolor=facecolor, **kwargs)
+
+    # Calculating the stdandard deviation of x from
+    # the squareroot of the variance and multiplying
+    # with the given number of standard deviations.
+    scale_x = np.sqrt(cov[0, 0]) * n_std
+    mean_x = np.mean(x)
+
+    # calculating the stdandard deviation of y ...
+    scale_y = np.sqrt(cov[1, 1]) * n_std
+    mean_y = np.mean(y)
+
+    transf = transforms.Affine2D() \
+        .rotate_deg(45) \
+        .scale(scale_x, scale_y) \
+        .translate(mean_x, mean_y)
+
+    ellipse.set_transform(transf + ax.transData)
+
+    return ax.add_patch(ellipse)
+
+def chi_square_test(data,model,sigma):
+    total_chi = []
+    for i in range(3):
+        total_chi.append((data[i] - model[i])**2 / (2*sigma[i]**2))
+    # print('total_chi:',np.sum(total_chi),total_chi)
+    return np.sum(total_chi)
+
+nsim = 1
+names = 'rxj1347'
+
+# if sys.argv[1] == 'real' : # run the real maps
+#     c(names, isim = None, saveplot=1,maketf=0,sgen=None,verbose=1,resolution='nr',superplot=0,testflag=0)
+# else : # run the simulated maps
+#     c(names, isim = sys.argv[1] ,saveplot=1,maketf=0,sgen=3,verbose=1,resolution='nr',superplot=0,testflag=1)
+#
+# exit()
 #yt_grid and sz_grid should be indexed the same
-if os.path.isfile(config.HOME + 'outputs/%s_sz_grid.npy' %(names)):
-    sz_grid = np.load(config.HOME + 'outputs/%s_sz_grid.npy' %(names),allow_pickle=True)
-    input_yt = np.load(config.HOME + 'outputs/%s_input_grid.npy' %(names),allow_pickle=True)
-    ys = np.load(config.HOME + 'outputs/%s_y.npy' %(names))
-    ts = np.load(config.HOME + 'outputs/%s_t.npy' %(names))
-else :
-    sz_grid, input_yt, ys, ts = clus_szgf() # input_yt should have one DI for each band
+# if os.path.isfile(config.HOME + 'outputs/%s_sz_grid.npy' %(names)):
+#     sz_grid = np.load(config.HOME + 'outputs/%s_sz_grid.npy' %(names),allow_pickle=True)
+#     input_yt = np.load(config.HOME + 'outputs/%s_input_grid.npy' %(names),allow_pickle=True)
+#     ys = np.load(config.HOME + 'outputs/%s_y.npy' %(names))
+#     ts = np.load(config.HOME + 'outputs/%s_t.npy' %(names))
+# else :
+sz_grid, input_yt, ys, ts = clus_szgf() # input_yt should have one DI for each band
 
 avg_dI = clus_sim_hist(nsim,names)
 print('avg dI : ',avg_dI)
@@ -65,31 +127,36 @@ print(sz_fit_real)
 # retreive and separate all dI for each band and y/t pair
 # subtract bias for each band ... not sure that we have to do it by band
 # maybe only if each bias is very different... we shall see
-chisq_psw = []
-chisq_pmw = []
-chisq_plw = []
-like_psw = []
-like_pmw = []
-like_plw = []
+like_li = []
+sz_grid_0 = [x.get(0) for x in sz_grid]
+sz_grid_1 = [x.get(1) for x in sz_grid]
+sz_grid_2 = [x.get(2) for x in sz_grid]
+rand_sz_grid_0 = np.random.normal(loc=sz_grid_0[int(len(sz_grid_0)/2.0)], scale=np.std(sz_grid_0), size=len(sz_grid_0))
+rand_sz_grid_1 = np.random.normal(loc=sz_grid_1[int(len(sz_grid_1)/2.0)], scale=np.std(sz_grid_1), size=len(sz_grid_1))
+rand_sz_grid_2 = np.random.normal(loc=sz_grid_2[int(len(sz_grid_2)/2.0)], scale=np.std(sz_grid_2), size=len(sz_grid_2))
 # make chi square test for each final sz amplitude
 # use sz_fit_real for real DIs
 for i in range(len(sz_grid)):
-    stat1,pval1 = chisquare(sz_grid[i].get(0),f_exp=sz_fit_real[0][0] - bias[0],ddof=0)
-    stat2,pval2 = chisquare(sz_grid[i].get(1),f_exp=sz_fit_real[1][0] - bias[1],ddof=0)
-    stat3,pval3 = chisquare(sz_grid[i].get(2),f_exp=sz_fit_real[2][0] - bias[2],ddof=0)
-    chisq_psw.append(stat1)
-    like_psw.append(np.exp(stat1/-2.0))
-    chisq_pmw.append(stat2)
-    like_pmw.append(np.exp(stat2/-2.0))
-    chisq_plw.append(stat3)
-    like_plw.append(np.exp(stat3/-2.0))
+    # chi_stat = chi_square_test([sz_fit_real[0][0],sz_fit_real[1][0],sz_fit_real[2][0]],
+    #                             [sz_grid[i].get(0),sz_grid[i].get(1),sz_grid[i].get(2)],
+    #                             [bias[0],bias[1],bias[2]])
+    chi_stat = chi_square_test([sz_grid[i].get(0),sz_grid[i].get(1),sz_grid[i].get(2)],
+                                [rand_sz_grid_0[i],rand_sz_grid_1[i],rand_sz_grid_2[i]],
+                                [np.std(sz_grid_0),np.std(sz_grid_1),np.std(sz_grid_2)])
+
+    like_li.append(np.exp(chi_stat/-2.0))
 
 # compute likelihood function
 YS,TS = np.meshgrid(ys,ts)
-DI = np.array(like_plw).reshape(len(ys),len(ts))
+DI = np.array(like_li).reshape(len(ys),len(ts))
 plt.pcolormesh(YS,TS,DI)
 plt.colorbar()
-cs = plt.contour(YS,TS,DI,levels=[1.172,1.173],colors=('k',),linestyles=('-',),linewidths=(2,))
+
+# compute the 68.3% confidence contours
+q = 2 * norm.cdf(1) - 1
+r2 = chi2.ppf(q, 2)
+print(q,r2)
+cs = plt.contour(YS,TS,DI,levels=[q],colors=('k',),linestyles=('-',),linewidths=(2,))
 plt.clabel(cs,fmt='%.3f',colors='k',fontsize=14)
 plt.xlabel('Compton Y')
 plt.ylabel('Temperature [K]')

@@ -11,7 +11,6 @@
 # OUTPUTS :
 # REVISION HISTORY :
 ################################################################################
-import json
 import config
 import numpy as np
 import os

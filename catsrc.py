@@ -44,7 +44,7 @@ import argparse
 
 class Catsrc():
 
-    def __init__(self, clusname, isim=None, saveplot=1, maketf=0, sgen=None, verbose=1, resolution='nr', superplot=0, testflag=1, lense_only=1):
+    def __init__(self, clusname, isim=None, saveplot=1, maketf=0, sgen=None, verbose=1, resolution='nr', superplot=0, testflag=0, lense_only=0):
         """
         initializing function for catsrc class
         Purpose: read in arguments to be passed to functions in catsrc.
@@ -119,7 +119,7 @@ class Catsrc():
         # Add the sz effect into the simmulated clusters
         if self.sgen is not None and not self.lense_only:
             print('I should not exist')
-            maps, err, dI = clus_add_sziso(maps,self.nsim,yin=self.yin, tin=self.tin,params=params,verbose=self.verbose, testflag=self.testflag,nsim=self.nsim,saveplot=self.saveplot)
+            maps, err, dI = clus_add_sziso(maps,self.nsim,clusname=self.clusname,yin=self.yin,tin=self.tin,params=params,verbose=self.verbose, testflag=self.testflag,nsim=self.nsim,saveplot=self.saveplot)
             self.dI = dI
         if err:
             if self.verbose:

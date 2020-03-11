@@ -96,7 +96,7 @@ def clus_fitsz(radave, params, beam, sgen=None, maxlim=3600, minlim=0, noweight=
         np.place(roft, roft<0.1, 0.0)
         roft = [x for x in roft if x != 0]
         radave[i]['fluxbin'] = [y for y in radave[i]['fluxbin'] if y != 0][:len(roft)]
-        z, cov = curve_fit(fitting_func, roft, radave[i]['fluxbin'])
+        z, cov = curve_fit(fitting_func, roft, radave[i]['fluxbin'],sigma=radave[i]['errbin'])
         intercept = z[1]
         slope = z[0]
         fit[i] = z

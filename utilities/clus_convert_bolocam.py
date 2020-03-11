@@ -10,36 +10,34 @@
 #
 #
 # OUTPUTS :
-# REVISION HISTORY :
+# REVISION HISTORY : 3/6/202 - VLB updating to use new Bolocam template maps
 ################################################################################
-import scipy.io
-import numpy as np
-from math import *
-from astropy.io import fits
-import os
 import sys
+from astropy.io import fits
 sys.path.append('../sz')
 from clus_dTtoDI import *
-import matplotlib.pyplot as plt
+import numpy as np
 
-def clus_convert_bolocam(bolocam, verbose=0):
-    # Converts mK to MJy/sr
-    bolocam[0]['deconvolved_image'] = clus_dTtoDI(143,1e-6*(bolocam[0]['deconvolved_image']))
-    # Converts mK to MJy/sr
-    bolocam[0]['deconvolved_image_smooth_trim_sn'] = \
-        clus_dTtoDI(143,1e-6*bolocam[0]['deconvolved_image_smooth_trim_sn'])
+def clus_convert_bolocam(bolocam, norm = None, clusname=None, verbose=0):
 
-    # This was used when the following conversion was in a for loop.
-    # Due to issues with being not writable I'm trying to skip it and modify afterwards
-    bolocamsize = bolocam[0]['deconvolved_image_noise_realizations'][0].shape
+    if clusname == 'rxj1347' :
+        # convert normalized map back to original dT
+        bolocam_new = np.reshape([x*norm for x in bolocam.flatten()],(bolocam.shape[0],bolocam.shape[1]))
+        bolocam_final = clus_dTtoDI(143,bolocam_new)
 
-    # for ib in range(bolocamsize[2]):
-    # This still needs to be reformed inorder to matcht the idl version. It should be
-    # Is this working now?
-    # a 1-D array
-    bolocam[0]['deconvolved_image_noise_realizations'] = \
-        clus_dTtoDI(143,1e-6*bolocam[0]['deconvolved_image_noise_realizations'])
-    bolocam[0]['deconvolved_image_noise_realizations'] = bolocam[0]['deconvolved_image_noise_realizations'].flatten()
+        return bolocam_final,None
+    else :
+        # Converts mK to MJy/sr
+        bolocam[0]['deconvolved_image'] = clus_dTtoDI(143,1e-6*(bolocam[0]['deconvolved_image']))
+        # Converts mK to MJy/sr
+        bolocam[0]['deconvolved_image_smooth_trim_sn'] = \
+            clus_dTtoDI(143,1e-6*bolocam[0]['deconvolved_image_smooth_trim_sn'])
 
+        bolocamsize = bolocam[0]['deconvolved_image_noise_realizations'][0].shape
 
-    return bolocam,None
+        # a 1-D array
+        bolocam[0]['deconvolved_image_noise_realizations'] = \
+            clus_dTtoDI(143,1e-6*bolocam[0]['deconvolved_image_noise_realizations'])
+        bolocam[0]['deconvolved_image_noise_realizations'] = bolocam[0]['deconvolved_image_noise_realizations'].flatten()
+
+        return bolocam,None

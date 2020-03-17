@@ -83,12 +83,13 @@ def clus_szgf(nsim,name,samples,step):
 
     b = time.time()
     print('TIME ELAPSED:' , b-a)
-    np.save(config.HOME + '/outputs/%s_sz_grid.npy'%(name),master_sz,allow_pickle=True)
-    np.save(config.HOME + '/outputs/%s_input_grid.npy'%(name),master_yt,allow_pickle=True)
-    np.save(config.HOME + '/outputs/%s_y.npy'%(name),ys)
-    np.save(config.HOME + '/outputs/%s_t.npy'%(name),ts)
+    np.save(config.HOME + 'outputs/%s_sz_grid.npy'%(name),master_sz,allow_pickle=True)
+    np.save(config.HOME + 'outputs/%s_input_grid.npy'%(name),master_yt,allow_pickle=True)
+    np.save(config.HOME + 'outputs/%s_param_grid.npy'%(name),param_grid)
+    np.save(config.HOME + 'outputs/%s_y.npy'%(name),ys)
+    np.save(config.HOME + 'outputs/%s_t.npy'%(name),ts)
 
-    return master_sz, master_yt, ys, ts
+    return master_sz, master_yt, param_grid, ys, ts
 
 def run_szpack(maps,sz_amp,band,isim,y_c,t_c):
     nu = 3e5 / clus_get_lambdas((maps[band]['band']))

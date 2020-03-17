@@ -33,6 +33,11 @@ def clus_subtract_cat(maps, dI, nsim, sgen=None, verbose=1, saveplot=0, superplo
     offsets[0] = np.median([x for x in maps[0]['signal'].flatten() if not math.isnan(x)])
     offsets[1] = np.median([x for x in maps[1]['signal'].flatten() if not math.isnan(x)])
     offsets[2] = np.median([x for x in maps[2]['signal'].flatten() if not math.isnan(x)])
+
+    # add 3 mJy offset to make pcat happy for now
+    maps[0]['signal'] = np.reshape([x - offsets[0] + 0.003 for x in maps[0]['signal'].flatten() if not math.isnan(x)],(maps[0]['srcrm'].shape[0],maps[0]['srcrm'].shape[1]))
+    maps[1]['signal'] = np.reshape([x - offsets[1] + 0.003 for x in maps[1]['signal'].flatten() if not math.isnan(x)],(maps[1]['srcrm'].shape[0],maps[1]['srcrm'].shape[1]))
+    maps[2]['signal'] = np.reshape([x - offsets[2] + 0.003 for x in maps[2]['signal'].flatten() if not math.isnan(x)],(maps[2]['srcrm'].shape[0],maps[2]['srcrm'].shape[1]))
     print('map offsets: ', offsets)
     resid_maps = run_pcat(maps,nsim,offsets)
 

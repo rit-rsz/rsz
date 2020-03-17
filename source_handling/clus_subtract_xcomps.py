@@ -43,11 +43,13 @@ def clus_subtract_xcomps(maps, sgen=None, verbose=1, superplot=1, nsim=0, savepl
             for k in range(maps[i]['signal'].shape[1]):
                 if maps[i]['mask'][j,k] == 1:
                     maps[i]['srcrm'][j,k] = np.nan
+
         plt.imshow(maps[i]['srcrm'])
         plt.colorbar()
         plt.clim(-0.03,0.04)
         plt.savefig('after_mask_%s.png' %(maps[i]['band']))
         plt.clf()
+
     for i in range(1, ncols):
         if verbose:
             print('On band %s' %(maps[i]['band']))

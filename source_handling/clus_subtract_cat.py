@@ -80,10 +80,11 @@ def clus_subtract_cat(maps, dI, verbose=1, nsim=0, saveplot=0, superplot=0):
                 if maps[i]['mask'][j,k] == 1:
                     maps[i]['error'][j,k] = 0.0
 
-    plt.imshow(maps[i]['error'])
-    plt.colorbar()
-    plt.savefig('checking_pcat.png')
-    plt.clf()
+        plt.imshow(maps[i]['mask'])
+        plt.colorbar()
+        plt.clim(-0.03,0.04)
+        plt.savefig('checking_pcat_%s.png' %(maps[i]['band']))
+        plt.clf()
 
     resid_maps = run_pcat(maps)
 
@@ -121,7 +122,7 @@ def clus_subtract_cat(maps, dI, verbose=1, nsim=0, saveplot=0, superplot=0):
         maps[i]['srcrm'] = datasub[0:maps[i]['signal'].shape[0],0:maps[i]['signal'].shape[1]]
 
         ''' Testing '''
-        filename = config.HOME + 'outputs/pcat_residuals/' + maps[i]['name'] + '_' + maps[i]['band'] + '_residx25' + '.fits'
+        filename = config.HOME + 'outputs/pcat_residuals/' + maps[i]['name'] + '_' + maps[i]['band'] + '_residx1' + '.fits'
         hda = fits.PrimaryHDU(maps[i]['srcrm'],maps[i]['shead'])
         hda.writeto(filename,overwrite=True)
         plt.imshow(maps[i]['srcrm'])
@@ -142,7 +143,7 @@ def clus_subtract_cat(maps, dI, verbose=1, nsim=0, saveplot=0, superplot=0):
 
 # def run_pcat(maps,ret_maps):
 def run_pcat(maps):
-    ob = lion(band0=0, band1=1, band2=2, map_object=maps, auto_resize=True, make_post_plots=True, openblas=True, cblas=False, nsamp=10, residual_samples=1, visual=False)
+    ob = lion(band0=0, band1=1, band2=2, map_object=maps, auto_resize=True, make_post_plots=True, openblas=True, cblas=False, nsamp=500, residual_samples=100, visual=False)
     resid_maps = ob.main()
     # ret_maps[0] = resid_maps
     return resid_maps

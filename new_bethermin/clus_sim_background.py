@@ -35,7 +35,7 @@ def clus_sim_background(genbethermin=1,fluxcut=0,saveplots=1,savemaps=0,genpower
 
     # clusters = ['a0370','a1689','a1835','a2218','a2219','a2390',
               # 'cl0024','ms0451','ms1054','ms1358','rxj0152','rxj1347']
-    clusters = ['rxj1347']
+    clusters = ['a0370']
 
     nclust = len(clusters)
 
@@ -199,7 +199,6 @@ def clus_sim_background(genbethermin=1,fluxcut=0,saveplots=1,savemaps=0,genpower
                     hdul.append(hde)
                     hdul.append(hdm)
                     hdul.writeto(savefile,overwrite=True)
-            exit()
 
 if __name__ == '__main__' :
     clus_sim_background(genbethermin=0,fluxcut=0,saveplots=0,savemaps=0,genpowerlaw=0,\

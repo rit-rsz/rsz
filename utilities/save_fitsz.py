@@ -30,9 +30,6 @@ def create_template(params):
 
 def save_fitsz(increment, offset, radave, params, sgen=None, nsim=0, verbose=1):
     ncols = len(radave)
-
-
-    #szout = REPLICATE(szout, ncols)
     szout = []
     for i in range(ncols):
         szout.append(create_template(params))

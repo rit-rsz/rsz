@@ -29,14 +29,8 @@ def clus_convert_bolocam(bolocam, verbose=0):
     bolocam[0]['deconvolved_image_smooth_trim_sn'] = \
         clus_dTtoDI(143,1e-6*bolocam[0]['deconvolved_image_smooth_trim_sn'])
 
-    # This was used when the following conversion was in a for loop.
-    # Due to issues with being not writable I'm trying to skip it and modify afterwards
     bolocamsize = bolocam[0]['deconvolved_image_noise_realizations'][0].shape
 
-    # for ib in range(bolocamsize[2]):
-    # This still needs to be reformed inorder to matcht the idl version. It should be
-    # Is this working now?
-    # a 1-D array
     bolocam[0]['deconvolved_image_noise_realizations'] = \
         clus_dTtoDI(143,1e-6*bolocam[0]['deconvolved_image_noise_realizations'])
     bolocam[0]['deconvolved_image_noise_realizations'] = bolocam[0]['deconvolved_image_noise_realizations'].flatten()

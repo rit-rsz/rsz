@@ -26,7 +26,7 @@ from astropy.wcs.utils import skycoord_to_pixel
 import config
 import matplotlib.pyplot as plt
 
-def clus_compute_rings(maps, params, binwidth, superplot=0, verbose=1, noconfusion=None, saveplot=1, nsim=0, testflag=None):
+def clus_compute_rings(maps, params, binwidth, superplot=0, verbose=1, noconfusion=None, saveplot=1, nsim=0, testflag=None, lense_only=0):
     # init params
     bands = ['PSW', 'PMW', 'PLW']
     ncols = len(maps)

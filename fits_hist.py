@@ -1,9 +1,9 @@
 import numpy as np
 from astropy.io import fits
 import math
-import glob
-import matplotlib
-matplotlib.use("TkAgg")
+#import glob
+#import matplotlib
+#matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
 
 real_imagez = '/Users/vlb9398/Downloads/real_PSW.fits'

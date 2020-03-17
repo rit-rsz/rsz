@@ -137,7 +137,7 @@ def get_gauss_beam(fwhm, pixscale, band, nfwhm=5.0, oversamp=1):
 def get_gaussian_psf_template(fwhm,pixel_fwhm=3., nbin=5):
     nc = nbin**2
     psfnew = Gaussian2DKernel(pixel_fwhm/2.355*nbin, x_size=125, y_size=125).array.astype(np.float32)
-    psfnew2 = psfnew / np.max(psfnew) * nc
+    psfnew2 = psfnew / np.max(psfnew)  * nc
     cf = psf_poly_fit(psfnew, nbin=nbin)
     return psfnew2, cf, nc, nbin
 

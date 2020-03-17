@@ -105,8 +105,6 @@ def clus_add_sziso(maps,yin,tin,params,
             n +=1
 
     # Set up the spectral shape of the sz effect to be appled to the 500um map
-    # plt.imshow(bolocam[0]['deconvolved_image'][0])
-    # plt.show()
     if testflag == 0:
         szmap = -1 * bolocam[0]['deconvolved_image'][0]
         szmap = (np.array(szmap)).flatten()
@@ -119,6 +117,7 @@ def clus_add_sziso(maps,yin,tin,params,
         if imap == 2 or imap == 1:
             #added this as a case for testing add_sziso with our IB model to make sure things are correct.
             if testflag == 1:
+                print('IM AT ADD SZISO')
                 szmap,err = IB_model(maps[imap],params,verbose)
                 szmap = np.array(szmap)
                 plt.imshow(szmap)
@@ -140,8 +139,8 @@ def clus_add_sziso(maps,yin,tin,params,
 
             # Combine the spectral shape of the SZ effect, and combine with the peak intensity
             # converted to Jy/beam  ***Confirm these Units***
-            szin = [x * dI*25.0 / maps[imap]['calfac'] for x in szmap]
-            final_dI.append(dI*25.0 / maps[imap]['calfac'])
+            szin = [x * dI / maps[imap]['calfac'] for x in szmap]
+            final_dI.append(dI / maps[imap]['calfac'])
             szin = np.reshape(szin,(naxis[0],naxis[1]))
 
             # Have to interpolate to SPIRE map size
@@ -160,7 +159,7 @@ def clus_add_sziso(maps,yin,tin,params,
                 filename = config.HOME + 'outputs/sim_sz/' + maps[imap]['name'] + '_' + maps[imap]['band'] + '_' + str(nsim) + '.fits'
                 writefits(filename, data=szinp, header_dict=maps[imap]['shead'],overwrite=True)
 
-            filename = config.HOME + 'outputs/sim_sz/' + maps[imap]['name'] + '_' + maps[imap]['band'] + '_' + str(nsim) + '_x25.png'
+            filename = config.HOME + 'outputs/sim_sz/' + maps[imap]['name'] + '_' + maps[imap]['band'] + '_' + str(nsim) + '_x1.png'
             plt.imshow(maps[imap]['signal'])
             plt.savefig(filename)
             plt.clf()

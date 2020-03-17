@@ -169,7 +169,6 @@ class Catsrc():
 
         maps, err = clus_subtract_cat(self.maps, self.dI, verbose=self.verbose, saveplot=self.saveplot, nsim=self.nsim, superplot=self.superplot)
         err = None
-        exit()
         if err:
             if self.verbose:
                 print('clus_subtract_cat exited with error: ' + err)
@@ -193,9 +192,9 @@ class Catsrc():
 
         # ''' TEMPORARY ###############################################################################################'''
         # from astropy.io import fits
-        # file1 = config.HOME + 'outputs/pcat_residuals/' + self.maps[0]['name'] + '_' + self.maps[0]['band'] + '_dI_x5' + '.fits'
-        # file2 = config.HOME + 'outputs/pcat_residuals/' + self.maps[1]['name'] + '_' + self.maps[1]['band'] + '_dI_x5' + '.fits'
-        # file3 = config.HOME + 'outputs/pcat_residuals/' + self.maps[2]['name'] + '_' + self.maps[2]['band'] + '_dI_x5' + '.fits'
+        # file1 = config.HOME + 'outputs/pcat_residuals/' + self.maps[0]['name'] + '_' + self.maps[0]['band'] + '_residx1' + '.fits'
+        # file2 = config.HOME + 'outputs/pcat_residuals/' + self.maps[1]['name'] + '_' + self.maps[1]['band'] + '_residx1' + '.fits'
+        # file3 = config.HOME + 'outputs/pcat_residuals/' + self.maps[2]['name'] + '_' + self.maps[2]['band'] + '_residx1' + '.fits'
         # self.maps[0]['srcrm']= fits.open(file1)[0].data
         # self.maps[1]['srcrm']= fits.open(file2)[0].data
         # self.maps[2]['srcrm']= fits.open(file3)[0].data
@@ -247,7 +246,7 @@ class Catsrc():
             maxlim = 300
         else:
             maxlim = 450
-            
+
         # don't need to run fitsz if we don't have sz
         if not self.lense_only :
             fit = clus_fitsz(radave, self.params,self.beam, superplot=self.superplot, saveplot=self.saveplot, nsim=self.nsim)

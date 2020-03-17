@@ -26,7 +26,7 @@ import numpy as np
 import math
 from astropy.convolution import Gaussian2DKernel
 from astropy.convolution import convolve_fft as convolve
-sys.path.append('../multiband_pcat')
+sys.path.append('../multiband_pcat/multiband_pcat')
 from image_eval import psf_poly_fit, image_model_eval
 
 def clus_popmap(ltfile,maps,map_size,band,name,pixsize,fwhm,loz=None,superplot=0,savemaps=0):

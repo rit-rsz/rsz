@@ -151,10 +151,11 @@ def clus_format_bethermin(icol,sim_map,maps,map_size,band,clusname,pixsize,fwhm,
     #         f.write('%i %.3f %.3f 0.5 0.5 0.0 %0.6f %0.6f \n' \
     #                 %(k,houtx[k],houty[k],houtz[k],outmag[k]))
     #     f.close()
+    flux = [10.0**(-k/2.5) for k in outmag]
 
     truthtable = {'x': houtx, 'y': houty,
-                  'z': houtz, 'log10M': outmag}
-
+                  'z': houtz, 'flux': flux}
+    print('check flux:',icol,flux[0:3])
     return retcat, truthtable
 
 def get_gauss_beam(fwhm, pixscale, band, nfwhm=5.0, oversamp=1):

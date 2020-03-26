@@ -1,7 +1,7 @@
 ################################################################################
 # NAME : test.py
 # DATE STARTED : October 25, 2019
-# AUTHORS : Benjamin Vaughan
+# AUTHORS : Victoria Butler , Benjamin Vaughan
 # PURPOSE : This code is just for a first test run of actually running through
 # the whole data analysis pipeline and returning graphs of the results.
 # EXPLANATION :
@@ -26,37 +26,52 @@ import numpy as np
 from IB_model import *
 from random import *
 
+# def sum_confidence(data):
+#     sum = 0
+#     conf_arr = np.zeros(data.shape)
+#
+#     while sum < .683:
+#         max_x, max_y = np.where(arr == np.amax(data))
+#         max = data[max_x[0], max_y[0]]
+#         conf_arr[max_x[0], max_y[0]] = 3
+#         data[max_x[0], max_y[0]] = 0
+#         sum += max
+#
+#     while sum < .955:
+#         max_x, max_y = np.where(data == np.amax(data))
+#         max = data[max_x[0], max_y[0]]
+#         conf_arr[max_x[0], max_y[0]] = 2
+#         data[max_x[0], max_y[0]] = 0
+#         sum += max
+#
+#     while sum < .997:
+#         max_x, max_y = np.where(data == np.amax(data))
+#         max = data[max_x[0], max_y[0]]
+#         conf_arr[max_x[0], max_y[0]] = 1
+#         data[max_x[0], max_y[0]] = 0
+#         sum += max
+#
+#     return conf_arr
+
 def chi_square_test(data,model,sigma):
     total_chi = []
     for i in range(3):
-        total_chi.append((data[i] - model[i])**2 / (2*sigma[i]**2))
-    return np.sum(total_chi)
+        total_chi.append((data[i] - model[i])**2 / (sigma[i]**2))
+    return np.sum(total_chi)/2.0
 
-def plot_cov_ellipse(points, center, conf=0.683, color='orange'):
+def clus_likelihood(nsim=0,name='rxj1347',samples=100,step=0.01):
 
-    # q = 2 * norm.cdf(1) - 1
-    # r2 = chi2.ppf(q, 2)
-    cov = np.cov(points, rowvar=False)
-    val, vec = np.linalg.eigh(cov)
-    width = 2 * sqrt(val[:,None][0]*conf)
-    height = 2 * sqrt(val[:,None][1]*conf)
-    rotation = np.degrees(np.arctan2(*vec[::-1, 0]))
-    # Width and height are "full" widths, not radius
-    ellip = Ellipse(xy=center, width=width, height=height, angle=rotation, facecolor='none',edgecolor=color, lw = 3, linestyle='--')
-
-    return ellip
-
-def clus_likelihood(nsim=0,name='rxj1347',samples=100,step=0.001):
-
-    #yt_grid and sz_grid should be indexed the same
+    # yt_grid and sz_grid should be indexed the same
     if os.path.isfile(config.HOME + 'outputs/%s_sz_grid.npy' %(name)):
-        sz_grid = np.load(config.HOME + 'outputs/%s_sz_grid.npy' %(name),allow_pickle=True)
+        sz_grid_0 = np.load(config.HOME + 'outputs/%s_sz_grid_0.npy' %(name),allow_pickle=True)
+        sz_grid_1 = np.load(config.HOME + 'outputs/%s_sz_grid_1.npy' %(name),allow_pickle=True)
+        sz_grid_2 = np.load(config.HOME + 'outputs/%s_sz_grid_2.npy' %(name),allow_pickle=True)
         input_yt = np.load(config.HOME + 'outputs/%s_input_grid.npy' %(name),allow_pickle=True)
         param_grid = np.load(config.HOME + 'outputs/%s_param_grid.npy' %(name))
         ys = np.load(config.HOME + 'outputs/%s_y.npy' %(name))
         ts = np.load(config.HOME + 'outputs/%s_t.npy' %(name))
     else :
-        sz_grid, input_yt, param_grid, ys, ts = clus_szgf(nsim,name,samples,step) # input_yt should have one DI for each band
+        sz_grid_0, sz_grid_1, sz_grid_2, input_yt, ys, ts = clus_szgf(nsim,name,samples,step) # input_yt should have one DI for each band
 
     # avg_dI = clus_sim_hist(nsim,name)
     # print('avg dI : ',avg_dI)
@@ -81,60 +96,54 @@ def clus_likelihood(nsim=0,name='rxj1347',samples=100,step=0.001):
 
     # retreive and separate all dI for each band and y/t pair
     # subtract bias for each band
-    ''' TESTING until we get realistic SZ values and sigma'''
-    like_li = []
-    sz_grid_0 = [x.get(0) for x in sz_grid]
-    sz_grid_1 = [x.get(1) for x in sz_grid]
-    sz_grid_2 = [x.get(2) for x in sz_grid]
-    
-    print(sz_grid_2[0:10])
 
-    x = np.arange(0, 100)
-    y = np.arange(0, 100)
-    y = y[:, np.newaxis]
-    rc = 15.0
-    beta = 0.8
-    beta_map = (1. + (np.sqrt((x-50)**2 + (y-50.0)**2) / rc)**2)**((1. - 3. * beta) / 2.)
-    plt.imshow(beta_map)
-    plt.colorbar()
-    plt.savefig('beta_map.png')
-    ''' #################################################################################################################### '''
     # make chi square test for each final sz amplitude
     # use sz_fit_real for real DIs
-    seed(102793)
-    for i in range(len(sz_grid)):
+
+    # bias = 3*[0]
+    # PSW : FWHM = 18.0 "/pix
+    # Jy/beam -> MJy/sr = 115.888
+    # MJy/sr -> Jy/beam = 86.29E-4
+    # PMW : FWHM = 25.0 "/pix
+    # Jy/beam -> MJy/sr = 60.076
+    # MJy/sr -> Jy/beam = 16.65E-3
+    # PLW : FWHM = 36.0 "/pix
+    # Jy/beam -> MJy/sr = 28.972
+    # MJy/sr -> Jy/beam = 34.52E-3
+    maps, err = clus_get_data(name,nsim,verbose=1,sgen=None,nsim=nsim, testflag=0)
+
+    # bias[0] = 0.0058 * maps[0]['calfac']
+    # bias[1] = 0.0063 * maps[1]['calfac']
+    # bias[2] = 0.0068 * maps[2]['calfac']
+    # bias = [0.0058,0.0063,0.0068]
+
+    cen = len(sz_grid_0) - 1
+    print(cen)
+    like_li = np.zeros((samples,samples))
+    for i in range(samples) :
+        for j in range(samples) :
         # chi_stat = chi_square_test([sz_fit_real[0][0],sz_fit_real[1][0],sz_fit_real[2][0]],
         #                             [sz_grid[i].get(0),sz_grid[i].get(1),sz_grid[i].get(2)],
         #                             [bias[0],bias[1],bias[2]])
-        chi_stat = chi_square_test([sz_grid[i].get(0)-uniform(0,0.001),sz_grid[i].get(1)-uniform(0,0.001),sz_grid[i].get(2)-uniform(0,0.001)],
-                                    [sz_grid[i].get(0),sz_grid[i].get(1),sz_grid[i].get(2)],
-                                    [0.05,0.05,0.05])
+            chi_stat = chi_square_test([sz_grid_0[cen,cen],sz_grid_1[cen,cen],sz_grid_2[cen,cen]],
+                                        [sz_grid_0[i,j],sz_grid_1[i,j],sz_grid_2[i,j]],
+                                        [0.05,0.05,0.05])
 
-        like_li.append(np.exp(chi_stat/-2.0))
+            like_li[i,j] = np.exp(chi_stat/-2.0)
 
-    like_norm = list(like_li / np.sum(like_li))
-    # like_norm = list(like_norm * beta_map.flatten())
-    like_max = like_norm.index(max(like_norm))
-
+    like_norm = like_li / np.sum(like_li)
+    max_x, max_y = np.where(like_norm == np.amax(like_norm))
+    # like_max = like_norm[max_x[0],max_y[0]]
     # compute likelihood function
-    DI = np.array(like_norm).reshape(len(ys),len(ts))
-    center = [param_grid[like_max][0],param_grid[like_max][1]]
-    YS,TS = np.meshgrid(ys,ts)
-    ellip = plot_cov_ellipse(param_grid,center)
-    ellip2 = plot_cov_ellipse(param_grid,center,color='green',conf=0.85)
-    ellip3 = plot_cov_ellipse(param_grid,center,color='red',conf=0.95)
+
+    center = [ys[max_x][0],ts[max_y][0]]
     fig,ax = plt.subplots()
-    plt.pcolormesh(YS,TS,DI)
-    ax.add_artist(ellip)
-    ax.add_artist(ellip2)
-    ax.add_artist(ellip3)
-    plt.colorbar().set_label('Likelihood')
-    ells = [ellip,ellip2,ellip3]
-    ax.legend(ells,['68.3%','85%','95%'])
+    plt.pcolormesh(ys,ts,like_norm)
+    ax.scatter(center[0],center[1])
+    # conf = sum_confidence()
+    plt.colorbar().set_label('Normalized Likelihood')
 
     # compute the 68.3% confidence contours
-    # cs = plt.contour(YS,TS,DI,levels=[0.683],colors=('k',),linestyles=('-',),linewidths=(2,))
-    # plt.clabel(cs,fmt='%.3f',colors='k',fontsize=14)
     plt.xlabel('Compton Y')
     plt.ylabel('Temperature [K]')
     plt.savefig('likelihood.png')

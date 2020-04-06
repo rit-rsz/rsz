@@ -23,16 +23,20 @@ from gaussian import makeGaussian
 import math
 from astropy.convolution import Gaussian2DKernel
 from astropy.convolution import convolve_fft as convolve
+from astropy.wcs.utils import skycoord_to_pixel
+from astropy.wcs import WCS
+from astropy.coordinates import SkyCoord
+import astropy.units as u
 
 def clus_format_bethermin(icol,sim_map,maps,map_size,band,clusname,pixsize,fwhm,\
                           fluxcut=0,zzero=0,superplot=0,savemaps=0,genbethermin=0):
 
     # trimming num sources for lenstool limit
     msrc = 50000 - 1
-    refx = maps[0]['shead']['CRPIX1']
-    refy = maps[0]['shead']['CRPIX2'] # needs to be based on PSW map since all coordinates are referenced by pixel to maps[0] size
 
     if genbethermin :
+        refx = maps[0]['shead']['CRPIX1']
+        refy = maps[0]['shead']['CRPIX2'] # needs to be based on PSW map since all coordinates are referenced by pixel to maps[0] size
         # 3,4,5 are 250,350,500 truthtables
         cat = sim_map[icol+3]
         nsrc = len(cat['fluxdens']) # pulls len of truthtable
@@ -42,23 +46,42 @@ def clus_format_bethermin(icol,sim_map,maps,map_size,band,clusname,pixsize,fwhm,
         ypos = sim_map[icol+3]['y']
         zpos = sim_map[icol+3]['z']
         outflux = sim_map[-1]['fluxdens'][:,icol] # all three tables are the same, so just use the last one
+        outx = [pixsize * (x - refx) for x in xpos]
+        outy = [pixsize * (y - refy) for y in ypos]
 
     else :
-        xpos = sim_map[icol].item().get('RA')
-        ypos = sim_map[icol].item().get('DEC')
+        refx = maps[icol]['shead']['CRPIX1']
+        refy = maps[icol]['shead']['CRPIX2']
+        ra = sim_map[icol].item().get('RA')
+        dec = sim_map[icol].item().get('DEC')
         outflux = sim_map[icol].item().get('Flux')
         zpos = sim_map[icol].item().get('Redshift')
         nsrc = len(zpos)
+        x_pos = math.floor(maps[icol]['signal'].shape[0])
+        y_pos = math.floor(maps[icol]['signal'].shape[1])
+        min_ra = min(ra)
+        min_dec = min(dec)
+        # trim sources outside of the real SPIRE map size
+        rem = []
+        for k in range(len(ra)):
+            if ((ra[k]-min_ra) * 3600.0 / pixsize) > x_pos or ((dec[k]-min_dec) * 3600.0 / pixsize) > y_pos :
+                rem.append(k)
+        ra = np.delete(ra,rem)
+        dec = np.delete(dec,rem)
+        outflux = np.delete(outflux,rem)
+        zpos = np.delete(zpos,rem)
+        # outx = np.array([((i-min_ra) * 3600.0 / pixsize) for i in ra])
+        # outy = np.array([((j-min_dec) * 3600.0 / pixsize) for j in dec])
+        outx = np.array([((i) * 3600.0 / pixsize)-(x_pos/2.0) for i in ra])
+        outy = np.array([((j) * 3600.0 / pixsize)-(y_pos/2.0) for j in dec])
 
+    # if superplot :
+    plt.scatter(outx,outy,s=2,c=outflux)
+    plt.colorbar()
+    plt.title('Bethermin SIM (pre-format)')
+    plt.savefig('format_bethermin_%s.png' %(band))
+    plt.clf()
 
-    if superplot :
-        plt.scatter(xpos,ypos,s=2,c=outflux)
-        plt.colorbar()
-        plt.title('Bethermin SIM (pre-format)')
-        plt.show()
-
-    outx = [pixsize * (x - refx) for x in xpos]
-    outy = [pixsize * (y - refy) for y in ypos]
     outz = [float(np.ceil(10.0 * z)) / 10.0 for z in zpos]
 
     # lets do some fluxcuts
@@ -114,12 +137,12 @@ def clus_format_bethermin(icol,sim_map,maps,map_size,band,clusname,pixsize,fwhm,
 
     if savemaps:
         cmap = np.zeros((map_size,map_size),dtype=np.float32)
-        xf = np.floor(x)
-        yf = np.floor(y)
+        xf = np.floor(houtx)
+        yf = np.floor(houty)
         nx, ny = cmap.shape
         np.place(xf, xf > nx-1, nx-1)
         np.place(yf, yf > ny-1, ny-1)
-        for cx, cy, cf in zip(xf, yf, flux):
+        for cx, cy, cf in zip(xf, yf, houtflux):
             cmap[int(cy), int(cx)] += cf  # Note transpose
 
         beam = get_gauss_beam(fwhm,pixsize,band,oversamp=5)
@@ -143,17 +166,18 @@ def clus_format_bethermin(icol,sim_map,maps,map_size,band,clusname,pixsize,fwhm,
     #     plt.title('end of format bethermin')
     #     plt.show()
 
-    # write everything to file for lenstool to ingest
-    # lensfile = (config.HOME + 'model/' + clusname + '/' + clusname + '_cat.cat')
-    # with open(lensfile,'w') as f :
-    #     f.write('#REFERENCE 3 %.6f %.6f \n' %(maps[icol]['shead']['CRVAL1'], maps[icol]['shead']['CRVAL2']))
-    #     for k in range(len(outmag)):
-    #         f.write('%i %.3f %.3f 0.5 0.5 0.0 %0.6f %0.6f \n' \
-    #                 %(k,houtx[k],houty[k],houtz[k],outmag[k]))
-    #     f.close()
+    print(maps[icol]['shead']['CRVAL1'], maps[icol]['shead']['CRVAL2'])
+    #write everything to file for lenstool to ingest
+    lensfile = (config.HOME + 'model/' + clusname + '/' + clusname + '_cat.cat')
+    with open(lensfile,'w') as f :
+        f.write('#REFERENCE 3 %.6f %.6f \n' %(maps[icol]['shead']['CRVAL1'], maps[icol]['shead']['CRVAL2']))
+        for k in range(len(outmag)):
+            f.write('%i %.3f %.3f 0.5 0.5 0.0 %0.6f %0.6f \n' \
+                    %(k,houtx[k],houty[k],houtz[k],outmag[k]))
+        f.close()
 
     truthtable = {'x': houtx, 'y': houty,
-                  'z': houtz, 'log10M': outmag}
+                  'z': houtz, 'mag': outmag}
 
     return retcat, truthtable
 

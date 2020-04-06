@@ -21,7 +21,6 @@ import config
 from gaussian import makeGaussian
 import matplotlib.pyplot as plt
 from astropy.io import fits
-from FITS_tools.hcongrid import hcongrid
 import numpy as np
 import math
 from astropy.convolution import Gaussian2DKernel
@@ -29,7 +28,7 @@ from astropy.convolution import convolve_fft as convolve
 sys.path.append('../multiband_pcat')
 from image_eval import psf_poly_fit, image_model_eval
 
-def clus_popmap(ltfile,maps,map_size,band,name,pixsize,fwhm,loz=None,superplot=0,savemaps=0):
+def clus_popmap(ltfile,maps,map_size,band,name,pixsize,fwhm,loz=None,superplot=0,savemaps=0,genbethermin=None):
 
     # read in the image.dat file
     ra = []
@@ -55,19 +54,35 @@ def clus_popmap(ltfile,maps,map_size,band,name,pixsize,fwhm,loz=None,superplot=0
     refx = float(racent)
     refy = float(deccent)
 
-    # convert ra/dec to degrees
-    ra = [((-x / 3600.0) + refx) for x in ra]
-    dec = [((y / 3600.0) + refy) for y in dec]
+    #convert ra/dec to degrees
+    if genbethermin :
+        '''
+        Do a sign check on central RA/DEC coordinates
+        '''
+        ra = [((-x / 3600.0) + refx) for x in ra]
+        dec = [((y / 3600.0) + refy) for y in dec]
+
+    else :
+        # ra = [(((x - refx / 2.0) / 3600.0 * pixsize) + map_size) for x in ra]
+        # dec = [(((-y + refy / 2.0) / 3600.0 * pixsize) + map_size) for y in dec]
+        # ra = [((x + refx / 2.0) / 3600.0 * pixsize) for x in ra]
+        # dec = [((-y + refy / 2.0) / 3600.0 * pixsize) for y in dec]
+        ra = [((x / 3600.0 * pixsize) + (2*refx)) for x in ra]
+        dec = [((y / 3600.0 * pixsize) + (2*refy)) for y in dec]
+
     flux = [10.0**(-k/2.5) for k in mag]
 
     # if len(loz) == 8 :
     #     flux = [flux,loz['f']]
 
-    if superplot:
-        plt.scatter(ra,dec,s=2,c=flux)
-        plt.colorbar()
-        plt.title('Clus Popmap: Pixels')
-        plt.show()
+    # if superplot:
+    plt.scatter(ra,dec,s=2,c=flux)
+    plt.colorbar()
+    plt.title('Clus Popmap: Pixels')
+    # plt.show()
+    plt.savefig('top_popmap_%s.png'%(band))
+    plt.clf()
+    exit()
 
     header = maps['shead']
     wcs = WCS(header)
@@ -82,28 +97,20 @@ def clus_popmap(ltfile,maps,map_size,band,name,pixsize,fwhm,loz=None,superplot=0
         plt.title('Clus Popmap: Skycoord')
         plt.show()
 
-    # make the output map to have noise added later
-    # xf = np.floor(x)
-    # yf = np.floor(y)
-    # cmap = np.zeros((map_size,map_size),dtype=np.float32)
-    # nx, ny = cmap.shape
-    # np.place(xf, xf > nx-1, nx-1)
-    # np.place(yf, yf > ny-1, ny-1)
-    # for cx, cy, cf in zip(xf, yf, flux):
-    #     cmap[int(cy), int(cx)] += cf  # Note transpose
-    #
-    # beam = get_gauss_beam(fwhm,pixsize,band,oversamp=5)
-    # sim_map = convolve(cmap, beam, boundary='wrap')
-
     ''' PCAT LION METHOD'''
     orig_length = len(x)
-    position_mask = np.logical_and(np.logical_and(x > 0, x < map_size), np.logical_and(y > 0, y < map_size))
+    mapy = maps['signal'].shape[1]
+    mapx = maps['signal'].shape[0]
+    position_mask = np.logical_and(np.logical_and(x > 0, x < mapx), np.logical_and(y > 0, y < mapy))
     x = np.array(x,dtype=np.float32)[position_mask]
     y = np.array(y,dtype=np.float32)[position_mask]
     flux = np.array(flux,dtype=np.float32)[position_mask]
 
     psf, cf, nc, nbin = get_gaussian_psf_template(fwhm,pixel_fwhm=3.) # assumes pixel fwhm is 3 pixels in each band
-    sim_map = image_model_eval(x, y, nc*flux, 0.0, (int(map_size), int(map_size)), int(nc), cf)
+    sim_map = image_model_eval(x, y, nc*flux, 0.0, (int(mapx), int(mapy)), int(nc), cf)
+    plt.imshow(sim_map,origin=0)
+    plt.savefig(config.SIM + 'popmap_' + name + '_' + band + '.png')
+    plt.clf()
     '''#############################################################################################################'''
 
     if superplot:
@@ -115,31 +122,16 @@ def clus_popmap(ltfile,maps,map_size,band,name,pixsize,fwhm,loz=None,superplot=0
     if savemaps:
         hdx = fits.PrimaryHDU(maps['signal'],maps['shead'])
         sz = fits.PrimaryHDU(sim_map,hdx.header)
-        if os.path.isfile(config.SIMBOX + 'lensedmap_' + name + '_' + band + '.fits'):
-            os.remove(config.SIMBOX + 'lensedmap_' + name + '_' + band + '.fits')
-        sz.writeto(config.SIMBOX + 'lensedmap_' + name + '_' + band + '.fits')
+        sz.writeto(config.SIMBOX + 'lensedmap_' + name + '_' + band + '.fits',overwrite=True)
 
     return sim_map, truthtable
-
-def get_gauss_beam(fwhm, pixscale, band, nfwhm=5.0, oversamp=1):
-    retext = round(fwhm * nfwhm / pixscale)
-    if retext % 2 == 0:
-        retext += 1
-
-    bmsigma = fwhm / math.sqrt(8 * math.log(2))
-
-    beam = Gaussian2DKernel(bmsigma / pixscale, x_size=retext,
-                            y_size=retext, mode='oversample',
-                            factor=oversamp)
-    beam *= 1.0 / beam.array.max()
-    return beam
 
 def get_gaussian_psf_template(fwhm,pixel_fwhm=3., nbin=5):
     nc = nbin**2
     psfnew = Gaussian2DKernel(pixel_fwhm/2.355*nbin, x_size=125, y_size=125).array.astype(np.float32)
     psfnew2 = psfnew / np.max(psfnew)  * nc
-    cf = psf_poly_fit(psfnew, nbin=nbin)
-    return psfnew2, cf, nc, nbin
+    cf = psf_poly_fit(psfnew2, nbin=nbin)
+    return psfnew, cf, nc, nbin
 
 if __name__ == '__main__':
     import sys

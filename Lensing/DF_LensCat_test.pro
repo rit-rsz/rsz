@@ -1,6 +1,6 @@
 @DF_LensCat_FP.pro
 
-FUNCTION testboy, t
+FUNCTION testlensing, t
 
 input_cat = 'Input_params/sides_PLW_sim.npy'
 DF_X = 'Input_Params/alpha_x_ALL_rxj1347_z1p75.txt'

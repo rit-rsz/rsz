@@ -14,6 +14,47 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from math import *
+import sys
+sys.path.append('../utilities')
+import config
+sys.path.append('../multiband_pcat/')
+from image_eval import psf_poly_fit, image_model_eval
+from astropy.convolution import Gaussian2DKernel
+
+
+# def get_gaussian_psf_template(fwhm,pixel_fwhm=3., nbin=5):
+#     nc = nbin**2
+#     psfnew = Gaussian2DKernel(pixel_fwhm/2.355*nbin, x_size=125, y_size=125).array.astype(np.float32)
+#     psfnew2 = psfnew / np.max(psfnew) * nc
+#     cf = psf_poly_fit(psfnew, nbin=nbin)
+#     return psfnew2, cf, nc, nbin
+
+
+# def make_test_maps(N):
+#     #load in the cutouts from sides
+#     bands = ['PLW', 'PMW', 'PSW']
+#     pixsize = {'PLW' : 18,
+#                'PMW' : 12,
+#                'PSW' : 6}
+#     fwhm = {'PLW' : 35.2,
+#             'PMW' : 23.9,
+#             'PSW' : 17.6}
+#
+#     for band in bands:
+#         for isim in range(N):
+#             map_size = 5 * pixsize[band]
+#             map = np.load(config.HOME + 'Lensing/lensing_test_maps/5pixel_%s_sim%s.npy' %(band, isim),allow_pickle=True)
+#             xpos = map.item().get('RA')
+#             ypos = map.item().get('DEC')
+#             flux = map.item().get('Flux')
+#             x = np.asarray([xposi * pixsize[band] / 3600. for xposi in xpos], dtype='float')
+#             y = np.asarray([yposi * pixsize[band] / 3600. for yposi in ypos], dtype='float')
+#             psf, cf, nc, nbin = get_gaussian_psf_template(fwhm[band],pixel_fwhm=3.) # assumes pixel fwhm is 3 pixels in each band
+#             print(map_size)
+#             sim_map = image_model_eval(x, y, nc*flux, 0.0, (int(map_size), int(map_size)), int(nc), cf)
+#             plt.imshow(sim_map)
+#             plt.show()
+#             exit()
 
 def create_bin_edges(pset, std):
     #the purpose of this function is to create the binning for our pixels
@@ -52,5 +93,7 @@ def sim_one_pixel(base, std):
     plt.show()
 
 
+
 if __name__ == '__main__':
+    make_test_maps(1)
     sim_one_pixel(3, 1) #simulate with background of 3 and std of 1

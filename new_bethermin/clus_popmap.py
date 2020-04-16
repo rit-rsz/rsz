@@ -53,8 +53,13 @@ def clus_popmap(ltfile,maps,map_size,band,name,pixsize,fwhm,loz=None,superplot=0
 
     refx = float(racent)
     refy = float(deccent)
-
-    #convert ra/dec to degrees
+    plt.scatter(ra,dec,s=2,c=mag)
+    plt.colorbar()
+    plt.title('Clus Popmap: Pixels')
+    # plt.show()
+    plt.savefig('top_popmap_%s.png'%(band))
+    plt.clf()
+    # #convert ra/dec to degrees
     if genbethermin :
         '''
         Do a sign check on central RA/DEC coordinates
@@ -63,26 +68,20 @@ def clus_popmap(ltfile,maps,map_size,band,name,pixsize,fwhm,loz=None,superplot=0
         dec = [((y / 3600.0) + refy) for y in dec]
 
     else :
-        # ra = [(((x - refx / 2.0) / 3600.0 * pixsize) + map_size) for x in ra]
-        # dec = [(((-y + refy / 2.0) / 3600.0 * pixsize) + map_size) for y in dec]
-        # ra = [((x + refx / 2.0) / 3600.0 * pixsize) for x in ra]
-        # dec = [((-y + refy / 2.0) / 3600.0 * pixsize) for y in dec]
-        ra = [((x / 3600.0 * pixsize) + (2*refx)) for x in ra]
-        dec = [((y / 3600.0 * pixsize) + (2*refy)) for y in dec]
+        ra = [((x / 3600.0) + refx) for x in ra]
+        dec = [((-y / 3600.0) + refy) for y in dec]
 
     flux = [10.0**(-k/2.5) for k in mag]
 
     # if len(loz) == 8 :
     #     flux = [flux,loz['f']]
 
-    # if superplot:
-    plt.scatter(ra,dec,s=2,c=flux)
-    plt.colorbar()
-    plt.title('Clus Popmap: Pixels')
-    # plt.show()
-    plt.savefig('top_popmap_%s.png'%(band))
-    plt.clf()
-    exit()
+    if superplot:
+        plt.scatter(ra,dec,s=2,c=flux)
+        plt.colorbar()
+        plt.title('Clus Popmap: Pixels')
+        plt.show()
+        plt.clf()
 
     header = maps['shead']
     wcs = WCS(header)
@@ -91,20 +90,22 @@ def clus_popmap(ltfile,maps,map_size,band,name,pixsize,fwhm,loz=None,superplot=0
 
     truthtable = {'x': x, 'y': y,'flux': flux}
 
-    if superplot:
-        plt.scatter(x,y,s=2,c=flux)
-        plt.colorbar()
-        plt.title('Clus Popmap: Skycoord')
-        plt.show()
+    # if superplot:
+    plt.scatter(x,y,s=2,c=flux)
+    plt.colorbar()
+    plt.title('Clus Popmap: Skycoord')
+    # plt.show()
+    plt.savefig('bot_popmap_%s.png'%(band))
+    plt.clf()
 
     ''' PCAT LION METHOD'''
     orig_length = len(x)
-    mapy = maps['signal'].shape[1]
-    mapx = maps['signal'].shape[0]
-    position_mask = np.logical_and(np.logical_and(x > 0, x < mapx), np.logical_and(y > 0, y < mapy))
-    x = np.array(x,dtype=np.float32)[position_mask]
-    y = np.array(y,dtype=np.float32)[position_mask]
-    flux = np.array(flux,dtype=np.float32)[position_mask]
+    mapy = maps['signal'].shape[0]
+    mapx = maps['signal'].shape[1]
+    # position_mask = np.logical_and(np.logical_and(x > 0, x < mapx), np.logical_and(y > 0, y < mapy))
+    x = np.array(x,dtype=np.float32)#[position_mask]
+    y = np.array(y,dtype=np.float32)#[position_mask]
+    flux = np.array(flux,dtype=np.float32)#[position_mask]
 
     psf, cf, nc, nbin = get_gaussian_psf_template(fwhm,pixel_fwhm=3.) # assumes pixel fwhm is 3 pixels in each band
     sim_map = image_model_eval(x, y, nc*flux, 0.0, (int(mapx), int(mapy)), int(nc), cf)
@@ -119,18 +120,19 @@ def clus_popmap(ltfile,maps,map_size,band,name,pixsize,fwhm,loz=None,superplot=0
         plt.title('Clus Popmap: Lensed map')
         plt.show()
 
-    if savemaps:
-        hdx = fits.PrimaryHDU(maps['signal'],maps['shead'])
-        sz = fits.PrimaryHDU(sim_map,hdx.header)
-        sz.writeto(config.SIMBOX + 'lensedmap_' + name + '_' + band + '.fits',overwrite=True)
+    # if savemaps:
+    hdx = fits.PrimaryHDU(maps['signal'],maps['shead'])
+    sz = fits.PrimaryHDU(sim_map,hdx.header)
+    # sz.writeto(config.SIMBOX + 'lensedmap_' + name + '_' + band + '.fits',overwrite=True)
+    sz.writeto(config.SIM + 'lensedmap_' + name + '_' + band + '.fits',overwrite=True)
 
     return sim_map, truthtable
 
 def get_gaussian_psf_template(fwhm,pixel_fwhm=3., nbin=5):
     nc = nbin**2
     psfnew = Gaussian2DKernel(pixel_fwhm/2.355*nbin, x_size=125, y_size=125).array.astype(np.float32)
-    psfnew2 = psfnew / np.max(psfnew)  * nc
-    cf = psf_poly_fit(psfnew2, nbin=nbin)
+    # psfnew2 = psfnew / np.max(psfnew)  * nc
+    cf = psf_poly_fit(psfnew, nbin=nbin)
     return psfnew, cf, nc, nbin
 
 if __name__ == '__main__':

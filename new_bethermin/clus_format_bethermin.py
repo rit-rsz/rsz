@@ -27,6 +27,8 @@ from astropy.wcs.utils import skycoord_to_pixel
 from astropy.wcs import WCS
 from astropy.coordinates import SkyCoord
 import astropy.units as u
+sys.path.append('../multiband_pcat')
+from image_eval import psf_poly_fit, image_model_eval
 
 def clus_format_bethermin(icol,sim_map,maps,map_size,band,clusname,pixsize,fwhm,\
                           fluxcut=0,zzero=0,superplot=0,savemaps=0,genbethermin=0):
@@ -57,30 +59,31 @@ def clus_format_bethermin(icol,sim_map,maps,map_size,band,clusname,pixsize,fwhm,
         outflux = sim_map[icol].item().get('Flux')
         zpos = sim_map[icol].item().get('Redshift')
         nsrc = len(zpos)
-        x_pos = math.floor(maps[icol]['signal'].shape[0])
-        y_pos = math.floor(maps[icol]['signal'].shape[1])
+        x_pos = maps[icol]['signal'].shape[1]
+        y_pos = maps[icol]['signal'].shape[0]
         min_ra = min(ra)
         min_dec = min(dec)
+        print(x_pos,y_pos)
         # trim sources outside of the real SPIRE map size
         rem = []
         for k in range(len(ra)):
-            if ((ra[k]-min_ra) * 3600.0 / pixsize) > x_pos or ((dec[k]-min_dec) * 3600.0 / pixsize) > y_pos :
+            if ((ra[k]-min_ra) * 3600.0 / pixsize) > x_pos or ((dec[k]-min_dec) * 3600.0 / pixsize) > y_pos or ((ra[k]-min_ra) * 3600.0 / pixsize) < 0 or ((dec[k]-min_dec) * 3600.0 / pixsize) < 0 :
                 rem.append(k)
         ra = np.delete(ra,rem)
         dec = np.delete(dec,rem)
         outflux = np.delete(outflux,rem)
         zpos = np.delete(zpos,rem)
-        # outx = np.array([((i-min_ra) * 3600.0 / pixsize) for i in ra])
-        # outy = np.array([((j-min_dec) * 3600.0 / pixsize) for j in dec])
-        outx = np.array([((i) * 3600.0 / pixsize)-(x_pos/2.0) for i in ra])
-        outy = np.array([((j) * 3600.0 / pixsize)-(y_pos/2.0) for j in dec])
+        # outx = np.array([(((i-min_ra+(300.0/2.0*pixsize/3600.0)) * 3600.0 ) - (refx*pixsize)) for i in ra])
+        # outy = np.array([(((j-min_dec+(300.0/2.0*pixsize/3600.0)) * 3600.0 ) - (refy*pixsize)) for j in dec])
+        outx = np.array([(((i-min_ra) * 3600.0 ) - (refx*pixsize)) for i in ra])
+        outy = np.array([(((j-min_dec) * 3600.0 ) - (refy*pixsize)) for j in dec])
 
-    # if superplot :
-    plt.scatter(outx,outy,s=2,c=outflux)
-    plt.colorbar()
-    plt.title('Bethermin SIM (pre-format)')
-    plt.savefig('format_bethermin_%s.png' %(band))
-    plt.clf()
+    if superplot :
+        plt.scatter(outx,outy,s=2,c=outflux)
+        plt.colorbar()
+        plt.title('Bethermin SIM (pre-format)')
+        plt.show()
+        plt.clf()
 
     outz = [float(np.ceil(10.0 * z)) / 10.0 for z in zpos]
 
@@ -135,22 +138,36 @@ def clus_format_bethermin(icol,sim_map,maps,map_size,band,clusname,pixsize,fwhm,
     houty = [y for _,y in sorted(zip(outz,outy), key = lambda pair: pair[0])]
     houtz = sorted(outz)
 
-    if savemaps:
-        cmap = np.zeros((map_size,map_size),dtype=np.float32)
-        xf = np.floor(houtx)
-        yf = np.floor(houty)
-        nx, ny = cmap.shape
-        np.place(xf, xf > nx-1, nx-1)
-        np.place(yf, yf > ny-1, ny-1)
-        for cx, cy, cf in zip(xf, yf, houtflux):
-            cmap[int(cy), int(cx)] += cf  # Note transpose
+    # if savemaps:
+    orig_length = len(houtx)
+    mapy = maps[icol]['signal'].shape[0]
+    mapx = maps[icol]['signal'].shape[1]
+    ra = np.array([i / 3600.0 + maps[icol]['shead']['CRVAL1'] for i in houtx])
+    dec = np.array([-j / 3600.0 + maps[icol]['shead']['CRVAL2'] for j in houty])
+    header = maps[icol]['shead']
+    wcs = WCS(header)
+    coords = SkyCoord(ra=ra*u.deg,dec=dec*u.deg)
+    x,y = skycoord_to_pixel(coords, wcs)
+    print(max(x),max(y))
+    plt.scatter(x,y,s=2,c=outflux)
+    plt.colorbar()
+    plt.title('Bethermin SIM (pre-format)')
+    plt.savefig('format_bethermin_%s.png' %(band))
+    plt.clf()
+    position_mask = np.logical_and(np.logical_and(x > 0, x < mapy), np.logical_and(y > 0, y < mapx))
+    x = np.array(x,dtype=np.float32)[position_mask]
+    y = np.array(y,dtype=np.float32)[position_mask]
+    flux = np.array(houtflux,dtype=np.float32)[position_mask]
 
-        beam = get_gauss_beam(fwhm,pixsize,band,oversamp=5)
-        sim_map = convolve(cmap, beam, boundary='wrap')
-
-        hdx = fits.PrimaryHDU(maps[icol]['signal'],maps[icol]['shead'])
-        sz = fits.PrimaryHDU(sim_map,hdx.header)
-        sz.writeto(config.SIMBOX + 'nonlensedmap_' + clusname + '_' + band + '.fits',overwrite=True)
+    psf, cf, nc, nbin = get_gaussian_psf_template(fwhm,pixel_fwhm=3.) # assumes pixel fwhm is 3 pixels in each band
+    sim_map = image_model_eval(x, y, nc*flux, 0.0, (int(mapx), int(mapy)), int(nc), cf)
+    plt.imshow(sim_map,origin=0)
+    plt.savefig(config.SIM + 'nonlensedmap_' + clusname + '_' + band + '.png')
+    plt.clf()
+    hdx = fits.PrimaryHDU(maps[icol]['signal'],maps[icol]['shead'])
+    sz = fits.PrimaryHDU(sim_map,hdx.header)
+    sz.writeto(config.SIM + 'nonlensedmap_' + clusname + '_' + band + '.fits',overwrite=True)
+    # sz.writeto(config.SIMBOX + 'nonlensedmap_' + clusname + '_' + band + '.fits',overwrite=True)
 
     # magnitude instead of flux in Jy
     outmag = [-2.5 * np.log10(x) for x in houtflux]
@@ -165,7 +182,6 @@ def clus_format_bethermin(icol,sim_map,maps,map_size,band,clusname,pixsize,fwhm,
     #     plt.colorbar()
     #     plt.title('end of format bethermin')
     #     plt.show()
-
     print(maps[icol]['shead']['CRVAL1'], maps[icol]['shead']['CRVAL2'])
     #write everything to file for lenstool to ingest
     lensfile = (config.HOME + 'model/' + clusname + '/' + clusname + '_cat.cat')
@@ -179,20 +195,14 @@ def clus_format_bethermin(icol,sim_map,maps,map_size,band,clusname,pixsize,fwhm,
     truthtable = {'x': houtx, 'y': houty,
                   'z': houtz, 'mag': outmag}
 
-    return retcat, truthtable
+    return retcat, truthtable, sim_map
 
-def get_gauss_beam(fwhm, pixscale, band, nfwhm=5.0, oversamp=1):
-    retext = round(fwhm * nfwhm / pixscale)
-    if retext % 2 == 0:
-        retext += 1
-
-    bmsigma = fwhm / math.sqrt(8 * math.log(2))
-
-    beam = Gaussian2DKernel(bmsigma / pixscale, x_size=retext,
-                            y_size=retext, mode='oversample',
-                            factor=oversamp)
-    beam *= 1.0 / beam.array.max()
-    return beam
+def get_gaussian_psf_template(fwhm,pixel_fwhm=3., nbin=5):
+    nc = nbin**2
+    psfnew = Gaussian2DKernel(pixel_fwhm/2.355*nbin, x_size=125, y_size=125).array.astype(np.float32)
+    # psfnew2 = psfnew / np.max(psfnew)  * nc
+    cf = psf_poly_fit(psfnew, nbin=nbin)
+    return psfnew, cf, nc, nbin
 
 if __name__ == '__main__' :
     clusname = 'a0370'

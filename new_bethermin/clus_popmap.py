@@ -11,7 +11,7 @@
 # REVISION HISTORY :
 
 ##########################################################################
-from astropy.wcs.utils import skycoord_to_pixel
+from astropy.wcs.utils import skycoord_to_pixel, pixel_to_skycoord
 from astropy.wcs import WCS
 from astropy.coordinates import SkyCoord
 import astropy.units as u
@@ -46,7 +46,8 @@ def clus_popmap(ltfile,maps,map_size,band,name,pixsize,fwhm,loz=None,superplot=0
                 dec.append(float(val[2]))
                 mag.append(float(val[-1]))
     f.close()
-
+    print('minimum values in ra and dec')
+    print(min(ra),min(dec))
     # if len(loz) == 8 :
     #     ra = [ra,loz['x']]
     #     dec = [dec,loz['y']]
@@ -68,8 +69,8 @@ def clus_popmap(ltfile,maps,map_size,band,name,pixsize,fwhm,loz=None,superplot=0
         dec = [((y / 3600.0) + refy) for y in dec]
 
     else :
-        ra = [((x / 3600.0) + refx) for x in ra]
-        dec = [((-y / 3600.0) + refy) for y in dec]
+        ra = [((-x / 3600.0) + refx) for x in ra]
+        dec = [((y / 3600.0) + refy) for y in dec]
 
     flux = [10.0**(-k/2.5) for k in mag]
 

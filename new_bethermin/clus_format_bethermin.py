@@ -65,16 +65,18 @@ def clus_format_bethermin(icol,sim_map,maps,map_size,band,clusname,pixsize,fwhm,
         min_dec = min(dec)
         print(x_pos,y_pos)
         # trim sources outside of the real SPIRE map size
-        rem = []
-        for k in range(len(ra)):
-            if ((ra[k]-min_ra) * 3600.0 / pixsize) > x_pos or ((dec[k]-min_dec) * 3600.0 / pixsize) > y_pos or ((ra[k]-min_ra) * 3600.0 / pixsize) < 0 or ((dec[k]-min_dec) * 3600.0 / pixsize) < 0 :
-                rem.append(k)
-        ra = np.delete(ra,rem)
-        dec = np.delete(dec,rem)
-        outflux = np.delete(outflux,rem)
-        zpos = np.delete(zpos,rem)
+        # rem = []
+        # for k in range(len(ra)):
+        #     if ((ra[k]-min_ra) * 3600.0 / pixsize) > x_pos or ((dec[k]-min_dec) * 3600.0 / pixsize) > y_pos or ((ra[k]-min_ra) * 3600.0 / pixsize) < 0 or ((dec[k]-min_dec) * 3600.0 / pixsize) < 0 :
+        #         rem.append(k)
+        # ra = np.delete(ra,rem)
+        # dec = np.delete(dec,rem)
+        # outflux = np.delete(outflux,rem)
+        # zpos = np.delete(zpos,rem)
         # outx = np.array([(((i-min_ra+(300.0/2.0*pixsize/3600.0)) * 3600.0 ) - (refx*pixsize)) for i in ra])
         # outy = np.array([(((j-min_dec+(300.0/2.0*pixsize/3600.0)) * 3600.0 ) - (refy*pixsize)) for j in dec])
+        # refx = 150
+        # refy = 150
         outx = np.array([(((i-min_ra) * 3600.0 ) - (refx*pixsize)) for i in ra])
         outy = np.array([(((j-min_dec) * 3600.0 ) - (refy*pixsize)) for j in dec])
 
@@ -142,27 +144,24 @@ def clus_format_bethermin(icol,sim_map,maps,map_size,band,clusname,pixsize,fwhm,
     orig_length = len(houtx)
     mapy = maps[icol]['signal'].shape[0]
     mapx = maps[icol]['signal'].shape[1]
-    ra = np.array([i / 3600.0 + maps[icol]['shead']['CRVAL1'] for i in houtx])
-    dec = np.array([-j / 3600.0 + maps[icol]['shead']['CRVAL2'] for j in houty])
-    header = maps[icol]['shead']
-    wcs = WCS(header)
-    coords = SkyCoord(ra=ra*u.deg,dec=dec*u.deg)
-    x,y = skycoord_to_pixel(coords, wcs)
-    print(max(x),max(y))
-    plt.scatter(x,y,s=2,c=outflux)
+    x = [(i/pixsize) + refx for i in houtx]
+    y = [(j/pixsize) + refy for j in houty]
+    plt.scatter(houtx,houty,s=2,c=houtflux)
     plt.colorbar()
     plt.title('Bethermin SIM (pre-format)')
     plt.savefig('format_bethermin_%s.png' %(band))
     plt.clf()
-    position_mask = np.logical_and(np.logical_and(x > 0, x < mapy), np.logical_and(y > 0, y < mapx))
-    x = np.array(x,dtype=np.float32)[position_mask]
-    y = np.array(y,dtype=np.float32)[position_mask]
-    flux = np.array(houtflux,dtype=np.float32)[position_mask]
+    # position_mask = np.logical_and(np.logical_and(x > 0, x < mapy), np.logical_and(y > 0, y < mapy))
+    x = np.array(x,dtype=np.float32)#[position_mask]
+    y = np.array(y,dtype=np.float32)#[position_mask]
+    flux = np.array(houtflux,dtype=np.float32)#[position_mask]
 
     psf, cf, nc, nbin = get_gaussian_psf_template(fwhm,pixel_fwhm=3.) # assumes pixel fwhm is 3 pixels in each band
-    sim_map = image_model_eval(x, y, nc*flux, 0.0, (int(mapx), int(mapy)), int(nc), cf)
+    sim_map = image_model_eval(x, y, nc*flux, 0.0, (300, 300), int(nc), cf)
     plt.imshow(sim_map,origin=0)
+    # plt.clim([])
     plt.savefig(config.SIM + 'nonlensedmap_' + clusname + '_' + band + '.png')
+    plt.colorbar()
     plt.clf()
     hdx = fits.PrimaryHDU(maps[icol]['signal'],maps[icol]['shead'])
     sz = fits.PrimaryHDU(sim_map,hdx.header)

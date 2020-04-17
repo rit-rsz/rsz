@@ -63,20 +63,6 @@ def clus_format_bethermin(icol,sim_map,maps,map_size,band,clusname,pixsize,fwhm,
         y_pos = maps[icol]['signal'].shape[0]
         min_ra = min(ra)
         min_dec = min(dec)
-        print(x_pos,y_pos)
-        # trim sources outside of the real SPIRE map size
-        # rem = []
-        # for k in range(len(ra)):
-        #     if ((ra[k]-min_ra) * 3600.0 / pixsize) > x_pos or ((dec[k]-min_dec) * 3600.0 / pixsize) > y_pos or ((ra[k]-min_ra) * 3600.0 / pixsize) < 0 or ((dec[k]-min_dec) * 3600.0 / pixsize) < 0 :
-        #         rem.append(k)
-        # ra = np.delete(ra,rem)
-        # dec = np.delete(dec,rem)
-        # outflux = np.delete(outflux,rem)
-        # zpos = np.delete(zpos,rem)
-        # outx = np.array([(((i-min_ra+(300.0/2.0*pixsize/3600.0)) * 3600.0 ) - (refx*pixsize)) for i in ra])
-        # outy = np.array([(((j-min_dec+(300.0/2.0*pixsize/3600.0)) * 3600.0 ) - (refy*pixsize)) for j in dec])
-        # refx = 150
-        # refy = 150
         outx = np.array([(((i-min_ra) * 3600.0 ) - (refx*pixsize)) for i in ra])
         outy = np.array([(((j-min_dec) * 3600.0 ) - (refy*pixsize)) for j in dec])
 
@@ -140,33 +126,26 @@ def clus_format_bethermin(icol,sim_map,maps,map_size,band,clusname,pixsize,fwhm,
     houty = [y for _,y in sorted(zip(outz,outy), key = lambda pair: pair[0])]
     houtz = sorted(outz)
 
-    # if savemaps:
-    orig_length = len(houtx)
-    mapy = maps[icol]['signal'].shape[0]
-    mapx = maps[icol]['signal'].shape[1]
-    x = [(i/pixsize) + refx for i in houtx]
-    y = [(j/pixsize) + refy for j in houty]
-    plt.scatter(houtx,houty,s=2,c=houtflux)
-    plt.colorbar()
-    plt.title('Bethermin SIM (pre-format)')
-    plt.savefig('format_bethermin_%s.png' %(band))
-    plt.clf()
-    # position_mask = np.logical_and(np.logical_and(x > 0, x < mapy), np.logical_and(y > 0, y < mapy))
-    x = np.array(x,dtype=np.float32)#[position_mask]
-    y = np.array(y,dtype=np.float32)#[position_mask]
-    flux = np.array(houtflux,dtype=np.float32)#[position_mask]
+    if savemaps:
+        orig_length = len(houtx)
+        mapy = maps[icol]['signal'].shape[0]
+        mapx = maps[icol]['signal'].shape[1]
+        x = [(i/pixsize) + refx for i in houtx]
+        y = [(j/pixsize) + refy for j in houty]
 
-    psf, cf, nc, nbin = get_gaussian_psf_template(fwhm,pixel_fwhm=3.) # assumes pixel fwhm is 3 pixels in each band
-    sim_map = image_model_eval(x, y, nc*flux, 0.0, (300, 300), int(nc), cf)
-    plt.imshow(sim_map,origin=0)
-    # plt.clim([])
-    plt.savefig(config.SIM + 'nonlensedmap_' + clusname + '_' + band + '.png')
-    plt.colorbar()
-    plt.clf()
-    hdx = fits.PrimaryHDU(maps[icol]['signal'],maps[icol]['shead'])
-    sz = fits.PrimaryHDU(sim_map,hdx.header)
-    sz.writeto(config.SIM + 'nonlensedmap_' + clusname + '_' + band + '.fits',overwrite=True)
-    # sz.writeto(config.SIMBOX + 'nonlensedmap_' + clusname + '_' + band + '.fits',overwrite=True)
+        x = np.array(x,dtype=np.float32)
+        y = np.array(y,dtype=np.float32)
+        flux = np.array(houtflux,dtype=np.float32)
+
+        psf, cf, nc, nbin = get_gaussian_psf_template(fwhm,pixel_fwhm=3.) # assumes pixel fwhm is 3 pixels in each band
+        sim_map = image_model_eval(x, y, nc*flux, 0.0, (300, 300), int(nc), cf)
+        plt.imshow(sim_map,origin=0)
+        plt.savefig(config.SIM + 'nonlensedmap_' + clusname + '_' + band + '.png')
+        plt.colorbar()
+        plt.clf()
+        hdx = fits.PrimaryHDU(maps[icol]['signal'],maps[icol]['shead'])
+        sz = fits.PrimaryHDU(sim_map,hdx.header)
+        sz.writeto(config.SIMBOX + 'nonlensedmap_' + clusname + '_' + band + '.fits',overwrite=True)
 
     # magnitude instead of flux in Jy
     outmag = [-2.5 * np.log10(x) for x in houtflux]
@@ -181,7 +160,7 @@ def clus_format_bethermin(icol,sim_map,maps,map_size,band,clusname,pixsize,fwhm,
     #     plt.colorbar()
     #     plt.title('end of format bethermin')
     #     plt.show()
-    print(maps[icol]['shead']['CRVAL1'], maps[icol]['shead']['CRVAL2'])
+
     #write everything to file for lenstool to ingest
     lensfile = (config.HOME + 'model/' + clusname + '/' + clusname + '_cat.cat')
     with open(lensfile,'w') as f :
@@ -202,25 +181,3 @@ def get_gaussian_psf_template(fwhm,pixel_fwhm=3., nbin=5):
     # psfnew2 = psfnew / np.max(psfnew)  * nc
     cf = psf_poly_fit(psfnew, nbin=nbin)
     return psfnew, cf, nc, nbin
-
-if __name__ == '__main__' :
-    clusname = 'a0370'
-    resolution = 'nr'
-    verbose = 1
-    bolocam = None
-    wave = [250.,350.,500.] # In units of um
-    fwhm = [17.6, 23.9, 35.2]
-    pixsize = [6.0, 8.33333, 12.0]
-    fluxcut = 0
-    import sys
-    sys.path.append('../utilities')
-    sys.path.append('../new_bethermin')
-    sys.path.append('../source_handling')
-    from clus_get_clusparams import clus_get_clusparams
-    from clus_get_data import clus_get_data
-    from genmap import genmap_gauss
-    params, err = clus_get_clusparams(clusname,verbose=verbose)
-    maps, err = clus_get_data(clusname=clusname, resolution=resolution, bolocam=bolocam, verbose=verbose)
-    gm = genmap_gauss()
-    sim_maps = gm.generate(0.25,verbose=True)
-    clus_format_bethermin(0,sim_maps,maps,wave[0],clusname,pixsize[0],fluxcut=0,zzero=params['z'])

@@ -10,7 +10,7 @@
 #
 #
 # OUTPUTS :
-# REVISION HISTORY :
+# REVISION HISTORY : 4/17/2020 - VLB Finished implementing SIDES catalog correctly
 #
 ################################################################################
 import numpy as np
@@ -114,9 +114,6 @@ def clus_sim_background(genbethermin=1,fluxcut=0,saveplots=1,savemaps=0,genpower
                 PLW = np.load(config.HOME + 'sides_sims/sides_PLW_sim%s.npy' %(isim),allow_pickle=True)
                 PMW = np.load(config.HOME + 'sides_sims/sides_PMW_sim%s.npy' %(isim),allow_pickle=True)
                 PSW = np.load(config.HOME + 'sides_sims/sides_PSW_sim%s.npy' %(isim),allow_pickle=True)
-                # PLW = np.load(config.SIM + '10cats/sides_PLW_sim%s_BIG_10.npy' %(isim),allow_pickle=True)
-                # PMW = np.load(config.SIM + '10cats/sides_PMW_sim%s_BIG_10.npy' %(isim),allow_pickle=True)
-                # PSW = np.load(config.SIM + '10cats/sides_PSW_sim%s_BIG_10.npy' %(isim),allow_pickle=True)
                 sim_maps = [PSW,PMW,PLW]
 
             for icol in range(ncols):
@@ -141,15 +138,15 @@ def clus_sim_background(genbethermin=1,fluxcut=0,saveplots=1,savemaps=0,genpower
                     subprocess.call(['mv -f image.all %s' %(ltfile)],shell=True)
 
                     # post process cleanup, lenstool makes these files
-                    os.remove(config.SIM + 'mu.fits')
-                    os.remove(config.SIM + 'image.dat')
-                    os.remove(config.SIM + 'dist.dat')
-                    os.remove(config.SIM + 'pot.dat')
+                    # os.remove(config.SIM + 'mu.fits')
+                    # os.remove(config.SIM + 'image.dat')
+                    # os.remove(config.SIM + 'dist.dat')
+                    # os.remove(config.SIM + 'pot.dat')
                     # os.remove(config.SIM + 'clump.dat')
-                    os.remove(config.SIM + 'para.out')
-                    os.remove(config.SIM + 'sipos.dat')
-                    os.remove(config.SIM + 'source.dat')
-                    os.remove(config.SIM + 'sort.dat')
+                    # os.remove(config.SIM + 'para.out')
+                    # os.remove(config.SIM + 'sipos.dat')
+                    # os.remove(config.SIM + 'source.dat')
+                    # os.remove(config.SIM + 'sort.dat')
 
                 else :
                     ltfile = config.SIMBOX + clusters[iclust] + '_image.dat'
@@ -189,8 +186,8 @@ def clus_sim_background(genbethermin=1,fluxcut=0,saveplots=1,savemaps=0,genpower
 
                     # save the current sim map in /data/sim_clusters
                     print('Savemaps set, saving maps in %s' %(config.CLUSSIMS))
-                    # savefile = config.CLUSSIMS + clusters[iclust] + '/' + clusters[iclust] + '_' + bands[icol] + '_sim03%02d.fits' %(isim)
-                    savefile = config.SIM + 'sides_cat/sides_cat_%s_%s.fits'%(bands[icol],isim)
+                    savefile = config.CLUSSIMS + clusters[iclust] + '/' + clusters[iclust] + '_' + bands[icol] + '_sim03%02d.fits' %(isim)
+
                     # create image HDU
                     hda = fits.PrimaryHDU(maps[icol]['signal'],maps[icol]['shead'])
                     hdul = fits.HDUList(hdus=hda)
@@ -203,9 +200,8 @@ def clus_sim_background(genbethermin=1,fluxcut=0,saveplots=1,savemaps=0,genpower
                     hdul.append(hde)
                     hdul.append(hdm)
                     hdul.writeto(savefile,overwrite=True)
-                exit()
 
 if __name__ == '__main__' :
     clus_sim_background(genbethermin=0,fluxcut=0,saveplots=0,savemaps=0,genpowerlaw=0,\
-                        genradave=1,addnoise=1,yeslens=0,resolution='nr',nsim=0,bolocam=0,\
+                        genradave=1,addnoise=1,yeslens=1,resolution='nr',nsim=0,bolocam=0,\
                         verbose=0,errmsg=None,superplot=0)

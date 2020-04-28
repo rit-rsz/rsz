@@ -1,0 +1,4 @@
+starting on:
+rxj1347 17 PMW
+['rxj1347', '17', 'PMW']
+Total sub-map runtime 16: 0.33151698112487793

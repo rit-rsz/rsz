@@ -16,45 +16,39 @@ import matplotlib.pyplot as plt
 from math import *
 import sys
 sys.path.append('../utilities')
+from gaussian import makeGaussian
 import config
 sys.path.append('../multiband_pcat/')
 from image_eval import psf_poly_fit, image_model_eval
 from astropy.convolution import Gaussian2DKernel
+from astropy.convolution import convolve_fft
 
+def save_hundred_maps():
+    list_im = ['lensing_test_maps/test_map%s' % i for i in range(100)]
+    l = 0
+    imgs_horz = []
+    for j in range(0,len(list_im),3):
+        imgs = [Image.open(i) for i in list_im[j:j+3]]
 
-# def get_gaussian_psf_template(fwhm,pixel_fwhm=3., nbin=5):
-#     nc = nbin**2
-#     psfnew = Gaussian2DKernel(pixel_fwhm/2.355*nbin, x_size=125, y_size=125).array.astype(np.float32)
-#     psfnew2 = psfnew / np.max(psfnew) * nc
-#     cf = psf_poly_fit(psfnew, nbin=nbin)
-#     return psfnew2, cf, nc, nbin
+        # pick the image which is the smallest, and resize the others to match it
+        min_shape = sorted([(np.sum(i.size), i.size) for i in imgs])[-1][1]
+        imgs_comb = np.hstack((np.asarray(i.resize(min_shape)) for i in imgs))
 
+        # save that beautiful picture
+        imgs_comb = Image.fromarray(imgs_comb)
+        imgs_comb.save(config.OUTPUT + 'final/rsz_comp_%s.png'%(l))
+        imgs_horz.append(config.OUTPUT + 'final/rsz_comp_%s.png'%(l))
+        l += 1
 
-# def make_test_maps(N):
-#     #load in the cutouts from sides
-#     bands = ['PLW', 'PMW', 'PSW']
-#     pixsize = {'PLW' : 18,
-#                'PMW' : 12,
-#                'PSW' : 6}
-#     fwhm = {'PLW' : 35.2,
-#             'PMW' : 23.9,
-#             'PSW' : 17.6}
-#
-#     for band in bands:
-#         for isim in range(N):
-#             map_size = 5 * pixsize[band]
-#             map = np.load(config.HOME + 'Lensing/lensing_test_maps/5pixel_%s_sim%s.npy' %(band, isim),allow_pickle=True)
-#             xpos = map.item().get('RA')
-#             ypos = map.item().get('DEC')
-#             flux = map.item().get('Flux')
-#             x = np.asarray([xposi * pixsize[band] / 3600. for xposi in xpos], dtype='float')
-#             y = np.asarray([yposi * pixsize[band] / 3600. for yposi in ypos], dtype='float')
-#             psf, cf, nc, nbin = get_gaussian_psf_template(fwhm[band],pixel_fwhm=3.) # assumes pixel fwhm is 3 pixels in each band
-#             print(map_size)
-#             sim_map = image_model_eval(x, y, nc*flux, 0.0, (int(map_size), int(map_size)), int(nc), cf)
-#             plt.imshow(sim_map)
-#             plt.show()
-#             exit()
+    # vertically stack the 3 horizontal saved images we made
+    imgs_h = [Image.open(i) for i in imgs_horz]
+    max_shapeh = sorted([(np.sum(i.size), i.size) for i in imgs_h])[-1][1]
+    imgs_combh = np.vstack(imgs_h)
+    imgs_combh = Image.fromarray(imgs_combh)
+    imgs_combh.save(config.OUTPUT + 'final/%s_rsz_final_%s_%s.png' %(clusname,nsim,bands[i]))
+
+    for s in imgs_horz:
+        os.remove(s)
 
 def create_bin_edges(pset, std):
     #the purpose of this function is to create the binning for our pixels
@@ -74,6 +68,30 @@ def create_bin_edges(pset, std):
     right_edge = np.array(left_edges[-1] + std) #the last edge which should be right justified
     bin_edges = np.append(left_edges, right_edge    ) #add the last right justified bin to get plotting to work
     return bin_edges, bin_cent
+
+def make_background(x_size, y_size, N):
+    #N number of maps
+    #x_size, y_size size of the input maps
+    bckgrnd = np.zeros((x_size, y_size))
+
+    frames = np.zeros((N, x_size, y_size))
+    for f in range(N):
+        frames[f, :, :] = np.load('lense_resid/rxj1347_resid_%s_%s.fits' % f, allow_pickle=True)
+    flag = 0
+    for x in range(x_size):
+        for y in range(y_size):
+            data = frames[:, x, y]
+            #need to figure out a good way to create the bin length
+            bins, cent = create_bin_edges(data, .3)
+            counts, bincheck1 = np.histogram(data, bins)
+            plt.hist(data, bins, histtype='step')
+            plt.scatter(cent, counts)
+            plt.savefig('Images/hist%s.png' % flag)
+            plt.clf()
+            flag += 1
+
+
+
 
 def sim_one_pixel(base, std):
     #the purpose of this function is to simulate the creation of a histogram from
@@ -95,5 +113,7 @@ def sim_one_pixel(base, std):
 
 
 if __name__ == '__main__':
-    make_test_maps(1)
-    sim_one_pixel(3, 1) #simulate with background of 3 and std of 1
+    # for i in range(100):
+        # make_test_maps(3, 10, 20, 'lensing_test_maps/test_map%s' % i)
+    make_background(10, 10, 100)
+    # sim_one_pixel(3, 1) #simulate with background of 3 and std of 1

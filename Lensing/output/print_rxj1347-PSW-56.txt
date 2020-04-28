@@ -1,0 +1,4 @@
+starting on:
+rxj1347 56 PSW
+['rxj1347', '56', 'PSW']
+Total sub-map runtime 55: 1.366093397140503

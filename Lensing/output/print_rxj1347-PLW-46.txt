@@ -1,0 +1,4 @@
+starting on:
+rxj1347 46 PLW
+['rxj1347', '46', 'PLW']
+Total sub-map runtime 45: 0.16413593292236328

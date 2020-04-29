@@ -42,7 +42,6 @@ def clus_get_relsz(isim,nu,band,y=0,te=0,vpec=0.0, ngrid=100):
         GHztoHz = 1.0e9                   #GHz -> Hz
         vpecp = vpec * 1e3 / c            # peculiar velocity
         # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-        print(y,te)
         # create input paramters for run_SZpack or read from existing params file
         sz_params = [
           '0.1', # xmin
@@ -59,16 +58,19 @@ def clus_get_relsz(isim,nu,band,y=0,te=0,vpec=0.0, ngrid=100):
           ' ', # space
           '10', # temperature of order
           '2', # beta order
-          '1e-4', # accuracy of numerical int
+          '1e-6', # accuracy of numerical int
           ' ', # space
           '4',
           '2',
           ' ',
           '../lookup', # path for Output
-          '.dat'] #filename extension
+          '.txt'] #filename extension
 
          # to accomodate multithreading with each band
-        np.savetxt(config.HOME + 'lookup/szparams_%s.txt'%(band),sz_params,"%s",newline='\n')
+        if band == 'BOLOCAM' :
+            np.savetxt(config.HOME + 'lookup/szparams_%s.txt'%(band),sz_params,"%s",newline='\n')
+        else :
+            np.savetxt(config.HOME + 'lookup/szparams_%s_%s.txt'%(isim,band),sz_params,"%s",newline='\n')
 
         # run & parse 3 columns of stdout from run_SZpack into frequency and SZ signal arrays
         out = check_output([config.ROOT + 'SZpack.v1.1.1/run_SZpack','CNSN',config.HOME + 'lookup/szparams_%s_%s.txt'%(isim,band)])
@@ -106,18 +108,24 @@ def clus_get_relsz(isim,nu,band,y=0,te=0,vpec=0.0, ngrid=100):
         bigJ = interpolate.interp1d(xout,JofXout, kind='linear')
         deltaI = float(bigJ(thisx))
         #This is plots for testing to see if this code is working.
-        # plt.scatter(thisx,deltaI,color='orange')
-        # plt.title('RUN_SZPACK SZE @ %s GHZ : %0.4f [MJy/sr]' %(nu,deltaI))
-        # plt.xlabel('Dimensionless Frequency')
-        # plt.ylabel('$\Delta$I_0 [MJy/sr]')
-        # plt.show()
+        plt.plot(xout,JofXout)
+        plt.scatter(thisx,deltaI,color='orange')
+        plt.title('RUN_SZPACK SZE @ %s GHZ : %0.4f [MJy/sr]' %(nu,deltaI))
+        plt.xlabel('Dimensionless Frequency')
+        plt.ylabel('$\Delta$I_0 [MJy/sr]')
+        plt.savefig(config.HOME + 'lookup/bolocam_sz_test.png')
+        plt.clf()
         print('SZE @ %s GHZ : %0.4f [MJy/sr] %0.6f %0.4f' %(nu,deltaI,y,te)) # print current return
 
         #remove old config file ...
-        if os.path.exists(config.HOME + 'lookup/szparams_%s_%s.txt'%(isim,band)):
-            os.remove(config.HOME + 'lookup/szparams_%s_%s.txt'%(isim,band))
+        if band == 'BOLOCAM' :
+            if os.path.exists(config.HOME + 'lookup/szparams_%s.txt'%(band)):
+                os.remove(config.HOME + 'lookup/szparams_%s.txt'%(band))
+        else :
+            if os.path.exists(config.HOME + 'lookup/szparams_%s_%s.txt'%(isim,band)):
+                os.remove(config.HOME + 'lookup/szparams_%s_%s.txt'%(isim,band))
 
-        return deltaI, None
+        return deltaI, thisx, JofXout, xout, None
 
 
 

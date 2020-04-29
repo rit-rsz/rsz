@@ -54,12 +54,12 @@ def clus_add_sziso_new(maps,isim,yin,tin,params,
     ''' This is just until Jack gives us more new Bolocam templates... '''
     if clusname == 'rxj1347' :
         data_file = CLUSDATA + 'bolocam/new/' + maps[0]['name'] + '.fits'
-        # cluster_struct = fits.getdata(data_file)
-        hdul = fits.open(data_file)
-        header = hdul[0].header
-        naxis = hdul[0].data.shape
+        cluster_struct = fits.getdata(data_file)
+        data = fits.open(data_file)
+        header = data[0].header
+        naxis = cluster_struct.shape
         # BCAMNORM in units of MJy/sr
-        bolocam = clus_convert_bolocam(hdul[0].data,norm = header['BCAMNORM'],verbose=verbose,clusname=clusname)
+        bolocam = clus_convert_bolocam(cluster_struct,norm = header['BCAMNORM'],verbose=verbose,clusname=clusname)
     else :
         #fetch bolocam data from .sav files in bolocam directory.
         data_file = str('bolocam/data/' + maps[0]['name'] + '.sav')
@@ -82,18 +82,7 @@ def clus_add_sziso_new(maps,isim,yin,tin,params,
 
     if clusname == 'rxj1347' :
         # Setting the tempheader for the bolocam data
-        temphead.set('CRVAL1' , header['CRVAL1']) # DEC in deg of ref pixel
-        temphead.set('CRVAL2' , header['CRVAL2']) # RA in deg of ref pixel
-        temphead.set('CRPIX1' , header['CRPIX1']) # ref pixel x
-        temphead.set('CRPIX2' , header['CRPIX2']) # ref pixel y
-        temphead.set('CD1_1' , header['CD1_1']) # Deg/pixel
-        temphead.set('CD1_2' , header['CD1_2']) # Deg/pixel
-        temphead.set('CD2_1' , header['CD2_1']) # Deg/pixel
-        temphead.set('CD2_2' , header['CD2_2']) # Deg/pixel
-        temphead.set('EPOCH' , 2000)
-        temphead.set('EQUINOX' , 2000)
-        temphead.set('CTYPE1' , header['CTYPE1']) # coord type
-        temphead.set('CTYPE2' , header['CTYPE2']) # coord type
+        temphead = header
 
     else :
         # Set reference pizel position
@@ -115,7 +104,6 @@ def clus_add_sziso_new(maps,isim,yin,tin,params,
         temphead.set('CTYPE2' , 'DEC--TAN')
 
     # 14.5  = full size of the bolocam image in pixels ?
-    ''' This probably won't work for the new map... '''
     x = np.arange(naxis[0]) - 14.5
     y = np.arange(naxis[1]) - 14.5
 
@@ -136,11 +124,9 @@ def clus_add_sziso_new(maps,isim,yin,tin,params,
     # Set up the spectral shape of the sz effect to be appled to the 500um map
     if testflag == 0:
         if clusname == 'rxj1347' :
-            szmap1 = hdul[0].data
+            szmap1 = bolocam
         else :
             szmap1 = -1 * bolocam[0]['deconvolved_image'][0] # -1 is needed because SZ amp flips below 217 GHz
-
-            ''' not sure we need to do this in the new maps '''
             szmap1 = (np.array(szmap1)).flatten()
             sz_mean = np.mean(szmap1[outer])
             szmap2 = [x - sz_mean for x in szmap1]
@@ -150,11 +136,11 @@ def clus_add_sziso_new(maps,isim,yin,tin,params,
     final_dI = []
     if clusname == 'rxj1347' : # need to calculate the dI for Bolocam using new maps
         if os.path.isfile(config.HOME + 'lookup/rxj1347_bol_lookup.npy') : # use lookup file instead of running szpack every time
-            szmap1 = np.load(config.HOME + 'lookup/rxj1347_bol_lookup.npy')
+            dI_bolo = np.load(config.HOME + 'lookup/rxj1347_bol_lookup.npy')
         else :
             dI_bolo,thisx,JofXout,xout,errmsg = clus_get_relsz(isim,3e5 / clus_get_lambdas('BOLOCAM'),'BOLOCAM',y=yin,te=tin,vpec=0.0) # dI = [MJy/sr]
             szmap1 = (np.array(szmap1)).flatten()
-            szmap = [-x/dI_bolo for x in szmap1]
+            szmap1 = [-x/dI_bolo for x in szmap1]
 
     for imap in range(mapsize):
         # Applying the effect to the 500 um and 350 um bands.
@@ -196,10 +182,8 @@ def clus_add_sziso_new(maps,isim,yin,tin,params,
             # else :
 
             '''
-            szin = [x * dI / maps[imap]['calfac'] for x in szmap]
+            szin = [x * dI / maps[imap]['calfac'] for x in szmap1]
             final_dI.append(dI / maps[imap]['calfac'])
-
-
             szin = np.reshape(szin,(naxis[0],naxis[1]))
 
             # Have to interpolate to SPIRE map size
@@ -220,13 +204,14 @@ def clus_add_sziso_new(maps,isim,yin,tin,params,
                 out_map = convolve(szinp, beam, boundary='wrap')
 
                 # Combine the original signal with the sz effect
+                maps[imap]['signal'] = maps[imap]['signal'] + out_map
+
                 '''THIS IS JUST FOR TESTING WITH SZ SIGNAL'''
-                maps[imap]['signal'] = out_map
-                # maps[imap]['signal'] = maps[imap]['signal'] + out_map
+                # maps[imap]['signal'] = out_map
             else :
-                # maps[imap]['signal'] = maps[imap]['signal'] + szin
+                # maps[imap]['signal'] = maps[imap]['signal'] + out_map
                 '''THIS IS JUST FOR TESTING WITH SZ SIGNAL'''
-                maps[imap]['signal'] = maps[imap]['error'] + szin
+                maps[imap]['signal'] = maps[imap]['error'] + out_map
 
             # Used to check the alligned sz effect image
             if saveplot:
@@ -237,6 +222,7 @@ def clus_add_sziso_new(maps,isim,yin,tin,params,
                 plt.savefig(filename)
                 plt.clf()
                 savefile = config.OUTPUT + 'sim_sz/' + maps[imap]['name'] + '_sze_' + maps[imap]['band'] + '_' + str(isim) + '.fits'
+                # savefile = config.OUTPUT + 'sim_sz/' + maps[imap]['name'] + '_sze_' + maps[imap]['band'] + 'bolo.fits'
                 hda = fits.PrimaryHDU(maps[imap]['signal'],maps[imap]['shead'])
                 hda.writeto(savefile,overwrite=True)
 

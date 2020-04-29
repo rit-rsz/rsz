@@ -32,13 +32,14 @@ sys.path.append('sz')
 sys.path.append('outputs')
 from clus_get_clusparams import *
 from clus_get_data import *
-from clus_add_sziso import *
+from clus_add_sziso_new import *
 from clus_subtract_cat import *
 from clus_subtract_xcomps import *
 from clus_compute_rings import *
 from clus_fitsz import *
 from save_fitsz import *
 from save_final_im import *
+from bolocam_mask import *
 import config
 import argparse
 
@@ -84,6 +85,7 @@ class Catsrc():
         self.lense_only = lense_only
         self.dI = []
         self.data_retrieval()
+        exit()
         self.source_removal()
         self.data_analysis()
         # compile all figures and save to monolithic plot
@@ -118,10 +120,12 @@ class Catsrc():
             if self.verbose:
                 print('clus_get_data exited with error: ' + err)
             exit()
+
+        # bolocam_mask(maps)
+
         # Add the sz effect into the simmulated clusters
         if self.sgen is not None and not self.lense_only:
-            print('I should not exist')
-            maps, err, dI = clus_add_sziso(maps,self.nsim,clusname=self.clusname,yin=self.yin,tin=self.tin,params=params,verbose=self.verbose, testflag=self.testflag,nsim=self.nsim,saveplot=self.saveplot)
+            maps, err, dI = clus_add_sziso_new(maps,self.nsim,clusname=self.clusname,yin=self.yin,tin=self.tin,params=params,verbose=self.verbose, testflag=self.testflag,nsim=self.nsim,saveplot=self.saveplot)
             self.dI = dI
         if err:
             if self.verbose:
@@ -206,15 +210,15 @@ class Catsrc():
         if self.verbose:
             print('Computing radial averages!')
 
-        radave = clus_compute_rings(self.maps,self.params,30.0,sgen=self.sgen,verbose=self.verbose, superplot=self.superplot, saveplot=self.saveplot, nsim=self.nsim, testflag=self.testflag, lense_only=self.lense_only)  #should superplot be a flag in catsrc?
+        radave = clus_compute_rings(self.maps,self.params,30.0,sgen=self.sgen,verbose=self.verbose, superplot=self.superplot, saveplot=self.saveplot, nsim=self.nsim, testflag=self.testflag, lense_only=self.lense_only)
 
-        if self.verbose:
-            print('Computing Beta model fit.')
-
-        if self.clusname == 'ms0451':
-            maxlim = 300
-        else:
-            maxlim = 450
+        # if self.verbose:
+        #     print('Computing Beta model fit.')
+        #
+        # if self.clusname == 'ms0451':
+        #     maxlim = 300
+        # else:
+        #     maxlim = 450
 
         if not self.lense_only :
             fit = clus_fitsz(radave, self.params,self.beam, sgen=self.sgen, superplot=self.superplot, saveplot=self.saveplot, nsim=self.nsim)

@@ -26,32 +26,32 @@ import numpy as np
 from IB_model import *
 from random import *
 
-# def sum_confidence(data):
-#     sum = 0
-#     conf_arr = np.zeros(data.shape)
-#
-#     while sum < .683:
-#         max_x, max_y = np.where(arr == np.amax(data))
-#         max = data[max_x[0], max_y[0]]
-#         conf_arr[max_x[0], max_y[0]] = 3
-#         data[max_x[0], max_y[0]] = 0
-#         sum += max
-#
-#     while sum < .955:
-#         max_x, max_y = np.where(data == np.amax(data))
-#         max = data[max_x[0], max_y[0]]
-#         conf_arr[max_x[0], max_y[0]] = 2
-#         data[max_x[0], max_y[0]] = 0
-#         sum += max
-#
-#     while sum < .997:
-#         max_x, max_y = np.where(data == np.amax(data))
-#         max = data[max_x[0], max_y[0]]
-#         conf_arr[max_x[0], max_y[0]] = 1
-#         data[max_x[0], max_y[0]] = 0
-#         sum += max
-#
-#     return conf_arr
+def sum_confidence(data):
+    sum = 0
+    conf_arr = np.zeros(data.shape)
+
+    while sum < .683:
+        max_x, max_y = np.where(arr == np.amax(data))
+        max = data[max_x[0], max_y[0]]
+        conf_arr[max_x[0], max_y[0]] = 3
+        data[max_x[0], max_y[0]] = 0
+        sum += max
+
+    while sum < .955:
+        max_x, max_y = np.where(data == np.amax(data))
+        max = data[max_x[0], max_y[0]]
+        conf_arr[max_x[0], max_y[0]] = 2
+        data[max_x[0], max_y[0]] = 0
+        sum += max
+
+    while sum < .997:
+        max_x, max_y = np.where(data == np.amax(data))
+        max = data[max_x[0], max_y[0]]
+        conf_arr[max_x[0], max_y[0]] = 1
+        data[max_x[0], max_y[0]] = 0
+        sum += max
+
+    return conf_arr
 
 def chi_square_test(data,model,sigma):
     total_chi = []
@@ -73,45 +73,29 @@ def clus_likelihood(nsim=0,name='rxj1347',samples=100,step=0.01):
     else :
         sz_grid_0, sz_grid_1, sz_grid_2, input_yt, ys, ts = clus_szgf(nsim,name,samples,step) # input_yt should have one DI for each band
 
-    # avg_dI = clus_sim_hist(nsim,name)
-    # print('avg dI : ',avg_dI)
-    # print('input dI :',input_yt[0])
-    #
-    # # calculate sz bias from pipeline
-    # bias = [0]*3
-    # for i in range(3):
-    #     if avg_dI[i] < 0 :
-    #         bias[i] = input_yt[0].get(i) + abs(avg_dI[i])
-    #     else :
-    #         bias[i] = avg_dI[i] - input_yt[0].get(i)
-    # print('bias in dI : ',bias[0],bias[1],bias[2])
+    avg_dI = clus_sim_hist(nsim,name)
+    print('avg dI : ',avg_dI)
+    print('input dI :',input_yt[0])
 
-    # what is the critical p value ?
-    crit_p = chi2.ppf(q = 0.683, df = 2)
-    print('critical value 68.3% confidence :',crit_p)
+    '''
+        I think I need to make a new bias template map showing the deviation from the "real"
+        SZ effect due to the uncertainty in the background residuals in PCAT
+    '''
+    # calculate sz bias from pipeline
+    bias = [0]*3
+    for i in range(3):
+        if avg_dI[i] < 0 :
+            bias[i] = input_yt[0].get(i) + abs(avg_dI[i])
+        else :
+            bias[i] = avg_dI[i] - input_yt[0].get(i)
+    print('bias in dI : ',bias[0],bias[1],bias[2])
 
     # grab real sz fit params
-    # sz_fit_real = np.load(config.HOME + 'outputs/%s_fit.npy'%(name))
-    # print(sz_fit_real)
+    sz_fit_real = np.load(config.HOME + 'outputs/%s_fit.npy'%(name))
+    print(sz_fit_real)
 
-    # retreive and separate all dI for each band and y/t pair
-    # subtract bias for each band
-
-    # make chi square test for each final sz amplitude
-    # use sz_fit_real for real DIs
-
+    # maps, err = clus_get_data(name,nsim,verbose=1,sgen=None,nsim=nsim, testflag=0)
     # bias = 3*[0]
-    # PSW : FWHM = 18.0 "/pix
-    # Jy/beam -> MJy/sr = 115.888
-    # MJy/sr -> Jy/beam = 86.29E-4
-    # PMW : FWHM = 25.0 "/pix
-    # Jy/beam -> MJy/sr = 60.076
-    # MJy/sr -> Jy/beam = 16.65E-3
-    # PLW : FWHM = 36.0 "/pix
-    # Jy/beam -> MJy/sr = 28.972
-    # MJy/sr -> Jy/beam = 34.52E-3
-    maps, err = clus_get_data(name,nsim,verbose=1,sgen=None,nsim=nsim, testflag=0)
-
     # bias[0] = 0.0058 * maps[0]['calfac']
     # bias[1] = 0.0063 * maps[1]['calfac']
     # bias[2] = 0.0068 * maps[2]['calfac']
@@ -127,7 +111,7 @@ def clus_likelihood(nsim=0,name='rxj1347',samples=100,step=0.01):
         #                             [bias[0],bias[1],bias[2]])
             chi_stat = chi_square_test([sz_grid_0[cen,cen],sz_grid_1[cen,cen],sz_grid_2[cen,cen]],
                                         [sz_grid_0[i,j],sz_grid_1[i,j],sz_grid_2[i,j]],
-                                        [0.05,0.05,0.05])
+                                        [0.2,0.2,0.2])
 
             like_li[i,j] = np.exp(chi_stat/-2.0)
 
@@ -151,3 +135,12 @@ def clus_likelihood(nsim=0,name='rxj1347',samples=100,step=0.01):
 
 if __name__ == '__main__' :
     clus_likelihood(nsim=0,name='rxj1347')
+    # PSW : FWHM = 18.0 "/pix
+    # Jy/beam -> MJy/sr = 115.888
+    # MJy/sr -> Jy/beam = 86.29E-4
+    # PMW : FWHM = 25.0 "/pix
+    # Jy/beam -> MJy/sr = 60.076
+    # MJy/sr -> Jy/beam = 16.65E-3
+    # PLW : FWHM = 36.0 "/pix
+    # Jy/beam -> MJy/sr = 28.972
+    # MJy/sr -> Jy/beam = 34.52E-3

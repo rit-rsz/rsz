@@ -15,6 +15,7 @@
 #                   added contour plots to visualize output, robust deletion and
 #                   creation of new fits files for debugging
 #   VLB - 10/15/19 - changing to work with PCAT_SPIRE residual maps instead of XID+
+#   VLB - 04/21/20 - Subtracting off lensing model from PCAT residuals
 ################################################################################
 import numpy as np
 import sys
@@ -35,9 +36,9 @@ def clus_subtract_cat(maps, dI, nsim, sgen=None, verbose=1, saveplot=0, superplo
     offsets[2] = np.median([x for x in maps[2]['signal'].flatten() if not math.isnan(x)])
 
     # add 3 mJy offset to make pcat happy for now
-    maps[0]['signal'] = np.reshape([x - offsets[0] + 0.003 for x in maps[0]['signal'].flatten() if not math.isnan(x)],(maps[0]['srcrm'].shape[0],maps[0]['srcrm'].shape[1]))
-    maps[1]['signal'] = np.reshape([x - offsets[1] + 0.003 for x in maps[1]['signal'].flatten() if not math.isnan(x)],(maps[1]['srcrm'].shape[0],maps[1]['srcrm'].shape[1]))
-    maps[2]['signal'] = np.reshape([x - offsets[2] + 0.003 for x in maps[2]['signal'].flatten() if not math.isnan(x)],(maps[2]['srcrm'].shape[0],maps[2]['srcrm'].shape[1]))
+    # maps[0]['signal'] = np.reshape([x - offsets[0] + 0.003 for x in maps[0]['signal'].flatten() if not math.isnan(x)],(maps[0]['srcrm'].shape[0],maps[0]['srcrm'].shape[1]))
+    # maps[1]['signal'] = np.reshape([x - offsets[1] + 0.003 for x in maps[1]['signal'].flatten() if not math.isnan(x)],(maps[1]['srcrm'].shape[0],maps[1]['srcrm'].shape[1]))
+    # maps[2]['signal'] = np.reshape([x - offsets[2] + 0.003 for x in maps[2]['signal'].flatten() if not math.isnan(x)],(maps[2]['srcrm'].shape[0],maps[2]['srcrm'].shape[1]))
     print('map offsets: ', offsets)
     resid_maps = run_pcat(maps,nsim,offsets)
 
@@ -81,9 +82,14 @@ def clus_subtract_cat(maps, dI, nsim, sgen=None, verbose=1, saveplot=0, superplo
             plt.savefig(filename)
             plt.clf()
 
-            ''' For making hists for Jack '''
-            hda = fits.PrimaryHDU(maps[i]['srcrm'],maps[i]['shead'])
-            hda.writeto(config.OUTPUT + 'pcat_residuals/' + maps[i]['name'] + '_resid_' + maps[i]['band'] + '_' + str(nsim) + '.fits',overwrite=True)
+        ''' For making hists for Jack '''
+        # hda = fits.PrimaryHDU(maps[i]['srcrm'],maps[i]['shead'])
+        # hda.writeto(config.OUTPUT + 'pcat_residuals/' + maps[i]['name'] + '_resid_' + maps[i]['band'] + '_' + str(nsim) + 'lense.fits',overwrite=True)
+
+        # subtracting lensing template from resids
+        data_file = config.HOME + 'Lensing/lense_template_' + maps[i]['band'] + '.fits'
+        lense_model = fits.getdata(data_file)
+        maps[i]['srcrm'] = maps[i]['srcrm'] - lense_model
 
     return maps, err
 

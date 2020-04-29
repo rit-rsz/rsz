@@ -2807,11 +2807,7 @@ libjpeg-turbo/2.0.3-gcc-7.4.0-zztcod3p(16):ERROR:102: Tcl command execution fail
 py-pillow/6.2.0-gcc-7.4.0-soqyxeoz(21):ERROR:150: Module 'py-pillow/6.2.0-gcc-7.4.0-soqyxeoz' conflicts with the currently loaded module(s) 'py-pillow/5.4.1-gcc-7.4.0-vgokp66a'
 py-pillow/6.2.0-gcc-7.4.0-soqyxeoz(21):ERROR:102: Tcl command execution failed: conflict py-pillow
 
-No handles with labels found to put in legend.
-No handles with labels found to put in legend.
-No handles with labels found to put in legend.
-No handles with labels found to put in legend.
-No handles with labels found to put in legend.
-No handles with labels found to put in legend.
-/var/spool/slurmd/job11492518/slurm_script: line 13: 27716 Killed                  python3 catsrc.py -run $name $sgen $nsim $resolution
-slurmstepd: error: Detected 1 oom-kill event(s) in step 11492518.batch cgroup. Some of your processes may have been killed by the cgroup out-of-memory handler.
+/.autofs/tools/spack/opt/spack/linux-rhel7-x86_64/gcc-7.4.0/py-numpy-1.16.2-wr27tl3dpppihtzl3iomzsahqsbiq2wu/lib/python3.6/site-packages/numpy/core/fromnumeric.py:3118: RuntimeWarning: Mean of empty slice.
+  out=out, **kwargs)
+/.autofs/tools/spack/opt/spack/linux-rhel7-x86_64/gcc-7.4.0/py-numpy-1.16.2-wr27tl3dpppihtzl3iomzsahqsbiq2wu/lib/python3.6/site-packages/numpy/core/fromnumeric.py:3118: RuntimeWarning: Mean of empty slice.
+  out=out, **kwargs)

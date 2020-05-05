@@ -83,8 +83,8 @@ def clus_subtract_cat(maps, dI, nsim, sgen=None, verbose=1, saveplot=0, superplo
             plt.clf()
 
         ''' For making hists for Jack '''
-        # hda = fits.PrimaryHDU(maps[i]['srcrm'],maps[i]['shead'])
-        # hda.writeto(config.OUTPUT + 'pcat_residuals/' + maps[i]['name'] + '_resid_' + maps[i]['band'] + '_' + str(nsim) + 'lense.fits',overwrite=True)
+        hda = fits.PrimaryHDU(maps[i]['srcrm'],maps[i]['shead'])
+        hda.writeto(config.OUTPUT + 'pcat_residuals/' + maps[i]['name'] + '_resid_' + maps[i]['band'] + '_' + str(nsim) + '.fits',overwrite=True)
 
         # subtracting lensing template from resids
         data_file = config.HOME + 'Lensing/lense_template_' + maps[i]['band'] + '.fits'

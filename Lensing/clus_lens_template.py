@@ -4,13 +4,29 @@ import matplotlib.pyplot as plt
 from math import *
 import sys, time
 from astropy.io import fits
+from scipy.stats import norm
 
 def clus_lens_template(name=None,band=None):
 
     for i in range(100):
-        image_psw = 'lense_resid/rxj1347_resid_PSW_%slense.fits' %(i)
-        image_pmw = 'lense_resid/rxj1347_resid_PMW_%slense.fits' %(i)
-        image_plw = 'lense_resid/rxj1347_resid_PLW_%slense.fits' %(i) #%(str(i).zfill(2))
+        image_psw = 'lense_resid/rxj1347_resid_PSW_%slense_noiseless.fits' %(i)
+        image_pmw = 'lense_resid/rxj1347_resid_PMW_%slense_noiseless.fits' %(i)
+        image_plw = 'lense_resid/rxj1347_resid_PLW_%slense_noiseless.fits' %(i) #%(str(i).zfill(2))
+        # image_psw = 'lense_resid/rxj1347_resid_PSW_%slense.fits' %(i)
+        # image_pmw = 'lense_resid/rxj1347_resid_PMW_%slense.fits' %(i)
+        # image_plw = 'lense_resid/rxj1347_resid_PLW_%slense.fits' %(i) #%(str(i).zfill(2))
+        # data = fits.getdata(image_psw)[125,125]
+        # bin_cent = create_bin_edges(data, .5)
+        # hist,bin = np.histogram(data,bins=bin_cent)
+        # mu, sigma = norm.fit(data)
+        # y = norm(loc=mu, scale=sigma).pdf(bin_cent)
+        # plt.plot(bin_cent, y)
+        # plt.hist(data,bin,histtype='step',normed=1)
+        # plt.xlabel('mJy/beam')
+        # plt.ylabel('# pixels')
+        # plt.savefig('lense_hist_test.png')
+        # plt.clf()
+        # exit()
 
         image_ob_psw = fits.getdata(image_psw).flatten()
         image_ob_pmw = fits.getdata(image_pmw).flatten()

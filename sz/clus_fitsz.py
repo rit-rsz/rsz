@@ -93,10 +93,13 @@ def clus_fitsz(radave, params, beam, sgen=None, maxlim=3600, minlim=0, noweight=
                 roft[k] = 0
 
         #create a linear fit for r(t) vs fluxbin
-        np.place(roft, roft<0.1, 0.0)
-        roft = [x for x in roft if x != 0]
-        radave[i]['fluxbin'] = [y for y in radave[i]['fluxbin'] if y != 0][:len(roft)]
-        z, cov = curve_fit(fitting_func, roft, radave[i]['fluxbin'],sigma=radave[i]['errbin'])
+        # np.place(roft, roft<0.1, 0.0)
+        # roft = [x for x in roft if x != 0]
+        # radave[i]['fluxbin'] = [y for y in radave[i]['fluxbin'] if y != 0][:len(roft)]
+        radave[i]['fluxbin'] = radave[i]['fluxbin'][:len(roft)]
+        print(radave[i]['fluxbin'])
+        # z, cov = curve_fit(fitting_func, roft, radave[i]['fluxbin'],sigma=radave[i]['errbin'])
+        z, cov = curve_fit(fitting_func, roft, radave[i]['fluxbin'])
         intercept = z[1]
         slope = z[0]
         fit[i] = z
@@ -113,7 +116,7 @@ def clus_fitsz(radave, params, beam, sgen=None, maxlim=3600, minlim=0, noweight=
             if superplot:
                 plt.show()
             if saveplot:
-                if nsim != 0:
+                if sgen != None:
                     filename = config.OUTPUT + 'IB_fits/' + params['clusname'] + '_dI_fit_' + radave[i]['band'] + '_' + str(nsim) + '.png'
                 else:
                     filename = config.OUTPUT + 'IB_fits/' + params['clusname'] + '_dI_fit_' + radave[i]['band'] + '_' + 'real.png'

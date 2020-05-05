@@ -14,7 +14,7 @@
 ################################################################################
 import numpy as np
 import sys
-sys.path.append('utilities/')
+sys.path.append('../utilities')
 import config
 import matplotlib.pyplot as plt
 from math import *
@@ -29,7 +29,7 @@ def histogram(nsims,cluster):
         band = bands[k]
 
         for i in range(nsims):
-            file = cluster + 'szout_' + i + '.npy'
+            file = config.OUTPUT + 'szout/' + str(cluster) + 'szout_' + str(i) + '.npy'
             data = np.load(file,allow_pickle=True)
             Isim[i] = data[k].get('increment')
 
@@ -41,7 +41,7 @@ def histogram_test(binsize, k, Isim, xbin, clusname, band):
     bins = np.linspace(np.min(Isim), np.max(Isim), num=binsize)
     average = np.mean(Isim)
     avg = [average, average]
-    data = np.load(cluster + 'szout_real.npy',allow_pickle=True)
+    data = np.load(config.OUTPUT + 'szout/' + str(clusname) + 'szout_real.npy',allow_pickle=True)
     Ireal = data[k].get('increment')
     Ir = [Ireal, Ireal]
 

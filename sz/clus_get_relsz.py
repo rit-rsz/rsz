@@ -117,13 +117,13 @@ def clus_get_relsz(isim,nu,band,y=0,te=0,vpec=0.0, ngrid=100):
         plt.clf()
         print('SZE @ %s GHZ : %0.4f [MJy/sr] %0.6f %0.4f' %(nu,deltaI,y,te)) # print current return
 
-        #remove old config file ...
-        if band == 'BOLOCAM' :
-            if os.path.exists(config.HOME + 'lookup/szparams_%s.txt'%(band)):
-                os.remove(config.HOME + 'lookup/szparams_%s.txt'%(band))
-        else :
-            if os.path.exists(config.HOME + 'lookup/szparams_%s_%s.txt'%(isim,band)):
-                os.remove(config.HOME + 'lookup/szparams_%s_%s.txt'%(isim,band))
+        # #remove old config file ...
+        # if band == 'BOLOCAM' :
+        #     if os.path.exists(config.HOME + 'lookup/szparams_%s.txt'%(band)):
+        #         os.remove(config.HOME + 'lookup/szparams_%s.txt'%(band))
+        # else :
+        #     if os.path.exists(config.HOME + 'lookup/szparams_%s_%s.txt'%(isim,band)):
+        #         os.remove(config.HOME + 'lookup/szparams_%s_%s.txt'%(isim,band))
 
         return deltaI, thisx, JofXout, xout, None
 

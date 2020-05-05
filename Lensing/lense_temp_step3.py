@@ -31,8 +31,9 @@ for i in range(3):
 
     outmap = outmap.reshape((size[0],size[1]))
     plt.imshow(outmap,origin=0)
-    plt.clim([-0.02,0.02])
+    plt.clim([-0.005,0.005])
     plt.colorbar()
+    plt.title('Lense Median Template %s'%(bands[i]))
     plt.savefig('lense_template_%s.png'%(bands[i]))
     plt.clf()
     hda = fits.PrimaryHDU(outmap,maps[i]['shead'])

@@ -17,22 +17,19 @@ def make_pix_hist(name,chunk_num,band):
     for j in range(size):
         data = [x*1e3 for x in image[j,:]]
         if sum(data) == 0.0 :
-            print('all zeros')
+            mean_image.append(0.0)
         else :
-            bin_cent = create_bin_edges(data, .5)
-            hist,bin = np.histogram(data,bins=bin_cent)
-            mu, sigma = norm.fit(data)
-            y = norm(loc=mu, scale=sigma).pdf(bin_cent)
-            # bin_middles = (bin[:-1] + bin[1:]) / 2.0
-            mean_image.append(mu)
-
-            # plt.plot(bin_cent, y)
-            # plt.hist(data,bin,histtype='step',normed=1)
-            # plt.savefig('lense_hist_test.png')
-            # plt.clf()
+            # mean_image.append(np.mean(data))
+            # bin_cent = create_bin_edges(data, .5)
+            # hist,bin = np.histogram(data,bins=bin_cent)
+            # mu, sigma = norm.fit(data)
+            # y = norm(loc=mu, scale=sigma).pdf(bin_cent)
+            # # bin_middles = (bin[:-1] + bin[1:]) / 2.0
+            # mean_image.append(mu)
+            mean_image.append(np.median(data))
 
     np.save('/home/vlb9398/rsz/Lensing/lense_chunks/lense_%s_%s_med_%s.npy'%(name,band,chunk_num),mean_image)
-    os.remove('/home/vlb9398/rsz/Lensing/lense_chunks/lense_chunk_%s_%s_%s.npy'%(name,band,chunk_num))
+    # os.remove('/home/vlb9398/rsz/Lensing/lense_chunks/lense_chunk_%s_%s_%s.npy'%(name,band,chunk_num))
     time2 = time.time()
     print('Total sub-map runtime %s:'%(chunk_num),time2-time1)
 

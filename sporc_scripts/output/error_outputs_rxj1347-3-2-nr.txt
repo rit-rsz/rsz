@@ -1,10 +1,3 @@
-Autoloading sqlite/3.26.0-gcc-7.4.0-7w4fjrtk
-sqlite/3.26.0-gcc-7.4.0-7w4fjrtk(20):ERROR:150: Module 'sqlite/3.26.0-gcc-7.4.0-7w4fjrtk' conflicts with the currently loaded module(s) 'sqlite/3.26.0-gcc-7.4.0-xfnupdqu'
-sqlite/3.26.0-gcc-7.4.0-7w4fjrtk(20):ERROR:102: Tcl command execution failed: conflict sqlite
-
-python/2.7.16-gcc-7.4.0-6yshniaz(53):ERROR:150: Module 'python/2.7.16-gcc-7.4.0-6yshniaz' conflicts with the currently loaded module(s) 'python/3.6.8-gcc-7.4.0-r3ohs7zj'
-python/2.7.16-gcc-7.4.0-6yshniaz(53):ERROR:102: Tcl command execution failed: conflict python
-
 Autoloading python/3.6.8-gcc-7.4.0-2dsszo5q
 Autoloading sqlite/3.30.1-gcc-7.4.0-bgnwb5o2
 Autoloading readline/8.0-gcc-7.4.0-2hq773wj
@@ -2809,5 +2802,5 @@ py-pillow/6.2.0-gcc-7.4.0-soqyxeoz(21):ERROR:102: Tcl command execution failed: 
 
 /.autofs/tools/spack/opt/spack/linux-rhel7-x86_64/gcc-7.4.0/py-numpy-1.16.2-wr27tl3dpppihtzl3iomzsahqsbiq2wu/lib/python3.6/site-packages/numpy/core/fromnumeric.py:3118: RuntimeWarning: Mean of empty slice.
   out=out, **kwargs)
-/.autofs/tools/spack/opt/spack/linux-rhel7-x86_64/gcc-7.4.0/py-numpy-1.16.2-wr27tl3dpppihtzl3iomzsahqsbiq2wu/lib/python3.6/site-packages/numpy/core/fromnumeric.py:3118: RuntimeWarning: Mean of empty slice.
-  out=out, **kwargs)
+/.autofs/tools/spack/opt/spack/linux-rhel7-skylake_avx512/gcc-7.4.0/py-scipy-1.3.3-vspgo3wlh72y62226fay25xrbvokekgl/lib/python3.6/site-packages/scipy/optimize/minpack.py:795: OptimizeWarning: Covariance of the parameters could not be estimated
+  category=OptimizeWarning)

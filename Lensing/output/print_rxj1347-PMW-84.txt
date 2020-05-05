@@ -1,4 +1,4 @@
 starting on:
 rxj1347 84 PMW
 ['rxj1347', '84', 'PMW']
-Total sub-map runtime 83: 0.32863807678222656
+Total sub-map runtime 83: 0.027892589569091797

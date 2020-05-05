@@ -85,7 +85,6 @@ class Catsrc():
         self.lense_only = lense_only
         self.dI = []
         self.data_retrieval()
-        exit()
         self.source_removal()
         self.data_analysis()
         # compile all figures and save to monolithic plot
@@ -165,6 +164,12 @@ class Catsrc():
         maps, err = clus_subtract_cat(self.maps, self.dI, self.nsim, sgen=self.sgen, verbose=self.verbose, saveplot=self.saveplot, superplot=self.superplot)
         err = None
 
+        # for i in range(3):
+        #     self.maps[i]['srcrm'] = fits.getdata(config.OUTPUT + 'pcat_residuals/' + self.maps[i]['name'] + '_resid_' + self.maps[i]['band'] + '_' + str(self.nsim) + 'lense.fits')
+        #     data_file = config.HOME + 'Lensing/lense_template_' + self.maps[i]['band'] + '.fits'
+        #     lense_model = fits.getdata(data_file)
+        #     self.maps[i]['srcrm'] = self.maps[i]['srcrm'] - lense_model
+
         if err:
             if self.verbose:
                 print('clus_subtract_cat exited with error: ' + err)
@@ -212,19 +217,21 @@ class Catsrc():
 
         radave = clus_compute_rings(self.maps,self.params,30.0,sgen=self.sgen,verbose=self.verbose, superplot=self.superplot, saveplot=self.saveplot, nsim=self.nsim, testflag=self.testflag, lense_only=self.lense_only)
 
-        # if self.verbose:
-        #     print('Computing Beta model fit.')
+        if self.verbose:
+            print('Computing Beta model fit.')
         #
         # if self.clusname == 'ms0451':
         #     maxlim = 300
         # else:
         #     maxlim = 450
 
-        if not self.lense_only :
+        if self.lense_only == 0 :
             fit = clus_fitsz(radave, self.params,self.beam, sgen=self.sgen, superplot=self.superplot, saveplot=self.saveplot, nsim=self.nsim)
             fit = np.asarray(fit)
             increment = fit[:,0]
             offsets = fit[:,1]
+            print('increment :',increment)
+            print('offsets :', offsets)
 
             err = save_fitsz(increment, offsets, radave, self.params, sgen=self.sgen, verbose=self.verbose, nsim=self.nsim)
             if err:

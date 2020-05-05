@@ -59,7 +59,7 @@ def clus_add_sziso_new(maps,isim,yin,tin,params,
         header = data[0].header
         naxis = cluster_struct.shape
         # BCAMNORM in units of MJy/sr
-        bolocam = clus_convert_bolocam(cluster_struct,norm = header['BCAMNORM'],verbose=verbose,clusname=clusname)
+        bolocam,err = clus_convert_bolocam(cluster_struct,norm = header['BCAMNORM'],verbose=verbose,clusname=clusname)
     else :
         #fetch bolocam data from .sav files in bolocam directory.
         data_file = str('bolocam/data/' + maps[0]['name'] + '.sav')

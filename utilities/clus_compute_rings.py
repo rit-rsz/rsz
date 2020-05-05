@@ -143,7 +143,7 @@ def clus_compute_rings(maps, params, binwidth, sgen = None, superplot=0, verbose
                      'midbin' : midbinp,
                      'fluxbin' : fluxbin,
                      'errbin' : errbin}
-
+        print(fluxbin)
         if superplot or saveplot:
             plt.plot(midbinp,fluxbin)
             plt.title('Clus Compute Rings: Radial Averages for %s' %(maps[m]['band']))

@@ -39,11 +39,11 @@ def clus_subtract_xcomps(maps, sgen=None, verbose=1, superplot=1, nsim=0, savepl
 
     #make a noise mask and populate source removed map with nans where mask is 1 so they don't effect the fit.
     for i in range(len(maps)):
-        mask = clus_make_noise_mask(maps, i)
-        maps[i]['mask'] = maps[i]['mask'] + mask
+        # mask = clus_make_noise_mask(maps, i)
+        #maps[i]['mask'] = maps[i]['mask'] + mask
         for j in range(maps[i]['signal'].shape[0]):
             for k in range(maps[i]['signal'].shape[1]):
-                if maps[i]['mask'][j,k] == 1:
+                if maps[i]['mask'][j,k] == 0 :
                     maps[i]['srcrm'][j,k] = np.nan
 
         if saveplot :
@@ -52,6 +52,7 @@ def clus_subtract_xcomps(maps, sgen=None, verbose=1, superplot=1, nsim=0, savepl
             else :
                 filename = config.OUTPUT + 'pcat_residuals/' + maps[i]['name'] + '_mask_resid_' + maps[i]['band'] + '_real' + '.png'
             plt.imshow(maps[i]['srcrm'])
+            plt.clim([-0.01,0.01])
             plt.colorbar().set_label('[Jy]')
             plt.title('Clus Subtract Xcomps : Masked PCAT Residual %s' %(maps[i]['band']))
             plt.savefig(filename)
@@ -127,6 +128,7 @@ def clus_subtract_xcomps(maps, sgen=None, verbose=1, superplot=1, nsim=0, savepl
                     maps[i]['xclean'][j,k] = maps[i]['srcrm'][j,k] - slope * xmap_align[j,k] + intercept
 
         plt.imshow(maps[i]['xclean'])
+        plt.clim([-0.01,0.01])
         plt.colorbar().set_label('[Jy]')
         plt.title('Clus Subtract Xcomp : Correlated Components Removed')
 

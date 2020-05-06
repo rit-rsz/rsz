@@ -161,14 +161,14 @@ class Catsrc():
         if self.verbose:
             print('Regressing and subtracting catalogs')
 
-        maps, err = clus_subtract_cat(self.maps, self.dI, self.nsim, sgen=self.sgen, verbose=self.verbose, saveplot=self.saveplot, superplot=self.superplot)
+        # maps, err = clus_subtract_cat(self.maps, self.dI, self.nsim, sgen=self.sgen, verbose=self.verbose, saveplot=self.saveplot, superplot=self.superplot)
         err = None
 
-        # for i in range(3):
-        #     self.maps[i]['srcrm'] = fits.getdata(config.OUTPUT + 'pcat_residuals/' + self.maps[i]['name'] + '_resid_' + self.maps[i]['band'] + '_' + str(self.nsim) + 'lense.fits')
-        #     data_file = config.HOME + 'Lensing/lense_template_' + self.maps[i]['band'] + '.fits'
-        #     lense_model = fits.getdata(data_file)
-        #     self.maps[i]['srcrm'] = self.maps[i]['srcrm'] - lense_model
+        for i in range(3):
+            self.maps[i]['srcrm'] = fits.getdata(config.OUTPUT + 'pcat_residuals/' + self.maps[i]['name'] + '_resid_' + self.maps[i]['band'] + '_' + str(self.nsim) + 'lense.fits')
+            data_file = config.HOME + 'Lensing/lense_template_' + self.maps[i]['band'] + '.fits'
+            lense_model = fits.getdata(data_file)
+            self.maps[i]['srcrm'] = self.maps[i]['srcrm'] - lense_model
 
         if err:
             if self.verbose:
@@ -194,7 +194,7 @@ class Catsrc():
         if self.verbose:
             print('Subtracting correlated components')
 
-        maps, err = clus_subtract_xcomps(maps, sgen=self.sgen, verbose=self.verbose, superplot=self.superplot, saveplot=self.saveplot, nsim=self.nsim)
+        maps, err = clus_subtract_xcomps(self.maps, sgen=self.sgen, verbose=self.verbose, superplot=self.superplot, saveplot=self.saveplot, nsim=self.nsim)
         if err:
             if self.verbose:
                 print('clus_subtract_xcomps exited with error: ' + err)

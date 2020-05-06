@@ -156,10 +156,10 @@ def clus_read_file(file, clusname, verbose=0, sgen=None):
 
     #collect data from the files file.
     hdul = fits.open(file)
-    img = hdul[1] #image object
-    err = hdul[2] #error map
-    exp = hdul[3] #exposure map
-    flag = hdul[4] #mask map
+    img = hdul[0] #image object
+    err = hdul[1] #error map
+    exp = hdul[2] #exposure map
+    mask = hdul[3] #mask map
 
     #this adds noise into our map if it's a simulation. (I think we are currently doing this elsewhere.)
     if sgen == 1 or sgen == 2: # if using the old pipeline bethermin sims
@@ -232,7 +232,7 @@ def clus_read_file(file, clusname, verbose=0, sgen=None):
 
     srcrm = np.zeros(img.shape)
     xclean = np.zeros(img.shape)
-    mask = np.zeros(img.shape)
+    flag = np.zeros(img.shape)
 
     #put everything into a dictionary.
     maps = {'name':clusname, #check
@@ -242,7 +242,7 @@ def clus_read_file(file, clusname, verbose=0, sgen=None):
           'srcrm':srcrm, #check
           'xclean':xclean, #check
           'error':err.data, #check
-          'mask':mask, #check
+          'mask':mask.data, #check
           'flag':flag, #check
           'exp':exp, #check
           'shead':head, #nope

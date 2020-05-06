@@ -50,13 +50,15 @@ def noise_mask(maps,col):
     img = img.tolist()
     kernel_full_size = kernel_full_size.tolist()
     fixed_image = convolve_fft(img, kernel_full_size)
+    noise_thresh = 5.0 * fixed_image[floor(mapsize[0]/2),floor(mapsize[1]/2)]
+    print('noise threshold :',noise_thresh)
 
     mask = np.zeros(mapsize, dtype=int)
     for j in range(mapsize[0]):
         for k in range(mapsize[1]):
             if fixed_image[j,k] == 0 or fixed_image[j,k] <= 1e-10 or np.isfinite(fixed_image[j,k]) == False:
-                fixed_image[j,k] = 0.005
-            if fixed_image[j,k] <= 0.004:
+                fixed_image[j,k] = noise_thresh + 1e-3
+            if fixed_image[j,k] <= noise_thresh:
                 mask[j,k] = 1
 
     ''' Temp fix for edge effects '''
@@ -69,6 +71,12 @@ def noise_mask(maps,col):
 mask_psw = np.array(noise_mask(maps,0))
 mask_pmw = np.array(noise_mask(maps,1))
 mask_plw = np.array(noise_mask(maps,2))
+
+# plt.imshow(mask_plw,origin=0)
+# plt.clim([0,1])
+# plt.colorbar()
+# plt.savefig('mystery_mask.png')
+# exit()
 
 # for some reason hcongrid hates my mask object, so I have to use error map
 for j in range(maps[0]['signal'].shape[0]):
@@ -103,27 +111,26 @@ maps[0]['error'] = hcongrid(comp,maps[2]['shead'],maps[0]['shead'])
 maps[1]['error'] = hcongrid(comp,maps[2]['shead'],maps[1]['shead'])
 maps[2]['error'] = comp
 
-
-plt.imshow(maps[0]['error'],origin=0)
-plt.clim([0,1])
-plt.colorbar()
-plt.title('Compilation Mask')
-plt.savefig('comp_mask_psw.png')
-plt.clf()
-
-plt.imshow(maps[1]['error'],origin=0)
-plt.clim([0,1])
-plt.colorbar()
-plt.title('Compilation Mask')
-plt.savefig('comp_mask_pmw.png')
-plt.clf()
-
-plt.imshow(maps[2]['error'],origin=0)
-plt.clim([0,1])
-plt.colorbar()
-plt.title('Compilation Mask')
-plt.savefig('comp_mask_plw.png')
-plt.clf()
+# plt.imshow(maps[0]['error'],origin=0)
+# plt.clim([0,1])
+# plt.colorbar()
+# plt.title('Compilation Mask')
+# plt.savefig('comp_mask_psw.png')
+# plt.clf()
+#
+# plt.imshow(maps[1]['error'],origin=0)
+# plt.clim([0,1])
+# plt.colorbar()
+# plt.title('Compilation Mask')
+# plt.savefig('comp_mask_pmw.png')
+# plt.clf()
+#
+# plt.imshow(maps[2]['error'],origin=0)
+# plt.clim([0,1])
+# plt.colorbar()
+# plt.title('Compilation Mask')
+# plt.savefig('comp_mask_plw.png')
+# plt.clf()
 
 bolocam = fits.open(config.HOME + 'filtered_image.fits')
 header = bolocam[0].header
@@ -150,34 +157,96 @@ bolo_psw = hcongrid(hdu.data,hdu.header,maps[0]['shead'])
 bolo_pmw = hcongrid(hdu.data,hdu.header,maps[1]['shead'])
 bolo_plw = hcongrid(hdu.data,hdu.header,maps[2]['shead'])
 
-final_psw = bolo_psw * maps[0]['error']
-final_pmw = bolo_pmw * maps[1]['error']
-final_plw = bolo_plw * maps[2]['error']
+# plt.imshow(bolo_plw,origin=0)
+# plt.clim([0,1])
+# plt.colorbar()
+# plt.savefig('mystery_mask.png')
+# exit()
 
-hda = fits.PrimaryHDU(final_psw,maps[0]['shead'])
-hda.writeto('bolocam_mask_psw.fits',overwrite=True)
-hdb = fits.PrimaryHDU(final_pmw,maps[1]['shead'])
-hdb.writeto('bolocam_mask_pmw.fits',overwrite=True)
-hdc = fits.PrimaryHDU(final_plw,maps[2]['shead'])
-hdc.writeto('bolocam_mask_plw.fits',overwrite=True)
+final_psw = (bolo_psw * maps[0]['error']).flatten()
+final_pmw = (bolo_pmw * maps[1]['error']).flatten()
+final_plw = (bolo_plw * maps[2]['error']).flatten()
 
-plt.imshow(final_psw,origin=0)
-plt.colorbar()
-plt.clim([0,1])
-plt.title('BOLOCAM + NOISE MASK PSW')
-plt.savefig('bolocam_mask_psw.png')
-plt.clf()
+# we have to do this yet again, because hcongrid leaves weird values that aren't 1 or 0
+new_psw = np.array([round(x) for x in final_psw]).reshape(maps[0]['signal'].shape[0],maps[0]['signal'].shape[1])
+new_pmw = np.array([round(y) for y in final_pmw]).reshape(maps[1]['signal'].shape[0],maps[1]['signal'].shape[1])
+new_plw = np.array([round(z) for z in final_plw]).reshape(maps[2]['signal'].shape[0],maps[2]['signal'].shape[1])
 
-plt.imshow(final_pmw,origin=0)
-plt.colorbar()
-plt.clim([0,1])
-plt.title('BOLOCAM + NOISE MASK PMW')
-plt.savefig('bolocam_mask_pmw.png')
-plt.clf()
+''' Save bolocam masked object to sim files '''
+# for i in range(100):
+#     sim_maps,err = clus_get_data('rxj1347', i , sgen = 3)
+#     sim_maps[0]['mask'] = bolo_psw
+#     sim_maps[1]['mask'] = bolo_pmw
+#     sim_maps[2]['mask'] = bolo_plw
+#
+#     for j in range(3) :
+#         savefile = config.CLUSSIMS + 'rxj1347/rxj1347_' + bands[j] + '_sim03%02d.fits' %(i)
+#         hda = fits.PrimaryHDU(sim_maps[j]['signal'],sim_maps[j]['shead'])
+#         hdul = fits.HDUList(hdus=hda)
+#         hdn = fits.ImageHDU(sim_maps[j]['error'],sim_maps[j]['shead'])
+#         hde = fits.ImageHDU(sim_maps[j]['exp'].data,sim_maps[j]['shead'])
+#         hdm = fits.ImageHDU(sim_maps[j]['mask'],sim_maps[j]['shead'])
+#         hdul.append(hdn)
+#         hdul.append(hde)
+#         hdul.append(hdm)
+#         hdul.writeto(savefile,overwrite=True)
+''' ################################################ '''
 
-plt.imshow(final_plw,origin=0)
-plt.colorbar()
-plt.clim([0,1])
-plt.title('BOLOCAM + NOISE MASK PLW')
-plt.savefig('bolocam_mask_plw.png')
-plt.clf()
+''' ################ Output images ################'''
+# hda = fits.PrimaryHDU(final_psw,maps[0]['shead'])
+# hda.writeto('bolocam_mask_psw_10sig.fits',overwrite=True)
+# hdb = fits.PrimaryHDU(final_pmw,maps[1]['shead'])
+# hdb.writeto('bolocam_mask_pmw_10sig.fits',overwrite=True)
+# hdc = fits.PrimaryHDU(final_plw,maps[2]['shead'])
+# hdc.writeto('bolocam_mask_plw_10sig.fits',overwrite=True)
+
+# plt.contour(bolo_psw, 1, colors='red')
+# plt.imshow(maps[0]['error'],origin=0)
+# plt.colorbar()
+# plt.clim([0,1])
+# plt.title('BOLOCAM + NOISE MASK PSW')
+# plt.savefig('bolocam_mask_psw.png')
+# plt.clf()
+#
+# plt.contour(bolo_pmw, 1, colors='red')
+# plt.imshow(maps[1]['error'],origin=0)
+# plt.colorbar()
+# plt.clim([0,1])
+# plt.title('BOLOCAM + NOISE MASK PMW')
+# plt.savefig('bolocam_mask_pmw.png')
+# plt.clf()
+#
+# plt.contour(bolo_plw, 1, colors='red')
+# plt.imshow(maps[2]['error'],origin=0)
+# plt.colorbar()
+# plt.clim([0,1])
+# plt.title('BOLOCAM + NOISE MASK PLW')
+# plt.savefig('bolocam_mask_plw.png')
+# plt.clf()
+
+# new_maps,err = clus_get_data('rxj1347',0)
+#
+# hda = fits.PrimaryHDU(new_maps[0]['signal'],new_maps[0]['shead'])
+# hdul = fits.HDUList(hdus=hda)
+# hdn = fits.ImageHDU(new_maps[0]['error'],new_maps[0]['shead'])
+# hdm = fits.ImageHDU(new_psw,new_maps[0]['shead'])
+# hdul.append(hdn)
+# hdul.append(hdm)
+# hdul.writeto('final_comp_psw.fits',overwrite=True)
+#
+# hda = fits.PrimaryHDU(new_maps[1]['signal'],new_maps[1]['shead'])
+# hdul = fits.HDUList(hdus=hda)
+# hdn = fits.ImageHDU(new_maps[1]['error'],new_maps[1]['shead'])
+# hdm = fits.ImageHDU(new_pmw,new_maps[1]['shead'])
+# hdul.append(hdn)
+# hdul.append(hdm)
+# hdul.writeto('final_comp_pmw.fits',overwrite=True)
+#
+# hda = fits.PrimaryHDU(new_maps[2]['signal'],new_maps[2]['shead'])
+# hdul = fits.HDUList(hdus=hda)
+# hdn = fits.ImageHDU(new_maps[2]['error'],new_maps[2]['shead'])
+# hdm = fits.ImageHDU(new_plw,new_maps[2]['shead'])
+# hdul.append(hdn)
+# hdul.append(hdm)
+# hdul.writeto('final_comp_plw.fits',overwrite=True)
+''' ####################################################################### '''

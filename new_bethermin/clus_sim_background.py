@@ -122,85 +122,85 @@ def clus_sim_background(genbethermin=1,fluxcut=0,saveplots=1,savemaps=0,genpower
 
                 np.save(config.HOME + 'new_bethermin/sides_cat/sides_cat_%s_%s.npy'%(bands[icol],isim),truthtable,allow_pickle=True)
 
-                # if yeslens == 1:
-                #     print('Starting ', clusters[iclust], ' lens run for ', bands[icol], '...')
-                #
-                #     # create output data files for lenstool
-                #     lnfile = config.HOME + 'model/' + clusters[iclust] + '/' + clusters[iclust] + '_cat.cat'
-                #     ltfile = config.SIMBOX + clusters[iclust] + '_image_' + bands[icol] + '.dat'
-                #
-                #     # # creates a symbolic link to this file in the current working directory
-                #     subprocess.Popen(['ln -s %s' %(lnfile)],shell=True)
-                # 
-                #     # Important Note: Lenstool will not process any sources with arcsecond positional coordinates over ~1800
-                #     # # calling lenstool program, waiting to continue until program finishes
-                #     subprocess.call(['/usr/local/bin/lenstool %s -n' %(config.HOME + 'model/' + clusters[iclust] + '/bestopt.par')],shell=True)
-                #
-                #     # this moves the output from lenstool to the directory SIMBOX and renames it
-                #     subprocess.call(['mv -f image.all %s' %(ltfile)],shell=True)
-                #
-                #     # post process cleanup, lenstool makes these files
-                #     # os.remove(config.SIM + 'mu.fits')
-                #     # os.remove(config.SIM + 'image.dat')
-                #     # os.remove(config.SIM + 'dist.dat')
-                #     # os.remove(config.SIM + 'pot.dat')
-                #     # os.remove(config.SIM + 'clump.dat')
-                #     # os.remove(config.SIM + 'para.out')
-                #     # os.remove(config.SIM + 'sipos.dat')
-                #     # os.remove(config.SIM + 'source.dat')
-                #     # os.remove(config.SIM + 'sort.dat')
-                #
-                # else :
-                #     ltfile = config.SIMBOX + clusters[iclust] + '_image_' + bands[icol] + '.dat'
-                #
-                # # populate the sim maps with sources from lenstool
-                # outmap,table = clus_popmap(ltfile,maps[icol],map_size[icol],bands[icol],clusters[iclust],pixsize[icol],fwhm[icol],loz=retcat,superplot=superplot,savemaps=savemaps)
-                # np.save(config.HOME + 'sides_cat_%s_%s.npy'%(bands[icol],isim),table,allow_pickle=True)
-                # # modify the outmap to remove pixels that have been flagged
-                # # if icol < 3 :
-                # #     whpl = np.where(maps[icol]['flag'] > 0) # check that this is right
-                # #     outmap[whpl] = np.nan
-                #
-                # # reshape map to original SPIRE size
-                # outmap = outmap[0:maps[icol]['signal'].shape[0],0:maps[icol]['signal'].shape[1]]
-                # maps[icol]['signal'] = outmap
-                #
-                # # adding random noise to the signal map
-                # if addnoise == 1 :
-                #     print('Adding noise to sim maps')
-                #     np.random.seed(102793)
-                #     error =  np.array(maps[icol]['error']).flatten()
-                #     signal = np.array(maps[icol]['signal']).flatten()
-                #     noise = np.random.normal(loc=0.0,scale=1.0,size=(maps[icol]['signal'].shape[0],maps[icol]['signal'].shape[1])).flatten()
-                #     normalization = 2*np.pi*((3)/2.355)**2
-                #
-                #     for i in range(len(signal)):
-                #         if not math.isnan(error[i]) : #Jy/beam
-                #             noise[i] = error[i]*noise[i]
-                #             signal[i] = signal[i]*normalization
-                #
-                #         else :
-                #             signal[i] = np.nan
-                #             noise[i] = np.nan
-                #
-                #     flat = noise + signal
-                #     maps[icol]['signal'] = flat.reshape(maps[icol]['signal'].shape[0],maps[icol]['signal'].shape[1])
-                #
-                #     # save the current sim map in /data/sim_clusters
-                #     print('Savemaps set, saving maps in %s' %(config.CLUSSIMS))
-                #     savefile = config.CLUSSIMS + clusters[iclust] + '/' + clusters[iclust] + '_' + bands[icol] + '_sim03%02d.fits' %(isim)
-                #     # create image HDU
-                #     hda = fits.PrimaryHDU(maps[icol]['signal'],maps[icol]['shead'])
-                #     hdul = fits.HDUList(hdus=hda)
-                #     hds = fits.ImageHDU(maps[icol]['signal'],maps[icol]['shead'])
-                #     hdn = fits.ImageHDU(maps[icol]['error'],maps[icol]['shead'])
-                #     hde = fits.ImageHDU(maps[icol]['exp'].data,maps[icol]['shead'])
-                #     hdm = fits.ImageHDU(maps[icol]['mask'],maps[icol]['shead'])
-                #     hdul.append(hds)
-                #     hdul.append(hdn)
-                #     hdul.append(hde)
-                #     hdul.append(hdm)
-                #     hdul.writeto(savefile,overwrite=True)
+                if yeslens == 1:
+                    print('Starting ', clusters[iclust], ' lens run for ', bands[icol], '...')
+
+                    # create output data files for lenstool
+                    lnfile = config.HOME + 'model/' + clusters[iclust] + '/' + clusters[iclust] + '_cat.cat'
+                    ltfile = config.SIMBOX + clusters[iclust] + '_image_' + bands[icol] + '.dat'
+
+                    # # creates a symbolic link to this file in the current working directory
+                    subprocess.Popen(['ln -s %s' %(lnfile)],shell=True)
+
+                    # Important Note: Lenstool will not process any sources with arcsecond positional coordinates over ~1800
+                    # # calling lenstool program, waiting to continue until program finishes
+                    subprocess.call(['/usr/local/bin/lenstool %s -n' %(config.HOME + 'model/' + clusters[iclust] + '/bestopt.par')],shell=True)
+
+                    # this moves the output from lenstool to the directory SIMBOX and renames it
+                    subprocess.call(['mv -f image.all %s' %(ltfile)],shell=True)
+
+                    # post process cleanup, lenstool makes these files
+                    # os.remove(config.SIM + 'mu.fits')
+                    # os.remove(config.SIM + 'image.dat')
+                    # os.remove(config.SIM + 'dist.dat')
+                    # os.remove(config.SIM + 'pot.dat')
+                    # os.remove(config.SIM + 'clump.dat')
+                    # os.remove(config.SIM + 'para.out')
+                    # os.remove(config.SIM + 'sipos.dat')
+                    # os.remove(config.SIM + 'source.dat')
+                    # os.remove(config.SIM + 'sort.dat')
+
+                else :
+                    ltfile = config.SIMBOX + clusters[iclust] + '_image_' + bands[icol] + '.dat'
+
+                # populate the sim maps with sources from lenstool
+                outmap,table = clus_popmap(ltfile,maps[icol],map_size[icol],bands[icol],clusters[iclust],pixsize[icol],fwhm[icol],loz=retcat,superplot=superplot,savemaps=savemaps)
+                np.save(config.HOME + 'sides_cat_%s_%s.npy'%(bands[icol],isim),table,allow_pickle=True)
+                # modify the outmap to remove pixels that have been flagged
+                # if icol < 3 :
+                #     whpl = np.where(maps[icol]['flag'] > 0) # check that this is right
+                #     outmap[whpl] = np.nan
+
+                # reshape map to original SPIRE size
+                outmap = outmap[0:maps[icol]['signal'].shape[0],0:maps[icol]['signal'].shape[1]]
+                maps[icol]['signal'] = outmap
+
+                # adding random noise to the signal map
+                if addnoise == 1 :
+                    print('Adding noise to sim maps')
+                    np.random.seed(102793)
+                    error =  np.array(maps[icol]['error']).flatten()
+                    signal = np.array(maps[icol]['signal']).flatten()
+                    noise = np.random.normal(loc=0.0,scale=1.0,size=(maps[icol]['signal'].shape[0],maps[icol]['signal'].shape[1])).flatten()
+                    normalization = 2*np.pi*((3)/2.355)**2
+
+                    for i in range(len(signal)):
+                        if not math.isnan(error[i]) : #Jy/beam
+                            noise[i] = error[i]*noise[i]
+                            signal[i] = signal[i]*normalization
+
+                        else :
+                            signal[i] = np.nan
+                            noise[i] = np.nan
+
+                    flat = noise + signal
+                    maps[icol]['signal'] = flat.reshape(maps[icol]['signal'].shape[0],maps[icol]['signal'].shape[1])
+
+                    # save the current sim map in /data/sim_clusters
+                    print('Savemaps set, saving maps in %s' %(config.CLUSSIMS))
+                    savefile = config.CLUSSIMS + clusters[iclust] + '/' + clusters[iclust] + '_' + bands[icol] + '_sim03%02d.fits' %(isim)
+                    # create image HDU
+                    hda = fits.PrimaryHDU(maps[icol]['signal'],maps[icol]['shead'])
+                    hdul = fits.HDUList(hdus=hda)
+                    hds = fits.ImageHDU(maps[icol]['signal'],maps[icol]['shead'])
+                    hdn = fits.ImageHDU(maps[icol]['error'],maps[icol]['shead'])
+                    hde = fits.ImageHDU(maps[icol]['exp'].data,maps[icol]['shead'])
+                    hdm = fits.ImageHDU(maps[icol]['mask'],maps[icol]['shead'])
+                    hdul.append(hds)
+                    hdul.append(hdn)
+                    hdul.append(hde)
+                    hdul.append(hdm)
+                    hdul.writeto(savefile,overwrite=True)
 
 if __name__ == '__main__' :
     clus_sim_background(genbethermin=0,fluxcut=0,saveplots=0,savemaps=0,genpowerlaw=0,\

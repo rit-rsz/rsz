@@ -82,8 +82,9 @@ def clus_compute_rings(maps, params, binwidth, sgen = None, superplot=0, verbose
         dec = params['fidded'] * u.deg
         c = SkyCoord(ra, dec)
         # grabbing header from maps file
-        hdul = fits.open(maps[m]['file']) #ideally we would be able to use shead here instead.
-        w = wcs.WCS(hdul[1].header)
+        # hdul = fits.open(maps[m]['file']) #ideally we would be able to use shead here instead.
+        # w = wcs.WCS(hdul[1].header)
+        w = wcs.WCS(maps[m]['shead'])
         #converting ra/dec to pixel coords
         px, py = skycoord_to_pixel(c, w, origin=0)
         # ===============================================================
@@ -91,7 +92,7 @@ def clus_compute_rings(maps, params, binwidth, sgen = None, superplot=0, verbose
         # retrieve noise mask and set base noise level of map
         conv = pixsize / binwidth
         confnoise = confusionnoise[m]
-        mask = clus_make_noise_mask(maps, m)
+        # mask = clus_make_noise_mask(maps, m)
         # ===============================================================
         # once filled, shows the radial bins from thisrad
         tempmap = np.zeros((int(mapsize[0]), int(mapsize[1])))
@@ -99,7 +100,7 @@ def clus_compute_rings(maps, params, binwidth, sgen = None, superplot=0, verbose
         # find the flux that falls closest a given radius (thisrad) for a given pixel (ipix,jpix)
         for ipix in range(0, mapsize[0]-1):
             for jpix in range(0, mapsize[1]-1):
-                maps[m]['mask'][ipix,jpix] = maps[m]['mask'][ipix,jpix] + mask[ipix,jpix]
+                # maps[m]['mask'][ipix,jpix] = maps[m]['mask'][ipix,jpix] + mask[ipix,jpix]
                 thisrad = pixsize * sqrt((ipix - py)**2+(jpix - px)**2)
                 tempmap[ipix,jpix] = thisrad
 
@@ -109,7 +110,7 @@ def clus_compute_rings(maps, params, binwidth, sgen = None, superplot=0, verbose
                 if rad < nbins :
                     midbinp[rad] = midbinp[rad] + thisrad
                     midwei[rad] = midwei[rad] + 1
-                    if maps[m]['mask'][ipix,jpix] == 0 and (rad <= maxrad) :
+                    if maps[m]['mask'][ipix,jpix] == 1 and (rad <= maxrad) :
                         #calculating our value for sigma^2
                         thiserr = maps[m]['calfac'] * sqrt(maps[m]['error'][ipix,jpix]**2 + confnoise**2)
                         #summing up the flux * 1 / sigma^2
@@ -174,7 +175,7 @@ def clus_compute_rings(maps, params, binwidth, sgen = None, superplot=0, verbose
             if sgen != None:
                 filename = config.OUTPUT + 'rings/' + maps[m]['name'] + '_rings_' + maps[m]['band'] + '_' + str(nsim) + '.png'
             else:
-                filename = config.OUTPUT + 'rings/' + maps[m]['name'] + '_rings_' + maps[m]['band'] + '_' + '.png'
+                filename = config.OUTPUT + 'rings/' + maps[m]['name'] + '_rings_' + maps[m]['band'] + '_real' + '.png'
 
             plt.savefig(filename)
             plt.clf()

@@ -24,19 +24,18 @@ def histogram(nsims,cluster):
     bands = ['PSW', 'PMW', 'PLW'] #the three different bands
 
     for k in range(len(bands)):
-        Isim = np.zeros(nsims)
-        xbin = np.zeros(10)
+        Isim = []
         band = bands[k]
 
         for i in range(nsims):
             file = config.OUTPUT + 'szout/' + str(cluster) + 'szout_' + str(i) + '.npy'
             data = np.load(file,allow_pickle=True)
-            Isim[i] = data[k].get('increment')
+            Isim.append(data[k].get('increment'))
 
-        histogram_test(10, k, Isim, xbin, cluster, bands[k])
+        histogram_test(100, k, Isim, cluster, band)
     return
 
-def histogram_test(binsize, k, Isim, xbin, clusname, band):
+def histogram_test(binsize, k, Isim, clusname, band):
     dI = abs((np.max(Isim) + np.min(Isim)) / binsize)
     bins = np.linspace(np.min(Isim), np.max(Isim), num=binsize)
     average = np.mean(Isim)
@@ -50,6 +49,7 @@ def histogram_test(binsize, k, Isim, xbin, clusname, band):
     y = [0, np.max(n)]
     plt.plot(Ir, y, label='Real Data dI %.2E' % Ireal)
     plt.plot(avg, y, label='Average dI %.2E' % average)
+    plt.xlim(-0.5,0.5)
     plt.xlabel('I_0 (MJy/sr)')
     plt.ylabel('Probability (percent)')
     plt.title('I_0 for %s band: %s' % (clusname, band))

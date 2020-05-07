@@ -24,6 +24,7 @@ from scipy.stats import linregress
 from save_fits import writefits
 from gaussian import makeGaussian, padGaussian
 from clus_make_noise_mask import clus_make_noise_mask
+from astropy.io import fits
 import config
 
 def clus_subtract_xcomps(maps, sgen=None, verbose=1, superplot=1, nsim=0, saveplot=1):
@@ -41,6 +42,8 @@ def clus_subtract_xcomps(maps, sgen=None, verbose=1, superplot=1, nsim=0, savepl
     for i in range(len(maps)):
         # mask = clus_make_noise_mask(maps, i)
         #maps[i]['mask'] = maps[i]['mask'] + mask
+        if sgen == None :
+            maps[i]['mask'] = fits.getdata(config.HOME + 'bolocam_mask_%s.fits'%(maps[i]['band']))
         for j in range(maps[i]['signal'].shape[0]):
             for k in range(maps[i]['signal'].shape[1]):
                 if maps[i]['mask'][j,k] == 0 :

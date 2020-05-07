@@ -193,12 +193,12 @@ new_plw = np.array([round(z) for z in final_plw]).reshape(maps[2]['signal'].shap
 ''' ################################################ '''
 
 ''' ################ Output images ################'''
-# hda = fits.PrimaryHDU(final_psw,maps[0]['shead'])
-# hda.writeto('bolocam_mask_psw_10sig.fits',overwrite=True)
-# hdb = fits.PrimaryHDU(final_pmw,maps[1]['shead'])
-# hdb.writeto('bolocam_mask_pmw_10sig.fits',overwrite=True)
-# hdc = fits.PrimaryHDU(final_plw,maps[2]['shead'])
-# hdc.writeto('bolocam_mask_plw_10sig.fits',overwrite=True)
+hda = fits.PrimaryHDU(bolo_psw,maps[0]['shead'])
+hda.writeto('bolocam_mask_PSW.fits',overwrite=True)
+hdb = fits.PrimaryHDU(bolo_pmw,maps[1]['shead'])
+hdb.writeto('bolocam_mask_PMW.fits',overwrite=True)
+hdc = fits.PrimaryHDU(bolo_plw,maps[2]['shead'])
+hdc.writeto('bolocam_mask_PLW.fits',overwrite=True)
 
 # plt.contour(bolo_psw, 1, colors='red')
 # plt.imshow(maps[0]['error'],origin=0)

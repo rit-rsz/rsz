@@ -114,13 +114,11 @@ class Catsrc():
             print('Fetching SPIRE maps')
 
         # fetch data from fits files and put them into a maps object.
-        maps, err = clus_get_data(self.clusname,self.nsim,verbose=self.verbose,sgen=self.sgen,nsim=self.nsim, testflag=self.testflag)
+        maps, err = clus_get_data(self.clusname,self.nsim,verbose=self.verbose,sgen=self.sgen, testflag=self.testflag)
         if err:
             if self.verbose:
                 print('clus_get_data exited with error: ' + err)
             exit()
-
-        # bolocam_mask(maps)
 
         # Add the sz effect into the simmulated clusters
         if self.sgen is not None and not self.lense_only:
@@ -161,14 +159,14 @@ class Catsrc():
         if self.verbose:
             print('Regressing and subtracting catalogs')
 
-        # maps, err = clus_subtract_cat(self.maps, self.dI, self.nsim, sgen=self.sgen, verbose=self.verbose, saveplot=self.saveplot, superplot=self.superplot)
+        maps, err = clus_subtract_cat(self.maps, self.dI, self.nsim, sgen=self.sgen, verbose=self.verbose, saveplot=self.saveplot, superplot=self.superplot)
         err = None
 
-        for i in range(3):
-            self.maps[i]['srcrm'] = fits.getdata(config.OUTPUT + 'pcat_residuals/' + self.maps[i]['name'] + '_resid_' + self.maps[i]['band'] + '_' + str(self.nsim) + 'lense.fits')
-            data_file = config.HOME + 'Lensing/lense_template_' + self.maps[i]['band'] + '.fits'
-            lense_model = fits.getdata(data_file)
-            self.maps[i]['srcrm'] = self.maps[i]['srcrm'] - lense_model
+        # for i in range(3):
+        #     self.maps[i]['srcrm'] = fits.getdata(config.OUTPUT + 'pcat_residuals/' + self.maps[i]['name'] + '_resid_' + self.maps[i]['band'] + '_' + str(self.nsim) + 'lense.fits')
+        #     data_file = config.HOME + 'Lensing/lense_template_' + self.maps[i]['band'] + '.fits'
+        #     lense_model = fits.getdata(data_file)
+        #     self.maps[i]['srcrm'] = self.maps[i]['srcrm'] - lense_model
 
         if err:
             if self.verbose:
@@ -194,7 +192,7 @@ class Catsrc():
         if self.verbose:
             print('Subtracting correlated components')
 
-        maps, err = clus_subtract_xcomps(self.maps, sgen=self.sgen, verbose=self.verbose, superplot=self.superplot, saveplot=self.saveplot, nsim=self.nsim)
+        maps, err = clus_subtract_xcomps(maps, sgen=self.sgen, verbose=self.verbose, superplot=self.superplot, saveplot=self.saveplot, nsim=self.nsim)
         if err:
             if self.verbose:
                 print('clus_subtract_xcomps exited with error: ' + err)
@@ -247,6 +245,8 @@ if __name__ == '__main__':
         print(args.run)
         clusname = args.run[0]
         sgen = args.run[1]
+        if sgen == 'None' :
+            sgen = None
         nsim = args.run[2]
         resolution = args.run[3]
         catsrc = Catsrc(clusname, sgen=sgen, isim=nsim, resolution=resolution)

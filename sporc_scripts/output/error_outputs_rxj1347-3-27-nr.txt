@@ -2802,5 +2802,19 @@ py-pillow/6.2.0-gcc-7.4.0-soqyxeoz(21):ERROR:102: Tcl command execution failed: 
 
 /.autofs/tools/spack/opt/spack/linux-rhel7-x86_64/gcc-7.4.0/py-numpy-1.16.2-wr27tl3dpppihtzl3iomzsahqsbiq2wu/lib/python3.6/site-packages/numpy/core/fromnumeric.py:3118: RuntimeWarning: Mean of empty slice.
   out=out, **kwargs)
-/.autofs/tools/spack/opt/spack/linux-rhel7-skylake_avx512/gcc-7.4.0/py-scipy-1.3.3-vspgo3wlh72y62226fay25xrbvokekgl/lib/python3.6/site-packages/scipy/optimize/minpack.py:795: OptimizeWarning: Covariance of the parameters could not be estimated
-  category=OptimizeWarning)
+Traceback (most recent call last):
+  File "catsrc.py", line 252, in <module>
+    resolution = args.run[3]
+  File "catsrc.py", line 88, in __init__
+    self.source_removal()
+  File "catsrc.py", line 164, in source_removal
+    
+  File "source_handling/clus_subtract_cat.py", line 43, in clus_subtract_cat
+    resid_maps = run_pcat(maps,nsim,offsets)
+  File "source_handling/clus_subtract_cat.py", line 98, in run_pcat
+    resid_maps = ob.main()
+  File "/home/vlb9398/rsz/multiband_pcat/multiband_pcat/pcat_spire.py", line 1672, in main
+    _, chi2_all, statarrays,  accept_fracs, diff2_list, rtype_array, accepts, resids, model_images = model.run_sampler()
+  File "/home/vlb9398/rsz/multiband_pcat/multiband_pcat/pcat_spire.py", line 690, in run_sampler
+    assert np.isnan(dlogP).any() == False
+AssertionError

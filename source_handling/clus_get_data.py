@@ -26,7 +26,7 @@ import config
 import matplotlib.pyplot as plt
 
 def clus_get_data(clusname, isim,manpath=0, resolution = 'nr', bolocam=None,
-            verbose = 1, version = '1', manidentifier=None, sgen=None, nsim=0, testflag=0):
+            verbose = 1, version = '1', manidentifier=None, sgen=None, testflag=0):
 
     errmsg = False
     #if the manual path flag is not set then go the normal route.
@@ -156,10 +156,16 @@ def clus_read_file(file, clusname, verbose=0, sgen=None):
 
     #collect data from the files file.
     hdul = fits.open(file)
-    img = hdul[0] #image object
-    err = hdul[1] #error map
-    exp = hdul[2] #exposure map
-    mask = hdul[3] #mask map
+    if sgen == 3 :
+        img = hdul[0] #image object
+        err = hdul[1] #error map
+        exp = hdul[2] #exposure map
+        mask = hdul[3] #mask map
+    else :
+        img = hdul[1] #image object
+        err = hdul[2] #error map
+        exp = hdul[3] #exposure map
+        mask = hdul[4] #mask map
 
     #this adds noise into our map if it's a simulation. (I think we are currently doing this elsewhere.)
     if sgen == 1 or sgen == 2: # if using the old pipeline bethermin sims

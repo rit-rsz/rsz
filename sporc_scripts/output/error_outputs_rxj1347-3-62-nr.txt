@@ -2800,3 +2800,21 @@ libjpeg-turbo/2.0.3-gcc-7.4.0-zztcod3p(16):ERROR:102: Tcl command execution fail
 py-pillow/6.2.0-gcc-7.4.0-soqyxeoz(21):ERROR:150: Module 'py-pillow/6.2.0-gcc-7.4.0-soqyxeoz' conflicts with the currently loaded module(s) 'py-pillow/5.4.1-gcc-7.4.0-vgokp66a'
 py-pillow/6.2.0-gcc-7.4.0-soqyxeoz(21):ERROR:102: Tcl command execution failed: conflict py-pillow
 
+/.autofs/tools/spack/opt/spack/linux-rhel7-x86_64/gcc-7.4.0/py-numpy-1.16.2-wr27tl3dpppihtzl3iomzsahqsbiq2wu/lib/python3.6/site-packages/numpy/core/fromnumeric.py:3118: RuntimeWarning: Mean of empty slice.
+  out=out, **kwargs)
+Traceback (most recent call last):
+  File "catsrc.py", line 252, in <module>
+    catsrc = Catsrc(clusname, sgen=sgen, isim=nsim, resolution=resolution)
+  File "catsrc.py", line 88, in __init__
+    self.source_removal()
+  File "catsrc.py", line 162, in source_removal
+    maps, err = clus_subtract_cat(self.maps, self.dI, self.nsim, sgen=self.sgen, verbose=self.verbose, saveplot=self.saveplot, superplot=self.superplot)
+  File "source_handling/clus_subtract_cat.py", line 43, in clus_subtract_cat
+    resid_maps = run_pcat(maps,nsim,offsets)
+  File "source_handling/clus_subtract_cat.py", line 98, in run_pcat
+    resid_maps = ob.main()
+  File "/home/vlb9398/rsz/multiband_pcat/multiband_pcat/pcat_spire.py", line 1672, in main
+    _, chi2_all, statarrays,  accept_fracs, diff2_list, rtype_array, accepts, resids, model_images = model.run_sampler()
+  File "/home/vlb9398/rsz/multiband_pcat/multiband_pcat/pcat_spire.py", line 690, in run_sampler
+    assert np.isnan(dlogP).any() == False
+AssertionError

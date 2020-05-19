@@ -122,7 +122,7 @@ class Catsrc():
 
         # Add the sz effect into the simmulated clusters
         if self.sgen is not None and not self.lense_only:
-            maps, err, dI = clus_add_sziso_new(maps,self.nsim,clusname=self.clusname,yin=self.yin,tin=self.tin,params=params,verbose=self.verbose, testflag=self.testflag,nsim=self.nsim,saveplot=self.saveplot)
+            maps, err, dI = clus_add_sziso_new(maps,self.nsim,clusname=self.clusname,yin=self.yin,tin=self.tin,params=params,verbose=self.verbose, testflag=self.testflag,saveplot=self.saveplot)
             self.dI = dI
         if err:
             if self.verbose:

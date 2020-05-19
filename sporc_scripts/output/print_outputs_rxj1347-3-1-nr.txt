@@ -1,2 +1,9 @@
 starting on:
 rxj1347 3 1 nr
+['rxj1347', '3', '1', 'nr']
+Welcome to SZ fitter v 1.0 Python Version
+Fetching cluster parameters
+Fetching SPIRE maps
+Fetching BOLOCAM maps
+SZE @ 140.18691588785046 GHZ : -0.2054 [MJy/sr] 0.001408 10.8800
+SZE @ 1200.0 GHZ : 0.0175 [MJy/sr] 0.001408 10.8800

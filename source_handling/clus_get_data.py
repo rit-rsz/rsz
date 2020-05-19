@@ -156,7 +156,13 @@ def clus_read_file(file, clusname, verbose=0, sgen=None):
 
     #collect data from the files file.
     hdul = fits.open(file)
-    if sgen == 3 :
+    if sgen == None :
+        img = hdul[1] #image object
+        err = hdul[2] #error map
+        exp = hdul[3] #exposure map
+        mask = hdul[4] #mask map
+
+    elif int(sgen) == 3 :
         img = hdul[0] #image object
         err = hdul[1] #error map
         exp = hdul[2] #exposure map

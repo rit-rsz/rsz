@@ -23,9 +23,9 @@ def clus_convert_bolocam(bolocam, norm = None, clusname=None, verbose=0):
     if clusname == 'rxj1347' :
         # convert normalized map back to original dT
         bolocam_new = np.reshape([x*norm for x in bolocam.flatten()],(bolocam.shape[0],bolocam.shape[1]))
-        bolocam_final = clus_dTtoDI(143,bolocam_new)
+        # bolocam_final = clus_dTtoDI(143,bolocam_new)
 
-        return bolocam_final,None
+        return bolocam_new,None
     else :
         # Converts mK to MJy/sr
         bolocam[0]['deconvolved_image'] = clus_dTtoDI(143,1e-6*(bolocam[0]['deconvolved_image']))

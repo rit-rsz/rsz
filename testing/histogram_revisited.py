@@ -32,7 +32,7 @@ def histogram(nsims,cluster):
             data = np.load(file,allow_pickle=True)
             Isim.append(data[k].get('increment'))
 
-        histogram_test(100, k, Isim, cluster, band)
+        histogram_test(50, k, Isim, cluster, band)
     return
 
 def histogram_test(binsize, k, Isim, clusname, band):
@@ -49,11 +49,11 @@ def histogram_test(binsize, k, Isim, clusname, band):
     y = [0, np.max(n)]
     plt.plot(Ir, y, label='Real Data dI %.2E' % Ireal)
     plt.plot(avg, y, label='Average dI %.2E' % average)
-    plt.xlim(-0.5,0.5)
+    plt.xlim(-1.5,1.5)
     plt.xlabel('I_0 (MJy/sr)')
     plt.ylabel('Probability (percent)')
     plt.title('I_0 for %s band: %s' % (clusname, band))
-    plt.legend()
+    plt.legend(loc='upper right')
     plt.savefig(config.OUTPUT + 'dI_hist/dI_hist_%s_%s.png'%(clusname,band))
     plt.clf()
 

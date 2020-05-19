@@ -2800,3 +2800,31 @@ libjpeg-turbo/2.0.3-gcc-7.4.0-zztcod3p(16):ERROR:102: Tcl command execution fail
 py-pillow/6.2.0-gcc-7.4.0-soqyxeoz(21):ERROR:150: Module 'py-pillow/6.2.0-gcc-7.4.0-soqyxeoz' conflicts with the currently loaded module(s) 'py-pillow/5.4.1-gcc-7.4.0-vgokp66a'
 py-pillow/6.2.0-gcc-7.4.0-soqyxeoz(21):ERROR:102: Tcl command execution failed: conflict py-pillow
 
+Traceback (most recent call last):
+  File "catsrc.py", line 252, in <module>
+    catsrc = Catsrc(clusname, sgen=sgen, isim=nsim, resolution=resolution)
+  File "catsrc.py", line 87, in __init__
+    self.data_retrieval()
+  File "catsrc.py", line 125, in data_retrieval
+    maps, err, dI = clus_add_sziso_new(maps,self.nsim,clusname=self.clusname,yin=self.yin,tin=self.tin,params=params,verbose=self.verbose, testflag=self.testflag,saveplot=self.saveplot)
+  File "sz/clus_add_sziso_new.py", line 208, in clus_add_sziso_new
+    hda.writeto('bolocam_spire_%s.fits'%(maps[imap]['band']),overwrite=True)
+  File "/.autofs/tools/spack/opt/spack/linux-rhel7-skylake_avx512/gcc-7.4.0/py-astropy-3.2.1-v2mcsedqts7q3vmk7iz64owluwugpczo/lib/python3.6/site-packages/astropy/utils/decorators.py", line 521, in wrapper
+    return function(*args, **kwargs)
+  File "/.autofs/tools/spack/opt/spack/linux-rhel7-skylake_avx512/gcc-7.4.0/py-astropy-3.2.1-v2mcsedqts7q3vmk7iz64owluwugpczo/lib/python3.6/site-packages/astropy/io/fits/hdu/base.py", line 373, in writeto
+    checksum=checksum)
+  File "/.autofs/tools/spack/opt/spack/linux-rhel7-skylake_avx512/gcc-7.4.0/py-astropy-3.2.1-v2mcsedqts7q3vmk7iz64owluwugpczo/lib/python3.6/site-packages/astropy/utils/decorators.py", line 521, in wrapper
+    return function(*args, **kwargs)
+  File "/.autofs/tools/spack/opt/spack/linux-rhel7-skylake_avx512/gcc-7.4.0/py-astropy-3.2.1-v2mcsedqts7q3vmk7iz64owluwugpczo/lib/python3.6/site-packages/astropy/io/fits/hdu/hdulist.py", line 919, in writeto
+    fileobj = _File(fileobj, mode=mode, overwrite=overwrite)
+  File "/.autofs/tools/spack/opt/spack/linux-rhel7-skylake_avx512/gcc-7.4.0/py-astropy-3.2.1-v2mcsedqts7q3vmk7iz64owluwugpczo/lib/python3.6/site-packages/astropy/utils/decorators.py", line 521, in wrapper
+    return function(*args, **kwargs)
+  File "/.autofs/tools/spack/opt/spack/linux-rhel7-skylake_avx512/gcc-7.4.0/py-astropy-3.2.1-v2mcsedqts7q3vmk7iz64owluwugpczo/lib/python3.6/site-packages/astropy/io/fits/file.py", line 178, in __init__
+    self._open_filename(fileobj, mode, overwrite)
+  File "/.autofs/tools/spack/opt/spack/linux-rhel7-skylake_avx512/gcc-7.4.0/py-astropy-3.2.1-v2mcsedqts7q3vmk7iz64owluwugpczo/lib/python3.6/site-packages/astropy/io/fits/file.py", line 544, in _open_filename
+    self._overwrite_existing(overwrite, None, True)
+  File "/.autofs/tools/spack/opt/spack/linux-rhel7-skylake_avx512/gcc-7.4.0/py-astropy-3.2.1-v2mcsedqts7q3vmk7iz64owluwugpczo/lib/python3.6/site-packages/astropy/io/fits/file.py", line 429, in _overwrite_existing
+    (os.path.exists(self.name) and os.path.getsize(self.name) != 0)):
+  File "/.autofs/tools/spack/opt/spack/linux-rhel7-x86_64/gcc-7.4.0/python-3.6.8-r3ohs7zjve5ld3h76ta4hkosgqxywnco/lib/python3.6/genericpath.py", line 50, in getsize
+    return os.stat(filename).st_size
+FileNotFoundError: [Errno 2] No such file or directory: 'bolocam_spire_PSW.fits'

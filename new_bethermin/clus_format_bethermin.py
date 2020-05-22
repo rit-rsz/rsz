@@ -111,7 +111,14 @@ def clus_format_bethermin(icol,sim_map,maps,map_size,band,clusname,pixsize,fwhm,
     outx = [x for _,x in sorted(zip(coutflux,coutx), key = lambda pair: pair[0], reverse=True)]
     outy = [y for _,y in sorted(zip(coutflux,couty), key = lambda pair: pair[0], reverse=True)]
     outz = [z for _,z in sorted(zip(coutflux,coutz), key = lambda pair: pair[0], reverse=True)]
-    outflux = sorted(outflux, reverse=True)
+    outflux = sorted(coutflux, reverse=True)
+
+    if superplot :
+        plt.scatter(outx,outy,s=2,c=outflux)
+        plt.colorbar()
+        plt.title('Bethermin SIM (pre-format)')
+        plt.show()
+        plt.clf()
 
     # truncate to the msrc brightest sources
     if msrc < nsrc :
@@ -121,24 +128,26 @@ def clus_format_bethermin(icol,sim_map,maps,map_size,band,clusname,pixsize,fwhm,
         outz = outz[0:msrc]
 
     # now sort according to z
-    houtflux = [f for _,f in sorted(zip(outz,outflux), key = lambda pair: pair[0])]
-    houtx = [x for _,x in sorted(zip(outz,outx), key = lambda pair: pair[0])]
-    houty = [y for _,y in sorted(zip(outz,outy), key = lambda pair: pair[0])]
-    houtz = sorted(outz)
+    coutflux = [f for _,f in sorted(zip(outz,outflux), key = lambda pair: pair[0])]
+    coutx = [x for _,x in sorted(zip(outz,outx), key = lambda pair: pair[0])]
+    couty = [y for _,y in sorted(zip(outz,outy), key = lambda pair: pair[0])]
+    coutz = sorted(outz)
 
     if savemaps:
-        orig_length = len(houtx)
+        orig_length = len(coutx)
         mapy = maps[icol]['signal'].shape[0]
         mapx = maps[icol]['signal'].shape[1]
-        x = [(i/pixsize) + refx for i in houtx]
-        y = [(j/pixsize) + refy for j in houty]
+        x = [(i/pixsize) + refx for i in coutx]
+        y = [(j/pixsize) + refy for j in couty]
 
         x = np.array(x,dtype=np.float32)
         y = np.array(y,dtype=np.float32)
-        flux = np.array(houtflux,dtype=np.float32)
-
+        flux = np.array(coutflux,dtype=np.float32)
         psf, cf, nc, nbin = get_gaussian_psf_template(fwhm,pixel_fwhm=3.) # assumes pixel fwhm is 3 pixels in each band
-        sim_map = image_model_eval(x, y, nc*flux, 0.0, (300, 300), int(nc), cf)
+        if x_pos > y_pos :
+            sim_map = image_model_eval(x, y, nc*flux, 0.0, (x_pos,x_pos), int(nc), cf)
+        else :
+            sim_map = image_model_eval(x, y, nc*flux, 0.0, (y_pos,y_pos), int(nc), cf)
         plt.imshow(sim_map,origin=0)
         plt.savefig(config.SIM + 'nonlensedmap_' + clusname + '_' + band + '.png')
         plt.colorbar()
@@ -148,13 +157,13 @@ def clus_format_bethermin(icol,sim_map,maps,map_size,band,clusname,pixsize,fwhm,
         sz.writeto(config.SIMBOX + 'nonlensedmap_' + clusname + '_' + band + '.fits',overwrite=True)
 
     # magnitude instead of flux in Jy
-    outmag = [-2.5 * np.log10(x) for x in houtflux]
-
-    if superplot and sim_map != None:
+    outmag = [-2.5 * np.log10(x) for x in coutflux]
+    # if superplot and sim_map != None:
         plt.imshow(sim_map,extent=(0,300,0,300),clim=[0.0,0.15],origin=0)
         plt.colorbar()
         plt.title('clus_format_bethermin: Non-lensed map')
         plt.show()
+        plt.clf()
     # else :
     #     plt.scatter(houtx,houty,s=2,c=houtflux)
     #     plt.colorbar()
@@ -167,11 +176,11 @@ def clus_format_bethermin(icol,sim_map,maps,map_size,band,clusname,pixsize,fwhm,
         f.write('#REFERENCE 3 %.6f %.6f \n' %(maps[icol]['shead']['CRVAL1'], maps[icol]['shead']['CRVAL2']))
         for k in range(len(outmag)):
             f.write('%i %.3f %.3f 0.5 0.5 0.0 %0.6f %0.6f \n' \
-                    %(k,houtx[k],houty[k],houtz[k],outmag[k]))
+                    %(k,coutx[k],couty[k],coutz[k],outmag[k]))
         f.close()
 
-    truthtable = {'x': houtx, 'y': houty,
-                  'z': houtz, 'mag': outmag}
+    truthtable = {'x': coutx, 'y': couty,
+                  'z': coutz, 'mag': outmag}
 
     return retcat, truthtable, sim_map
 

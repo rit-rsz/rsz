@@ -111,9 +111,12 @@ def clus_sim_background(genbethermin=1,fluxcut=0,saveplots=1,savemaps=0,genpower
 
             else : # use SIDES
                 map_size = [300,300,300]
-                PLW = np.load(config.HOME + 'sides_sims/sides_PLW_sim%s.npy' %(isim),allow_pickle=True)
-                PMW = np.load(config.HOME + 'sides_sims/sides_PMW_sim%s.npy' %(isim),allow_pickle=True)
-                PSW = np.load(config.HOME + 'sides_sims/sides_PSW_sim%s.npy' %(isim),allow_pickle=True)
+                # PLW = np.load(config.HOME + 'sides_sims/sides_PLW_sim%s.npy' %(isim),allow_pickle=True)
+                # PMW = np.load(config.HOME + 'sides_sims/sides_PMW_sim%s.npy' %(isim),allow_pickle=True)
+                # PSW = np.load(config.HOME + 'sides_sims/sides_PSW_sim%s.npy' %(isim),allow_pickle=True)
+                PLW = np.load('/home/vaughan/dumb_folder/SIDES_PLW_sim%s.npy' %(isim),allow_pickle=True)
+                PMW = np.load('/home/vaughan/dumb_folder/SIDES_PMW_sim%s.npy' %(isim),allow_pickle=True)
+                PSW = np.load('/home/vaughan/dumb_folder/SIDES_PSW_sim%s.npy' %(isim),allow_pickle=True)
                 sim_maps = [PSW,PMW,PLW]
 
             for icol in range(ncols):
@@ -194,7 +197,7 @@ def clus_sim_background(genbethermin=1,fluxcut=0,saveplots=1,savemaps=0,genpower
                     hds = fits.ImageHDU(maps[icol]['signal'],maps[icol]['shead'])
                     hdn = fits.ImageHDU(maps[icol]['error'],maps[icol]['shead'])
                     hde = fits.ImageHDU(maps[icol]['exp'].data,maps[icol]['shead'])
-                    hdm = fits.ImageHDU(maps[icol]['mask'],maps[icol]['shead'])
+                    hdm = fits.ImageHDU(fits.getdata(config.HOME + 'bolocam_mask_%s.fits'%(maps[icol]['band'])),maps[icol]['shead'])
                     hdul.append(hds)
                     hdul.append(hdn)
                     hdul.append(hde)

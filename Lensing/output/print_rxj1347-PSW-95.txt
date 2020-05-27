@@ -1,4 +1,0 @@
-starting on:
-rxj1347 95 PSW
-['rxj1347', '95', 'PSW']
-Total sub-map runtime 94: 0.023946046829223633

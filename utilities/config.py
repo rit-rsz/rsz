@@ -12,22 +12,22 @@
 ################################################################################
 from math import *
 
-CLUSDATA = '/home/vlb9398/data/SPIRE/'
+CLUSDATA = '/data/butler/SPIRE/'
 # CLUSSBOX = '/data/butler/SPIRE/sandbox/'
 CLUSHOME = '/home/vlb9398/bitten/SPIRE/'
-HOME = '/home/vlb9398/rsz/'
-SIM = '/home/vlb9398/rsz/new_bethermin/'
-CLUSSIMS = '/home/vlb9398/data/SPIRE/bethermin_sims/'
+HOME = '/home/butler/rsz/'
+#SIM = '/home/vlb9398/rsz/new_bethermin/'
+#CLUSSIMS = '/home/vlb9398/data/SPIRE/bethermin_sims/'
 ROOT = '/home/vlb9398/'
-OUTPUT = '/home/vlb9398/data/outputs/'
-# CLUSNSIMS = '/data/butler/SPIRE/new_bethermin_sims/'
+OUTPUT = '/home/vlb9398/rsz/outputs/'
+CLUSSIMS = '/data/butler/SPIRE/new_bethermin_sims/'
 # CLUSSIDES = '/data/butler/SPIRE/sides_sims/'
-# SIMBOX = '/home/butler/rsz/new_bethermin/lens_model/'
+SIMBOX = '/home/butler/rsz/new_bethermin/lens_model/'
 
 calfac  = (pi/180.0)**2 * (1/3600.0)**2 * (pi / (4.0 * log(2.0))) * (1e6)
 JY2MJy = 1e6 # Janskys to Mega Janskys
 
-yin_coeff = [4.56,8.5,8.7,4.45,7.43,8.96,0.93,7.42,5.63,3.53,3.72,9.65]#14.08
+yin_coeff = [4.56,8.5,8.7,4.45,7.43,8.96,0.93,7.42,5.63,3.53,3.72,14.08]
 yin = [x*1e-4 for x in yin_coeff]
 
 tin = [7.2,10.1,7.65,6.7,9.81,9.16,4.5,8.62,7.8,7.2,5.5,10.88]

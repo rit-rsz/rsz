@@ -9,8 +9,7 @@ lens_z = 0.451 ;from csv file jack sent
 LL = 150
 pixscale = 18
 searchedlensed = 0.75
-npixels = 4000
-
+npixels = 290
 x = DF_LensCat_FP(input_cat, DF_X, DF_Y, lens_z, pixscale, LL, NPIXELS=npixels)
 print, x
 END

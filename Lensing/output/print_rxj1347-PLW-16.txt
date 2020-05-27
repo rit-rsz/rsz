@@ -1,4 +1,0 @@
-starting on:
-rxj1347 16 PLW
-['rxj1347', '16', 'PLW']
-Total sub-map runtime 15: 0.009267568588256836

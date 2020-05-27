@@ -70,17 +70,19 @@ def map_selector(m_size, s_size, n_samp):
     py = coords[:,1]
     return px, py
 
-def populate_cutouts(sides_catalogue, c_pix, pixsize, band, cutout):
-    if band == 'PSW':
-        b = 3
-    elif band == 'PMW':
-        b = 4
-    elif band == 'PLW':
-        b = 5
+def populate_cutouts(sides_catalogue, c_pix, pixsize, cutout):
+    # if band == 'PSW':
+    #     b = 3
+    # elif band == 'PMW':
+    #     b = 4
+    # elif band == 'PLW':
+    #     b = 5
 
     py = sides_catalogue[1] #y values in the sides catalogue
     px = sides_catalogue[0] #x values in the sides catalogue
-    f  = sides_catalogue[b] #flux values at our specified band
+    PSW_f  = sides_catalogue[3] #flux values at each band
+    PMW_f  = sides_catalogue[4]
+    PLW_f  = sides_catalogue[5]
     z  = sides_catalogue[2] #red shift in the sides catalogue
 
     #find splices for the cutout
@@ -95,39 +97,62 @@ def populate_cutouts(sides_catalogue, c_pix, pixsize, band, cutout):
     dy = cy - sy_2
 
     #cutouts of map
-    a = time.time()
     good_x = np.where(np.logical_and(px >= dx, px <= ux))[0]
     good_y = np.where(np.logical_and(py >= dy, py <= uy))[0]
     good_xy = np.intersect1d(good_x, good_y)
-    good_f = np.where(f[good_xy] > 0)
+    good_psw = np.where(PSW_f[good_xy] > 0)
+    good_pmw = np.where(PMW_f[good_xy] > 0)
+    good_plw = np.where(PLW_f[good_xy] > 0)
+    good_pswpmw = np.intersect1d(good_psw, good_pmw)
+    good_f = np.intersect1d(good_plw, good_pswpmw)
     good = np.intersect1d(good_xy, good_f)
-    b = time.time()
-    print('Number of sources found: %s in %s' % (len(f[good]), b-a))
-    return px[good], py[good], f[good], z[good]
+
+    return px[good], py[good], PSW_f[good], PMW_f[good], PLW_f[good], z[good]
 
 
 if __name__ == '__main__':
-    # map_selector((50,50), (5,5), 100)
-    a = time.time()
+    # map_selector((50,50), (5,5), 100)K
+    start = time.time()
     maps = clus_get_data('rxj1347', 1, manpath=0, resolution = 'nr', bolocam=None,
                         verbose = 1, version = '1', manidentifier=None, sgen=None, testflag=0)[0]
     bands = ['PSW', 'PMW', 'PLW']
     master_list = ret_sides()
-    for i in range(len(maps)):
-        pixsize = maps[i]['pixsize']
-        # cutout = maps[i]['signal'].shape
-        cutout = [290, 270]
-        band = maps[i]['band']
-        c_pix_list = create_catalogues(pixsize, cutout, 2, 100)
+    cutout = maps[0]['signal'].shape
+    pixsize = maps[0]['pixsize']
+
+    c_pix_list = create_catalogues(pixsize, cutout, 2, 100)
+
+
+
+    for c in c_pix_list:
         j = 0
-        for c in c_pix_list:
-            filename = '../sides_sims/sides_%s_sim%s' % (band, j)
-            x, y, f, z = populate_cutouts(master_list, c, pixsize, band, cutout)
-            truth_table = {'RA' : x.to_numpy('float'),
+        a = time.time()
+        filename = '/home/vaughan/dumb_folder/SIDES_'
+        #filename = config.CLUSDATA + 'sides_sims/rxj1347/SIDES_'
+        x, y, PSW_f, PMW_f, PLW_f, z = populate_cutouts(master_list, c, pixsize, cutout)
+
+        #ID is a tag number for the sources RA/DEC are in degrees, flux is in Jy and redshift is redshift
+        PSW_truth_table = {'RA' : x.to_numpy('float'),
                            'DEC': y.to_numpy('float'),
-                           'Flux' : f.to_numpy('float'),
+                           'Flux' : PSW_f.to_numpy('float'),
                            'Redshift' : z.to_numpy('float')}
-            # dat_file = open( config.HOME + 'Lensing/IDL_program/test_dat_files/test_catalogue_%s_sim%s.dat' % (band, j), 'w')
+
+        PMW_truth_table = {'RA' : x.to_numpy('float'),
+                           'DEC': y.to_numpy('float'),
+                           'Flux' : PMW_f.to_numpy('float'),
+                           'Redshift' : z.to_numpy('float')}
+
+        PLW_truth_table = {'RA' : x.to_numpy('float'),
+                           'DEC': y.to_numpy('float'),
+                           'Flux' : PLW_f.to_numpy('float'),
+                           'Redshift' : z.to_numpy('float')}
+
+        np.save(filename + 'PSW_%s' % j, PSW_truth_table, allow_pickle=True)
+        np.save(filename + 'PMW_%s' % j, PMW_truth_table, allow_pickle=True)
+        np.save(filename + 'PLW_%s' % j, PLW_truth_table, allow_pickle=True)
+
+
+            # dat_file = open('/data/vaughan/SPIRE/lensing_test_catalogues/IDL_cats/SIDES_%s_sim%s.dat' % (band, j), 'w')
             # ID = 0
             # x = x.to_numpy('float')
             # y = y.to_numpy('float')
@@ -137,9 +162,11 @@ if __name__ == '__main__':
             #     string = '%s %s %s %s %s' % (ID, x[ID], y[ID], z[ID], f)
             #     dat_file.write(string)
             #     ID += 1
-            # np.save(filename, truth_table, allow_pickle=True)
-            j += 1
-    # b = time.time()
+        j += 1
+        b = time.time()
+        print('Number of sources found: %s in %s' % (len(x), b-a))
+
+    end  = time.time()
     # c_pix_list = create_catalogues(1, [2*3600,2*3600], 2, 1)
     # for j in range(len(maps)):
     #     for c in c_pix_list:
@@ -151,7 +178,7 @@ if __name__ == '__main__':
     #                        'Redshift' : z}
     #         np.save(filename, truth_table, allow_pickle=True)
 
-    print('Total Runtime :', b-a, "Start :", a, "Finish :", b)
+    print('Total Runtime :', end-start, "Start :", start, "Finish :", end)
     # plt.show()
 
 

@@ -26,6 +26,7 @@ from gaussian import makeGaussian, padGaussian
 from clus_make_noise_mask import clus_make_noise_mask
 from astropy.io import fits
 import config
+from clus_interp_map import interp_band_to_band
 
 def clus_subtract_xcomps(maps, sgen=None, verbose=1, superplot=1, nsim=0, saveplot=1):
 
@@ -81,6 +82,28 @@ def clus_subtract_xcomps(maps, sgen=None, verbose=1, superplot=1, nsim=0, savepl
         xmap = inmap
         xmap_align = hcongrid(xmap, maps[0]['shead'], maps[i]['shead'])
 
+
+        # plt.title('HCONGRID')
+        # plt.imshow(xmap_align)
+        # plt.show()
+
+        plt.imshow(xmap_align)
+        plt.savefig('/home/vaughan/hcongrid.png')
+        plt.clf()
+        hda = fits.PrimaryHDU(xmap_align, maps[i]['shead'])
+        hda.writeto('/home/vaughan/hcongrid.fits',overwrite=True)
+
+        interp_map = interp_band_to_band(maps[0], maps[1])
+        plt.imshow(interp_map)
+        plt.savefig('/home/vaughan/interp.png')
+        plt.clf()
+        hda = fits.PrimaryHDU(interp_map, maps[i]['shead'])
+        hda.writeto('/home/vaughan/interp.fits',overwrite=True)
+
+        # plt.title('CUSTOM INTERP')
+        # plt.imshow(interp_map)
+        # plt.show()
+
         # plt.imshow(xmap_align)
         # plt.colorbar()
         # plt.clim(-0.03,0.04)
@@ -92,6 +115,7 @@ def clus_subtract_xcomps(maps, sgen=None, verbose=1, superplot=1, nsim=0, savepl
                 if np.isnan(xmap_align[j,k]) or np.isnan(maps[i]['srcrm'][j,k]):
                     xmap_align[j,k] = 0
                     maps[i]['srcrm'][j,k] = 0
+
 
         #now that we have our new PSW image flatten both images
         PSW_array = xmap_align.flatten()
@@ -152,3 +176,10 @@ def clus_subtract_xcomps(maps, sgen=None, verbose=1, superplot=1, nsim=0, savepl
     #         maps[0]['xclean'][i,j] = maps[0]['xclean'][i,j] - np.mean(maps[0]['xclean'])
 
     return maps, err
+
+if __name__ == '__main__':
+    maps, err = clus_get_data('rxj1347', isim=2)
+    maps[0]['srcrm'] = fits.open('../outputs/pcat_residuals/rxj1347_resid_PSW_1.fits')[0].data
+    maps[1]['srcrm'] = fits.open('../outputs/pcat_residuals/rxj1347_resid_PMW_1.fits')[0].data
+    maps[2]['srcrm'] = fits.open('../outputs/pcat_residuals/rxj1347_resid_PLW_1.fits')[0].data
+    clus_subtract_xcomps(maps, saveplot=0)

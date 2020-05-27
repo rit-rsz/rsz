@@ -127,16 +127,16 @@ if __name__ == '__main__':
                            'DEC': y.to_numpy('float'),
                            'Flux' : f.to_numpy('float'),
                            'Redshift' : z.to_numpy('float')}
-            dat_file = open( config.HOME + 'Lensing/IDL_program/test_dat_files/test_catalogue_%s_sim%s.dat' % (band, j), 'w')
-            ID = 0
-            x = x.to_numpy('float')
-            y = y.to_numpy('float')
-            f = f.to_numpy('float')
-            z = z.to_numpy('float')
-            for source in f:
-                string = '%s %s %s %s %s' % (ID, x[ID], y[ID], z[ID], f)
-                dat_file.write(string)
-                ID += 1
+            # dat_file = open( config.HOME + 'Lensing/IDL_program/test_dat_files/test_catalogue_%s_sim%s.dat' % (band, j), 'w')
+            # ID = 0
+            # x = x.to_numpy('float')
+            # y = y.to_numpy('float')
+            # f = f.to_numpy('float')
+            # z = z.to_numpy('float')
+            # for source in f:
+            #     string = '%s %s %s %s %s' % (ID, x[ID], y[ID], z[ID], f)
+            #     dat_file.write(string)
+            #     ID += 1
             # np.save(filename, truth_table, allow_pickle=True)
             j += 1
     # b = time.time()

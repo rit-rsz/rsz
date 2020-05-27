@@ -10,12 +10,13 @@ nsims=100
 resolution='nr'
 sgen='3'
 
-mkdir -p output
+# create log file output directory above repo
+mkdir -p /home/vlb9398/data/logs
 
 for nsim in $(seq 1 $nsims); do
     job=$jobname-$name-$sgen-$nsim-$resolution
-    outfile=output/print_outputs_$name-$sgen-$nsim-$resolution.txt
-    efile=output/error_outputs_$name-$sgen-$nsim-$resolution.txt
+    outfile=/home/vlb9398/data/logs/print_outputs_$name-$sgen-$nsim-$resolution.txt
+    efile=/home/vlb9398/data/logs/error_outputs_$name-$sgen-$nsim-$resolution.txt
     export sgen;
     export name;
     export nsim;

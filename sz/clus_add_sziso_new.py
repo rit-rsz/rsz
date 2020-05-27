@@ -58,14 +58,14 @@ def clus_add_sziso_new(maps,isim,yin=0,tin=0,params=None,
         data = fits.open(data_file)
         header = data[0].header
         naxis = cluster_struct.shape
-        plt.imshow(cluster_struct)
+        plt.imshow(cluster_struct,origin=0)
         plt.colorbar().set_label(['Norm'])
         plt.title('Clus Add Sziso : Input Bolocam Template')
         plt.savefig(config.OUTPUT + 'add_sz/bol_temp.png')
         plt.clf()
         # BCAMNORM in units of MJy/sr
         bolocam,err = clus_convert_bolocam(cluster_struct,norm = header['BCAMNORM'],verbose=verbose,clusname=clusname)
-        plt.imshow(bolocam)
+        plt.imshow(bolocam,origin=0)
         plt.colorbar().set_label(['MJy/sr'])
         plt.title('Clus Add Sziso : with Norm Factor')
         plt.savefig(config.OUTPUT + 'add_sz/bol_norm.png')
@@ -153,7 +153,7 @@ def clus_add_sziso_new(maps,isim,yin=0,tin=0,params=None,
         # np.save(config.HOME + 'lookup/rxj1347_bol_lookup.npy',dI_bolo)
         szmap1 = (np.array(szmap1)).flatten()
         szmap1 = [x/dI_bolo for x in szmap1]
-        plt.imshow(np.array(szmap1).reshape(naxis[0],naxis[1]))
+        plt.imshow(np.array(szmap1).reshape(naxis[0],naxis[1]),origin=0)
         plt.colorbar().set_label(['MJy/sr'])
         plt.title('Divided by Estimated Bol SZ Amp')
         plt.savefig(config.OUTPUT + 'add_sz/bol_div.png')
@@ -165,7 +165,7 @@ def clus_add_sziso_new(maps,isim,yin=0,tin=0,params=None,
         if testflag == 1:
             szmap,err = IB_model(maps[imap],params,verbose)
             szmap = np.array(szmap)
-            plt.imshow(szmap)
+            plt.imshow(szmap,origin=0)
             plt.colorbar().set_label(['Jy'])
             plt.title('Clus Add Sziso : IB Model for %s' %(maps[imap]['name']))
             plt.savefig(config.OUTPUT + 'add_sz/%s_ibmodel_%s_%s.png' %(maps[imap]['name'],maps[imap]['band'],isim))
@@ -202,7 +202,7 @@ def clus_add_sziso_new(maps,isim,yin=0,tin=0,params=None,
         szin = [x * dI / maps[imap]['calfac'] for x in szmap1]
         final_dI.append(dI / maps[imap]['calfac'])
         szin = np.reshape(szin,(naxis[0],naxis[1]))
-        plt.imshow(szin)
+        plt.imshow(szin,origin=0)
         plt.colorbar().set_label(['Jy'])
         plt.title('After SPIRE SZ Amp, Pre Re-gridding')
         plt.savefig(config.OUTPUT + 'add_sz/bol_spire_pre-hcongrid_%s.png'%(maps[imap]['band']))
@@ -226,13 +226,11 @@ def clus_add_sziso_new(maps,isim,yin=0,tin=0,params=None,
             out_map = convolve(szinp, beam, boundary='wrap')
             hda = fits.PrimaryHDU(out_map,maps[imap]['shead'])
             hda.writeto('bolocam_spire_%s.fits'%(maps[imap]['band']),overwrite=True)
-            plt.imshow(out_map)
+            plt.imshow(out_map,origin=0)
             plt.colorbar().set_label(['Jy'])
-            plt.title('After SPIRE SZ Amp, Pre Re-gridding')
+            plt.title('After SPIRE SZ Amp, Post Re-gridding')
             plt.savefig(config.OUTPUT + 'add_sz/bol_spire_post-hcongrid_%s.png'%(maps[imap]['band']))
             plt.clf()
-
-
 
             # Combine the original signal with the sz effect
             maps[imap]['signal'] = maps[imap]['signal'] + out_map
@@ -264,7 +262,8 @@ if __name__ == '__main__' :
     sys.path.append('../source_handling')
     from clus_get_data import *
     from clus_get_clusparams import *
-    yin = 14.08*1e-4
+    # yin = 14.08*1e-4
+    yin = 9.65*1e-4
     tin = 10.88
     maps,err = clus_get_data('rxj1347','0',sgen=3)
     params, err = clus_get_clusparams('rxj1347',0,verbose=0)

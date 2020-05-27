@@ -34,13 +34,13 @@ def clus_get_relsz(isim,nu,band,y=0,te=0,vpec=0.0, ngrid=100):
         # constants
         # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
         # tau = []
-        tau=float(y) * (420.0 / float(te)**0.9) # optical depth
+        tau     = float(y) * (420.0 / float(te)**0.9) # optical depth
         T_0     = 2.725                   #CMB temperature, K
         k_B     = 1.3806503e-23           #Boltzmann constant, J/K
         h       = 6.626068e-34            #Planck constant, J s
         c       = 2.99792458e8            #m/s
         GHztoHz = 1.0e9                   #GHz -> Hz
-        vpecp = vpec * 1e3 / c            # peculiar velocity
+        vpecp   = vpec * 1e3 / c            # peculiar velocity
         # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
         # create input paramters for run_SZpack or read from existing params file
         sz_params = [
@@ -69,11 +69,12 @@ def clus_get_relsz(isim,nu,band,y=0,te=0,vpec=0.0, ngrid=100):
          # to accomodate multithreading with each band
         if band == 'BOLOCAM' :
             np.savetxt(config.HOME + 'lookup/szparams_%s.txt'%(band),sz_params,"%s",newline='\n')
+            out = check_output([config.ROOT + 'SZpack.v1.1.1/run_SZpack','CNSN',config.HOME + 'lookup/szparams_%s.txt'%(band)])
         else :
             np.savetxt(config.HOME + 'lookup/szparams_%s_%s.txt'%(isim,band),sz_params,"%s",newline='\n')
+            out = check_output([config.ROOT + 'SZpack.v1.1.1/run_SZpack','CNSN',config.HOME + 'lookup/szparams_%s_%s.txt'%(isim,band)])
 
         # run & parse 3 columns of stdout from run_SZpack into frequency and SZ signal arrays
-        out = check_output([config.ROOT + 'SZpack.v1.1.1/run_SZpack','CNSN',config.HOME + 'lookup/szparams_%s_%s.txt'%(isim,band)])
         output = out.decode("utf-8") #convert from bytes to unicode
         # print(output[:output.index('x=')-1]) # print header to screen
         output = output[output.index('x=')-1:] # remove header information before parsing
@@ -110,14 +111,14 @@ def clus_get_relsz(isim,nu,band,y=0,te=0,vpec=0.0, ngrid=100):
         #This is plots for testing to see if this code is working.
         plt.plot(xout,JofXout)
         plt.scatter(thisx,deltaI,color='orange')
-        plt.title('RUN_SZPACK SZE @ %s GHZ : %0.4f [MJy/sr]' %(nu,deltaI))
+        plt.title('RUN_SZPACK SZE @ %0.3f GHZ : %0.4f [MJy/sr]' %(nu,deltaI))
         plt.xlabel('Dimensionless Frequency')
         plt.ylabel('$\Delta$I_0 [MJy/sr]')
-        plt.savefig(config.HOME + 'lookup/bolocam_sz_test.png')
+        plt.savefig(config.HOME + 'lookup/sz_test_%s.png'%(band))
         plt.clf()
-        print('SZE @ %s GHZ : %0.4f [MJy/sr] %0.6f %0.4f' %(nu,deltaI,y,te)) # print current return
+        print('SZE @ %0.2f GHZ : %0.4f [MJy/sr] %0.6f %0.4f' %(nu,deltaI,y,te)) # print current return
 
-        # #remove old config file ...
+        #remove old config file ...
         # if band == 'BOLOCAM' :
         #     if os.path.exists(config.HOME + 'lookup/szparams_%s.txt'%(band)):
         #         os.remove(config.HOME + 'lookup/szparams_%s.txt'%(band))

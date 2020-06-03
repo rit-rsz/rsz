@@ -4,3 +4,7 @@
 __pycache__
 config.py
 outputs
+*.fits
+*.png
+*.txt
+*.npy

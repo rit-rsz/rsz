@@ -324,8 +324,8 @@ def lenscat(map_size, c_z, pixsize=0.06, searchlensed=0.75, SLregime=[2,2,2], De
 			if abs(dfxx[i]) < SLregime[0] * 60. / 2. and abs(dfyy[i]) < SLregime[1] * 60 / 2.:
 				print('Starting on SL regime')
 				#estimate source position in SL frame
-				source_x = (dfxx[i] + SLregime * 60 / 2.) / pixsize #we might need to add 1 here -Alfredo
-				source_y = (dfyy[i] + SLregime * 60 / 2.) / pixsize #we might need to add 1 here -Alfredo
+				source_x = (dfxx[i] + SLregime[0] * 60 / 2.) / pixsize #we might need to add 1 here -Alfredo
+				source_y = (dfyy[i] + SLregime[1] * 60 / 2.) / pixsize #we might need to add 1 here -Alfredo
 				#estimate the magnifications (from lensing eq.), adding sl_day_dx and sl_day_dy element by element
 				poission = np.add(sl_dax_dx, sl_day_dy) * scaling_factor
 				magnification = abs(1 / (1 - poission + (np.matmul(sl_dax_dx, sl_day_dy) - np.matmul(sl_day_dy,sl_dax_dx)) * scaling_factor))
@@ -571,7 +571,7 @@ def lenscat(map_size, c_z, pixsize=0.06, searchlensed=0.75, SLregime=[2,2,2], De
 	return x_in,y_in, z_in,f_in, x_out ,y_out, mu_out
 if __name__ == '__main__':
 
-	params, err = clus_get_clusparams('rxj1347')
+	params, err = clus_get_clusparams('rxj1347', '5')
 	# cat_file =  '/data/vaughan/SPIRE/lensing_test_catalogues/npy_cats/SIDES_PSW_sim0.npy'
 	cat = np.load(config.HOME + 'sides_sims/sides_PSW_sim1.npy' ,allow_pickle=True)
 	# cat = np.load(cat_file, allow_pickle=True)

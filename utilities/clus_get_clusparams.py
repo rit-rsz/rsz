@@ -17,11 +17,11 @@ from astropy.io.ascii import read
 import config
 
 
-def clus_get_clusparams(clusname_in,isim,
+def clus_get_clusparams(clusname_in, isim,
                     verbose = 1):
     errmsg = False
 #   Read in the csv file to work with
-    param_data = read(config.CLUSDATA + 'lookup/cluster_master_list_150327_%s.csv'%(isim))
+    param_data = read(config.CLUSDATA + 'lookup/cluster_master_list_150327.csv')
 #   Since cluster name is an easy search we choose to set it early
 #   Needs to be set like this because calling param_data[1] doesn't seem to work as intended
     param_name = param_data[';Cluster Name']

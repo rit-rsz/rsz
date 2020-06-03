@@ -1,4 +1,5 @@
 ################################################################################
+<<<<<<< Updated upstream
 # NAME : clus_make_bolo_mask
 # DATE STARTED : May 8, 2020
 # AUTHORS : Victoria Butler, Benjamin Vaughan
@@ -10,6 +11,7 @@
 # REVISION HISTORY :
 ################################################################################import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 from math import *
 import sys, time
 sys.path.append('source_handling')
@@ -28,27 +30,59 @@ from astropy.convolution import convolve_fft
 from gaussian import padGaussian
 from clus_interp_map import interp_band_to_band
 
-maps,err = clus_get_data('rxj1347',0)
-bands = ['PSW','PMW','PLW']
 
-# for col in range(3):
-#     mapsize = maps[col]['error'].shape
-#     img = maps[col]['error']
-#     stddev = 24 / 2.355
-#     kernel = makeGaussian(8, 8, fwhm= 4)
-#     kernel_full_size = padGaussian(img, kernel)
-#
-#     #converting these to lists because the error message is annoying.
-#     img = img.tolist()
-#     kernel_full_size = kernel_full_size.tolist()
-#     fixed_image = convolve_fft(img, kernel_full_size)
-#     plt.imshow(fixed_image,origin=0)
-#     plt.clim([-0.005,0.005])
-#     plt.colorbar()
-#     plt.title('Gaussian Smoothed SPIRE Error %s'%(bands[col]))
-#     plt.savefig('convolve_error_%s.png'%(bands[col]))
-#     plt.clf()
-# exit()
+def mask_model(maps):
+    #PIXSIZE -> LArge to SMALL PSW, PMW, PLW
+    for i in range(len(maps)-1):
+        base_mask   = noise_mask(maps, i)
+        maps[i]['mask'] = np.round(interp_band_to_band(base_mask, maps[2], maps[i]))
+
+    temp_plw_mask = noise_mask(maps, 2)
+
+
+    composite = temp_plw_mask * maps[1]['mask'] * maps[0]['mask']
+
+
+    for i in range(len(maps)):
+        maps[i]['mask'] = np.round(interp_band_to_band(composite, maps[i], maps[2]))
+
+    for i in range(len(maps)):
+        plt.imshow(maps[i]['mask'])
+        plt.savefig('round_test_mask%s' % maps[i]['band'])
+        plt.clf()
+
+def bolocam_mask():
+    bolocam = fits.open(config.OUTPUT + 'bolocam_master_template.fits')
+    header = bolocam[0].header
+    temphead = fits.PrimaryHDU()
+    bolohead = temphead.header
+    # Setting the tempheader for the bolocam data
+    bolohead.set('CRVAL1' , header['CRVAL1']) # DEC in deg of ref pixel
+    bolohead.set('CRVAL2' , header['CRVAL2']) # RA in deg of ref pixel
+    bolohead.set('CRPIX1' , header['CRPIX1']) # ref pixel x
+    bolohead.set('CRPIX2' , header['CRPIX2']) # ref pixel y
+    bolohead.set('CD1_1' , header['CD1_1']) # Deg/pixel
+    bolohead.set('CD1_2' , header['CD1_2']) # Deg/pixel
+    bolohead.set('CD2_1' , header['CD2_1']) # Deg/pixel
+    bolohead.set('CD2_2' , header['CD2_2']) # Deg/pixel
+    bolohead.set('EPOCH' , 2000)
+    bolohead.set('EQUINOX' , 2000)
+    bolohead.set('CTYPE1' , header['CTYPE1']) # coord type
+    bolohead.set('CTYPE2' , header['CTYPE2']) # coord type
+
+    bolo_shape = bolocam[0].data.shape
+    bolo = np.ones((bolo_shape[0],bolo_shape[1]))
+    hdu = fits.PrimaryHDU(bolo,bolohead)
+    bolo_psw = hcongrid(hdu.data,hdu.header,maps[0]['shead'])
+    bolo_pmw = hcongrid(hdu.data,hdu.header,maps[1]['shead'])
+    bolo_plw = hcongrid(hdu.data,hdu.header,maps[2]['shead'])
+
+    # plt.imshow(bolo_plw,origin=0)
+    # plt.clim([0,1])
+    # plt.colorbar()
+    # plt.savefig('mystery_mask.png')
+    # exit()
+
 
 def noise_mask(maps,col):
     mapsize = maps[col]['error'].shape
@@ -74,116 +108,30 @@ def noise_mask(maps,col):
 
     ''' Temp fix for edge effects '''
     mask[0:10,:] = 0 # fix top 10 rows
-    mask[-10:mapsize[0],:] = 0 # fix bottom 10 rows
+    mask[-10:mapsize[0],:] = 0  # fix bottom 10 rows
     mask[:,0:10] = 0 # fix left 10 rows
     mask[:,-10:mapsize[1]] = 0 # fix right 10 rows
-    return mask
+    return np.asarray(mask)
 
-mask_psw = np.array(noise_mask(maps,0))
-mask_pmw = np.array(noise_mask(maps,1))
-mask_plw = np.array(noise_mask(maps,2))
 
-# plt.imshow(mask_plw,origin=0)
-# plt.clim([0,1])
-# plt.colorbar()
-# plt.savefig('mystery_mask.png')
-# exit()
+if __name__ == '__main__':
+    maps,err = clus_get_data('rxj1347',0)
+    bands = ['PSW','PMW','PLW']
+    mask_model(maps)
 
-# for some reason hcongrid hates my mask object, so I have to use error map
-for j in range(maps[0]['signal'].shape[0]):
-    for k in range(maps[0]['signal'].shape[1]):
-        if mask_psw[j,k] == 1:
-            maps[0]['error'][j,k] = mask_psw[j,k]
-        else :
-            maps[0]['error'][j,k] = 0
 
-for j in range(maps[1]['signal'].shape[0]):
-    for k in range(maps[1]['signal'].shape[1]):
-        if mask_pmw[j,k] == 1:
-            maps[1]['error'][j,k] = mask_pmw[j,k]
-        else :
-            maps[1]['error'][j,k] = 0
-
-for j in range(maps[2]['signal'].shape[0]):
-    for k in range(maps[2]['signal'].shape[1]):
-        if mask_plw[j,k] == 1:
-            maps[2]['error'][j,k] = mask_plw[j,k]
-        else :
-            maps[2]['error'][j,k] = 0
-
-pmw = hcongrid(maps[1]['error'],maps[1]['shead'],maps[2]['shead'])
-psw = hcongrid(maps[0]['error'],maps[0]['shead'],maps[2]['shead'])
-
-# multiplying insures that any of the pixels that get blocked out in one band will be blocked in final
-comp = pmw * psw * maps[2]['error']
-
-# make each band their original size with final error mask
-maps[0]['error'] = hcongrid(comp,maps[2]['shead'],maps[0]['shead'])
-maps[1]['error'] = hcongrid(comp,maps[2]['shead'],maps[1]['shead'])
-maps[2]['error'] = comp
-
-# plt.imshow(maps[0]['error'],origin=0)
-# plt.clim([0,1])
-# plt.colorbar()
-# plt.title('Compilation Mask')
-# plt.savefig('comp_mask_psw.png')
-# plt.clf()
+# final_psw = (bolo_psw * maps[0]['error']).flatten()
+# final_pmw = (bolo_pmw * maps[1]['error']).flatten()
+# final_plw = (bolo_plw * maps[2]['error']).flatten()
 #
-# plt.imshow(maps[1]['error'],origin=0)
-# plt.clim([0,1])
-# plt.colorbar()
-# plt.title('Compilation Mask')
-# plt.savefig('comp_mask_pmw.png')
-# plt.clf()
+# # we have to do this yet again, because hcongrid leaves weird values that aren't 1 or 0
+# new_psw = np.array([round(x) for x in final_psw]).reshape(maps[0]['signal'].shape[0],maps[0]['signal'].shape[1])
+# new_pmw = np.array([round(y) for y in final_pmw]).reshape(maps[1]['signal'].shape[0],maps[1]['signal'].shape[1])
+# new_plw = np.array([round(z) for z in final_plw]).reshape(maps[2]['signal'].shape[0],maps[2]['signal'].shape[1])
 #
-# plt.imshow(maps[2]['error'],origin=0)
-# plt.clim([0,1])
-# plt.colorbar()
-# plt.title('Compilation Mask')
-# plt.savefig('comp_mask_plw.png')
-# plt.clf()
+# ''' Save bolocam masked object to sim files '''
 
-bolocam = fits.open(config.OUTPUT + 'bolocam_master_template.fits')
-header = bolocam[0].header
-temphead = fits.PrimaryHDU()
-bolohead = temphead.header
-# Setting the tempheader for the bolocam data
-bolohead.set('CRVAL1' , header['CRVAL1']) # DEC in deg of ref pixel
-bolohead.set('CRVAL2' , header['CRVAL2']) # RA in deg of ref pixel
-bolohead.set('CRPIX1' , header['CRPIX1']) # ref pixel x
-bolohead.set('CRPIX2' , header['CRPIX2']) # ref pixel y
-bolohead.set('CD1_1' , header['CD1_1']) # Deg/pixel
-bolohead.set('CD1_2' , header['CD1_2']) # Deg/pixel
-bolohead.set('CD2_1' , header['CD2_1']) # Deg/pixel
-bolohead.set('CD2_2' , header['CD2_2']) # Deg/pixel
-bolohead.set('EPOCH' , 2000)
-bolohead.set('EQUINOX' , 2000)
-bolohead.set('CTYPE1' , header['CTYPE1']) # coord type
-bolohead.set('CTYPE2' , header['CTYPE2']) # coord type
 
-bolo_shape = bolocam[0].data.shape
-bolo = np.ones((bolo_shape[0],bolo_shape[1]))
-hdu = fits.PrimaryHDU(bolo,bolohead)
-bolo_psw = hcongrid(hdu.data,hdu.header,maps[0]['shead'])
-bolo_pmw = hcongrid(hdu.data,hdu.header,maps[1]['shead'])
-bolo_plw = hcongrid(hdu.data,hdu.header,maps[2]['shead'])
-
-# plt.imshow(bolo_plw,origin=0)
-# plt.clim([0,1])
-# plt.colorbar()
-# plt.savefig('mystery_mask.png')
-# exit()
-
-final_psw = (bolo_psw * maps[0]['error']).flatten()
-final_pmw = (bolo_pmw * maps[1]['error']).flatten()
-final_plw = (bolo_plw * maps[2]['error']).flatten()
-
-# we have to do this yet again, because hcongrid leaves weird values that aren't 1 or 0
-new_psw = np.array([round(x) for x in final_psw]).reshape(maps[0]['signal'].shape[0],maps[0]['signal'].shape[1])
-new_pmw = np.array([round(y) for y in final_pmw]).reshape(maps[1]['signal'].shape[0],maps[1]['signal'].shape[1])
-new_plw = np.array([round(z) for z in final_plw]).reshape(maps[2]['signal'].shape[0],maps[2]['signal'].shape[1])
-
-''' Save bolocam masked object to sim files '''
 # for i in range(100):
 #     sim_maps,err = clus_get_data('rxj1347', i , sgen = 3)
 #     sim_maps[0]['mask'] = bolo_psw

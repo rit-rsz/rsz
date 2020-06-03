@@ -58,18 +58,8 @@ def clus_add_sziso_new(maps,isim,yin=0,tin=0,params=None,
         data = fits.open(data_file)
         header = data[0].header
         naxis = cluster_struct.shape
-        plt.imshow(cluster_struct,origin=0)
-        plt.colorbar().set_label(['Norm'])
-        plt.title('Clus Add Sziso : Input Bolocam Template')
-        plt.savefig(config.OUTPUT + 'add_sz/bol_temp.png')
-        plt.clf()
         # BCAMNORM in units of MJy/sr
         bolocam,err = clus_convert_bolocam(cluster_struct,norm = header['BCAMNORM'],verbose=verbose,clusname=clusname)
-        plt.imshow(bolocam,origin=0)
-        plt.colorbar().set_label(['MJy/sr'])
-        plt.title('Clus Add Sziso : with Norm Factor')
-        plt.savefig(config.OUTPUT + 'add_sz/bol_norm.png')
-        plt.clf()
 
     else :
         #fetch bolocam data from .sav files in bolocam directory.
@@ -153,11 +143,6 @@ def clus_add_sziso_new(maps,isim,yin=0,tin=0,params=None,
         # np.save(config.HOME + 'lookup/rxj1347_bol_lookup.npy',dI_bolo)
         szmap1 = (np.array(szmap1)).flatten()
         szmap1 = [x/dI_bolo for x in szmap1]
-        plt.imshow(np.array(szmap1).reshape(naxis[0],naxis[1]),origin=0)
-        plt.colorbar().set_label(['MJy/sr'])
-        plt.title('Divided by Estimated Bol SZ Amp')
-        plt.savefig(config.OUTPUT + 'add_sz/bol_div.png')
-        plt.clf()
 
     for imap in range(mapsize):
         # Applying the effect to the 500 um and 350 um bands.
@@ -188,25 +173,9 @@ def clus_add_sziso_new(maps,isim,yin=0,tin=0,params=None,
 
         # Combine the spectral shape of the SZ effect, and combine with the peak intensity
         # converted to Jy/beam
-
-        ''' I can't decide if this needs to have calfac for new bolocam
-            We are convolving with SPIRE beam below, so maybe not?
-            Bolocam and SPIRE units are in MJy/sr.
-
-        # if clusname == 'rxj1347' :
-        #     szin = [(x * dI) for x in szmap]
-        #     final_dI.append(dI / maps[imap]['calfac'])
-        # else :
-
-        '''
         szin = [x * dI / maps[imap]['calfac'] for x in szmap1]
         final_dI.append(dI / maps[imap]['calfac'])
         szin = np.reshape(szin,(naxis[0],naxis[1]))
-        plt.imshow(szin,origin=0)
-        plt.colorbar().set_label(['Jy'])
-        plt.title('After SPIRE SZ Amp, Pre Re-gridding')
-        plt.savefig(config.OUTPUT + 'add_sz/bol_spire_pre-hcongrid_%s.png'%(maps[imap]['band']))
-        plt.clf()
 
         # Have to interpolate to SPIRE map size
         hdu = fits.PrimaryHDU(szin,temphead)
@@ -224,35 +193,25 @@ def clus_add_sziso_new(maps,isim,yin=0,tin=0,params=None,
             beam = Gaussian2DKernel(bmsigma / pixscale, x_size=retext,y_size=retext, mode='oversample',factor=1)
             beam *= 1.0 / beam.array.max()
             out_map = convolve(szinp, beam, boundary='wrap')
-            hda = fits.PrimaryHDU(out_map,maps[imap]['shead'])
-            hda.writeto('bolocam_spire_%s.fits'%(maps[imap]['band']),overwrite=True)
-            plt.imshow(out_map,origin=0)
-            plt.colorbar().set_label(['Jy'])
-            plt.title('After SPIRE SZ Amp, Post Re-gridding')
-            plt.savefig(config.OUTPUT + 'add_sz/bol_spire_post-hcongrid_%s.png'%(maps[imap]['band']))
-            plt.clf()
 
             # Combine the original signal with the sz effect
             maps[imap]['signal'] = maps[imap]['signal'] + out_map
 
             '''THIS IS JUST FOR TESTING WITH SZ SIGNAL'''
             # maps[imap]['signal'] = out_map
-        else :
-            # maps[imap]['signal'] = maps[imap]['signal'] + out_map
-            '''THIS IS JUST FOR TESTING WITH SZ SIGNAL'''
-            maps[imap]['signal'] = maps[imap]['error'] + out_map
+        elif testflag == 2 :
+            maps[imap]['signal'] = out_map
+            # maps[imap]['signal'] = maps[imap]['error'] + out_map
 
         # Used to check the alligned sz effect image
         if saveplot:
             filename = config.OUTPUT + 'sim_sz/' + maps[imap]['name'] + '_sze_' + maps[imap]['band'] + '_' + str(isim) + '.png'
-            # filename = config.OUTPUT + maps[imap]['name'] + '_sze_' + maps[imap]['band'] + 'bolo.png'
             plt.imshow(maps[imap]['signal'],origin=0)
             plt.title('Clus Add Sziso : SZE + Signal Map %s' %(maps[imap]['band']))
             plt.colorbar().set_label('[Jy]')
             plt.savefig(filename)
             plt.clf()
             savefile = config.OUTPUT + 'sim_sz/' + maps[imap]['name'] + '_sze_' + maps[imap]['band'] + '_' + str(isim) + '.fits'
-            # savefile = config.OUTPUT + 'sim_sz/' + maps[imap]['name'] + '_sze_' + maps[imap]['band'] + 'bolo.fits'
             hda = fits.PrimaryHDU(maps[imap]['signal'],maps[imap]['shead'])
             hda.writeto(savefile,overwrite=True)
 

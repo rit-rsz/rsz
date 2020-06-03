@@ -26,7 +26,7 @@ import config
 import matplotlib.pyplot as plt
 
 def clus_get_data(clusname, isim,manpath=0, resolution = 'nr', bolocam=None,
-            verbose = 1, version = '1', manidentifier=None, sgen=None, testflag=0):
+            verbose = 1, version = '1', manidentifier=None, sgen=None):
 
     errmsg = False
     #if the manual path flag is not set then go the normal route.
@@ -163,10 +163,10 @@ def clus_read_file(file, clusname, verbose=0, sgen=None):
         mask = hdul[4] #mask map
 
     elif int(sgen) == 3 :
-        img = hdul[0] #image object
-        err = hdul[1] #error map
-        exp = hdul[2] #exposure map
-        mask = hdul[3] #mask map
+        img = hdul['signal'] #image object
+        err = hdul['error'] #error map
+        exp = hdul['exp'] #exposure map
+        mask = hdul['mask'] #mask map
     else :
         img = hdul[1] #image object
         err = hdul[2] #error map

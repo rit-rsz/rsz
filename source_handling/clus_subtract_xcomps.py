@@ -21,7 +21,6 @@ from FITS_tools.hcongrid import hcongrid , hastrom
 from clus_get_data import *
 from astropy.convolution import convolve_fft
 from scipy.stats import linregress
-from save_fits import writefits
 from gaussian import makeGaussian, padGaussian
 from clus_make_noise_mask import clus_make_noise_mask
 from astropy.io import fits

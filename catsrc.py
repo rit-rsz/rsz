@@ -38,9 +38,9 @@ from clus_subtract_xcomps import *
 from clus_compute_rings import *
 from clus_fitsz import *
 from save_fitsz import *
-from save_final_im import *
-from bolocam_mask import *
 import config
+sys.path.append(config.OUTPUT)
+from save_final_im import *
 import argparse
 
 class Catsrc():
@@ -114,7 +114,7 @@ class Catsrc():
             print('Fetching SPIRE maps')
 
         # fetch data from fits files and put them into a maps object.
-        maps, err = clus_get_data(self.clusname,self.nsim,verbose=self.verbose,sgen=self.sgen, testflag=self.testflag)
+        maps, err = clus_get_data(self.clusname,self.nsim,verbose=self.verbose,sgen=self.sgen)
         if err:
             if self.verbose:
                 print('clus_get_data exited with error: ' + err)
@@ -159,14 +159,14 @@ class Catsrc():
         if self.verbose:
             print('Regressing and subtracting catalogs')
 
-        maps, err = clus_subtract_cat(self.maps, self.dI, self.nsim, sgen=self.sgen, verbose=self.verbose, saveplot=self.saveplot, superplot=self.superplot)
-        err = None
+        # maps, err = clus_subtract_cat(self.maps, self.dI, self.nsim, sgen=self.sgen, verbose=self.verbose, saveplot=self.saveplot, superplot=self.superplot)
+        # err = None
 
-        # for i in range(3):
-        #     self.maps[i]['srcrm'] = fits.getdata(config.OUTPUT + 'pcat_residuals/' + self.maps[i]['name'] + '_resid_' + self.maps[i]['band'] + '_' + str(self.nsim) + 'lense.fits')
-        #     data_file = config.HOME + 'Lensing/lense_template_' + self.maps[i]['band'] + '.fits'
-        #     lense_model = fits.getdata(data_file)
-        #     self.maps[i]['srcrm'] = self.maps[i]['srcrm'] - lense_model
+        for i in range(3):
+            self.maps[i]['srcrm'] = fits.getdata(config.OUTPUT + 'pcat_residuals/' + self.maps[i]['name'] + '_resid_' + self.maps[i]['band'] + '_' + str(self.nsim) + 'lense.fits')
+            data_file = config.HOME + 'Lensing/lense_template_' + self.maps[i]['band'] + '.fits'
+            lense_model = fits.getdata(data_file)
+            self.maps[i]['srcrm'] = self.maps[i]['srcrm'] - lense_model
 
         if err:
             if self.verbose:
@@ -192,7 +192,8 @@ class Catsrc():
         if self.verbose:
             print('Subtracting correlated components')
 
-        maps, err = clus_subtract_xcomps(maps, sgen=self.sgen, verbose=self.verbose, superplot=self.superplot, saveplot=self.saveplot, nsim=self.nsim)
+        # maps, err = clus_subtract_xcomps(maps, sgen=self.sgen, verbose=self.verbose, superplot=self.superplot, saveplot=self.saveplot, nsim=self.nsim)
+
         if err:
             if self.verbose:
                 print('clus_subtract_xcomps exited with error: ' + err)
@@ -210,13 +211,13 @@ class Catsrc():
         Outputs : None
         Class Variables : self.maps gets passed. and passed out.
         """
-        if self.verbose:
-            print('Computing radial averages!')
-
-        radave = clus_compute_rings(self.maps,self.params,30.0,sgen=self.sgen,verbose=self.verbose, superplot=self.superplot, saveplot=self.saveplot, nsim=self.nsim, testflag=self.testflag, lense_only=self.lense_only)
-
-        if self.verbose:
-            print('Computing Beta model fit.')
+        # if self.verbose:
+        #     print('Computing radial averages!')
+        #
+        # radave = clus_compute_rings(self.maps,self.params,30.0,sgen=self.sgen,verbose=self.verbose, superplot=self.superplot, saveplot=self.saveplot, nsim=self.nsim, testflag=self.testflag, lense_only=self.lense_only)
+        #
+        # if self.verbose:
+        #     print('Computing Beta model fit.')
         #
         # if self.clusname == 'ms0451':
         #     maxlim = 300
@@ -224,7 +225,7 @@ class Catsrc():
         #     maxlim = 450
 
         if self.lense_only == 0 :
-            fit = clus_fitsz(radave, self.params,self.beam, sgen=self.sgen, superplot=self.superplot, saveplot=self.saveplot, nsim=self.nsim)
+            fit = clus_new_fitsz(self.maps,saveplot=self.saveplot)
             fit = np.asarray(fit)
             increment = fit[:,0]
             offsets = fit[:,1]

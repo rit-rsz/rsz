@@ -25,7 +25,6 @@ sys.path.append('/utilities')
 import config
 sys.path.append(config.HOME + 'multiband_pcat/multiband_pcat')
 from pcat_spire import lion
-from save_fits import writefits
 import os, time, math
 
 def clus_subtract_cat(maps, dI, nsim, sgen=None, verbose=1, saveplot=0, superplot=0):
@@ -86,14 +85,15 @@ def clus_subtract_cat(maps, dI, nsim, sgen=None, verbose=1, saveplot=0, superplo
         hda = fits.PrimaryHDU(maps[i]['srcrm'],maps[i]['shead'])
         hda.writeto(config.OUTPUT + 'pcat_residuals/' + maps[i]['name'] + '_resid_' + maps[i]['band'] + '_' + str(nsim) + '.fits',overwrite=True)
 
+    exit()
         # subtracting lensing template from resids
-        data_file = config.HOME + 'Lensing/lense_template_' + maps[i]['band'] + '.fits'
-        lense_model = fits.getdata(data_file)
-        maps[i]['srcrm'] = maps[i]['srcrm'] - lense_model
+        # data_file = config.HOME + 'Lensing/lense_template_' + maps[i]['band'] + '.fits'
+        # lense_model = fits.getdata(data_file)
+        # maps[i]['srcrm'] = maps[i]['srcrm'] - lense_model
 
     return maps, err
 
 def run_pcat(maps,nsim,offsets):
-    ob = lion(band0=0, band1=1, band2=2, mean_offsets = offsets, isim=nsim, map_object=maps, auto_resize=True, make_post_plots=True, openblas=False, cblas=False, nsamp=500, residual_samples=100, visual=False)
+    ob = lion(band0=0, band1=1, band2=2, mean_offsets = offsets, isim=nsim, map_object=maps, auto_resize=True, make_post_plots=True, openblas=False, cblas=False, nsamp=2000, residual_samples=100, visual=False)
     resid_maps = ob.main()
     return resid_maps

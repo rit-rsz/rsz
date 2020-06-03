@@ -1,5 +1,5 @@
 ################################################################################
-# NAME : test.py
+# NAME : clus_interp_map.py
 # DATE STARTED : May 20, 2020
 # AUTHORS : Benjamin Vaughan
 # PURPOSE : This script interpolates IRAS coordinates to SPIRE coordinates

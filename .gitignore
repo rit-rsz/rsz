@@ -2,5 +2,5 @@
 .#*
 *.pyc
 __pycache__
-utilities/config.py
+config.py
 outputs

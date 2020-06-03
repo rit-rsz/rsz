@@ -12,17 +12,18 @@
 ################################################################################
 from math import *
 
-CLUSDATA = '/home/vlb9398/data/SPIRE/'
+CLUSDATA = '/home/bjv7945/data/SPIRE/'
 # CLUSSBOX = '/data/butler/SPIRE/sandbox/'
-CLUSHOME = '/home/vlb9398/bitten/SPIRE/'
-HOME = '/home/vlb9398/rsz/'
-SIM = '/home/vlb9398/rsz/new_bethermin/'
-CLUSSIMS = '/home/vlb9398/data/SPIRE/bethermin_sims/'
-ROOT = '/home/vlb9398/'
-OUTPUT = '/home/vlb9398/data/outputs/'
-# CLUSNSIMS = '/data/butler/SPIRE/new_bethermin_sims/'
+CLUSHOME = '/home/bjv7945/bitten/SPIRE'
+HOME = '/home/bjv7945/rsz/'
+#SIM = '/home/bjv7945/rsz/new_bethermin/'
+#CLUSSIMS = '/home/bjv7945/data/SPIRE/bethermin_sims/'
+ROOT = '/home/bjv7945/'
+OUTPUT = '/home/bjv7945/data/outputs/'
+CLUSSIMS = '/home/bjv7945/data/SPIRE/bethermin_sims/'
 # CLUSSIDES = '/data/butler/SPIRE/sides_sims/'
-# SIMBOX = '/home/butler/rsz/new_bethermin/lens_model/'
+SIMBOX = '/home/bjv7945/rsz/new_bethermin/lens_model/'
+>>>>>>> Stashed changes
 
 calfac  = (pi/180.0)**2 * (1/3600.0)**2 * (pi / (4.0 * log(2.0))) * (1e6)
 JY2MJy = 1e6 # Janskys to Mega Janskys

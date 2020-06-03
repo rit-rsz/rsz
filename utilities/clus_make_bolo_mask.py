@@ -1,4 +1,14 @@
-import numpy as np
+################################################################################
+# NAME : clus_make_bolo_mask
+# DATE STARTED : May 8, 2020
+# AUTHORS : Victoria Butler, Benjamin Vaughan
+# PURPOSE : This script interpolates IRAS coordinates to SPIRE coordinates
+# EXPLANATION :
+# CALLING SEQUENCE :
+# INPUTS :
+# OUTPUTS :
+# REVISION HISTORY :
+################################################################################import numpy as np
 import matplotlib.pyplot as plt
 from math import *
 import sys, time
@@ -16,6 +26,7 @@ from matplotlib.colors import LogNorm
 from gaussian import makeGaussian
 from astropy.convolution import convolve_fft
 from gaussian import padGaussian
+from clus_interp_map import interp_band_to_band
 
 maps,err = clus_get_data('rxj1347',0)
 bands = ['PSW','PMW','PLW']
@@ -248,5 +259,5 @@ hdc.writeto('bolocam_mask_PLW.fits',overwrite=True)
 # hdm = fits.ImageHDU(new_plw,new_maps[2]['shead'])
 # hdul.append(hdn)
 # hdul.append(hdm)
-# hdul.writeto('final_comp_plw.fits',overwrite=True)
+# hdul.writeto('final_comp_plw.fits',overwrite=True)﻿
 ''' ####################################################################### '''

@@ -139,6 +139,8 @@ def clus_get_data(clusname, isim,manpath=0, resolution = 'nr', bolocam=None,
 
     maps.sort(key = lambda x : sort_order[x['band']])
 
+    print('HELLO!!!!!')
+
     return maps, errmsg
 
 ##################################################################################################
@@ -167,6 +169,7 @@ def clus_read_file(file, clusname, verbose=0, sgen=None):
         err = hdul['error'] #error map
         exp = hdul['exp'] #exposure map
         mask = hdul['mask'] #mask map
+
     else :
         img = hdul[1] #image object
         err = hdul[2] #error map

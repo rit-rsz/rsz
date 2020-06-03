@@ -29,7 +29,6 @@ sys.path.append('utilities')
 sys.path.append('source_handling')
 sys.path.append('reduc')
 sys.path.append('sz')
-sys.path.append('outputs')
 from clus_get_clusparams import *
 from clus_get_data import *
 from clus_add_sziso_new import *
@@ -38,6 +37,8 @@ from clus_subtract_xcomps import *
 from clus_compute_rings import *
 from clus_fitsz import *
 from save_fitsz import *
+from save_final_im import *
+# from clus_make_bolo_mask import *
 import config
 sys.path.append(config.OUTPUT)
 from save_final_im import *

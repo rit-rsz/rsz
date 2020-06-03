@@ -23,7 +23,7 @@ import matplotlib.pyplot as plt
 from astropy.io import fits
 sys.path.append('/utilities')
 import config
-sys.path.append(config.HOME + 'multiband_pcat/multiband_pcat')
+sys.path.append(config.HOME + 'multiband_pcat/')
 from pcat_spire import lion
 import os, time, math
 
@@ -39,12 +39,17 @@ def clus_subtract_cat(maps, dI, nsim, sgen=None, verbose=1, saveplot=0, superplo
     # maps[1]['signal'] = np.reshape([x - offsets[1] + 0.003 for x in maps[1]['signal'].flatten() if not math.isnan(x)],(maps[1]['srcrm'].shape[0],maps[1]['srcrm'].shape[1]))
     # maps[2]['signal'] = np.reshape([x - offsets[2] + 0.003 for x in maps[2]['signal'].flatten() if not math.isnan(x)],(maps[2]['srcrm'].shape[0],maps[2]['srcrm'].shape[1]))
     print('map offsets: ', offsets)
-    resid_maps = run_pcat(maps,nsim,offsets)
+    #commenting out run pcat right now because we just want to load in the pcat resids
+    # resid_maps = run_pcat(maps,nsim,offsets)
+    resid_maps = [1,2,3]
 
     for i in range(len(resid_maps)): # only loop through how many residuals we have
         if verbose==1:
             print('Setting Subtracted Maps for %s' %(maps[i]['band']))
 
+        hdul = fits.open(config.OUTPUT + 'pcat_residuals/' + maps[i]['name'] + '_resid_' + maps[i]['band'] + '_' + str(nsim) + '.fits')
+
+        resid_maps[i] = hdul['signal'].data
         # make the difference image
         datasub = resid_maps[i]
         # make full data map object
@@ -85,11 +90,11 @@ def clus_subtract_cat(maps, dI, nsim, sgen=None, verbose=1, saveplot=0, superplo
         hda = fits.PrimaryHDU(maps[i]['srcrm'],maps[i]['shead'])
         hda.writeto(config.OUTPUT + 'pcat_residuals/' + maps[i]['name'] + '_resid_' + maps[i]['band'] + '_' + str(nsim) + '.fits',overwrite=True)
 
-    exit()
         # subtracting lensing template from resids
         # data_file = config.HOME + 'Lensing/lense_template_' + maps[i]['band'] + '.fits'
         # lense_model = fits.getdata(data_file)
         # maps[i]['srcrm'] = maps[i]['srcrm'] - lense_model
+
 
     return maps, err
 

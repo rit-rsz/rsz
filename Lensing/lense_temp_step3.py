@@ -19,7 +19,7 @@ for i in range(3):
 
     for k in range(100):
         j = index_arr[k]
-        data_or = np.load('/home/vlb9398/rsz/Lensing/lense_chunks/lense_rxj1347_%s_med_%s.npy'%(bands[i],k))
+        data_or = np.load(config.HOME + 'Lensing/lense_chunks/lense_rxj1347_%s_med_%s.npy'%(bands[i],k))
         data = [x*1e-3 for x in data_or]
         if j == step:
             outmap[0:j-1] = data

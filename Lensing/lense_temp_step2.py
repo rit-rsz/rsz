@@ -5,10 +5,12 @@ from math import *
 import sys, os
 import time
 from scipy.stats import norm
+sys.path.append('../utilities')
+import config
 
 def make_pix_hist(name,chunk_num,band):
 
-    image_list = np.load('/home/vlb9398/rsz/Lensing/lense_chunks/lense_chunk_%s_%s_%s.npy'%(name,band,chunk_num))
+    image_list = np.load(config.HOME + 'Lensing/lense_chunks/lense_chunk_%s_%s_%s.npy'%(name,band,chunk_num))
     bin_size = 1e-1
     size = np.array(image_list).shape[0]
     mean_image = []
@@ -28,8 +30,8 @@ def make_pix_hist(name,chunk_num,band):
             # mean_image.append(mu)
             mean_image.append(np.median(data))
 
-    np.save('/home/vlb9398/rsz/Lensing/lense_chunks/lense_%s_%s_med_%s.npy'%(name,band,chunk_num),mean_image)
-    # os.remove('/home/vlb9398/rsz/Lensing/lense_chunks/lense_chunk_%s_%s_%s.npy'%(name,band,chunk_num))
+    np.save(config.HOME + 'Lensing/lense_chunks/lense_%s_%s_med_%s.npy'%(name,band,chunk_num),mean_image)
+    os.remove(config.HOME + 'Lensing/lense_chunks/lense_chunk_%s_%s_%s.npy'%(name,band,chunk_num))
     time2 = time.time()
     print('Total sub-map runtime %s:'%(chunk_num),time2-time1)
 

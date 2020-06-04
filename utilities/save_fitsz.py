@@ -15,20 +15,20 @@ import config
 import numpy as np
 import os
 
-def save_fitsz(increment, offset, radave, params, sgen=None, nsim=0, verbose=1):
-    ncols = len(radave)
+def save_fitsz(increment, offset, params, sgen=None, nsim=0, verbose=1):
     szout = []
 
     for i in range(3):
         szout_template = {'increment' : increment[i],
-                           'offset' : offset[i],
-                           'band' : radave[i]['band'],
-                           'midbin' : radave[i]['midbin'],
-                           'fluxbin' : radave[i]['fluxbin'],
-                           'errbin' : radave[i]['errbin'],
-                           'rc' : params['rc'],
-                           'beta' : params['beta'],
-                           'clusname' : params['clusname']}
+                          'offset' : offset[i],
+                          'rc' : params['rc'],
+                          'beta' : params['beta'],
+                          'clusname' : params['clusname']}
+                           # 'band' : radave[i]['band'],
+                           # 'midbin' : radave[i]['midbin'],
+                           # 'fluxbin' : radave[i]['fluxbin'],
+                           # 'errbin' : radave[i]['errbin'],
+
         szout.append(szout_template)
 
     if sgen is not None:

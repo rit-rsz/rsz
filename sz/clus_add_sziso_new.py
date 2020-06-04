@@ -168,7 +168,8 @@ def clus_add_sziso_new(maps,isim,yin=0,tin=0,params=None,
 
         if int(isim) == 0 : # dI only needs to be calculated once...
             dI,thisx,JofXout,xout,errmsg = clus_get_relsz(isim,nu,imap,y=yin,te=tin,vpec=0.0) # dI = [MJy/sr]
-            np.save(config.OUTPUT + 'add_sz/sim_dI_%s.npy' %(maps[imap]['band']), dI * -.94 / dI_bolo)
+            np.save(config.OUTPUT + 'add_sz/sim_dI_%s.npy' %(maps[imap]['band']), dI) #just the expected amplitude at spire wavelength
+            np.save(config.OUTPUT + 'add_sz/input_dI_%s.npy' % (maps[imap]['band']), dI * -.94 / dI_bolo) #input amplitude saved for comparison in fit_sz
         else :
             dI = np.load(config.OUTPUT + 'add_sz/sim_dI_%s.npy' %(maps[imap]['band']))
 

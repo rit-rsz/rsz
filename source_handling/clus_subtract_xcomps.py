@@ -87,17 +87,23 @@ def clus_subtract_xcomps(maps, sgen=None, verbose=1, superplot=1, nsim=0, savepl
         # plt.show()
 
         plt.imshow(xmap_align)
-        plt.savefig('/home/vaughan/hcongrid.png')
+        plt.clim(0, 0.08)
+        plt.colorbar()
+        plt.savefig('/home/vaughan/dumb_folder/hcongrid.png')
         plt.clf()
         hda = fits.PrimaryHDU(xmap_align, maps[i]['shead'])
         hda.writeto('/home/vaughan/hcongrid.fits',overwrite=True)
 
-        interp_map = interp_band_to_band(maps[0], maps[1])
+        interp_map = interp_band_to_band(maps[1], maps[0])
         plt.imshow(interp_map)
-        plt.savefig('/home/vaughan/interp.png')
+        plt.clim(0, 0.08)
+        plt.colorbar()
+        plt.savefig('/home/vaughan/dumb_folder/interp.png')
         plt.clf()
         hda = fits.PrimaryHDU(interp_map, maps[i]['shead'])
         hda.writeto('/home/vaughan/interp.fits',overwrite=True)
+
+        exit()
 
         # plt.title('CUSTOM INTERP')
         # plt.imshow(interp_map)
@@ -178,7 +184,7 @@ def clus_subtract_xcomps(maps, sgen=None, verbose=1, superplot=1, nsim=0, savepl
 
 if __name__ == '__main__':
     maps, err = clus_get_data('rxj1347', isim=2)
-    maps[0]['srcrm'] = fits.open('../outputs/pcat_residuals/rxj1347_resid_PSW_1.fits')[0].data
-    maps[1]['srcrm'] = fits.open('../outputs/pcat_residuals/rxj1347_resid_PMW_1.fits')[0].data
-    maps[2]['srcrm'] = fits.open('../outputs/pcat_residuals/rxj1347_resid_PLW_1.fits')[0].data
+    maps[0]['srcrm'] = maps[0]['signal']
+    maps[1]['srcrm'] = maps[1]['signal']
+    maps[2]['srcrm'] = maps[2]['signal']
     clus_subtract_xcomps(maps, saveplot=0)

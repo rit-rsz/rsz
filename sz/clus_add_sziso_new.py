@@ -41,6 +41,10 @@ from astropy.convolution import convolve_fft as convolve
 def clus_add_sziso_new(maps,isim,yin=0,tin=0,params=None,
               verbose = 0, testflag=0, saveplot=0,clusname=None):
 
+    #------------------------------------- This part is just for testing
+    yin = 9.65*1e-4
+    tin = 10.88
+
     errmsg = False
 
     # Now the bolocam data is in the SPIRE format
@@ -59,6 +63,7 @@ def clus_add_sziso_new(maps,isim,yin=0,tin=0,params=None,
         header = data[0].header
         naxis = cluster_struct.shape
         # BCAMNORM in units of MJy/sr
+        print(header['BCAMNORM'], 'bolo cam norm')
         bolocam,err = clus_convert_bolocam(cluster_struct,norm = header['BCAMNORM'],verbose=verbose,clusname=clusname)
 
     else :
@@ -139,9 +144,10 @@ def clus_add_sziso_new(maps,isim,yin=0,tin=0,params=None,
         # if os.path.isfile(config.HOME + 'lookup/rxj1347_bol_lookup.npy') : # use lookup file instead of running szpack every time
         #     dI_bolo = np.load(config.HOME + 'lookup/rxj1347_bol_lookup.npy')
         # else :
+        szmap1 = bolocam
         dI_bolo,thisx,JofXout,xout,errmsg = clus_get_relsz(isim,3e5 / clus_get_lambdas('BOLOCAM'),'BOLOCAM',y=yin,te=tin,vpec=0.0) # dI = [MJy/sr]
         # np.save(config.HOME + 'lookup/rxj1347_bol_lookup.npy',dI_bolo)
-        szmap1 = (np.array(szmap1)).flatten()
+        szmap1 = np.array(szmap1).flatten()
         szmap1 = [x/dI_bolo for x in szmap1]
 
     for imap in range(mapsize):
@@ -162,7 +168,7 @@ def clus_add_sziso_new(maps,isim,yin=0,tin=0,params=None,
 
         if int(isim) == 0 : # dI only needs to be calculated once...
             dI,thisx,JofXout,xout,errmsg = clus_get_relsz(isim,nu,imap,y=yin,te=tin,vpec=0.0) # dI = [MJy/sr]
-            np.save(config.OUTPUT + 'add_sz/sim_dI_%s.npy' %(maps[imap]['band']),dI)
+            np.save(config.OUTPUT + 'add_sz/sim_dI_%s.npy' %(maps[imap]['band']), dI * -.94 / dI_bolo)
         else :
             dI = np.load(config.OUTPUT + 'add_sz/sim_dI_%s.npy' %(maps[imap]['band']))
 
@@ -173,7 +179,11 @@ def clus_add_sziso_new(maps,isim,yin=0,tin=0,params=None,
 
         # Combine the spectral shape of the SZ effect, and combine with the peak intensity
         # converted to Jy/beam
-        szin = [x * dI / maps[imap]['calfac'] for x in szmap1]
+
+        hdtemp = fits.PrimaryHDU(szmap1, temphead)
+        hdtemp.writeto(config.OUTPUT + 'sz_fit/bolo_fit_template.fits', overwrite=True)
+
+        szin = [x * dI/ maps[imap]['calfac'] for x in szmap1]  #
         final_dI.append(dI / maps[imap]['calfac'])
         szin = np.reshape(szin,(naxis[0],naxis[1]))
 
@@ -200,7 +210,21 @@ def clus_add_sziso_new(maps,isim,yin=0,tin=0,params=None,
             '''THIS IS JUST FOR TESTING WITH SZ SIGNAL'''
             # maps[imap]['signal'] = out_map
         elif testflag == 2 :
+
+            szinp = hcongrid(hdu.data,hdu.header,hdx.header)
+            # need to smooth output with SPIRE PSF
+            fwhm = maps[imap]['widtha']
+            pixscale = maps[imap]['pixsize']
+            retext = round(fwhm * 5.0 / pixscale)
+            if retext % 2 == 0:
+                retext += 1
+            bmsigma = fwhm / math.sqrt(8 * math.log(2))
+            beam = Gaussian2DKernel(bmsigma / pixscale, x_size=retext,y_size=retext, mode='oversample',factor=1)
+            beam *= 1.0 / beam.array.max()
+            out_map = convolve(szinp, beam, boundary='wrap')
+
             maps[imap]['signal'] = out_map
+            maps[imap]['srcrm'] = out_map #for testing
             # maps[imap]['signal'] = maps[imap]['error'] + out_map
 
         # Used to check the alligned sz effect image

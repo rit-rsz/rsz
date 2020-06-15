@@ -28,6 +28,7 @@ from astropy.io import fits
 from FITS_tools.hcongrid import hcongrid
 import matplotlib.pyplot as plt
 import math
+from datetime import datetime
 
 def clus_sim_background(genbethermin=1,fluxcut=0,saveplots=1,savemaps=0,genpowerlaw=0,\
             genradave=1,addnoise=0,yeslens=1,resolution='nr',nsim=1,bolocam=0,verbose=1,\
@@ -111,16 +112,13 @@ def clus_sim_background(genbethermin=1,fluxcut=0,saveplots=1,savemaps=0,genpower
 
             else : # use SIDES
                 map_size = [300,300,300]
-                # PLW = np.load(config.HOME + 'sides_sims/sides_PLW_sim%s.npy' %(isim),allow_pickle=True)
-                # PMW = np.load(config.HOME + 'sides_sims/sides_PMW_sim%s.npy' %(isim),allow_pickle=True)
-                # PSW = np.load(config.HOME + 'sides_sims/sides_PSW_sim%s.npy' %(isim),allow_pickle=True)
-                PLW = np.load('/home/vaughan/dumb_folder/SIDES_PLW_sim%s.npy' %(isim),allow_pickle=True)
-                PMW = np.load('/home/vaughan/dumb_folder/SIDES_PMW_sim%s.npy' %(isim),allow_pickle=True)
-                PSW = np.load('/home/vaughan/dumb_folder/SIDES_PSW_sim%s.npy' %(isim),allow_pickle=True)
+                PLW = np.load(config.CLUSDATA + 'sides_sims/' + clusters[iclust] + '/SIDES_PLW_sim%s.npy' %(isim),allow_pickle=True)
+                PMW = np.load(config.CLUSDATA + 'sides_sims/' + clusters[iclust] + '/SIDES_PMW_sim%s.npy' %(isim),allow_pickle=True)
+                PSW = np.load(config.CLUSDATA + 'sides_sims/' + clusters[iclust] + '/SIDES_PSW_sim%s.npy' %(isim),allow_pickle=True)
                 sim_maps = [PSW,PMW,PLW]
 
             for icol in range(ncols):
-                retcat,truthtable,outmap = clus_format_bethermin(icol,sim_maps,maps,map_size[icol],bands[icol],clusters[iclust],
+                retcat,truthtable,outmap1 = clus_format_bethermin(icol,sim_maps,maps,map_size[icol],bands[icol],clusters[iclust],
                                         pixsize[icol],fwhm[icol],fluxcut=fluxcut,zzero=params['z'],superplot=superplot,savemaps=savemaps,genbethermin=genbethermin)
 
                 if yeslens == 1:
@@ -155,21 +153,17 @@ def clus_sim_background(genbethermin=1,fluxcut=0,saveplots=1,savemaps=0,genpower
                     ltfile = config.SIMBOX + clusters[iclust] + '_image.dat'
 
                 # populate the sim maps with sources from lenstool
-                outmap,table = clus_popmap(ltfile,maps[icol],map_size[icol],bands[icol],clusters[iclust],pixsize[icol],fwhm[icol],loz=retcat,superplot=superplot,savemaps=savemaps,genbethermin=genbethermin)
+                outmap2,table = clus_popmap(ltfile,maps[icol],map_size[icol],bands[icol],clusters[iclust],pixsize[icol],fwhm[icol],loz=retcat,superplot=superplot,savemaps=savemaps,genbethermin=genbethermin)
                 np.save(config.SIM + 'sides_cat/sides_cat_%s_%s.npy'%(bands[icol],isim),table,allow_pickle=True)
-                # modify the outmap to remove pixels that have been flagged
-                # if icol < 3 :
-                #     whpl = np.where(maps[icol]['flag'] > 0) # check that this is right
-                #     outmap[whpl] = np.nan
 
                 # reshape map to original SPIRE size
-                outmap = outmap[0:maps[icol]['signal'].shape[0],0:maps[icol]['signal'].shape[1]]
-                maps[icol]['signal'] = outmap
+                # outmap = outmap[0:maps[icol]['signal'].shape[0],0:maps[icol]['signal'].shape[1]]
+                maps[icol]['signal'] = outmap2
 
                 # adding random noise to the signal map
                 if addnoise == 1 :
                     print('Adding noise to sim maps')
-                    np.random.seed(102793)
+                    np.random.seed(int(isim))
                     error =  np.array(maps[icol]['error']).flatten()
                     signal = np.array(maps[icol]['signal']).flatten()
                     noise = np.random.normal(scale=1.0,size=(maps[icol]['signal'].shape[0],maps[icol]['signal'].shape[1])).flatten()
@@ -186,25 +180,40 @@ def clus_sim_background(genbethermin=1,fluxcut=0,saveplots=1,savemaps=0,genpower
 
                     flat = noise + signal
                     maps[icol]['signal'] = flat.reshape(maps[icol]['signal'].shape[0],maps[icol]['signal'].shape[1])
+                    noise_model = noise.reshape(maps[icol]['signal'].shape[0],maps[icol]['signal'].shape[1])
+                    sze_holder = np.zeros((maps[icol]['signal'].shape[0],maps[icol]['signal'].shape[1]))
 
                     # save the current sim map in /data/sim_clusters
                     print('Savemaps set, saving maps in %s' %(config.CLUSSIMS))
                     savefile = config.CLUSSIMS + clusters[iclust] + '/' + clusters[iclust] + '_' + bands[icol] + '_sim03%02d.fits' %(isim)
 
+                    # update the header to include modification history
+                    map_head = maps[icol]['shead']
+                    map_head['HISTORY'] = 'Simulation made using clus_sim_background.py v.2.0.1'
+                    map_head['HISTORY'] = 'Simulation file created on %s' %(datetime.today().strftime('%m-%d-%Y'))
+
                     # create image HDU
-                    hda = fits.PrimaryHDU(maps[icol]['signal'],maps[icol]['shead'])
+                    hda = []
                     hdul = fits.HDUList(hdus=hda)
-                    hds = fits.ImageHDU(maps[icol]['signal'],maps[icol]['shead'])
-                    hdn = fits.ImageHDU(maps[icol]['error'],maps[icol]['shead'])
-                    hde = fits.ImageHDU(maps[icol]['exp'].data,maps[icol]['shead'])
-                    hdm = fits.ImageHDU(fits.getdata(config.HOME + 'bolocam_mask_%s.fits'%(maps[icol]['band'])),maps[icol]['shead'])
+                    hds = fits.ImageHDU(data=maps[icol]['signal'],header=maps[icol]['shead'],name='signal')
+                    hdn = fits.ImageHDU(data=maps[icol]['error'],header=maps[icol]['shead'],name='error')
+                    hde = fits.ImageHDU(data=maps[icol]['exp'].data,header=maps[icol]['shead'],name='exp')
+                    hdm = fits.ImageHDU(data=fits.getdata(config.HOME + 'bolocam_mask_%s.fits'%(maps[icol]['band'])),header=maps[icol]['shead'],name='mask')
+                    hdnm = fits.ImageHDU(data=noise_model,header=maps[icol]['shead'],name='noise')
+                    hsze = fits.ImageHDU(data=sze_holder,header=maps[icol]['shead'],name='sze')
+                    pre_lense = fits.ImageHDU(data=outmap1,header=maps[icol]['shead'] ,name='sig_pre_lense')
+                    post_lense = fits.ImageHDU(data=outmap2,header=maps[icol]['shead'] ,name='sig_post_lense')
                     hdul.append(hds)
                     hdul.append(hdn)
                     hdul.append(hde)
                     hdul.append(hdm)
+                    hdul.append(hdnm)
+                    hdul.append(hsze)
+                    hdul.append(pre_lense)
+                    hdul.append(post_lense)
                     hdul.writeto(savefile,overwrite=True)
 
 if __name__ == '__main__' :
-    clus_sim_background(genbethermin=0,fluxcut=0,saveplots=0,savemaps=0,genpowerlaw=0,\
+    clus_sim_background(genbethermin=0,fluxcut=0,saveplots=0,savemaps=1,genpowerlaw=0,\
                         genradave=1,addnoise=1,yeslens=1,resolution='nr',nsim=0,bolocam=0,\
                         verbose=0,errmsg=None,superplot=0)

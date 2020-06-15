@@ -47,9 +47,11 @@ def clus_popmap(ltfile,maps,map_size,band,name,pixsize,fwhm,loz=None,superplot=0
                 mag.append(float(val[-1]))
     f.close()
 
-    # if len(loz) == 8 :
-    #     ra = [ra,loz['x']]
-    #     dec = [dec,loz['y']]
+    # add low redshift sources back into map
+    print(len(loz['x']))
+    ra.extend(loz['x'])
+    dec.extend(loz['y'])
+    mag.extend(loz['f'])
 
     refx = float(racent)
     refy = float(deccent)
@@ -96,7 +98,7 @@ def clus_popmap(ltfile,maps,map_size,band,name,pixsize,fwhm,loz=None,superplot=0
     flux = np.array(flux,dtype=np.float32)
 
     psf, cf, nc, nbin = get_gaussian_psf_template(fwhm,pixel_fwhm=3.) # assumes pixel fwhm is 3 pixels in each band
-    sim_map = image_model_eval(x, y, nc*flux, 0.0, (int(mapx), int(mapy)), int(nc), cf)
+    sim_map = image_model_eval(y, x, nc*flux, 0.0, (mapx, mapy), int(nc), cf)
     '''#############################################################################################################'''
 
     if superplot:
@@ -104,6 +106,7 @@ def clus_popmap(ltfile,maps,map_size,band,name,pixsize,fwhm,loz=None,superplot=0
         plt.colorbar()
         plt.title('Clus Popmap: Lensed map')
         plt.show()
+        plt.clf()
 
     if savemaps:
         hdx = fits.PrimaryHDU(maps['signal'],maps['shead'])

@@ -91,6 +91,7 @@ def clus_format_bethermin(icol,sim_map,maps,map_size,band,clusname,pixsize,fwhm,
     savez = []
     savef = []
     index = []
+
     if zzero > 0 :
         for j in range(len(outflux)):
             if outz[j] <= zzero :
@@ -99,7 +100,7 @@ def clus_format_bethermin(icol,sim_map,maps,map_size,band,clusname,pixsize,fwhm,
                 savex.append(outx[j])
                 savey.append(outy[j])
                 savez.append(outz[j])
-        retcat = {'x':savex,'y':savey,'z':savez,'f':savef}
+        retcat = {'x':savex,'y':savey,'z':savez,'f':[-2.5 * np.log10(x) for x in savef]} # transforming flux to magnitude
         nsrc = len(outflux)
         coutx = np.delete(np.asarray(outx),index)
         couty = np.delete(np.asarray(outy),index)
@@ -128,26 +129,47 @@ def clus_format_bethermin(icol,sim_map,maps,map_size,band,clusname,pixsize,fwhm,
         outz = outz[0:msrc]
 
     # now sort according to z
-    coutflux = [f for _,f in sorted(zip(outz,outflux), key = lambda pair: pair[0])]
-    coutx = [x for _,x in sorted(zip(outz,outx), key = lambda pair: pair[0])]
-    couty = [y for _,y in sorted(zip(outz,outy), key = lambda pair: pair[0])]
-    coutz = sorted(outz)
+    houtflux = [f for _,f in sorted(zip(outz,outflux), key = lambda pair: pair[0])]
+    houtx = [x for _,x in sorted(zip(outz,outx), key = lambda pair: pair[0])]
+    houty = [y for _,y in sorted(zip(outz,outy), key = lambda pair: pair[0])]
+    houtz = sorted(outz)
+
+    # magnitude instead of flux in Jy
+    outmag = [-2.5 * np.log10(x) for x in houtflux]
+
+    #write everything to file for lenstool to ingest
+    lensfile = (config.HOME + 'model/' + clusname + '/' + clusname + '_cat.cat')
+    with open(lensfile,'w') as f :
+        f.write('#REFERENCE 3 %.6f %.6f \n' %(maps[icol]['shead']['CRVAL1'], maps[icol]['shead']['CRVAL2']))
+        for k in range(len(outmag)):
+            f.write('%i %.3f %.3f 0.5 0.5 0.0 %0.6f %0.6f \n' \
+                    %(k,houtx[k],houty[k],houtz[k],outmag[k]))
+        f.close()
+
+    truthtable = {'x': houtx, 'y': houty,
+                  'z': houtz, 'mag': outmag}
+
+    houtx.extend(retcat['x'])
+    houty.extend(retcat['y'])
+    houtflux.extend(retcat['f'])
 
     if savemaps:
-        orig_length = len(coutx)
+        orig_length = len(houtx)
         mapy = maps[icol]['signal'].shape[0]
         mapx = maps[icol]['signal'].shape[1]
-        x = [(i/pixsize) + refx for i in coutx]
-        y = [(j/pixsize) + refy for j in couty]
+        x = [(i/pixsize) + refx for i in houtx]
+        y = [(j/pixsize) + refy for j in houty]
 
         x = np.array(x,dtype=np.float32)
         y = np.array(y,dtype=np.float32)
-        flux = np.array(coutflux,dtype=np.float32)
+        flux = np.array(houtflux,dtype=np.float32)
         psf, cf, nc, nbin = get_gaussian_psf_template(fwhm,pixel_fwhm=3.) # assumes pixel fwhm is 3 pixels in each band
         if x_pos > y_pos :
-            sim_map = image_model_eval(x, y, nc*flux, 0.0, (x_pos,x_pos), int(nc), cf)
+            sim_map = image_model_eval(y, x, nc*flux, 0.0, (x_pos,x_pos), int(nc), cf)
         else :
-            sim_map = image_model_eval(x, y, nc*flux, 0.0, (y_pos,y_pos), int(nc), cf)
+            sim_map = image_model_eval(y, x, nc*flux, 0.0, (y_pos,y_pos), int(nc), cf)
+
+        sim_map = sim_map[0:maps[icol]['signal'].shape[0],0:maps[icol]['signal'].shape[1]]
         plt.imshow(sim_map,origin=0)
         plt.savefig(config.SIM + 'nonlensedmap_' + clusname + '_' + band + '.png')
         plt.colorbar()
@@ -156,9 +178,7 @@ def clus_format_bethermin(icol,sim_map,maps,map_size,band,clusname,pixsize,fwhm,
         sz = fits.PrimaryHDU(sim_map,hdx.header)
         sz.writeto(config.SIMBOX + 'nonlensedmap_' + clusname + '_' + band + '.fits',overwrite=True)
 
-    # magnitude instead of flux in Jy
-    outmag = [-2.5 * np.log10(x) for x in coutflux]
-    # if superplot and sim_map != None:
+    if superplot and sim_map != None:
         plt.imshow(sim_map,extent=(0,300,0,300),clim=[0.0,0.15],origin=0)
         plt.colorbar()
         plt.title('clus_format_bethermin: Non-lensed map')
@@ -169,18 +189,6 @@ def clus_format_bethermin(icol,sim_map,maps,map_size,band,clusname,pixsize,fwhm,
     #     plt.colorbar()
     #     plt.title('end of format bethermin')
     #     plt.show()
-
-    #write everything to file for lenstool to ingest
-    lensfile = (config.HOME + 'model/' + clusname + '/' + clusname + '_cat.cat')
-    with open(lensfile,'w') as f :
-        f.write('#REFERENCE 3 %.6f %.6f \n' %(maps[icol]['shead']['CRVAL1'], maps[icol]['shead']['CRVAL2']))
-        for k in range(len(outmag)):
-            f.write('%i %.3f %.3f 0.5 0.5 0.0 %0.6f %0.6f \n' \
-                    %(k,coutx[k],couty[k],coutz[k],outmag[k]))
-        f.close()
-
-    truthtable = {'x': coutx, 'y': couty,
-                  'z': coutz, 'mag': outmag}
 
     return retcat, truthtable, sim_map
 

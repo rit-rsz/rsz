@@ -27,6 +27,7 @@ from astropy.convolution import Gaussian2DKernel
 from astropy.convolution import convolve_fft as convolve
 sys.path.append('../multiband_pcat')
 from image_eval import psf_poly_fit, image_model_eval
+import pdb
 
 def clus_popmap(ltfile,maps,map_size,band,name,pixsize,fwhm,loz=None,superplot=0,savemaps=0,genbethermin=None):
 
@@ -51,7 +52,8 @@ def clus_popmap(ltfile,maps,map_size,band,name,pixsize,fwhm,loz=None,superplot=0
     print(len(loz['x']))
     ra.extend(loz['x'])
     dec.extend(loz['y'])
-    mag.extend(loz['f'])
+    flux = [10.0**(-k/2.5) for k in mag]
+    flux.extend(loz['f'])
 
     refx = float(racent)
     refy = float(deccent)
@@ -62,11 +64,6 @@ def clus_popmap(ltfile,maps,map_size,band,name,pixsize,fwhm,loz=None,superplot=0
     '''
     ra = [((-x / 3600.0) + refx) for x in ra]
     dec = [((y / 3600.0) + refy) for y in dec]
-
-    flux = [10.0**(-k/2.5) for k in mag]
-
-    # if len(loz) == 8 :
-    #     flux = [flux,loz['f']]
 
     if superplot:
         plt.scatter(ra,dec,s=2,c=flux)
@@ -96,22 +93,24 @@ def clus_popmap(ltfile,maps,map_size,band,name,pixsize,fwhm,loz=None,superplot=0
     x = np.array(x,dtype=np.float32)
     y = np.array(y,dtype=np.float32)
     flux = np.array(flux,dtype=np.float32)
-
+    pixel_per_beam = 2*np.pi*((3)/2.355)**2
     psf, cf, nc, nbin = get_gaussian_psf_template(fwhm,pixel_fwhm=3.) # assumes pixel fwhm is 3 pixels in each band
-    sim_map = image_model_eval(y, x, nc*flux, 0.0, (mapx, mapy), int(nc), cf)
+    sim_map = image_model_eval(y, x, pixel_per_beam*nc*flux, 0.0, (mapx, mapy), int(nc), cf)
     '''#############################################################################################################'''
 
-    if superplot:
-        plt.imshow(sim_map,extent=(0,300,0,300),clim=[0.0,0.15],origin=0)
-        plt.colorbar()
-        plt.title('Clus Popmap: Lensed map')
-        plt.show()
-        plt.clf()
+    # if superplot:
+    # plt.imshow(sim_map,extent=(0,300,0,300),clim=[0.0,0.15],origin=0)
+    plt.imshow(sim_map,clim=[0,0.01],origin=0)
+    plt.colorbar()
+    plt.title('Clus Popmap: Lensed map')
+    plt.savefig('lensedmap_' + name + '_' + band + '.png')
+    plt.clf()
 
     if savemaps:
         hdx = fits.PrimaryHDU(maps['signal'],maps['shead'])
         sz = fits.PrimaryHDU(sim_map,hdx.header)
-        sz.writeto(config.SIMBOX + 'lensedmap_' + name + '_' + band + '.fits',overwrite=True)
+        # sz.writeto(config.SIMBOX + 'lensedmap_' + name + '_' + band + '.fits',overwrite=True)
+        sz.writeto(config.SIM + 'lensedmap_' + name + '_' + band + '.fits',overwrite=True)
 
     return sim_map, truthtable
 

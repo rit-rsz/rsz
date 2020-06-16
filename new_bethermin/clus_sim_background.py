@@ -29,6 +29,7 @@ from FITS_tools.hcongrid import hcongrid
 import matplotlib.pyplot as plt
 import math
 from datetime import datetime
+import pdb
 
 def clus_sim_background(genbethermin=1,fluxcut=0,saveplots=1,savemaps=0,genpowerlaw=0,\
             genradave=1,addnoise=0,yeslens=1,resolution='nr',nsim=1,bolocam=0,verbose=1,\
@@ -112,15 +113,18 @@ def clus_sim_background(genbethermin=1,fluxcut=0,saveplots=1,savemaps=0,genpower
 
             else : # use SIDES
                 map_size = [300,300,300]
-                PLW = np.load(config.CLUSDATA + 'sides_sims/' + clusters[iclust] + '/SIDES_PLW_sim%s.npy' %(isim),allow_pickle=True)
-                PMW = np.load(config.CLUSDATA + 'sides_sims/' + clusters[iclust] + '/SIDES_PMW_sim%s.npy' %(isim),allow_pickle=True)
-                PSW = np.load(config.CLUSDATA + 'sides_sims/' + clusters[iclust] + '/SIDES_PSW_sim%s.npy' %(isim),allow_pickle=True)
+                # PLW = np.load(config.CLUSDATA + 'sides_sims/' + clusters[iclust] + '/SIDES_PLW_sim%s.npy' %(isim),allow_pickle=True)
+                # PMW = np.load(config.CLUSDATA + 'sides_sims/' + clusters[iclust] + '/SIDES_PMW_sim%s.npy' %(isim),allow_pickle=True)
+                # PSW = np.load(config.CLUSDATA + 'sides_sims/' + clusters[iclust] + '/SIDES_PSW_sim%s.npy' %(isim),allow_pickle=True)
+
+                PLW = np.load('/home/vaughan/dumb_folder/SIDES_PLW_%s.npy' %(isim),allow_pickle=True)
+                PMW = np.load('/home/vaughan/dumb_folder/SIDES_PMW_%s.npy' %(isim),allow_pickle=True)
+                PSW = np.load('/home/vaughan/dumb_folder/SIDES_PSW_%s.npy' %(isim),allow_pickle=True)
                 sim_maps = [PSW,PMW,PLW]
 
-            for icol in range(ncols):
+            for icol in range(0,ncols):
                 retcat,truthtable,outmap1 = clus_format_bethermin(icol,sim_maps,maps,map_size[icol],bands[icol],clusters[iclust],
                                         pixsize[icol],fwhm[icol],fluxcut=fluxcut,zzero=params['z'],superplot=superplot,savemaps=savemaps,genbethermin=genbethermin)
-
                 if yeslens == 1:
                     print('Starting ', clusters[iclust], ' lens run for ', bands[icol], '...')
 
@@ -172,7 +176,7 @@ def clus_sim_background(genbethermin=1,fluxcut=0,saveplots=1,savemaps=0,genpower
                     for i in range(len(signal)):
                         if not math.isnan(error[i]) : #Jy/beam
                             noise[i] = error[i]*noise[i]
-                            signal[i] = signal[i]*normalization
+                            # signal[i] = signal[i]*normalization
 
                         else :
                             signal[i] = np.nan
@@ -189,7 +193,7 @@ def clus_sim_background(genbethermin=1,fluxcut=0,saveplots=1,savemaps=0,genpower
 
                     # update the header to include modification history
                     map_head = maps[icol]['shead']
-                    map_head['HISTORY'] = 'Simulation made using clus_sim_background.py v.2.0.1'
+                    map_head['HISTORY'] = 'Simulation made using clus_sim_background.py v.2.0.2'
                     map_head['HISTORY'] = 'Simulation file created on %s' %(datetime.today().strftime('%m-%d-%Y'))
 
                     # create image HDU
@@ -212,6 +216,7 @@ def clus_sim_background(genbethermin=1,fluxcut=0,saveplots=1,savemaps=0,genpower
                     hdul.append(pre_lense)
                     hdul.append(post_lense)
                     hdul.writeto(savefile,overwrite=True)
+            exit()
 
 if __name__ == '__main__' :
     clus_sim_background(genbethermin=0,fluxcut=0,saveplots=0,savemaps=1,genpowerlaw=0,\

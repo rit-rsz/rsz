@@ -29,6 +29,7 @@ from astropy.coordinates import SkyCoord
 import astropy.units as u
 sys.path.append('../multiband_pcat')
 from image_eval import psf_poly_fit, image_model_eval
+import pdb
 
 def clus_format_bethermin(icol,sim_map,maps,map_size,band,clusname,pixsize,fwhm,\
                           fluxcut=0,zzero=0,superplot=0,savemaps=0,genbethermin=0):
@@ -73,7 +74,14 @@ def clus_format_bethermin(icol,sim_map,maps,map_size,band,clusname,pixsize,fwhm,
         plt.show()
         plt.clf()
 
-    outz = [float(np.ceil(10.0 * z)) / 10.0 for z in zpos]
+    outz = np.asarray([float(np.ceil(10.0 * z)) / 10.0 for z in zpos])
+
+
+    mask = np.logical_and(np.isfinite(outflux), outflux > 0)
+    outflux = outflux[mask]
+    outx = outx[mask]
+    outy = outy[mask]
+    outz = outz[mask]
 
     # lets do some fluxcuts
     if fluxcut > 0.0 :
@@ -100,7 +108,7 @@ def clus_format_bethermin(icol,sim_map,maps,map_size,band,clusname,pixsize,fwhm,
                 savex.append(outx[j])
                 savey.append(outy[j])
                 savez.append(outz[j])
-        retcat = {'x':savex,'y':savey,'z':savez,'f':[-2.5 * np.log10(x) for x in savef]} # transforming flux to magnitude
+        retcat = {'x':savex,'y':savey,'z':savez,'f':savef} # transforming flux to magnitude
         nsrc = len(outflux)
         coutx = np.delete(np.asarray(outx),index)
         couty = np.delete(np.asarray(outy),index)
@@ -135,7 +143,7 @@ def clus_format_bethermin(icol,sim_map,maps,map_size,band,clusname,pixsize,fwhm,
     houtz = sorted(outz)
 
     # magnitude instead of flux in Jy
-    outmag = [-2.5 * np.log10(x) for x in houtflux]
+    outmag = [-2.5 * np.log10(xin) for xin in houtflux]
 
     #write everything to file for lenstool to ingest
     lensfile = (config.HOME + 'model/' + clusname + '/' + clusname + '_cat.cat')
@@ -162,21 +170,24 @@ def clus_format_bethermin(icol,sim_map,maps,map_size,band,clusname,pixsize,fwhm,
 
         x = np.array(x,dtype=np.float32)
         y = np.array(y,dtype=np.float32)
+        pixel_per_beam = 2*np.pi*((3)/2.355)**2
         flux = np.array(houtflux,dtype=np.float32)
         psf, cf, nc, nbin = get_gaussian_psf_template(fwhm,pixel_fwhm=3.) # assumes pixel fwhm is 3 pixels in each band
         if x_pos > y_pos :
-            sim_map = image_model_eval(y, x, nc*flux, 0.0, (x_pos,x_pos), int(nc), cf)
+            sim_map = image_model_eval(y, x, pixel_per_beam*nc*flux, 0.0, (x_pos,x_pos), int(nc), cf)
+            sim_map = sim_map[0:mapy,0:mapx]
         else :
-            sim_map = image_model_eval(y, x, nc*flux, 0.0, (y_pos,y_pos), int(nc), cf)
+            sim_map = image_model_eval(y, x, pixel_per_beam*nc*flux, 0.0, (y_pos,y_pos), int(nc), cf)
+            sim_map = sim_map[0:mapy,0:mapx]
 
-        sim_map = sim_map[0:maps[icol]['signal'].shape[0],0:maps[icol]['signal'].shape[1]]
-        plt.imshow(sim_map,origin=0)
-        plt.savefig(config.SIM + 'nonlensedmap_' + clusname + '_' + band + '.png')
+        plt.imshow(sim_map,origin=0,clim=[0,0.01])
         plt.colorbar()
+        plt.savefig(config.SIM + 'nonlensedmap_' + clusname + '_' + band + '.png')
         plt.clf()
         hdx = fits.PrimaryHDU(maps[icol]['signal'],maps[icol]['shead'])
         sz = fits.PrimaryHDU(sim_map,hdx.header)
-        sz.writeto(config.SIMBOX + 'nonlensedmap_' + clusname + '_' + band + '.fits',overwrite=True)
+        # sz.writeto(config.SIMBOX + 'nonlensedmap_' + clusname + '_' + band + '.fits',overwrite=True)
+        sz.writeto(config.SIM + 'nonlensedmap_' + clusname + '_' + band + '.fits',overwrite=True)
 
     if superplot and sim_map != None:
         plt.imshow(sim_map,extent=(0,300,0,300),clim=[0.0,0.15],origin=0)

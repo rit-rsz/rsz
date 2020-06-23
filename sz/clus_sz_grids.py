@@ -19,7 +19,7 @@ sys.path.append('/home/bjv7945/rsz/utillities/')
 from clus_get_relsz import *
 from clus_get_lambdas import *
 
-
+#wavelen = 583, 829, and 1144 GHz
 def thermal(v, I, y):
 
     func1 = (((v**4)*np.exp(v))/(np.exp(v)-1)**2) * ((v*((np.exp(v) + 1)/(np.exp(v) - 1)))-4)
@@ -35,6 +35,7 @@ def create_grid(name, grid_hw):
             - an array of ys values
             - an array of ts values
     '''
+    band_w = [2140, 262.0563,361.63 ,514]
     bands = ['BOLOCAM', 'PSW', 'PMW', 'PLW']
 
     T_0     = 2.725                   #CMB temperature, K
@@ -45,7 +46,7 @@ def create_grid(name, grid_hw):
 
     #later on will want to not have the intervals hard coded into the script.
     y_in = np.linspace(0, 12e-4, grid_hw)
-    t_in = np.linspace(0, 25, grid_hw)
+    t_in = np.linspace(0, 20, grid_hw)
 
     #this is some math to calculate the cannonical effect when Te is set to zero.
     I = 2*((k_B*T_0)**3/(h*c)**2) * 10**(26) * 10**(-6)

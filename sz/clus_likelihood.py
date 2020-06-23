@@ -160,7 +160,7 @@ def clus_likelihood(data, sigma, name='rxj1347',samples=10):
     '''
 
 
-    if not os.path.isfile(config.OUTPUT + 'sz_grids/%s_sz_grid_BOLOCAM.npy' %(name)):
+    if not os.path.isfile(config.OUTPUT + 'sz_grids/%s_sz_grid_BOLO.npy' %(name)):
         print('No grids detected for grid search, please run clus_sz_grid.py')
     sz_grid_0 = np.load(config.OUTPUT + 'sz_grids/%s_sz_grid_BOLO.npy' % (name), allow_pickle=True)
     sz_grid_1 = np.load(config.OUTPUT + 'sz_grids/%s_sz_grid_PSW.npy' % (name), allow_pickle=True)
@@ -202,13 +202,11 @@ def clus_likelihood(data, sigma, name='rxj1347',samples=10):
             chi_stat = chi_square_test(data, [sz_grid_0[i,j], sz_grid_2[i,j], sz_grid_3[i,j]], sigma)
             chi_grid[i,j] = chi_stat
             #calculate the likelihood from the chisquare value
-            like_li[i,j] = ( chi_stat **(df/2 - 1) * np.exp(-1 * chi_stat/2) ) / (2 ** (df/2) * gamma(df / 2))
-
+            # like_li[i,j] = ( chi_stat **(df/2 - 1) * np.exp(-1 * chi_stat/2) ) / (2 ** (df/2) * gamma(df / 2))
+            like_li[i,j] = np.exp(-1 * chi_stat )
     #normalize the likelihood so that it sums to 1.
     like_norm = like_li / np.sum(like_li)
 
-    y_max, t_max = np.where(like_norm == np.max(like_norm))
-    print(param_grid[y_max, t_max, 0] * 0.163, param_grid[y_max, t_max, 1])
     #create data structures to hold y, Te likelihood values
     y_likelihood = np.zeros(len(ys))
     t_likelihood = np.zeros(len(ts))
@@ -218,9 +216,10 @@ def clus_likelihood(data, sigma, name='rxj1347',samples=10):
         y_likelihood = np.add(y_likelihood, like_norm[:, i])
         t_likelihood = np.add(t_likelihood, like_norm[i, :])
 
-    #pick out the most probable y and Te values
-    y_max = np.where(y_likelihood == np.max(y_likelihood))
-    t_max = np.where(t_likelihood == np.max(t_likelihood))
+    # #pick out the most probable y and Te values
+    # y_max = np.where(y_likelihood == np.max(y_likelihood))
+    # t_max = np.where(t_likelihood == np.max(t_likelihood))
+    y_max, t_max = np.where(like_norm == np.max(like_norm))
 
 
     #find the confidence levels.
@@ -232,7 +231,6 @@ def clus_likelihood(data, sigma, name='rxj1347',samples=10):
     ys = np.multiply(ys, 0.163)
 
     #create a meshgrid for contour / color map plots
-    X, Y = np.meshgrid(ys, ts)
 
 
     matplotlib.rcParams.update({'font.size': 8})
@@ -248,7 +246,10 @@ def clus_likelihood(data, sigma, name='rxj1347',samples=10):
     # p, e = curve_fit(fit_func, ys, y_likelihood, p0=[0.0140, 1.44e-4, 1e-5])
     # line = fit_func(ys, *p)
     # delta_chi_square_test(data, sigma, ys[y_max], ts[t_max], ts[up_t])
+    # ys = np.multiply(ys, 1e-4)
 
+    ys = ys * 1e4
+    X, Y = np.meshgrid(ys, ts)
 
     #plot the y_2500 histogram
     # axs[0,0].plot(ys, line)
@@ -258,6 +259,9 @@ def clus_likelihood(data, sigma, name='rxj1347',samples=10):
     axs[0,0].axvline(ys[up_y], linestyle='dashed')
     axs[0,0].set_yticklabels([])
     axs[0,0].set_xticklabels([])
+    axs[0,0].set_xlim(0, np.max(ys))
+    axs[0,0].set_ylabel('Relative Likelihood')
+
     # plt.savefig(config.OUTPUT + 'y_T_fits/%s_ys_hist.png'%name)
     # plt.clf()
 
@@ -271,6 +275,8 @@ def clus_likelihood(data, sigma, name='rxj1347',samples=10):
     axs[1,1].axhline(ts[up_t], linestyle='dashed')
     axs[1,1].set_yticklabels([])
     axs[1,1].set_xticklabels([])
+    axs[1,1].set_xlabel('Relative Likelihood')
+    axs[1,1].set_ylim(0, np.max(ts))
 
     # axs[1,0].savefig(config.OUTPUT + 'y_T_fits/%s_ts_hist.png'%name)
     # plt.clf()
@@ -281,19 +287,20 @@ def clus_likelihood(data, sigma, name='rxj1347',samples=10):
 
     #plot the contour plot
     axs[1,0].pcolormesh(X, Y, like_norm) #for displaying the underlying pdf
-    axs[1,0].set_xlabel('$<y>_{R2500}$')
-    axs[1,0].set_ylabel('$T_e$ [KeV]')
-    axs[1,0].ticklabel_format(axis='x', style='sci', scilimits=(-4,-4))
+    axs[1,0].set_xlabel('$<y>_{R2500} [\\times 10^{-4}]$')
+    axs[1,0].set_ylabel('$T_e$ [keV]')
+    # axs[1,0].ticklabel_format(axis='x', style='sci', scilimits=(-4,-4))
 
     # axs[1,0].colorbar().set_label('Normalized Likelihood')
     conf_interval = sum_confidence(like_norm)
     axs[1,0].contour(ys, ts, conf_interval, colors='gray')
     axs[1,0].scatter(ys[y_max], ts[t_max], marker='x', color='black')
-    axs[1,0].scatter(1.29e-4, 9.47, marker='^', color='black')
+    axs[1,0].scatter(1.29, 9.47, marker='^', color='black')
+
 
 
     #fixing layout
-    fig.subplots_adjust(left=0.125, bottom=0.1, right=0.9, top=0.9, wspace=0.05, hspace=0.05)
+    fig.subplots_adjust(left=0.125, bottom=0.1, right=0.9, top=0.9, wspace=0, hspace=0)
     # plt.tight_layout()
     fig.delaxes(axs[0,1])
     fig.savefig(config.OUTPUT + 'y_T_fits/%s_y_T_analysis.png' % name)
@@ -311,24 +318,28 @@ def clus_likelihood(data, sigma, name='rxj1347',samples=10):
     v = (h/(k_B * T_0))*np.linspace(1*10**(9),1700*10**9,100)
 
     #create the cannonical spectrum .
-    cannon_spec = thermal(v, I, ys[y_max] / 0.163)
+    cannon_spec = thermal(v, I, ys[y_max] * 1e-4 / 0.163)
 
     #convert from dimnesionless frequency to GHz.
     cannon_x = np.multiply( T_0 * k_B / (h * 1e9), v)
     best_x = np.multiply(T_0 * k_B / (h * 1e9), xaxis[y_max, t_max].flatten())
 
+    matplotlib.rcParams.update({'font.size': 10})
+
     #plot the best fitting spectrum with data points and the cannonical spectrum.
-    # plt.plot(best_x,spec[y_max,t_max].flatten(), label='best_fit')
-    # x_vals = [140.9, 856.55, 599.585]
-    # plt.xlim(0, 1000)
-    # plt.errorbar(x_vals, data, yerr=sigma, label='data', linestyle='None', marker='o',markersize=4, ecolor='black', markerfacecolor='black', markeredgecolor='black')
-    # plt.plot(cannon_x, cannon_spec, linestyle='dashed', label='cannonical')
-    # plt.legend(loc='best')
-    # plt.xlabel('$\\nu$ (GHz)')
-    # plt.ylabel('$\Delta$ $I_0$ [MJy/sr]')
-    # # plt.set_position([0.7, 0.7, 0.95,0.95])
-    # plt.savefig(config.OUTPUT + 'y_T_fits/%s_max_spectrum.png' % name)
-    # plt.clf()
+    # plt.title('$<y>_{R2500}$ = %.3E, $T_e$ = %.3F kev' % (ys[y_max], ts[t_max]))
+    plt.plot(best_x,spec[y_max,t_max].flatten(), label='Best Fitting SZe Spectrum')
+    x_vals = [140.9, 856.55, 599.585]
+    plt.xlim(0, 1000)
+    plt.axhline(0, linestyle='dashed')
+    plt.errorbar(x_vals, data, yerr=sigma, linestyle='None', marker='o',markersize=4, ecolor='black', markerfacecolor='black', markeredgecolor='black')
+    plt.plot(cannon_x, cannon_spec, linestyle='dashed', label='Canonical SZe Spectrum', color='blue', linewidth='0.8')
+    plt.legend(loc='best')
+    plt.xlabel('$\\nu$ [GHz]')
+    plt.ylabel('$\Delta$ $I_0$ [MJy/sr]')
+    # plt.set_position([0.7, 0.7, 0.95,0.95])
+    plt.savefig(config.OUTPUT + 'y_T_fits/%s_max_spectrum.png' % name)
+    plt.clf()
     # make_comp_image(name)
 
 

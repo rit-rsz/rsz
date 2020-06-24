@@ -141,12 +141,12 @@ def create_test_data():
     psw_sz = 0.11
     pmw_sz = 0.14
     plw_sz = 0.55
-    test_data = [bolo_sz, psw_sz, pmw_sz, plw_sz]
+    test_data = [bolo_sz, pmw_sz, plw_sz]
     bolo_sig = 0.053
     psw_sig = 0.05
     pmw_sig = 0.04
     plw_sig = 0.08
-    test_sigma = [bolo_sig, psw_sig, pmw_sig, plw_sig]
+    test_sigma = [bolo_sig, pmw_sig, plw_sig]
     psw = [psw_sz, psw_sig]
     return test_data, test_sigma, psw
 
@@ -200,7 +200,7 @@ def clus_likelihood(data, sigma, name='rxj1347',samples=10, psw=False):
     for i in range(len(ys)):
         for j in range(len(ts)):
             #calculate the chisquare value for each y, Te combination
-            chi_stat = chi_square_test(data, [sz_grid_0[i,j], sz_grid_1[i,j], sz_grid_2[i,j], sz_grid_3[i,j]], sigma)
+            chi_stat = chi_square_test(data, [sz_grid_0[i,j], sz_grid_2[i,j], sz_grid_3[i,j]], sigma)
             chi_grid[i,j] = chi_stat
             #calculate the likelihood from the chisquare value
             # like_li[i,j] = ( chi_stat **(df/2 - 1) * np.exp(-1 * chi_stat/2) ) / (2 ** (df/2) * gamma(df / 2))
@@ -300,7 +300,7 @@ def clus_likelihood(data, sigma, name='rxj1347',samples=10, psw=False):
     axs[1,0].set_ylim(0, 15)
     axs[1,0].contour(ys, ts, conf_interval, colors='gray')
     axs[1,0].scatter(ys[y_max], ts[t_max], marker='x', color='black', s=40, label='Best Fit y, Te Pair')
-    axs[1,0].scatter(1.29, 9.47, marker='^', color='white', zorder=3, s=40, label='Fiducial y, Te')
+    axs[1,0].scatter(1.29, 9.47, marker='^', color='white', zorder=3, s=40, label='Sayers+2019 y, Te')
     axs[1,0].legend()
 
     #fixing layout
@@ -334,16 +334,16 @@ def clus_likelihood(data, sigma, name='rxj1347',samples=10, psw=False):
 
     matplotlib.rcParams.update({'font.size': 10})
 
-    # data.append(psw[0])
-    # sigma.append(psw[1])
+    data.append(psw[0])
+    sigma.append(psw[1])
     #plot the best fitting spectrum with data points and the cannonical spectrum.
     # plt.title('$<y>_{R2500}$ = %.3E, $T_e$ = %.3F kev' % (ys[y_max], ts[t_max]))
     plt.plot(best_x,spec[y_max,t_max].flatten(), label='Best Fitting SZe Spectrum', alpha=0.8)
-    x_vals = [140.9, 1144, 829, 583]
+    x_vals = [140.9, 829, 583, 1144.24]
     plt.xlim(0, 1400)
     plt.axhline(0, linestyle='dashed', color='black')
     plt.errorbar(x_vals, data, yerr=sigma, linestyle='None', marker='o', markersize=2, color='black', zorder=3)
-    plt.plot(cannon_x, cannon_spec, linestyle='dashed', label='Canonical SZe Spectrum', color='blue', linewidth='0.8')
+    plt.plot(cannon_x, cannon_spec, linestyle='dashed', label='Non-Relativistic SZe Spectrum', color='blue', linewidth='0.8')
     plt.legend(loc='best')
     plt.xlabel('$\\nu$ [GHz]')
     plt.ylabel('$\Delta$ $I_0$ [MJy/sr]')

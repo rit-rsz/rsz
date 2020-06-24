@@ -161,7 +161,7 @@ def clus_sim_background(genbethermin=1,fluxcut=0,saveplots=1,savemaps=0,genpower
                 np.save(config.SIM + 'sides_cat/sides_cat_%s_%s.npy'%(bands[icol],isim),table,allow_pickle=True)
 
                 # reshape map to original SPIRE size
-                # outmap = outmap[0:maps[icol]['signal'].shape[0],0:maps[icol]['signal'].shape[1]]
+                outmap2 = outmap2[0:maps[icol]['signal'].shape[0],0:maps[icol]['signal'].shape[1]]
                 maps[icol]['signal'] = outmap2
 
                 # adding random noise to the signal map
@@ -171,7 +171,8 @@ def clus_sim_background(genbethermin=1,fluxcut=0,saveplots=1,savemaps=0,genpower
                     error =  np.array(maps[icol]['error']).flatten()
                     signal = np.array(maps[icol]['signal']).flatten()
                     noise = np.random.normal(scale=1.0,size=(maps[icol]['signal'].shape[0],maps[icol]['signal'].shape[1])).flatten()
-                    normalization = 2*np.pi*((3)/2.355)**2
+                    bmsigma = fwhm[icol] / math.sqrt(8 * math.log(2)) / pixsize[icol]
+                    normalization = 2*np.pi*(bmsigma)**2
 
                     for i in range(len(signal)):
                         if not math.isnan(error[i]) : #Jy/beam
@@ -189,7 +190,8 @@ def clus_sim_background(genbethermin=1,fluxcut=0,saveplots=1,savemaps=0,genpower
 
                     # save the current sim map in /data/sim_clusters
                     print('Savemaps set, saving maps in %s' %(config.CLUSSIMS))
-                    savefile = config.CLUSSIMS + clusters[iclust] + '/' + clusters[iclust] + '_' + bands[icol] + '_sim03%02d.fits' %(isim)
+                    # savefile = config.CLUSSIMS + clusters[iclust] + '/' + clusters[iclust] + '_' + bands[icol] + '_sim03%02d.fits' %(isim)
+                    savefile = config.SIM + clusters[iclust] + '_' + bands[icol] + '_sim03%02d.fits' %(isim)
 
                     # update the header to include modification history
                     map_head = maps[icol]['shead']
@@ -216,9 +218,9 @@ def clus_sim_background(genbethermin=1,fluxcut=0,saveplots=1,savemaps=0,genpower
                     hdul.append(pre_lense)
                     hdul.append(post_lense)
                     hdul.writeto(savefile,overwrite=True)
-            exit()
+                    exit()
 
 if __name__ == '__main__' :
     clus_sim_background(genbethermin=0,fluxcut=0,saveplots=0,savemaps=1,genpowerlaw=0,\
-                        genradave=1,addnoise=1,yeslens=1,resolution='nr',nsim=0,bolocam=0,\
+                        genradave=1,addnoise=1,yeslens=0,resolution='nr',nsim=0,bolocam=0,\
                         verbose=0,errmsg=None,superplot=0)

@@ -49,7 +49,6 @@ def clus_popmap(ltfile,maps,map_size,band,name,pixsize,fwhm,loz=None,superplot=0
     f.close()
 
     # add low redshift sources back into map
-    print(len(loz['x']))
     ra.extend(loz['x'])
     dec.extend(loz['y'])
     flux = [10.0**(-k/2.5) for k in mag]
@@ -93,20 +92,27 @@ def clus_popmap(ltfile,maps,map_size,band,name,pixsize,fwhm,loz=None,superplot=0
     x = np.array(x,dtype=np.float32)
     y = np.array(y,dtype=np.float32)
     flux = np.array(flux,dtype=np.float32)
-    pixel_per_beam = 2*np.pi*((3)/2.355)**2
-    psf, cf, nc, nbin = get_gaussian_psf_template(fwhm,pixel_fwhm=3.) # assumes pixel fwhm is 3 pixels in each band
-    sim_map = image_model_eval(y, x, pixel_per_beam*nc*flux, 0.0, (mapx, mapy), int(nc), cf)
+    print(fwhm,pixsize)
+    pixel_per_beam = 2*np.pi*((fwhm/pixsize)/2.355)**2 * 1.8
+    psf, cf, nc, nbin = get_gaussian_psf_template(fwhm,pixsize) # assumes pixel fwhm is 3 pixels in each band
+    sim_map = image_model_eval(y, x, pixel_per_beam*nc*flux, 0.0, (mapx, mapy), int(nc), cf)#lib = libmmult.pcat_model_eval)
     '''#############################################################################################################'''
 
     # if superplot:
     # plt.imshow(sim_map,extent=(0,300,0,300),clim=[0.0,0.15],origin=0)
-    plt.imshow(sim_map,clim=[0,0.01],origin=0)
+    sim_map = sim_map[0:mapy,0:mapx]
+    plt.imshow(sim_map,clim=[0,0.03],origin=0)
+    fin_index = np.logical_and(np.array(truthtable['flux']) > 0.002,np.logical_and(np.array(truthtable['x']) < mapy ,np.array(truthtable['y']) < mapx))
+    print(len(fin_index))
+    print(fin_index[0:10])
+    plt.scatter(truthtable['y'][fin_index],truthtable['x'][fin_index],s=2,c='r')
     plt.colorbar()
     plt.title('Clus Popmap: Lensed map')
     plt.savefig('lensedmap_' + name + '_' + band + '.png')
     plt.clf()
 
     if savemaps:
+        sim_map = sim_map[0:maps['signal'].shape[0],0:maps['signal'].shape[1]]
         hdx = fits.PrimaryHDU(maps['signal'],maps['shead'])
         sz = fits.PrimaryHDU(sim_map,hdx.header)
         # sz.writeto(config.SIMBOX + 'lensedmap_' + name + '_' + band + '.fits',overwrite=True)
@@ -114,9 +120,24 @@ def clus_popmap(ltfile,maps,map_size,band,name,pixsize,fwhm,loz=None,superplot=0
 
     return sim_map, truthtable
 
-def get_gaussian_psf_template(fwhm,pixel_fwhm=3., nbin=5):
+def get_gaussian_psf_template(fwhm,pixscale,pixel_fwhm=3.,nbin=5):
     nc = nbin**2
-    psfnew = Gaussian2DKernel(pixel_fwhm/2.355*nbin, x_size=125, y_size=125).array.astype(np.float32)
+    bmsigma = fwhm / math.sqrt(8 * math.log(2)) / pixscale
+    # bmsigma = fwhm / pixscale / 2.355
+    psfnew = Gaussian2DKernel(bmsigma*nbin, x_size=125, y_size=125).array.astype(np.float32)
     # psfnew2 = psfnew / np.max(psfnew)  * nc
     cf = psf_poly_fit(psfnew, nbin=nbin)
-    return psfnew, cf, nc, nbin
+    return psfnew,cf, nc, nbin
+
+# def get_gauss_beam(fwhm, pixscale, band, nfwhm=5.0, oversamp=1):
+#     retext = round(fwhm * nfwhm / pixscale)
+#     if retext % 2 == 0:
+#         retext += 1
+#
+#     bmsigma = fwhm / math.sqrt(8 * math.log(2))
+#
+#     beam = Gaussian2DKernel(bmsigma / pixscale, x_size=retext,
+#                             y_size=retext, mode='oversample',
+#                             factor=oversamp)
+#     beam *= 1.0 / beam.array.max()
+#     return beam

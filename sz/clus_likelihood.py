@@ -141,15 +141,16 @@ def create_test_data():
     psw_sz = 0.11
     pmw_sz = 0.14
     plw_sz = 0.55
-    test_data = [bolo_sz, pmw_sz, plw_sz]
+    test_data = [bolo_sz, psw_sz, pmw_sz, plw_sz]
     bolo_sig = 0.053
     psw_sig = 0.05
     pmw_sig = 0.04
     plw_sig = 0.08
-    test_sigma = [bolo_sig, pmw_sig, plw_sig]
-    return test_data, test_sigma
+    test_sigma = [bolo_sig, psw_sig, pmw_sig, plw_sig]
+    psw = [psw_sz, psw_sig]
+    return test_data, test_sigma, psw
 
-def clus_likelihood(data, sigma, name='rxj1347',samples=10):
+def clus_likelihood(data, sigma, name='rxj1347',samples=10, psw=False):
     '''
     Inputs: data (list) - a list of the dI values for each band must be in order ('BOLO', 'PMW', 'PLW')
             sigma (list) - a list of the associated uncertainties for the above dI values
@@ -199,7 +200,7 @@ def clus_likelihood(data, sigma, name='rxj1347',samples=10):
     for i in range(len(ys)):
         for j in range(len(ts)):
             #calculate the chisquare value for each y, Te combination
-            chi_stat = chi_square_test(data, [sz_grid_0[i,j], sz_grid_2[i,j], sz_grid_3[i,j]], sigma)
+            chi_stat = chi_square_test(data, [sz_grid_0[i,j], sz_grid_1[i,j], sz_grid_2[i,j], sz_grid_3[i,j]], sigma)
             chi_grid[i,j] = chi_stat
             #calculate the likelihood from the chisquare value
             # like_li[i,j] = ( chi_stat **(df/2 - 1) * np.exp(-1 * chi_stat/2) ) / (2 ** (df/2) * gamma(df / 2))
@@ -221,7 +222,7 @@ def clus_likelihood(data, sigma, name='rxj1347',samples=10):
     # t_max = np.where(t_likelihood == np.max(t_likelihood))
     y_max, t_max = np.where(like_norm == np.max(like_norm))
 
-
+    print('Chi Square for best fit is %.5E' % chi_grid[y_max, t_max])
     #find the confidence levels.
     low_y, up_y = confidence_levels(y_likelihood)
     low_t, up_t = confidence_levels(t_likelihood)
@@ -255,11 +256,12 @@ def clus_likelihood(data, sigma, name='rxj1347',samples=10):
     # axs[0,0].plot(ys, line)
     axs[0,0].plot(ys, y_likelihood)
     axs[0,0].axvline(ys[y_max], linestyle='dashed')
-    axs[0,0].axvline(ys[low_y], linestyle='dashed')
-    axs[0,0].axvline(ys[up_y], linestyle='dashed')
+    axs[0,0].axvline(ys[low_y], linestyle='dotted')
+    axs[0,0].axvline(ys[up_y], linestyle='dotted')
     axs[0,0].set_yticklabels([])
     axs[0,0].set_xticklabels([])
-    axs[0,0].set_xlim(0, np.max(ys))
+    axs[0,0].set_xlim(1.2, 2.4)
+    axs[0,0].set_ylim(0)
     axs[0,0].set_ylabel('Relative Likelihood')
 
     # plt.savefig(config.OUTPUT + 'y_T_fits/%s_ys_hist.png'%name)
@@ -271,12 +273,13 @@ def clus_likelihood(data, sigma, name='rxj1347',samples=10):
     # axs[1,1].plot(line, ts)
     axs[1,1].plot(t_likelihood, ts)
     axs[1,1].axhline(ts[t_max], linestyle='dashed')
-    axs[1,1].axhline(ts[low_t], linestyle='dashed')
-    axs[1,1].axhline(ts[up_t], linestyle='dashed')
+    axs[1,1].axhline(ts[low_t], linestyle='dotted')
+    axs[1,1].axhline(ts[up_t], linestyle='dotted')
     axs[1,1].set_yticklabels([])
     axs[1,1].set_xticklabels([])
     axs[1,1].set_xlabel('Relative Likelihood')
-    axs[1,1].set_ylim(0, np.max(ts))
+    axs[1,1].set_xlim(0)
+    axs[1,1].set_ylim(0, 15)
 
     # axs[1,0].savefig(config.OUTPUT + 'y_T_fits/%s_ts_hist.png'%name)
     # plt.clf()
@@ -293,11 +296,12 @@ def clus_likelihood(data, sigma, name='rxj1347',samples=10):
 
     # axs[1,0].colorbar().set_label('Normalized Likelihood')
     conf_interval = sum_confidence(like_norm)
+    axs[1,0].set_xlim(1.2,2.4)
+    axs[1,0].set_ylim(0, 15)
     axs[1,0].contour(ys, ts, conf_interval, colors='gray')
-    axs[1,0].scatter(ys[y_max], ts[t_max], marker='x', color='black')
-    axs[1,0].scatter(1.29, 9.47, marker='^', color='black')
-
-
+    axs[1,0].scatter(ys[y_max], ts[t_max], marker='x', color='black', s=40, label='Best Fit y, Te Pair')
+    axs[1,0].scatter(1.29, 9.47, marker='^', color='white', zorder=3, s=40, label='Fiducial y, Te')
+    axs[1,0].legend()
 
     #fixing layout
     fig.subplots_adjust(left=0.125, bottom=0.1, right=0.9, top=0.9, wspace=0, hspace=0)
@@ -306,6 +310,10 @@ def clus_likelihood(data, sigma, name='rxj1347',samples=10):
     fig.savefig(config.OUTPUT + 'y_T_fits/%s_y_T_analysis.png' % name)
     plt.clf()
 
+    # plt.pcolormesh(X, Y, like_li)
+    # plt.colorbar()
+    # plt.savefig(config.OUTPUT + 'y_T_fits/debug.png')
+    # plt.clf()
 
     #below is more math to create the cannonical SZ spec at Te = 0
     T_0     = 2.725                   #CMB temperature, K
@@ -326,13 +334,15 @@ def clus_likelihood(data, sigma, name='rxj1347',samples=10):
 
     matplotlib.rcParams.update({'font.size': 10})
 
+    # data.append(psw[0])
+    # sigma.append(psw[1])
     #plot the best fitting spectrum with data points and the cannonical spectrum.
     # plt.title('$<y>_{R2500}$ = %.3E, $T_e$ = %.3F kev' % (ys[y_max], ts[t_max]))
-    plt.plot(best_x,spec[y_max,t_max].flatten(), label='Best Fitting SZe Spectrum')
-    x_vals = [140.9, 856.55, 599.585]
-    plt.xlim(0, 1000)
-    plt.axhline(0, linestyle='dashed')
-    plt.errorbar(x_vals, data, yerr=sigma, linestyle='None', marker='o',markersize=4, ecolor='black', markerfacecolor='black', markeredgecolor='black')
+    plt.plot(best_x,spec[y_max,t_max].flatten(), label='Best Fitting SZe Spectrum', alpha=0.8)
+    x_vals = [140.9, 1144, 829, 583]
+    plt.xlim(0, 1400)
+    plt.axhline(0, linestyle='dashed', color='black')
+    plt.errorbar(x_vals, data, yerr=sigma, linestyle='None', marker='o', markersize=2, color='black', zorder=3)
     plt.plot(cannon_x, cannon_spec, linestyle='dashed', label='Canonical SZe Spectrum', color='blue', linewidth='0.8')
     plt.legend(loc='best')
     plt.xlabel('$\\nu$ [GHz]')
@@ -347,5 +357,5 @@ def clus_likelihood(data, sigma, name='rxj1347',samples=10):
 
 if __name__ == '__main__' :
 
-    data, sigma = create_test_data()
-    clus_likelihood(data, sigma, name='rxj1347',samples=100)
+    data, sigma, psw = create_test_data()
+    clus_likelihood(data, sigma, name='rxj1347',samples=100, psw=psw)

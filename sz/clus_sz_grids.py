@@ -35,7 +35,6 @@ def create_grid(name, grid_hw):
             - an array of ys values
             - an array of ts values
     '''
-    band_w = [2140, 262.0563,361.63 ,514]
     bands = ['BOLOCAM', 'PSW', 'PMW', 'PLW']
 
     T_0     = 2.725                   #CMB temperature, K
@@ -45,7 +44,7 @@ def create_grid(name, grid_hw):
     GHztoHz = 1.0e9                   #GHz -> Hz
 
     #later on will want to not have the intervals hard coded into the script.
-    y_in = np.linspace(0, 12e-4, grid_hw)
+    y_in = np.linspace(0, 15e-4, grid_hw)
     t_in = np.linspace(0, 20, grid_hw)
 
     #this is some math to calculate the cannonical effect when Te is set to zero.
@@ -69,7 +68,7 @@ def create_grid(name, grid_hw):
                 spec = thermal(v, I, y_in[i])
                 spec_y[i, j, :] = spec
                 spec_x[i, j, :] = v
-                wavelen = [clus_get_lambdas(bandi) for bandi in bands]
+                wavelen = [clus_get_lambdas(bandi, True) for bandi in bands]
                 v_band = [h * waveleni / (k_B * T_0) for waveleni in wavelen]
                 dI = [thermal(v_bandi, I, y_in[i]) for v_bandi in v_band]
                 bolo_sz_grid[i, j] = dI[0]

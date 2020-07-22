@@ -24,7 +24,7 @@ def interp_band_to_band(img, ref_map, map):
     #create a grid of RA/DEC coordinates for image we want to interpolate
     w = world(map['shead'])
 
-    #holder for the x, y pixel coordinates that we want.
+    #holder for the x, y pixel coordinates that we want. 
     x = np.arange(0, map_size[0])
     y = np.arange(0, map_size[1])
     xvec = np.repeat(x[:, np.newaxis], map_size[1], axis=1)

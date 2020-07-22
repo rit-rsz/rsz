@@ -182,7 +182,7 @@ def clus_add_sziso_new(maps,isim,yin=0,tin=0,params=None,
         # converted to Jy/beam
 
         hdtemp = fits.PrimaryHDU(szmap1, temphead)
-        hdtemp.writeto(config.OUTPUT + 'sz_fit/bolo_fit_template.fits', overwrite=True)
+        hdtemp.writeto(config.OUTPUT + 'sz_fit/bolo_fit_template%s.fits' % isim, overwrite=True)
 
         szin = [x * dI/ maps[imap]['calfac'] for x in szmap1]  #
         final_dI.append(dI / maps[imap]['calfac'])
@@ -220,22 +220,32 @@ def clus_add_sziso_new(maps,isim,yin=0,tin=0,params=None,
             if retext % 2 == 0:
                 retext += 1
             bmsigma = fwhm / math.sqrt(8 * math.log(2))
-            beam = Gaussian2DKernel(bmsigma / pixscale, x_size=retext,y_size=retext, mode='oversample',factor=1)
-            beam *= 1.0 / beam.array.max()
-            out_map = convolve(szinp, beam, boundary='wrap')
+            beam = np.asarray(Gaussian2DKernel(bmsigma / pixscale, x_size=retext,y_size=retext, mode='oversample',factor=1))
+            n_beam = beam / np.sum(beam) #the input bolocam map is a surface brightness so we need to normalize over area
+            out_map = convolve(szinp, n_beam, boundary='wrap')
 
-            maps[imap]['signal'] = out_map
-            maps[imap]['srcrm'] = out_map #for testing
+            maps[imap]['signal'] = maps[imap]['signal'] + out_map
+            # maps[imap]['srcrm'] = out_map #for testing
             # maps[imap]['signal'] = maps[imap]['error'] + out_map
 
         # Used to check the alligned sz effect image
         if saveplot:
-            filename = config.OUTPUT + 'sim_sz/' + maps[imap]['name'] + '_sze_' + maps[imap]['band'] + '_' + str(isim) + '.png'
+            filename = config.OUTPUT + 'sim_sz/' + maps[imap]['name'] + '_sze+signal_' + maps[imap]['band'] + '_' + str(isim) + '.png'
             plt.imshow(maps[imap]['signal'],origin=0)
             plt.title('Clus Add Sziso : SZE + Signal Map %s' %(maps[imap]['band']))
             plt.colorbar().set_label('[Jy]')
+            plt.clim(-0.1,0.1)
             plt.savefig(filename)
             plt.clf()
+
+            filename = config.OUTPUT + 'sim_sz/' + maps[imap]['name'] + '_sze_' + maps[imap]['band'] + '_' + str(isim) + '.png'
+            plt.imshow(out_map, origin=0)
+            plt.title('Clus Add Sziso : SZE + Signal Map %s' %(maps[imap]['band']))
+            plt.clim(-0.1,0.1)
+            plt.colorbar().set_label('[Jy]')
+            plt.savefig(filename)
+            plt.clf()
+
             savefile = config.OUTPUT + 'sim_sz/' + maps[imap]['name'] + '_sze_' + maps[imap]['band'] + '_' + str(isim) + '.fits'
             hda = fits.PrimaryHDU(maps[imap]['signal'],maps[imap]['shead'])
             hda.writeto(savefile,overwrite=True)

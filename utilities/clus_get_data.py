@@ -19,11 +19,12 @@ from math import *
 from astropy.io import fits
 import os
 import sys
-sys.path.append('utilities/')
 from get_spire_beam import *
 from get_spire_beam_fwhm import *
 import config
 import matplotlib.pyplot as plt
+sys.path.append('/home/bjv7945/rsz/Planck_Model')
+from cirrus_priors import one_map
 
 def clus_get_data(clusname, isim,manpath=0, resolution = 'nr', bolocam=None,
             verbose = 1, version = '1', manidentifier=None, sgen=None):
@@ -139,14 +140,13 @@ def clus_get_data(clusname, isim,manpath=0, resolution = 'nr', bolocam=None,
 
     maps.sort(key = lambda x : sort_order[x['band']])
 
-    print('HELLO!!!!!')
-
     return maps, errmsg
 
 ##################################################################################################
 ##################################################################################################
 
 def clus_read_file(file, clusname, verbose=0, sgen=None):
+
 
     #set the band based off of what is in the filename
     if 'PSW' in file:
@@ -158,17 +158,25 @@ def clus_read_file(file, clusname, verbose=0, sgen=None):
 
     #collect data from the files file.
     hdul = fits.open(file)
+
     if sgen == None :
         img = hdul[1] #image object
         err = hdul[2] #error map
         exp = hdul[3] #exposure map
         mask = hdul[4] #mask map
-
+        #only do the below steps for real data.
+        planck, iris = one_map(name, map)
+        planck_hdu = fits.ImageHdu(planck, shead)
+        iris_hdu   = fits.ImageHdu(iris, shead)
+        hdul.append(planck_hdu)
+        hdul.append(iris_hdu)
+        hdu.writeto(file, overwrite=True)
     elif int(sgen) == 3 :
         img = hdul['signal'] #image object
         err = hdul['error'] #error map
         exp = hdul['exp'] #exposure map
         mask = hdul['mask'] #mask map
+        noise = hdul['noise']
 
     else :
         img = hdul[1] #image object
@@ -211,35 +219,6 @@ def clus_read_file(file, clusname, verbose=0, sgen=None):
     calfac = 1 / (config.calfac * (get_spire_beam_fwhm(band))**2) #calibration factor based off of FWHM of our beam.
 #   Gets header information from a fits image. Astropy should be able to do this
     #This is potentially depreciated.
-    astr = {}
-    try:
-        cd11 = img.header['CD1_1']
-        cd12 = img.header['CD1_2']
-        cd21 = img.header['CD2_1']
-        cd22 = img.header['CD2_2']
-    except KeyError:
-        pass # i don't like the way this is coded probably have to change it later
-    for keys in img.header.keys():
-        if 'NAXIS' in keys:
-            astr.update({keys : img.shape})
-        if 'CD1_1' in keys:
-            x =  np.array([[cd11, cd12], [cd21, cd22]])
-            astr.update({'CD' : x})
-        if 'CDELT' in keys:
-            astr.update({keys : img.header[keys]})
-        if 'CRPIX1' in keys:
-            x = np.array([img.header['CRPIX1'], img.header['CRPIX2']])
-            astr.update({'CRPIX' : x})
-        if 'CTYPE1' in keys:
-            x = np.array([img.header['CTYPE1'], img.header['CTYPE2']])
-            astr.update({'CTYPE' : x})
-        if 'CRVAL1' in keys:
-            x = np.array([img.header['CRVAL1'], img.header['CRVAL2']])
-            astr.update({'CRVAL' : x})
-        if 'LONGPOLE' in keys:
-            astr.update({keys : img.header[keys]})
-        if 'LATPOLE' in keys:
-            astr.update({keys : img.header[keys]})
 
 
     head = img.header
@@ -250,25 +229,27 @@ def clus_read_file(file, clusname, verbose=0, sgen=None):
     flag = np.zeros(img.shape)
 
     #put everything into a dictionary.
-    maps = {'name':clusname, #check
-          'file':file, #check
-          'band':band, #check
-          'signal':img.data, #check
-          'srcrm':srcrm, #check
-          'xclean':xclean, #check
-          'error':err.data, #check
-          'mask':mask.data, #check
-          'flag':flag, #check
-          'exp':exp, #check
-          'shead':head, #nope
-          'ehead':herr, #nope
-          'astr':astr, #check
-          'pixsize':pixsize, #check
-          'psf':psf, #check
-          'width':width, #check
-          'widtha':widtha, #check
-          'calfac':calfac, #check
-          'JY2MJy':config.JY2MJy} #check
+    maps = {'name':clusname,
+          'file':file,
+          'band':band,
+          'signal':img.data,
+          'srcrm':srcrm,
+          'xclean':xclean,
+          'iris': iris,
+          'planck': planck,
+          'error':err.data,
+          'mask':mask.data,
+          'noise' : noise.data,
+          'flag':flag,
+          'exp':exp,
+          'shead':head,
+          'ehead':herr,
+          'pixsize':pixsize,
+          'psf':psf,
+          'width':width,
+          'widtha':widtha,
+          'calfac':calfac,
+          'JY2MJy':config.JY2MJy}
 
 
     return maps

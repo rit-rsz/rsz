@@ -138,14 +138,14 @@ def create_test_data():
     '''
 
     bolo_sz = -0.940
-    psw_sz = 0.11
-    pmw_sz = 0.14
-    plw_sz = 0.55
+    psw_sz = 0.09
+    pmw_sz = 0.17
+    plw_sz = 0.54
     test_data = [bolo_sz, pmw_sz, plw_sz]
     bolo_sig = 0.053
-    psw_sig = 0.05
+    psw_sig = 0.04
     pmw_sig = 0.04
-    plw_sig = 0.08
+    plw_sig = 0.06
     test_sigma = [bolo_sig, pmw_sig, plw_sig]
     psw = [psw_sz, psw_sig]
     return test_data, test_sigma, psw
@@ -333,7 +333,7 @@ def clus_likelihood(data, sigma, name='rxj1347',samples=10, psw=False):
     best_x = np.multiply(T_0 * k_B / (h * 1e9), xaxis[y_max, t_max].flatten())
 
     matplotlib.rcParams.update({'font.size': 10})
-
+    
     data.append(psw[0])
     sigma.append(psw[1])
     #plot the best fitting spectrum with data points and the cannonical spectrum.

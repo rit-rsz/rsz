@@ -1,4 +1,17 @@
-from astropy.io import fits
+################################################################################
+# NAME : clus_new_fitsz
+# DATE STARTED : May 25, 2020
+# AUTHORS : Victoria Butler & Benjamin Vaughan
+# PURPOSE :
+#
+# EXPLANATION :
+# CALLING SEQUENCE :
+# INPUTS :
+#           nsims (number of simulations/files to read in)
+#
+# OUTPUTS :
+# REVISION HISTORY :
+################################################################################# from astropy.io import fits
 import numpy as np
 from math import *
 import sys
@@ -16,6 +29,7 @@ from astropy.convolution import convolve_fft as convolve
 from scipy.optimize import curve_fit
 import math
 
+# np.random.seed(102793)
 
 def chi_square_test(data,model,sigma):
     total_chi = []
@@ -44,16 +58,23 @@ def clus_new_fitsz(maps, saveplot=0, nsim=None):
         error_test = np.multiply(error_map, maps[i]['calfac'])
         error = error_map.flatten()
 
-        noise_map = np.random.normal(loc=0, scale=1.0,size=(maps[i]['signal'].shape[0],maps[i]['signal'].shape[1]))
+        noise_map = maps[i]['noise']
+
+        # plt.imshow(noise_map, origin='lower')
+        # plt.title('Bolocam Template_%s' % maps[i]['band'])
+        # plt.colorbar()
+        # plt.savefig(config.OUTPUT + 'sz_fit/fitsz_in_temp%s%s.png' % (maps[i]['band'], nsim))
+        # plt.clf()
+        # noise_map = np.random.normal(loc=0, scale=1.0,size=(maps[i]['signal'].shape[0],maps[i]['signal'].shape[1]))
         noise = noise_map.flatten()
 
         for j in range(len(noise)):
             if not math.isnan(error[j]) : #Jy/beam
-                noise[j] = error[j]*noise[j]*maps[i]['calfac']
+                noise[j] = maps[i]['calfac']*noise[j]
 
         noise_map = np.reshape(noise, maps[i]['signal'].shape)
 
-        szinp = hcongrid(base_model, header, maps[i]['shead'])
+        bolo_temp = hcongrid(base_model, header, maps[i]['shead'])
 
         fwhm = maps[i]['widtha']
         pixscale = maps[i]['pixsize']
@@ -62,10 +83,9 @@ def clus_new_fitsz(maps, saveplot=0, nsim=None):
             retext += 1
         bmsigma = fwhm / math.sqrt(8 * math.log(2))
         beam = Gaussian2DKernel(bmsigma / pixscale, x_size=retext,y_size=retext, mode='oversample',factor=1)
-        beam *= 1 / beam.array.max()
-        model = convolve(szinp, beam, boundary='wrap')
+        beam *= 1 / np.sum(beam.array)
+        model = convolve(bolo_temp, beam, boundary='wrap')
 
-        image = np.zeros(maps[i]['srcrm'].shape)
         for j in range(maps[i]['signal'].shape[0]):
             for k in range(maps[i]['signal'].shape[1]):
                 if maps[i]['mask'][j,k] == 0 :
@@ -73,56 +93,56 @@ def clus_new_fitsz(maps, saveplot=0, nsim=None):
                     maps[i]['srcrm'][j,k] = np.nan
                     noise_map[j,k] = np.nan
                 else:
-                    maps[i]['signal'][j,k] *= maps[i]['calfac']
+                    maps[i]['srcrm'][j,k] *= maps[i]['calfac']
+
+        image = maps[i]['srcrm']
+        #
+        # plt.imshow(maps[i]['srcrm'], origin='lower')
+        # plt.title('SZ without noise_ %s' % maps[i]['band'])
+        # plt.colorbar()
+        # plt.savefig(config.OUTPUT + 'sz_fit/sz_no_noise%s%s.png' % (maps[i]['band'], nsim))
+        # plt.clf()
+        #
+        # plt.imshow(noise_map, origin='lower')
+        # plt.title('Noise Map_%s' % maps[i]['band'])K
+        # plt.colorbar()
+        # plt.savefig(config.OUTPUT + 'sz_fit/noise_map%s%s.png' % (maps[i]['band'], nsim))
+        # plt.clf()
 
 
-        plt.imshow(maps[i]['signal'], origin='lower')
-        plt.title('SZ without noise_ %s' % maps[i]['band'])
-        plt.colorbar()
-        plt.savefig(config.OUTPUT + 'sz_fit/sz_no_noise%s%s.png' % (maps[i]['band'], nsim))
-        plt.clf()
-
-
-        image = np.add(maps[i]['signal'], noise_map)
-
-
-        plt.imshow(noise_map, origin='lower')
-        plt.title('Noise Map_%s' % maps[i]['band'])
-        plt.colorbar()
-        plt.savefig(config.OUTPUT + 'sz_fit/noise_map%s%s.png' % (maps[i]['band'], nsim))
-        plt.clf()
-
-
-        plt.imshow(image, origin='lower')
-        plt.title('Input SZ effect_%s' % maps[i]['band'])
+        plt.imshow(image, origin='lower', clim=(-0.1, 0.1))
+        plt.title('Input SZ effect %s %s' % (maps[i]['band'], nsim))
         plt.colorbar()
         plt.savefig(config.OUTPUT + 'sz_fit/fitsz_in_map%s%s.png' % (maps[i]['band'], nsim))
         plt.clf()
 
-
         plt.imshow(model, origin='lower')
-        plt.title('Bolocam Template_%s' % maps[i]['band'])
+        plt.title('Bolocam Template %s' % maps[i]['band'])
         plt.colorbar()
         plt.savefig(config.OUTPUT + 'sz_fit/fitsz_in_temp%s%s.png' % (maps[i]['band'], nsim))
         plt.clf()
 
+        flat_im = image.flatten()
+        flat_mod = model.flatten()
 
-        x_data = [x for x in model.flatten() if not np.isnan(x)]
-        y_data = [y for y in image.flatten() if not np.isnan(y)]
-        noise_data = [1 / n for n in noise_map.flatten() if not np.isnan(n)] #polyfit wants weights as 1 / sigma
-        sigma_data = [n for n in noise_map.flatten() if not np.isnan(n)]
+        x_data = [flat_mod[i] for i in range(len(flat_mod)) if not np.isnan(noise[i])]
+        y_data = [flat_im[i] for i in range(len(flat_im)) if not np.isnan(noise[i])]
+        # noise_data = [1 / n for n in noise_map.flatten() if not np.isnan(n)] #polyfit wants weights as 1 / sigma
+        sigma_data = [n for n in noise if not np.isnan(n)]
 
 
-        z, cov = np.polyfit(x_data,y_data,1, cov=True, w = noise_data)
-        print(z)
+        print(len(x_data), len(y_data), len(sigma_data))
+        # z, cov = np.polyfit(x_data,y_data,1, cov=True),# w = noise_data)
+
+        params, cov = curve_fit(fitting_func, x_data, y_data, sigma=sigma_data)
         e = np.sqrt(np.diag(cov))
-        p = np.poly1d(z)
-        intercept = z[1]
+        # p = np.poly1d(z)
+        intercept = params[1]
         intercept_error = e[1]
-        slope = z[0]
+        slope = params[0]
         slope_error = e[0]
         y_fit = [slope * x + intercept for x in x_data]
-        fit[i] = z
+        fit[i] = params
         chi_square = chi_square_test(y_data ,y_fit, sigma_data)
         red_chi_square = chi_square / len(y_data)
 
@@ -144,7 +164,7 @@ def clus_new_fitsz(maps, saveplot=0, nsim=None):
             plt.legend()
             plt.xlabel('Model Flux [Unitless]')
             plt.ylabel('Image Flux [MJy/Sr]')
-            plt.title('SZ Fit for %s' % band[i])
+            plt.title('SZ Fit for %s %s' % (maps[i]['band'], nsim))
             # plt.xlim(-0.005,0.005)
             plt.savefig(config.OUTPUT + 'sz_fit/rxj1347_%s_%s.png' % (maps[i]['band'], nsim)) #rxj1347 placeholder for clusname.
             plt.clf()

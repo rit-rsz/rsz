@@ -61,7 +61,7 @@ def lense(catalogue, lens_z, searchlensed, file_dfx, file_dfy, LL, pixsize=0.25,
 
 	Inputs:
 	catalogue (npy filename)- the catalogue of point sources to be lensed, should have locations in arcseconds and centered at (0,0)
-	#format should be a rec array with keys of RA, DEC, Flux, Redshift.
+	#format should be a rec array with keys of RA (arcs), DEC (arcs), Flux (Jy), Redshift.
 	lens_z (float_)- the red shift of the cluster.
 	searchlensed (float)- parameter to determine if lensed sources can be extended
 	file_dfx (txt filename)- the deflection field in x
@@ -195,8 +195,8 @@ def lense(catalogue, lens_z, searchlensed, file_dfx, file_dfy, LL, pixsize=0.25,
 	dfredz = cat.item().get('Redshift')
 
 	# Convert coordinates from degrees to pixels in the larger WL frame
-	xx = (dfxx * 3600 + LL * 30)/ pixsize
-	yy = (dfyy * 3600 + LL * 30)/ pixsize
+	xx = (dfxx + LL * 30)/ pixsize
+	yy = (dfyy + LL * 30)/ pixsize
 
 	# Number of sources in catalogue
 	nsources = len(xx)
@@ -538,7 +538,7 @@ if __name__ == '__main__':
 	plt.title('After Lensing')
 	plt.imshow(after_lense, origin='lower')
 	plt.colorbar()
-	# plt.savefig('1600_after_lense.png')
+	plt.savefig('1600_after_lense.png')
 	plt.show()
 	plt.clf()
 

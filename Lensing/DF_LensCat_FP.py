@@ -507,8 +507,8 @@ def lense(catalogue, lens_z, searchlensed, file_dfx, file_dfy, LL, pixsize=0.25,
 	                mu_out.append(mmu[j])
 	                f_out.append(dfflux[i])
 
-	x_out = np.asarray(x_out)
-	y_out = np.asarray(y_out)
+	x_out = np.asarray(x_out) * pixsize #convert back to arcseconds
+	y_out = np.asarray(y_out) * pixsize #convert back to arcseconds
 	f_out = np.asarray(f_out)
 	mu_out = np.asarray(mu_out)
 
@@ -529,8 +529,8 @@ if __name__ == '__main__':
 	LL = 16.6
 	lense_x, lense_y, flux = lense(catalogue, lens_z, searchlensed, file_dfx, file_dfy, LL, pixsize=0.25, SLregime=2, main_source_z=1.75, DefField_Norm=None)
 
-	lense_x = lense_x * 0.25 / 6
-	lense_y = lense_y * 0.25 / 6
+	lense_x = lense_x / 6 #6 is psw pixsize
+	lense_y = lense_y / 6
 
 	psf, cf, nc, nbin = get_gaussian_psf_template(3) # assumes pixel fwhm is 3 pixels in each band
 

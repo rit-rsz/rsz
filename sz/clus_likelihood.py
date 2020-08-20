@@ -1,9 +1,9 @@
 ################################################################################
-# NAME : test.py
-# DATE STARTED : October 25, 2019
-# AUTHORS : Victoria Butler , Benjamin Vaughan
-# PURPOSE : This code is just for a first test run of actually running through
-# the whole data analysis pipeline and returning graphs of the results.
+# NAME : clus_likelihood
+# DATE STARTED : Febuary 25th, 2020
+# AUTHORS :  Benjamin Vaughan, Victoria Butler
+# PURPOSE : This code is meant to do the likelihood analysis for the y, Te values
+# for a cluster given the dI of the SZe effect in Mjy / Sr with some uncertainty.
 # EXPLANATION :
 # CALLING SEQUENCE :
 # INPUTS :
@@ -12,72 +12,171 @@
 # REVISION HISTORY :
 ################################################################################
 import sys
-sys.path.append('utilities')
+sys.path.append('../utilities')
 sys.path.append('source_handling')
 sys.path.append('reduc')
 sys.path.append('sz')
-from clus_szgf import *
-from clus_sim_hist import *
+# from clus_sim_hist import *
 import config
 from scipy.stats import norm, chi2
 import matplotlib.pyplot as plt
 from matplotlib.patches import Ellipse
+import matplotlib
 import numpy as np
 from IB_model import *
 from random import *
+from PIL import Image
+from clus_get_relsz import *
+from clus_sz_grids import *
+from scipy.stats import rv_discrete
+from scipy.interpolate import griddata
+from scipy.special import gamma
+from scipy.optimize import curve_fit
+
+def fit_func(x, a, b, c):
+    return a * np.exp(-1 * (x - b)**2 / (2*c**2))
+
+def delta_chi_square_test(data, data_sig, y_nom, t_nom, t_sig):
+    bolo_dI, x_pos, spectrum, xaxis = run_szpack('BOLOCAM', y_nom, t_nom + t_sig)
+    PMW_dI, x_pos, spectrum, xaxis = run_szpack('PMW', y_nom, t_nom + t_sig)
+    PLW_dI, x_pos, spectrum, xaxis = run_szpack('PLW', y_nom, t_nom + t_sig)
+    ref_bolo_dI, x_pos, spectrum, xaxis = run_szpack('BOLOCAM', y_nom, t_nom)
+    ref_PMW_dI, x_pos, spectrum, xaxis = run_szpack('PMW', y_nom, t_nom)
+    ref_PLW_dI, x_pos, spectrum, xaxis = run_szpack('PLW', y_nom, t_nom)
+
+    model = [bolo_dI, PMW_dI, PLW_di]
+    chi1 = chi_square_test(data,model,data_sig)
+
+    model = [ref_bolo_dI, ref_PMW_dI, ref_PLW_dI]
+    chi2 = chi_square_test(data,model,data_sig)
+
+    diff = chi1 - chi2
+    print(diff)
+
+
+
+def thermal(v, I, y):
+    '''
+    This is for use in calculating the cannonical effect for over plotting on top of the output graph
+    Inputs: v (float array) - dimensionless frequency (see Carlstrom 2012)
+            I (float) - Intensity
+            y (float) - the compton y parameter ( this should be y_0 not y_{R2500})
+    Outputs: outputs a spectrum of the SZe effect at the given frequencies.
+    '''
+    func1 = (((v**4)*np.exp(v))/(np.exp(v)-1)**2) * ((v*((np.exp(v) + 1)/(np.exp(v) - 1)))-4)
+    return func1*(I*y)
+
+def confidence_levels(data):
+    '''
+    Here we calculate the 1 sigma confidence intervals of the histogram plots
+    for y, and Te.
+    Inputs: data (float array) - this is meant to be a 1D array of data points representing the likelihood of the parameter of interest
+    Outputs: lower (int) - an integer value corresponding to the index of the lower confidence level
+             upper (int) - an integer value corresponding to the index of the upper confidence level
+    '''
+    sum = 0
+    arr = data.copy() #copy the array so we don't have pass by reference issues and set our data array to zero.
+    while sum < 0.683: #0.683 is the decimal percent for 1 sigma.
+        #find the maximum likelihood, add that value to a summer and then set the array at that index to zero.
+        #repeat this process until the sum is at the confidence level that we want.
+        max_x = np.where(arr == np.amax(arr))
+        max = arr[max_x[0]]
+        sum += max
+        arr[max_x[0]] = 0
+    #this array represents the locations of all the zeros where we found a maximum in the likelihood array.
+    #assuming that all points are initially non-zero and that the graph is continous the edges of this array should correspond
+    #to the confidence intervals
+    conf_integral = np.where(arr == 0)[0]
+    lower = conf_integral[0] #pick out the lower edge
+    upper = conf_integral[-1] #pick out the upper edge
+    return lower, upper
 
 def sum_confidence(data):
+    '''
+    In this routine we want to calculate the confidence contours. We do that by iterativley looking through the array for
+    the next highest maximum likelihood and adding it to a sum. Once that sum reaches a critical value (i.e 1 sigma, 2 sigma, or 3 sigma)
+    we move on to the next confidence interval. In doing this process we set a 2D array of (M, M) to values of 1, 2, or 3 corresponding to
+    the confidence level at that point in the 2D likelihood plot.
+    Inputs: data (float array) - an (M,M) array of data points corresponding to a 2D chart of the likelihood for y, Te values.
+    Outputs:  conf_arr (float array) - an (M, M) array of values at 1, 2, 3 corresponding to 1 sigma, 2sigma, or 3 sigma on the
+    likelihood graph.
+    '''
     sum = 0
     conf_arr = np.zeros(data.shape)
-    while sum < .683:
-        max_x, max_y = np.where(arr == np.amax(data))
+    while sum < 0.683: #1 sigma confidence level
+        max_x, max_y = np.where(data == np.amax(data))
         max = data[max_x[0], max_y[0]]
         conf_arr[max_x[0], max_y[0]] = 3
         data[max_x[0], max_y[0]] = 0
         sum += max
-    while sum < .955:
+    while sum < .955: #2sigma confidence level
         max_x, max_y = np.where(data == np.amax(data))
         max = data[max_x[0], max_y[0]]
         conf_arr[max_x[0], max_y[0]] = 2
         data[max_x[0], max_y[0]] = 0
         sum += max
-    while sum < .997:
-        max_x, max_y = np.where(data == np.amax(data))
-        max = data[max_x[0], max_y[0]]
-        conf_arr[max_x[0], max_y[0]] = 1
-        data[max_x[0], max_y[0]] = 0
-        sum += max
+    # while sum < .997: #3 sigma confidence level
+    #     max_x, max_y = np.where(data == np.amax(data))
+    #     max = data[max_x[0], max_y[0]]
+    #     conf_arr[max_x[0], max_y[0]] = 1
+    #     data[max_x[0], max_y[0]] = 0
+    #     sum += max
     return conf_arr
 
 def chi_square_test(data,model,sigma):
-    total_chi = []
-    for i in range(3):
-        total_chi.append((data[i] - model[i])**2 / (sigma[i]**2))
-    return np.sum(total_chi)/2.0
+    #this is a standard chi_squared calculation
+    chi_ele = []
+    for i in range(len(data)):
+        chi_ele.append((data[i] - model[i])**2 / sigma[i]**2)
+    return np.sum(chi_ele)
 
-def clus_likelihood(nsim=0,name='rxj1347',samples=10):
+def create_test_data():
+    '''
+    this is for testing, eventually we will integrate this into more of a pipeline and not have to pass in the arguments like this.
+    all this script does is take the values for dI that we have computed thus far and put them into a format that the likelihood analysis
+    script can use.
+    '''
 
-    # yt_grid and sz_grid should be indexed the same
-    if os.path.isfile(config.OUTPUT + '%s_sz_grid.npy' %(name)):
-        sz_grid_0 = np.load(config.OUTPUT + '%s_sz_grid_0.npy' %(name),allow_pickle=True)
-        sz_grid_1 = np.load(config.OUTPUT + '%s_sz_grid_1.npy' %(name),allow_pickle=True)
-        sz_grid_2 = np.load(config.OUTPUT + '%s_sz_grid_2.npy' %(name),allow_pickle=True)
-        input_yt = np.load(config.OUTPUT + '%s_input_grid.npy' %(name),allow_pickle=True)
-        param_grid = np.load(config.OUTPUT + '%s_param_grid.npy' %(name))
-        ys = np.load(config.OUTPUT + '%s_y.npy' %(name))
-        ts = np.load(config.OUTPUT + '%s_t.npy' %(name))
-        master_x_0 = np.load(config.OUTPUT + '%s_master_x_0.npy'%(name),allow_pickle=True)
-        master_x_1 = np.load(config.OUTPUT + '%s_master_x_1.npy'%(name),allow_pickle=True)
-        master_x_2 = np.load(config.OUTPUT + '%s_master_x_2.npy'%(name),allow_pickle=True)
-        master_y = np.load(config.OUTPUT + '%s_master_y.npy'%(name),allow_pickle=True)
-        master_array = np.load(config.OUTPUT + '%s_x_array.npy'%(name),allow_pickle=True)
-        terp_x_0 = np.load(config.OUTPUT + '%s_spectrum_x_0.npy'%(name),allow_pickle=True)
-        terp_x_1 = np.load(config.OUTPUT + '%s_spectrum_x_1.npy'%(name),allow_pickle=True)
-        terp_x_2 = np.load(config.OUTPUT + '%s_spectrum_x_2.npy'%(name),allow_pickle=True)
-        terp_y = np.load(config.OUTPUT + '%s_spectrum_y.npy'%(name),allow_pickle=True)
-        xaxis = np.load(config.OUTPUT + '%s_x_array.npy'%(name),allow_pickle=True)
-    else :
-        sz_grid_0, sz_grid_1, sz_grid_2, terp_x_0, terp_x_1, terp_x_2, input_yt, ys, ts, real_terp_x, real_terp_y, xaxis, real_x_0, real_x_1, real_x_2, terp_y = clus_szgf(nsim,name,samples) # input_yt should have one DI for each band
+    bolo_sz = -0.940
+    psw_sz = 0.09
+    pmw_sz = 0.17
+    plw_sz = 0.54
+    test_data = [bolo_sz, pmw_sz, plw_sz]
+    bolo_sig = 0.053
+    psw_sig = 0.04
+    pmw_sig = 0.04
+    plw_sig = 0.06
+    test_sigma = [bolo_sig, pmw_sig, plw_sig]
+    psw = [psw_sz, psw_sig]
+    return test_data, test_sigma, psw
+
+def clus_likelihood(data, sigma, name='rxj1347',samples=10, psw=False):
+    '''
+    Inputs: data (list) - a list of the dI values for each band must be in order ('BOLO', 'PMW', 'PLW')
+            sigma (list) - a list of the associated uncertainties for the above dI values
+            name (str) - the name of the cluster of interest
+            samples (int) (depreciated) - the length / width of the look up grid.
+    Outputs: y, Te values with uncertainties and creates a corner contour plot of the uncertainties
+             and a best fit plot for the most probable y, Te values with the cannonical spectrum at Te = 0 for reference
+    '''
+
+
+    if not os.path.isfile(config.OUTPUT + 'sz_grids/%s_sz_grid_BOLO.npy' %(name)):
+        print('No grids detected for grid search, please run clus_sz_grid.py')
+    sz_grid_0 = np.load(config.OUTPUT + 'sz_grids/%s_sz_grid_BOLO.npy' % (name), allow_pickle=True)
+    sz_grid_1 = np.load(config.OUTPUT + 'sz_grids/%s_sz_grid_PSW.npy' % (name), allow_pickle=True)
+    sz_grid_2 = np.load(config.OUTPUT + 'sz_grids/%s_sz_grid_PMW.npy' % (name), allow_pickle=True)
+    sz_grid_3 = np.load(config.OUTPUT + 'sz_grids/%s_sz_grid_PLW.npy' % (name), allow_pickle=True)
+    ys = np.load(config.OUTPUT + 'sz_grids/%s_ys_grid.npy' % name)
+    ts = np.load(config.OUTPUT + 'sz_grids/%s_ts_grid.npy' % name)
+    spec = np.load((config.OUTPUT + 'sz_grids/%s_spectrum_y.npy' % name), allow_pickle=True)
+    xaxis = np.load((config.OUTPUT + 'sz_grids/%s_spectrum_x.npy' % name), allow_pickle=True)
+    param_grid = np.load(config.OUTPUT + 'sz_grids/%s_y_t_grid.npy' % name, allow_pickle=True)
+    #this is a place holder right now, ys and ts values are getting saved over the weekend.
+    # ys = np.linspace(0, 12e-4, 5)
+    # ts = np.linspace(0, 30, 5)
+
+    #this is for calculating the bias once we have the simulations working currently not being used and not validated in anyway.
 
     # avg_dI = clus_sim_hist(nsim,name)
     # print('avg dI : ',avg_dI)
@@ -91,84 +190,172 @@ def clus_likelihood(nsim=0,name='rxj1347',samples=10):
     #     else :
     #         bias[i] = avg_dI[i] - input_yt[0].get(i)
     # print('bias in dI : ',bias[0],bias[1],bias[2])
+    # dI, x_pos, spectrum, xaxis = run_szpack('PLW', 0, ys[40], 0.3)
 
-    # save the sz spectrum output for this particular realization
-    for i in range(len(sz_grid_0)):
-        for j in range(len(sz_grid_0)):
-            plt.plot(xaxis[i,j],terp_y[i,j])
-            plt.scatter(terp_x_0[i,j],sz_grid_0[i,j],color='orange',label='500 Micron')
-            plt.scatter(terp_x_1[i,j],sz_grid_1[i,j],color='green',label='350 Micron')
-            plt.scatter(terp_x_2[i,j],sz_grid_2[i,j],color='purple',label='250 Micron')
-            plt.title('4 Band dI Fit for y: %.6f t: %.6f' %(ys[i],ts[j]))
-            plt.xlabel('Dimensionless Frequency')
-            plt.ylabel('$\Delta$I_0 [MJy/sr]')
-            plt.legend()
-            plt.ylim((-1.0,1.25))
-            plt.savefig('sz_spectrum_%s_%s.png' %(i,j))
-            plt.clf()
+    #create data structures to hold the chi_square values and the likelihood values.
+    like_li = np.zeros((len(ys),len(ts)))
+    chi_grid = np.zeros((len(ys), len(ts)))
 
-    # what is the critical p value ?
-    crit_p = chi2.ppf(q = 0.683, df = 2)
-    print('critical value 68.3% confidence :',crit_p)
-
-    # grab real sz fit params
-    # sz_fit_real = np.load(config.OUTPUT + '%s_fit.npy'%(name))
-    # print(sz_fit_real)
-
-    # retreive and separate all dI for each band and y/t pair
-    # subtract bias for each band
-
-    # make chi square test for each final sz amplitude
-    # use sz_fit_real for real DIs
-
-    # bias = 3*[0]
-    # PSW : FWHM = 18.0 "/pix
-    # Jy/beam -> MJy/sr = 115.888
-    # MJy/sr -> Jy/beam = 86.29E-4
-    # PMW : FWHM = 25.0 "/pix
-    # Jy/beam -> MJy/sr = 60.076
-    # MJy/sr -> Jy/beam = 16.65E-3
-    # PLW : FWHM = 36.0 "/pix
-    # Jy/beam -> MJy/sr = 28.972
-    # MJy/sr -> Jy/beam = 34.52E-3
-    maps, err = clus_get_data(name,nsim,verbose=1,sgen=None,nsim=nsim, testflag=0)
-
-    # bias[0] = 0.0058 * maps[0]['calfac']
-    # bias[1] = 0.0063 * maps[1]['calfac']
-    # bias[2] = 0.0068 * maps[2]['calfac']
-    # bias = [0.0058,0.0063,0.0068]
-
-    cen = len(sz_grid_0) - 1
-
-    like_li = np.zeros((samples,samples))
-    for i in range(samples) :
-        for j in range(samples) :
-        # chi_stat = chi_square_test([sz_fit_real[0][0],sz_fit_real[1][0],sz_fit_real[2][0]],
-        #                             [sz_grid[i].get(0),sz_grid[i].get(1),sz_grid[i].get(2)],
-        #                             [bias[0],bias[1],bias[2]])
-            chi_stat = chi_square_test([sz_grid_0[cen,cen],sz_grid_1[cen,cen],sz_grid_2[cen,cen]],
-                                        [sz_grid_0[i,j],sz_grid_1[i,j],sz_grid_2[i,j]],
-                                        [0.05,0.05,0.05])
-
-            like_li[i,j] = np.exp(chi_stat/-2.0)
-
+    df = len(data) - 1 #degrees of freedom
+    for i in range(len(ys)):
+        for j in range(len(ts)):
+            #calculate the chisquare value for each y, Te combination
+            chi_stat = chi_square_test(data, [sz_grid_0[i,j], sz_grid_2[i,j], sz_grid_3[i,j]], sigma)
+            chi_grid[i,j] = chi_stat
+            #calculate the likelihood from the chisquare value
+            # like_li[i,j] = ( chi_stat **(df/2 - 1) * np.exp(-1 * chi_stat/2) ) / (2 ** (df/2) * gamma(df / 2))
+            like_li[i,j] = np.exp(-1 * chi_stat )
+    #normalize the likelihood so that it sums to 1.
     like_norm = like_li / np.sum(like_li)
-    max_x, max_y = np.where(like_norm == np.amax(like_norm))
-    # like_max = like_norm[max_x[0],max_y[0]]
-    # compute likelihood function
 
-    center = [ys[max_x][0],ts[max_y][0]]
-    fig,ax = plt.subplots()
-    plt.pcolormesh(ys,ts,like_norm)
-    ax.scatter(center[0],center[1])
-    # conf = sum_confidence()
-    plt.colorbar().set_label('Normalized Likelihood')
+    #create data structures to hold y, Te likelihood values
+    y_likelihood = np.zeros(len(ys))
+    t_likelihood = np.zeros(len(ts))
 
-    # compute the 68.3% confidence contours
-    plt.xlabel('Compton Y')
-    plt.ylabel('Temperature [K]')
-    plt.savefig('likelihood.png')
+    #calculate the marginalized likelihood for the y, Te values.
+    for i in range(len(ys)):
+        y_likelihood = np.add(y_likelihood, like_norm[:, i])
+        t_likelihood = np.add(t_likelihood, like_norm[i, :])
+
+    # #pick out the most probable y and Te values
+    # y_max = np.where(y_likelihood == np.max(y_likelihood))
+    # t_max = np.where(t_likelihood == np.max(t_likelihood))
+    y_max, t_max = np.where(like_norm == np.max(like_norm))
+
+    print('Chi Square for best fit is %.5E' % chi_grid[y_max, t_max])
+    #find the confidence levels.
+    low_y, up_y = confidence_levels(y_likelihood)
+    low_t, up_t = confidence_levels(t_likelihood)
+
+
+    #convert to y_R2500
+    ys = np.multiply(ys, 0.163)
+
+    #create a meshgrid for contour / color map plots
+
+
+    matplotlib.rcParams.update({'font.size': 8})
+
+    #begin the process of creating plots !
+    fig, axs = plt.subplots(2, 2)
+
+    #y = 1.44e-4 (-0.065,+0.073), Te = 8.3 (-2.7,+2.9)
+    #print the best fits to screen !
+    print('best fit y: %.3E - %.3E / + %.3E' % (ys[y_max], ys[y_max] - ys[low_y], ys[up_y] - ys[y_max]))
+    print('best fit t: %.3E - %.3E / + %.3E' % (ts[t_max], ts[t_max] - ts[low_t], ts[up_t] - ts[t_max]))
+
+    # p, e = curve_fit(fit_func, ys, y_likelihood, p0=[0.0140, 1.44e-4, 1e-5])
+    # line = fit_func(ys, *p)
+    # delta_chi_square_test(data, sigma, ys[y_max], ts[t_max], ts[up_t])
+    # ys = np.multiply(ys, 1e-4)
+
+    ys = ys * 1e4
+    X, Y = np.meshgrid(ys, ts)
+
+    #plot the y_2500 histogram
+    # axs[0,0].plot(ys, line)
+    axs[0,0].plot(ys, y_likelihood)
+    axs[0,0].axvline(ys[y_max], linestyle='dashed')
+    axs[0,0].axvline(ys[low_y], linestyle='dotted')
+    axs[0,0].axvline(ys[up_y], linestyle='dotted')
+    axs[0,0].set_yticklabels([])
+    axs[0,0].set_xticklabels([])
+    axs[0,0].set_xlim(1.2, 2.4)
+    axs[0,0].set_ylim(0)
+    axs[0,0].set_ylabel('Relative Likelihood')
+
+    # plt.savefig(config.OUTPUT + 'y_T_fits/%s_ys_hist.png'%name)
+    # plt.clf()
+
+    # p, e = curve_fit(fit_func, ts, t_likelihood, p0=[0.0140, 8.5, 3])
+    # line = fit_func(ts, *p)
+    #plot the Te histogram
+    # axs[1,1].plot(line, ts)
+    axs[1,1].plot(t_likelihood, ts)
+    axs[1,1].axhline(ts[t_max], linestyle='dashed')
+    axs[1,1].axhline(ts[low_t], linestyle='dotted')
+    axs[1,1].axhline(ts[up_t], linestyle='dotted')
+    axs[1,1].set_yticklabels([])
+    axs[1,1].set_xticklabels([])
+    axs[1,1].set_xlabel('Relative Likelihood')
+    axs[1,1].set_xlim(0)
+    axs[1,1].set_ylim(0, 15)
+
+    # axs[1,0].savefig(config.OUTPUT + 'y_T_fits/%s_ts_hist.png'%name)
+    # plt.clf()
+
+    #we have to switch axes for plotting the likelihood maps
+    like_norm = np.swapaxes(like_norm, 0, 1)
+    chi_grid = np.swapaxes(chi_grid, 0, 1)
+
+    #plot the contour plot
+    axs[1,0].pcolormesh(X, Y, like_norm) #for displaying the underlying pdf
+    axs[1,0].set_xlabel('$<y>_{R2500} [\\times 10^{-4}]$')
+    axs[1,0].set_ylabel('$T_e$ [keV]')
+    # axs[1,0].ticklabel_format(axis='x', style='sci', scilimits=(-4,-4))
+
+    # axs[1,0].colorbar().set_label('Normalized Likelihood')
+    conf_interval = sum_confidence(like_norm)
+    axs[1,0].set_xlim(1.2,2.4)
+    axs[1,0].set_ylim(0, 15)
+    axs[1,0].contour(ys, ts, conf_interval, colors='gray')
+    axs[1,0].scatter(ys[y_max], ts[t_max], marker='x', color='black', s=40, label='Best Fit y, Te Pair')
+    axs[1,0].scatter(1.29, 9.47, marker='^', color='white', zorder=3, s=40, label='Sayers+2019 y, Te')
+    axs[1,0].legend()
+
+    #fixing layout
+    fig.subplots_adjust(left=0.125, bottom=0.1, right=0.9, top=0.9, wspace=0, hspace=0)
+    # plt.tight_layout()
+    fig.delaxes(axs[0,1])
+    fig.savefig(config.OUTPUT + 'y_T_fits/%s_y_T_analysis.png' % name)
     plt.clf()
 
+    # plt.pcolormesh(X, Y, like_li)
+    # plt.colorbar()
+    # plt.savefig(config.OUTPUT + 'y_T_fits/debug.png')
+    # plt.clf()
+
+    #below is more math to create the cannonical SZ spec at Te = 0
+    T_0     = 2.725                   #CMB temperature, K
+    k_B     = 1.3806503e-23           #Boltzmann constant, J/K
+    h       = 6.626068e-34            #Planck constant, J s
+    c       = 2.99792458e8            #m/s
+    GHztoHz = 1.0e9                   #GHz -> Hz
+    I = 2*((k_B*T_0)**3/(h*c)**2) * 10**(26) * 10**(-6)
+
+    v = (h/(k_B * T_0))*np.linspace(1*10**(9),1700*10**9,100)
+
+    #create the cannonical spectrum .
+    cannon_spec = thermal(v, I, ys[y_max] * 1e-4 / 0.163)
+
+    #convert from dimnesionless frequency to GHz.
+    cannon_x = np.multiply( T_0 * k_B / (h * 1e9), v)
+    best_x = np.multiply(T_0 * k_B / (h * 1e9), xaxis[y_max, t_max].flatten())
+
+    matplotlib.rcParams.update({'font.size': 10})
+    
+    data.append(psw[0])
+    sigma.append(psw[1])
+    #plot the best fitting spectrum with data points and the cannonical spectrum.
+    # plt.title('$<y>_{R2500}$ = %.3E, $T_e$ = %.3F kev' % (ys[y_max], ts[t_max]))
+    plt.plot(best_x,spec[y_max,t_max].flatten(), label='Best Fitting SZe Spectrum', alpha=0.8)
+    x_vals = [140.9, 829, 583, 1144.24]
+    plt.xlim(0, 1400)
+    plt.axhline(0, linestyle='dashed', color='black')
+    plt.errorbar(x_vals, data, yerr=sigma, linestyle='None', marker='o', markersize=2, color='black', zorder=3)
+    plt.plot(cannon_x, cannon_spec, linestyle='dashed', label='Non-Relativistic SZe Spectrum', color='blue', linewidth='0.8')
+    plt.legend(loc='best')
+    plt.xlabel('$\\nu$ [GHz]')
+    plt.ylabel('$\Delta$ $I_0$ [MJy/sr]')
+    # plt.set_position([0.7, 0.7, 0.95,0.95])
+    plt.savefig(config.OUTPUT + 'y_T_fits/%s_max_spectrum.png' % name)
+    plt.clf()
+    # make_comp_image(name)
+
+
+
+
 if __name__ == '__main__' :
-    clus_likelihood(nsim=0,name='rxj1347')
+
+    data, sigma, psw = create_test_data()
+    clus_likelihood(data, sigma, name='rxj1347',samples=100, psw=psw)

@@ -23,7 +23,7 @@ from get_spire_beam import *
 from get_spire_beam_fwhm import *
 import config
 import matplotlib.pyplot as plt
-sys.path.append('/home/bjv7945/rsz/Planck_Model')
+sys.path.append('/home/bjv7945/rsz/Planck_Model/')
 from cirrus_priors import one_map
 
 def clus_get_data(clusname, isim,manpath=0, resolution = 'nr', bolocam=None,
@@ -164,13 +164,14 @@ def clus_read_file(file, clusname, verbose=0, sgen=None):
         err = hdul[2] #error map
         exp = hdul[3] #exposure map
         mask = hdul[4] #mask map
+        noise = np.zeros((hdul[1].data.shape))
         #only do the below steps for real data.
-        planck, iris = one_map(name, map)
-        planck_hdu = fits.ImageHdu(planck, shead)
-        iris_hdu   = fits.ImageHdu(iris, shead)
+        planck, iris, avg_T, avg_beta, avg_tau, planck_head = one_map(clusname, img.header, band)
+        planck_hdu = fits.ImageHDU(planck, planck_head)
+        iris_hdu   = fits.ImageHDU(iris, img.header)
         hdul.append(planck_hdu)
         hdul.append(iris_hdu)
-        hdu.writeto(file, overwrite=True)
+        hdul.writeto(file, overwrite=True)
     elif int(sgen) == 3 :
         img = hdul['signal'] #image object
         err = hdul['error'] #error map
@@ -237,6 +238,7 @@ def clus_read_file(file, clusname, verbose=0, sgen=None):
           'xclean':xclean,
           'iris': iris,
           'planck': planck,
+          'plank_head': planck_head,
           'error':err.data,
           'mask':mask.data,
           'noise' : noise.data,
@@ -265,4 +267,4 @@ def mean(data):
     return average
 
 if __name__ == '__main__':
-    clus_get_data('a0370', nsim='197')
+    clus_get_data('a0370', isim='300')

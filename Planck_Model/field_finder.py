@@ -1,10 +1,24 @@
-config.PLANCKDATAimport sys
+################################################################################
+# NAME : ciruss_sims.py
+# DATE STARTED : Julu 20, 2020
+# AUTHORS : Benjamin Vaughan
+# PURPOSE : To create a data structure to implement into PCAT
+# EXPLANATION :
+# CALLING SEQUENCE :
+# INPUTS :
+#
+#
+# OUTPUTS :
+# REVISION HISTORY :
+################################################################################
+import sys
+sys.path.append('../utilities')
 from make_map import interp_back_to_ref, create_map
 from clus_get_data import *
 from astropy.io import fits
 import numpy as np
 from math_functions import *
-from utilities import *
+from planck_utilities import *
 from scipy.interpolate import griddata
 from astropy.wcs import WCS as world
 from astropy.wcs.utils import pixel_to_skycoord, skycoord_to_pixel
@@ -16,7 +30,7 @@ from astropy.coordinates import SkyCoord, Galactic
 from astropy.coordinates.representation import UnitSphericalRepresentation
 from scipy.interpolate import griddata
 from astropy.wcs.utils import pixel_to_skycoord, skycoord_to_pixel
-import planck_config
+import config
 
 class field_finder():
     def __init__(self, ref_head, nu, precision, step_size, nside, nsims):
@@ -31,10 +45,10 @@ class field_finder():
         self.precision = precision #accuracy for how close RMS of fields have to be
         self.step_size = step_size #Gaussian step size for the field search
         self.nside = nside #this is the nside for the cut out selector not the Planck maps
-        self.nsims = nsims - 1 #the number of sims to generate -1 since indexing starts at 0.
+        self.nsims = nsims #the number of sims to generate
         #Pull out reference Planck Field
         print('Reading in reference Planck Field.')
-        PSW_I_map, ra, dec =  create_map(ref_head, nu=self.nu)
+        PSW_I_map, ra, dec, f, b, c =  create_map(ref_head, nu=self.nu)
         self.rms_cond = round(np.sqrt(np.mean(PSW_I_map)), self.precision) #RMS conidition for 250 um
         self.sfb_comd = np.sum(PSW_I_map) #Surface Brightness Condition for 250 um
         print('Reference RMS: %.2E MJy / Sr.' % self.rms_cond)
@@ -61,7 +75,7 @@ class field_finder():
         self.field_search()
 
     def conditions(self, rms, id):
-        rms = round(rms, 2)
+        rms = round(rms, self.precision)
         if rms == self.rms_cond and id not in self.id_list:
             return True
         else:
@@ -141,6 +155,10 @@ class field_finder():
         # for i in range(10 - len(cirrus_sim_maps)): # -len(id_list) for the case that the first realization matched the conditions.
         self.while_loop(id, rms)
 
+        print(len(self.m_centers))
+        np.save(config.PLANCKDATA + 'Planck_Models/center_values.npy', self.m_centers, allow_pickle=True)
+
+
     def while_loop(self, id, rms):
         count = 0 #initialize a counter at 0 to keep track of number of iterations.
         while not self.conditions(rms, id):
@@ -162,56 +180,67 @@ class field_finder():
 
 
 def SPIRE_field_generator(maps):
-    centers = np.load('sim_images/center_values.npy', allow_pickle=True)
+    centers = np.load(config.PLANCKDATA + 'Planck_Models/center_values.npy', allow_pickle=True)
 
-    PSW, ra, dec = create_map(maps[0]['shead'], 1200e9)
-    PMW, ra, dec = create_map(maps[1]['shead'], 856e9)
-    PLW, ra, dec = create_map(maps[2]['shead'], 600e9)
+    PSW, ra, dec, f, b, c = create_map(maps[0]['shead'], 1200e9)
+    PMW, ra, dec, f, b, c = create_map(maps[1]['shead'], 856e9)
+    PLW, ra, dec, f, b, c = create_map(maps[2]['shead'], 600e9)
+
     phdu = fits.PrimaryHDU()
-    p250 = fits.ImageHDU(PSW, h250)
-    p350 = fits.ImageHDU(PMW, h350)
-    p500 = fits.ImageHDU(PLW, h500)
+    p250 = fits.ImageHDU(PSW / maps[0]['calfac'],  maps[0]['shead'])
+    p350 = fits.ImageHDU(PMW / maps[1]['calfac'],  maps[1]['shead'])
+    p500 = fits.ImageHDU(PLW / maps[2]['calfac'],  maps[2]['shead'])
 
-    hdul = fits.HDUList(phdu, p250, p350, p500)
-    hdul.writeto(config.PLANCKDATA + 'Planck_Models/' + maps[0]['name'] + '_Planck_real.fits')
-    # fig, axs = plt.subplots(1, 3)
-    #
-    # im1 = axs[0].imshow(PSW, origin='lower')
-    # fig.colorbar(im1, ax=axs[0])
-    # im2 = axs[1].imshow(PMW, origin='lower')
-    # fig.colorbar(im2, ax=axs[1])
-    # im3 = axs[2].imshow(PLW, origin='lower')
-    # fig.colorbar(im3, ax=axs[2])
-    # plt.tight_layout()
-    # plt.savefig('sim_images/rxj1347.png')
-    # plt.clf()
+    hdul = fits.HDUList([phdu, p250, p350, p500])
+    hdul.writeto('sim_images/' + maps[0]['name'] + '_Planck_real.fits', overwrite=True)
+
+
+    min250 = np.min(PSW) / 1.5
+    max250 = np.max(PSW) * 1.5
+    min350 = np.min(PMW) / 1.5
+    max350 = np.max(PMW) * 1.5
+    min500 = np.min(PLW) / 1.5
+    max500 = np.max(PLW) * 1.5
 
     c = 0
     for cent in centers:
-        h250 = interp_header(cent, maps[0]['shead'], 'Planck250', 'Jy/Beam')
-        h350 = interp_header(cent, maps[1]['shead'], 'Planck250', 'Jy/Beam')
-        h500 = interp_header(cent, maps[2]['shead'], 'Planck250', 'Jy/Beam')
+        unit = 'Jy/Beam'
 
-        PSW, ra, dec = create_map(h250, 1200e9)
-        PMW, ra, dec = create_map(h350, 856e9)
-        PLW, ra, dec = create_map(h500, 600e9)
+        #avg_T, avg_beta, avg_tau are the same for all three bands
+        PSW, ra, dec, avg_T, avg_beta, avg_tau = create_map(h250, 1200e9)
+        PMW, ra, dec, avg_T, avg_beta, avg_tau = create_map(h350, 856e9)
+        PLW, ra, dec, avg_T, avg_beta, avg_tau = create_map(h500, 600e9)
+
+        PSW_head = save_header(maps[0]['shead'], avg_b, avg_T, avg_tau, 'Planck250', unit, cent)
+        PMW_head = save_header(maps[1]['shead'], avg_b, avg_T, avg_tau, 'Planck350', unit, cent)
+        PLW_head = save_header(maps[2]['shead'], avg_b, avg_T, avg_tau, 'Planck500', unit, cent)
 
         phdu = fits.PrimaryHDU()
-        p250 = fits.ImageHDU(PSW, h250)
-        p350 = fits.ImageHDU(PMW, h350)
-        p500 = fits.ImageHDU(PLW, h500)
+        p250 = fits.ImageHDU(PSW / maps[0]['calfac'], h250)
+        p350 = fits.ImageHDU(PMW / maps[1]['calfac'], h350)
+        p500 = fits.ImageHDU(PLW / maps[2]['calfac'], h500)
 
-        hdul = fits.HDUList(phdu, p250, p350, p500)
-        hdul.writeto(config.PLANCKDATA + 'Planck_Models/' + maps[0]['name'] + '_Planck_sim_%s.fits' % c)
-        # fig, axs = plt.subplots(1, 3)
-        #
-        # im1 = axs[0].imshow(PSW, origin='lower')
-        # fig.colorbar(im1, ax=axs[0])
-        # im2 = axs[1].imshow(PMW, origin='lower')
-        # fig.colorbar(im2, ax=axs[1])
-        # im3 = axs[2].imshow(PLW, origin='lower')
-        # fig.colorbar(im3, ax=axs[2])
-        # plt.tight_layout()
-        # plt.savefig('sim_images/all_3_models_%s.png' % c)
-        # plt.clf()
+        hdul = fits.HDUList([phdu, p250, p350, p500])
+        hdul.writeto(config.PLANCKDATA + 'Planck_Models/'+ maps[0]['name'] + '_Planck_sim_%s.fits' % c, overwrite=True)
+
+        fig, axs = plt.subplots(1, 3)
+
+        im1 = axs[0].imshow(PSW, origin='lower', vmin=min250, vmax=max250)
+        fig.colorbar(im1, ax=axs[0])
+        im2 = axs[1].imshow(PMW, origin='lower', vmin=min350, vmax=max350)
+        fig.colorbar(im2, ax=axs[1])
+        im3 = axs[2].imshow(PLW, origin='lower', vmin=min500, vmax=max500)
+        fig.colorbar(im3, ax=axs[2])
+        plt.tight_layout()
+        plt.savefig(config.PLANCKDATA + 'Planck_Models/all_3_models_%s.png' % c)
+        plt.close(fig)
+        plt.clf()
         c += 1
+
+
+
+if __name__ == '__main__':
+    np.random.seed(0)
+    maps, err = clus_get_data('rxj1347', None)
+    field_finder(maps[0]['shead'], 1200e9, 1, 5000, 256, 100)
+    SPIRE_field_generator(maps)

@@ -22,10 +22,10 @@ def make_header(pixsize, naxis, ra, dec):
     Outputs : Header - a fits header object containing astrometry data
     '''
 
-    cd1_1 = -pixsize
+    cd1_1 = -pixsize / 3600.
     cd1_2 = 0
     cd2_1 = 0
-    cd2_2 = pixsize
+    cd2_2 = pixsize / 3600.
     crpix = [int(naxis[0] / 2 + 1), int(naxis[0] / 2 + 1)]
     crval1 = ra
     crval2 = dec

@@ -25,7 +25,9 @@ from astropy import units as u
 from astropy.coordinates import SkyCoord
 from scipy.interpolate import griddata
 from astropy.wcs.utils import pixel_to_skycoord, skycoord_to_pixel
-import planck_config
+import sys
+sys.path.append('../utilties')
+import config
 
 def create_map(ref_head, nu):
     '''
@@ -84,8 +86,11 @@ def create_map(ref_head, nu):
 
     interped_map, ragrd, decgrd = interp_back_to_ref(I_map, ra, dec, ref_head)
 
+    avg_T = np.mean(param_values[1])
+    avg_tau = np.mean(param_values[0])
+    avg_beta = np.mean(param_values[2])
 
-    return interped_map, ragrd, decgrd
+    return interped_map, ragrd, decgrd, avg_T, avg_beta, avg_tau
     # return interped_map
 
 def read_in_fits(filename, center, ref_head, ref_pixsize=8, ref_mapsize=260):

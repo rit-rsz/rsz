@@ -49,8 +49,8 @@ def mosaic(header, band=4, catname=iris_config.IrisLookupFile, dir=iris_config.I
         equinox = header['EPOCH']
 
 
-    x_size = header['NAXIS1']
-    y_size = header['NAXIS2']
+    x_size = header['NAXIS2']
+    y_size = header['NAXIS1']
     print('Handling %s elements' % (x_size * y_size))
     x = np.arange(0, x_size)
     y = np.arange(0, y_size)

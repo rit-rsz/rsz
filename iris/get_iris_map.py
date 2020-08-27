@@ -33,7 +33,7 @@ def get_iris(ii, dir='!ISRISDATA', band=4, hcon=0, verbose=1):
     files = []
     for x in os.listdir(dir):
         if iras_number in x and str(band) in x and str(hcon) in x:
-            files.append(dir + '/' + x)
+            files.append(dir + x)
     if len(files) > 0:
         hdul = fits.open(files[0])
 

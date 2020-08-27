@@ -11,7 +11,8 @@
 #
 # OUTPUTS :
 # REVISION HISTORY :
-################################################################################# from astropy.io import fits
+#################################################################################
+from astropy.io import fits
 import numpy as np
 from math import *
 import sys

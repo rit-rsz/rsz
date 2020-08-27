@@ -47,9 +47,9 @@ def histogram_test(binsize, k, Isim, clusname, band):
     weights = np.ones_like(Isim)/float(len(Isim))
     n, bins, patches = plt.hist(Isim, bins, histtype='step', weights=weights)
     y = [0, np.max(n)]
-    plt.plot(Ir, y, label='Real Data dI %.2E' % Ireal)
+    # plt.plot(Ir, y, label='Real Data dI %.2E' % Ireal)
     plt.plot(avg, y, label='Average dI %.2E' % average)
-    plt.xlim(-1.5,1.5)
+    plt.xlim(-0.1,0.1)
     plt.xlabel('I_0 (MJy/sr)')
     plt.ylabel('Probability (percent)')
     plt.title('I_0 for %s band: %s' % (clusname, band))

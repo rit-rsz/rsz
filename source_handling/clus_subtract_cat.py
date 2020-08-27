@@ -76,7 +76,8 @@ def clus_subtract_cat(maps, dI, nsim, sgen=None, verbose=1, saveplot=0, superplo
 
         if saveplot:
             if sgen != None:
-                filename = config.OUTPUT + 'pcat_residuals/' + maps[i]['name'] + '_resid_' + maps[i]['band'] + '_' + str(nsim) + '.png'
+                # filename = config.OUTPUT + 'pcat_residuals/' + maps[i]['name'] + '_resid_' + maps[i]['band'] + '_' + str(nsim) + '.png'
+                filename = '/home/vlb9398/data/new_pcat_resids/' + maps[i]['name'] + '_resid_' + maps[i]['band'] + '_' + str(nsim) + '.png'
             else:
                 filename = config.OUTPUT + 'pcat_residuals/' + maps[i]['name'] + '_resid_' + maps[i]['band'] + '_' + 'real.png'
 
@@ -88,7 +89,8 @@ def clus_subtract_cat(maps, dI, nsim, sgen=None, verbose=1, saveplot=0, superplo
 
         ''' For making hists for Jack '''
         hda = fits.PrimaryHDU(maps[i]['srcrm'],maps[i]['shead'])
-        hda.writeto(config.OUTPUT + 'pcat_residuals/' + maps[i]['name'] + '_resid_' + maps[i]['band'] + '_' + str(nsim) + '.fits',overwrite=True)
+        # hda.writeto(config.OUTPUT + 'pcat_residuals/' + maps[i]['name'] + '_resid_' + maps[i]['band'] + '_' + str(nsim) + '.fits',overwrite=True)
+        hda.writeto('/home/vlb9398/data/new_pcat_resids/' + maps[i]['name'] + '_resid_' + maps[i]['band'] + '_' + str(nsim) + '.fits',overwrite=True)
 
         # subtracting lensing template from resids
         # data_file = config.HOME + 'Lensing/lense_template_' + maps[i]['band'] + '.fits'

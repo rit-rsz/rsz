@@ -36,6 +36,7 @@ from clus_subtract_cat import *
 from clus_subtract_xcomps import *
 from clus_compute_rings import *
 from clus_fitsz import *
+from clus_new_fitsz import *
 from save_fitsz import *
 from save_final_im import *
 # from clus_make_bolo_mask import *
@@ -46,7 +47,7 @@ import argparse
 
 class Catsrc():
 
-    def __init__(self, clusname, isim=None, saveplot=1, maketf=0, sgen=None, verbose=1, resolution='nr', superplot=0, testflag=0, lense_only=0):
+    def __init__(self, clusname, isim=None, saveplot=1, maketf=0, sgen=None, verbose=1, resolution='nr', superplot=0, testflag=2, lense_only=0):
         """
         initializing function for catsrc class
         Purpose: read in arguments to be passed to functions in catsrc.
@@ -161,7 +162,7 @@ class Catsrc():
             print('Regressing and subtracting catalogs')
 
         # maps, err = clus_subtract_cat(self.maps, self.dI, self.nsim, sgen=self.sgen, verbose=self.verbose, saveplot=self.saveplot, superplot=self.superplot)
-        # err = None
+        err = None
 
         for i in range(3):
             self.maps[i]['srcrm'] = fits.getdata(config.OUTPUT + 'pcat_residuals/' + self.maps[i]['name'] + '_resid_' + self.maps[i]['band'] + '_' + str(self.nsim) + 'lense.fits')
@@ -169,17 +170,17 @@ class Catsrc():
             lense_model = fits.getdata(data_file)
             self.maps[i]['srcrm'] = self.maps[i]['srcrm'] - lense_model
 
-        if err:
-            if self.verbose:
-                print('clus_subtract_cat exited with error: ' + err)
-            exit()
+        # if err:
+        #     if self.verbose:
+        #         print('clus_subtract_cat exited with error: ' + err)
+        #     exit()
 
-        if self.verbose:
-            print('Generating residual source mask')
-
-        if not self.clusname:
-            if self.verbose:
-                print('Require a string array of cluster names as input, aborting!')
+        # if self.verbose:
+        #     print('Generating residual source mask')
+        #
+        # if not self.clusname:
+        #     if self.verbose:
+        #         print('Require a string array of cluster names as input, aborting!')
 
         #This is commented out because the function hasn't been made yet.
         #The idea is to use residual mask to do some manual masking, but we haven't
@@ -190,20 +191,20 @@ class Catsrc():
         #         print('clus_residual_mask exited with error: ' + err)
         #         exit()
 
-        if self.verbose:
-            print('Subtracting correlated components')
+        # if self.verbose:
+        #     print('Subtracting correlated components')
 
         # maps, err = clus_subtract_xcomps(maps, sgen=self.sgen, verbose=self.verbose, superplot=self.superplot, saveplot=self.saveplot, nsim=self.nsim)
 
-        if err:
-            if self.verbose:
-                print('clus_subtract_xcomps exited with error: ' + err)
-            exit()
+        # if err:
+        #     if self.verbose:
+        #         print('clus_subtract_xcomps exited with error: ' + err)
+        #     exit()
 
-        if self.verbose:
-            print('Saving processed images')
+        # if self.verbose:
+        #     print('Saving processed images')
 
-        self.maps = maps
+        # self.maps = maps
 
     def data_analysis(self):
         """
@@ -225,19 +226,19 @@ class Catsrc():
         # else:
         #     maxlim = 450
 
-        if self.lense_only == 0 :
-            fit = clus_new_fitsz(self.maps,saveplot=self.saveplot)
-            fit = np.asarray(fit)
-            increment = fit[:,0]
-            offsets = fit[:,1]
-            print('increment :',increment)
-            print('offsets :', offsets)
+        # if self.lense_only == 0 :
+        fit = clus_new_fitsz(self.maps,self.nsim,saveplot=self.saveplot)
+        fit = np.asarray(fit)
+        increment = fit[:,0]
+        offsets = fit[:,1]
+        print('increment :',increment)
+        print('offsets :', offsets)
 
-            err = save_fitsz(increment, offsets, radave, self.params, sgen=self.sgen, verbose=self.verbose, nsim=self.nsim)
-            if err:
-                if self.verbose:
-                    print('clus_save_szfits exited with error: ' + err)
-                exit()
+        err = save_fitsz(increment, offsets, self.params, sgen=self.sgen, verbose=self.verbose, nsim=self.nsim)
+        if err:
+            if self.verbose:
+                print('clus_save_szfits exited with error: ' + err)
+            exit()
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
